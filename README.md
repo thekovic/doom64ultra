@@ -2,14 +2,14 @@
 This is Immorpher's experimental branch of Doom 64 RE! Where new features are tested out and perhaps one day will be seen in the main branch. Here's Erick194's introduction to cover the rest! Welcome to the complete reverse engineering of Doom 64 by [GEC], this effort took about 1 year and a half although it had not advanced almost nothing, I restarted the whole process from June of this year, theoretically 5 months to complete it from scratch.
 
 ## Current Differences in Experimental
-### Nightmare Difficulty
+### Nightmare Difficulty Changes
 This version alters the new "Nightmare!" difficulty in a few ways. The reaction times of the monsters are randomly reduced, which means they sometimes will attack you without much warning. But they won't do this all of the time, just enough to put some anxiety in the player. Conversely the weapon switch speed in this mode is doubled and retains double ammo acount. So the mode is meant to put the player on edge but also also give the player all the needed tools for it to be a fair fight.
 
 ### Optimizations
 F3DEX rendering is replaced with the later F3DEX2 rendering. This should improve geometry calculations. Although this is not a major slowdown in Doom 64, it may result in a slightly more-stable frame rate and perhaps allow for more geometry in future custom maps. Also it is compiled with level 3 optimizations (O3), which improves code execution speed. In some code bases this can be unstable, but so far no issues have been found. Importantly compatibility with Doom 64 original demos are retained.
 
 ### New Display Menu Options
-The option to turn off the classic N64 3-point linear filtering has been moved from the "Features" cheat menu to the main "Display" menu. Playing without the linear filtering is my prefered way to play and it isn't really a cheat in my opinion. So I felt it belongs in the main game's "Display" menu. Also the default brightness has been set to "100", it's vanilla maximum. But you will see it is only half-way in the Brightness options. You can now increase the brightness beyond the original limits and importantly without over saturating.
+The option to turn off the classic N64 3-point linear filtering has been moved from the "Features" cheat menu to the main "Display" menu. Playing without the linear filtering is my prefered way to play and it isn't really a cheat in my opinion. So I felt it belongs in the main game's "Display" menu. Also the default brightness has been set to "100", it's vanilla maximum. But you will see it is only half-way in the Brightness options. You can now increase the brightness beyond the original limits and importantly without over saturating. Visually this does not magically remove the darkness, but I hope increases accessibility. As when Doom 64 was released a major complaint was that it was too dark (even on maximum), and on the 2020 release I have seen a lot of people using the additional brightness slider, so this brings a similar feature to the N64 compatible version.
 
 ### New Defaults
 As mentioned before the brightness has a new default setting, but the sound is also by default is set to the max. This is my preferred way to play as it's slightly louder than the ambient music. More interestingly there is an additional new defaul gamepad option. If you have a Retro Fighter's controller (or even the Hori or Super Pad 64) option 6 has my preffered layout.
@@ -60,6 +60,8 @@ Then go to the Makefile and remove the "#" from the following line (WESSLIB = #w
 
 Special thanks to my brothers for the help to the community in DoomWorld and Kaiser since he is the only one to see the progress of my work and helps me in several occasions.
 GEC Team Discord:  https://discord.gg/aEZD4Y7
+
+Immorpher's additional note! Whether obsessed or new to Doom 64, you're welcome on the Doom 64 discord: https://discord.gg/Ktxz8nz
 
 ## News
 * Features: SECURITY KEYS "locked from the original game, give all the keys available in the level"
