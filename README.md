@@ -3,7 +3,7 @@ This is Immorpher's experimental branch of Doom 64 RE! Where new features are te
 
 ## Current Differences in Experimental
 ### Nightmare Difficulty Changes
-This version alters the new "Nightmare!" difficulty in a few ways. The reaction times of the monsters are randomly reduced, which means they sometimes will attack you without much warning. But they won't do this all of the time, just enough to put some anxiety in the player. Conversely the weapon switch speed in this mode is doubled and retains double ammo acount. So the mode is meant to put the player on edge but also also give the player all the needed tools for it to be a fair fight.
+This version alters the new "Nightmare!" difficulty in a few ways. The reaction times of the monsters are randomly reduced, which means they sometimes will attack you without much warning. But they won't do this all of the time, just enough to put some anxiety in the player. Conversely the weapon switch speed in this mode is doubled and retains double ammo bonuses. So the mode is meant to put the player on edge but also also give the player all the needed tools for it to be a fair fight.
 
 ### Optimizations
 F3DEX rendering is replaced with the later F3DEX2 rendering. This should improve geometry calculations. Although this is not a major slowdown in Doom 64, it may result in a slightly more-stable frame rate and perhaps allow for more geometry in future custom maps. Also it is compiled with level 3 optimizations (O3), which improves code execution speed. In some code bases this can be unstable, but so far no issues have been found. Importantly compatibility with Doom 64 original demos are retained.
