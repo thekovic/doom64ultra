@@ -10,8 +10,8 @@ beginseg
 	stack bootStack + STACKSIZE
 	include "codesegment.o"
 	include "$(ROOT)/usr/lib/PR/rspboot.o"
-	include "$(ROOT)/usr/lib/PR/gspF3DEX.NoN.fifo.o"
-	include "$(ROOT)/usr/lib/PR/gspL3DEX.fifo.o"
+	include "$(ROOT)/usr/lib/PR/gspF3DEX2.NoN.fifo.o"
+	include "$(ROOT)/usr/lib/PR/gspL3DEX2.fifo.o"
 	include "$(ROOT)/usr/lib/PR/aspMain.o"
 endseg
 

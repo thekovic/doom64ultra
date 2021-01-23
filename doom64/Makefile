@@ -10,8 +10,8 @@ LOCAL = USA
 endif
 
 ifeq ($(FINAL), YES)
-	OPTIMIZER       = -O2
-	LCDEFS          = -DNDEBUG -D_FINALROM -DF3DEX_GBI
+	OPTIMIZER       = -O3
+	LCDEFS          = -DNDEBUG -D_FINALROM -DF3DEX_GBI_2
 ifeq ($(PLATFORM), BB)
 	N64LIB          = -lultra_rom
 else
@@ -19,7 +19,7 @@ else
 endif
 else
 	OPTIMIZER       = -g3
-	LCDEFS          = -DF3DEX_GBI -DDEBUG
+	LCDEFS          = -DF3DEX2_GBI_2 -DDEBUG
 ifeq ($(PLATFORM), BB)
 	N64LIB          = -lultra_d
 else

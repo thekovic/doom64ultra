@@ -72,7 +72,12 @@ boolean P_CheckMissileRange (mobj_t *actor) // 80010C10
 		actor->flags &= ~MF_JUSTHIT;
 		return true;
 	}
-
+	
+    if (gameskill == sk_nightmare && M_Random() << 16) // early attack on nightmare
+    {
+        return true;        /* super sneak attack mofo! */
+    }
+	
 	if (actor->reactiontime)
 		return false;		/* don't attack yet */
 

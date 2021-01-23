@@ -486,8 +486,8 @@ void AM_DrawLine(player_t *player) // 800014C8
     line_t *l;
     int i, color;
 
-    vid_task->t.ucode = (u64 *) gspL3DEX_fifoTextStart;
-    vid_task->t.ucode_data = (u64 *) gspL3DEX_fifoDataStart;
+    vid_task->t.ucode = (u64 *) gspL3DEX2_fifoTextStart;
+    vid_task->t.ucode_data = (u64 *) gspL3DEX2_fifoDataStart;
 
     gDPPipeSync(GFX1++);
     gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
@@ -497,10 +497,10 @@ void AM_DrawLine(player_t *player) // 800014C8
 
     // [GEC] New Cheat Codes
     if (player->cheats & CF_FILTER) {
-        gDPSetTextureFilter(GFX1++, G_TF_POINT); // <- Nearest texture
+        gDPSetTextureFilter(GFX1++, G_TF_POINT); // <- Nearest Texture Filtering
     }
     else {
-        gDPSetTextureFilter(GFX1++, G_TF_BILERP); // <- Bilinear texture
+        gDPSetTextureFilter(GFX1++, G_TF_BILERP); // <- Bilinear Texture Filtering
     }
 
     gDPSetRenderMode(GFX1++,G_RM_AA_XLU_LINE,G_RM_AA_XLU_LINE2);

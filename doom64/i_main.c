@@ -78,9 +78,9 @@ OSTask vid_rsptask[2] = // 8005A590
         NULL,                               /* task flags */
         (u64*) rspbootTextStart,            /* boot ucode pointer (fill in later) */
         0,                                  /* boot ucode size (fill in later) */
-        (u64*) gspF3DEX_NoN_fifoTextStart,  /* task ucode pointer (fill in later) */
+        (u64*) gspF3DEX2_NoN_fifoTextStart,  /* task ucode pointer (fill in later) */
         SP_UCODE_SIZE,                      /* task ucode size */
-        (u64*) gspF3DEX_NoN_fifoDataStart,  /* task ucode data pointer (fill in later) */
+        (u64*) gspF3DEX2_NoN_fifoDataStart,  /* task ucode data pointer (fill in later) */
         SP_UCODE_DATA_SIZE,                 /* task ucode data size */
         &sys_rcp_stack[0],                  /* task dram stack pointer */
         SP_DRAM_STACK_SIZE8,                /* task dram stack size */
@@ -96,9 +96,9 @@ OSTask vid_rsptask[2] = // 8005A590
         NULL,                               /* task flags */
         (u64*) rspbootTextStart,            /* boot ucode pointer (fill in later) */
         0,                                  /* boot ucode size (fill in later) */
-        (u64*) gspF3DEX_NoN_fifoTextStart,  /* task ucode pointer (fill in later) */
+        (u64*) gspF3DEX2_NoN_fifoTextStart,  /* task ucode pointer (fill in later) */
         SP_UCODE_SIZE,                      /* task ucode size */
-        (u64*) gspF3DEX_NoN_fifoDataStart,  /* task ucode data pointer (fill in later) */
+        (u64*) gspF3DEX2_NoN_fifoDataStart,  /* task ucode data pointer (fill in later) */
         SP_UCODE_DATA_SIZE,                 /* task ucode data size */
         &sys_rcp_stack[0],                  /* task dram stack pointer */
         SP_DRAM_STACK_SIZE8,                /* task dram stack size */
@@ -743,8 +743,8 @@ void I_ClearFrame(void) // 8000637C
 
     vid_task = &vid_rsptask[vid_side];
 
-    vid_task->t.ucode = (u64 *) gspF3DEX_NoN_fifoTextStart;
-    vid_task->t.ucode_data = (u64 *) gspF3DEX_NoN_fifoDataStart;
+    vid_task->t.ucode = (u64 *) gspF3DEX2_NoN_fifoTextStart;
+    vid_task->t.ucode_data = (u64 *) gspF3DEX2_NoN_fifoDataStart;
 
     gMoveWd(GFX1++, G_MW_SEGMENT, G_MWO_SEGMENT_0, 0);
 

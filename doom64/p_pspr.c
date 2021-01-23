@@ -555,7 +555,14 @@ void A_CheckReload(player_t *player, pspdef_t *psp) // 8001B9A0
 
 void A_Lower (player_t *player, pspdef_t *psp) // 8001B9C0
 {
-	psp->sy += LOWERSPEED;
+	if (gameskill == sk_nightmare) // double weapon lower speed on nightmare
+	{
+		psp->sy += 2*LOWERSPEED;
+	}
+	else
+	{
+		psp->sy += LOWERSPEED;
+	}
 	if (psp->sy < WEAPONBOTTOM )
 		return;
 
@@ -603,8 +610,15 @@ void A_Lower (player_t *player, pspdef_t *psp) // 8001B9C0
 void A_Raise (player_t *player, pspdef_t *psp) // 8001BA84
 {
 	statenum_t	new;
-
-	psp->sy -= RAISESPEED;
+	
+	if (gameskill == sk_nightmare) // double weapon raise speed on nightmare
+	{
+		psp->sy -= 2*RAISESPEED;
+	}
+	else
+	{
+		psp->sy -= RAISESPEED;
+	}
 
 	if (psp->sy > WEAPONTOP )
 		return;

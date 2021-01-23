@@ -80,7 +80,7 @@ char *ControlText[] =   //8007517C
 
 #define M_TXT48 "COLORS"     // [GEC] NEW CHEAT CODE
 #define M_TXT49 "FULL BRIGHT"   // [GEC] NEW CHEAT CODE
-#define M_TXT50 "FILTER"   // [GEC] NEW CHEAT CODE
+#define M_TXT50 "Filter:"   // [GEC] New video filter option
 
 char *MenuText[] =   // 8005ABA0
 {
@@ -144,14 +144,15 @@ menuitem_t Menu_ControlStick[3] = // 8005AA38
     {  6, 102, 150},    // Return
 };
 
-menuitem_t Menu_Display[6] = // 8005AA5C
+menuitem_t Menu_Display[7] = // 8005AA5C
 {
     {  9, 102, 60 },    // Brightness
     { 32, 102, 100},    // Center Display
     { 33, 102, 120},    // Messages
     { 34, 102, 140},    // Status Bar
-    { 13, 102, 160},    // Default Display
-    {  6, 102, 180},    // Return
+    { 50, 102, 160},    // Video Filter
+    { 13, 102, 180},    // Default Display
+    {  6, 102, 200},    // Return
 };
 
 menuitem_t Menu_Game[4] = // 8005AAA4
@@ -196,7 +197,7 @@ menuitem_t Menu_CreateNote[3] = // 8005AB40
 
 //#define MAXFEATURES 5
 //#define MAXFEATURES 9
-#define MAXFEATURES 12
+#define MAXFEATURES 11
 menuitem_t Menu_Features[MAXFEATURES] = // 8005AB64
 {
     { 23, 40, 50},      // WARP TO LEVEL
@@ -212,7 +213,6 @@ menuitem_t Menu_Features[MAXFEATURES] = // 8005AB64
     //
     { 48, 40, 140},      // COLORS [GEC] NEW CHEAT CODE
     { 49, 40, 150},      // FULL BRIGHT [GEC] NEW CHEAT CODE
-    { 50, 40, 160},      // FILTER [GEC] NEW CHEAT CODE
 
     // no usados
 //#define M_TXT26 "SECURITY KEYS"
@@ -255,9 +255,10 @@ int Display_X = 0;              // 8005A7B0
 int Display_Y = 0;              // 8005A7B4
 boolean enable_messages = true; // 8005A7B8
 boolean enable_statusbar = true;// 8005A7BC
-int SfxVolume = 80;             // 8005A7C0
+boolean enable_filter = true; // new feature
+int SfxVolume = 100;             // 8005A7C0
 int MusVolume = 80;             // 8005A7C4
-int brightness = 0;             // 8005A7C8
+int brightness = 100;             // 8005A7C8
 int M_SENSITIVITY = 0;          // 8005A7CC
 boolean FeaturesUnlocked = false; // 8005A7D0
 
@@ -276,7 +277,7 @@ int ActualConfiguration[13] = // 8005A840
     PAD_L_TRIG, PAD_R_TRIG, PAD_A, PAD_B
 };
 
-int DefaultConfiguration[5][13] = // 8005A840
+int DefaultConfiguration[6][13] = // 8005A840
 {
     // Default 1
     {
@@ -323,6 +324,14 @@ int DefaultConfiguration[5][13] = // 8005A840
         PAD_A, PAD_RIGHT_C, PAD_UP_C, PAD_DOWN_C,
         PAD_Z_TRIG, PAD_L_TRIG, PAD_R_TRIG,
         PAD_B, PAD_LEFT_C
+    },
+	
+	// Default 6 - New Immorpher's Retro Fighter Controller
+    {
+        PAD_RIGHT, PAD_LEFT, PAD_UP_C, PAD_DOWN_C,
+        PAD_Z_TRIG,
+        PAD_B, PAD_A, PAD_UP, PAD_DOWN,
+        PAD_LEFT_C, PAD_RIGHT_C, PAD_L_TRIG, PAD_R_TRIG
     }
 };
 
@@ -736,7 +745,7 @@ int M_MenuTicker(void) // 80007E0C
                         M_SaveMenuData();
 
                         MenuItem = Menu_Display;
-                        itemlines = 6;
+                        itemlines = 7;
                         MenuCall = M_DisplayDrawer;
                         cursorpos = 0;
 
@@ -916,8 +925,8 @@ int M_MenuTicker(void) // 80007E0C
                 case 9: // Brightness
                     if (buttons & PAD_RIGHT)
                     {
-                        brightness += 1;
-                        if (brightness <= 100)
+                        brightness += 2; // increments doubled for scroll speed
+                        if (brightness <= 200) // limit extended to 200 from 100 for an optional brightness boost
                         {
                             P_RefreshBrightness();
                             if (brightness & 1)
@@ -928,12 +937,12 @@ int M_MenuTicker(void) // 80007E0C
                         }
                         else
                         {
-                            brightness = 100;
+                            brightness = 200; // new limit is 200 instead of 100
                         }
                     }
                     else if (buttons & PAD_LEFT)
                     {
-                        brightness -= 1;
+                        brightness -= 2; // decrement speed doubled
                         if (brightness < 0)
                         {
                             brightness = 0;
@@ -1476,9 +1485,10 @@ int M_MenuTicker(void) // 80007E0C
                     }
                     break;
 
-                case 50: // FILTER [GEC] NEW CHEAT CODE
+                case 50: // FILTER [GEC] new code in display menu now
                     if (truebuttons)
                     {
+						enable_filter ^= true;
                         players[0].cheats ^= CF_FILTER;
                         gobalcheats ^= CF_FILTER;
                         S_StartSound(NULL, sfx_switch2);
@@ -1624,10 +1634,6 @@ void M_FeaturesDrawer(void) // 800091C0
                 text = (!(players[0].cheats & CF_FULLBRIGHT)) ? "OFF": "ON";
                 break;
 
-            case 50: /* FILTER */
-                text = (!(players[0].cheats & CF_FILTER)) ? "LINEAR": "NEAREST";
-                break;
-
             default:
                 text = "NOT IMPLEMENTED";
                 break;
@@ -1694,7 +1700,7 @@ void M_DisplayDrawer(void) // 80009884
 
     item = Menu_Display;
 
-    for(i = 0; i < 6; i++)
+    for(i = 0; i < 7; i++)
     {
         casepos = item->casepos;
 
@@ -1708,6 +1714,13 @@ void M_DisplayDrawer(void) // 80009884
         else if (casepos == 34) // Status Bar:
         {
             if (enable_statusbar)
+                text = "On";
+            else
+                text = "Off";
+        }
+        else if (casepos == 50) // New video filter
+        {
+            if (enable_filter)
                 text = "On";
             else
                 text = "Off";
@@ -1726,7 +1739,7 @@ void M_DisplayDrawer(void) // 80009884
     }
 
     ST_DrawSymbol(102, 80, 68, text_alpha | 0xffffff00);
-    ST_DrawSymbol(brightness + 103, 80, 69, text_alpha | 0xffffff00);
+    ST_DrawSymbol(brightness/2 + 103, 80, 69, text_alpha | 0xffffff00);
 
     ST_DrawSymbol(Menu_Display[0].x - 37, Menu_Display[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 }
@@ -2558,7 +2571,7 @@ int M_ControlPadTicker(void) // 8000B694
                     if (buttons & (PAD_DOWN|PAD_RIGHT))
                     {
                         ConfgNumb += 1;
-                        if(ConfgNumb > 4)
+                        if(ConfgNumb > 5)
                             ConfgNumb = 0;
                     }
                 }
@@ -2566,7 +2579,7 @@ int M_ControlPadTicker(void) // 8000B694
                 {
                     ConfgNumb -= 1;
                     if (ConfgNumb < 0)
-                        ConfgNumb = 4;
+                        ConfgNumb = 5;
                 }
 
                 if ((buttons & (ALL_BUTTONS|ALL_JPAD)) != 0)
