@@ -1,6 +1,18 @@
-# DOOM64-RE
+# DOOM64-RE-EXPERIMENTAL
+This is Immorpher's experimental branch of Doom 64 RE! Where new features are tested out and perhaps one day will be seen in the main branch. Here's Erick194's introduction to cover the rest! Welcome to the complete reverse engineering of Doom 64 by [GEC], this effort took about 1 year and a half although it had not advanced almost nothing, I restarted the whole process from June of this year, theoretically 5 months to complete it from scratch.
 
-Welcome to the complete reverse engineering of Doom 64 by [GEC], this effort took about 1 year and a half although it had not advanced almost nothing, I restarted the whole process from June of this year, theoretically 5 months to complete it from scratch.
+## Current Differences in Experimental
+### Nightmare Difficulty
+This version alters the new "Nightmare!" difficulty in a few ways. The reaction times of the monsters are randomly reduced, which means they sometimes will attack you without much warning. But they won't do this all of the time, just enough to put some anxiety in the player. Conversely the weapon switch speed in this mode is doubled and retains double ammo acount. So the mode is meant to put the player on edge but also also give the player all the needed tools for it to be a fair fight.
+
+### Optimizations
+F3DEX rendering is replaced with the later F3DEX2 rendering. This should improve geometry calculations. Although this is not a major slowdown in Doom 64, it may result in a slightly more-stable frame rate and perhaps allow for more geometry in future custom maps. Also it is compiled with level 3 optimizations (O3), which improves code execution speed. In some code bases this can be unstable, but so far no issues have been found. Importantly compatibility with Doom 64 original demos are retained.
+
+### New Display Menu Options
+The option to turn off the classic N64 3-point linear filtering has been moved from the "Features" cheat menu to the main "Display" menu. Playing without the linear filtering is my prefered way to play and it isn't really a cheat in my opinion. So I felt it belongs in the main game's "Display" menu. Also the default brightness has been set to "100", it's vanilla maximum. But you will see it is only half-way in the Brightness options. You can now increase the brightness beyond the original limits and importantly without over saturating.
+
+### New Defaults
+As mentioned before the brightness has a new default setting, but the sound is also by default is set to the max. This is my preferred way to play as it's slightly louder than the ambient music. More interestingly there is an additional new defaul gamepad option. If you have a Retro Fighter's controller (or even the Hori or Super Pad 64) option 6 has my preffered layout.
 
 ## Installation
 
