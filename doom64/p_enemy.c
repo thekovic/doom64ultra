@@ -527,6 +527,8 @@ void A_Chase (mobj_t *actor) // 8001146C
 		P_SetMobjState (actor, actor->info->missilestate);
 		if (gameskill != sk_nightmare)
 			actor->flags |= MF_JUSTATTACKED;
+		else if (M_Random() << 16) // slim chance in nightmare mode to break attack for unpredictability
+			actor->flags |= MF_JUSTATTACKED;
 		return;
 	}
 	#else

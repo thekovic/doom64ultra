@@ -684,6 +684,10 @@ void P_SetLightFactor(int lightfactor) // 8000F458
     int h, s, v;
     int factor;
     int i;
+	int inframorph; // new test for infrared full bright
+	float inframorph_r; // test red
+	float inframorph_g; // test green
+	float inframorph_b; // test blue
 
     maplight = maplights;
     light = lights;
@@ -735,7 +739,7 @@ void P_SetLightFactor(int lightfactor) // 8000F458
             base_g = i;
             base_b = i;*/
         }
-
+			
         // [GEC] New Cheat Codes
         if (players[0].cheats & CF_FULLBRIGHT)
         {
@@ -749,6 +753,25 @@ void P_SetLightFactor(int lightfactor) // 8000F458
             base_g = v & 255;
             base_b = v & 255;
         }
+		
+		// new infrared, first find max
+		if (infraredFactor == 300) {
+			if(base_r >= base_g && base_r >= base_b){
+				inframorph = base_r;
+			} else if(base_g >= base_b && base_g >= base_r) {
+				inframorph = base_g;
+			} else{   
+				inframorph = base_b;
+			}
+			
+			inframorph = (255 - inframorph)/15; // modulate amount of additional brightness
+			base_r = base_r + inframorph; // renormalize red
+			base_g = base_g + inframorph; // renormalize green
+			base_b = base_b + inframorph; // renormalize blue
+
+		}
+		
+		
 
         light->rgba = PACKRGBA(base_r, base_g, base_b, 255);
         light++;
