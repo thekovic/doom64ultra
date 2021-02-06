@@ -1,4 +1,4 @@
-Merciless Edition is a fork of Doom 64 RE where new features are implemented with the goal of maintaining Nintendo 64 hardware and vanilla gameplay compatibility. Here Doom 64 RE is a complete reverse engineering of Doom 64 by Erick194, which has provided the pathway to allow such modifications.
+Merciless Edition is a fork of Doom 64 RE where new features are implemented with the goal of maintaining Nintendo 64 hardware and vanilla gameplay compatibility. Here Doom 64 RE is a complete reverse engineering of Doom 64 by Erick194, which has provided the pathway to achieve such modifications.
 
 ## Current Differences from Doom 64 RE
 ### "Be Merciless!" Difficulty
