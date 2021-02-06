@@ -1,76 +1,59 @@
-# DOOM64-RE-EXPERIMENTAL
-This is Immorpher's experimental branch of Doom 64 RE! Where new features are tested out and perhaps one day will be seen in the main branch. Here's Erick194's introduction to cover the rest! Welcome to the complete reverse engineering of Doom 64 by [GEC], this effort took about 1 year and a half although it had not advanced almost nothing, I restarted the whole process from June of this year, theoretically 5 months to complete it from scratch.
+Merciless Edition is a fork of Doom 64 RE where new features are implemented with the goal of maintaining Nintendo 64 hardware and vanilla gameplay compatibility. Here Doom 64 RE is a complete reverse engineering of Doom 64 by Erick194, which has provided the pathway to allow such modifications.
 
-## Current Differences in Experimental
-### Nightmare Difficulty Changes
-This version alters the new "Nightmare!" difficulty in a few ways. The reaction times of the monsters are randomly reduced, which means they sometimes will attack you without much warning. But they won't do this all of the time, just enough to put some anxiety in the player. Conversely the weapon switch speed in this mode is doubled and retains double ammo bonuses. Also instead of endlessly attacking the player, there is a random chance for the enemy to stop, adding a bit more unpredictability and perhaps fairness. So the mode is meant to put the player on edge but also also give the player all the needed tools for it to be a winnable fight.
+## Current Differences from Doom 64 RE
+### "Be Merciless!" Difficulty
+The “Be Merciless!” difficulty setting combines the “Nightmare!” mode newly introduced in Doom 64 RE and with many additional tweaks. As opposed to emulating the difficulties of other Doom 64 ports, it is now an experience focused on brutal action. Enemies are more aggressive, unpredictable, faster, and agile. However, the ammo bonuses are doubled and the weapon switching is faster. Overall, it is a more violent experience which may appeal to fans of the newer iterations of the Doom series.
 
 ### Optimizations
-F3DEX rendering is replaced with the later F3DEX2 rendering. This should improve geometry calculations. Although this is not a major slowdown in Doom 64, it may result in a slightly more-stable frame rate and perhaps allow for more geometry in future custom maps. Also it is compiled with level 3 optimizations (O3), which improves code execution speed. In some code bases this can be unstable, but so far no issues have been found. Importantly compatibility with Doom 64 original demos are retained.
+F3DEX rendering is replaced with the later F3DEX2 rendering. This should improve geometry calculations. Although this is not a major slowdown in Doom 64, it may result in a slightly more-stable frame rate and perhaps allow for more geometry in future custom maps. Further it is compiled with level 3 optimizations (O3), which improves code execution speed. In some code bases this can be unstable, but so far no issues have been found. Importantly compatibility with the original Doom 64 demos are retained.
 
-### New Display Menu Options
-The option to turn off the classic N64 3-point linear filtering has been moved from the "Features" cheat menu to the main "Display" menu. Playing without the linear filtering is my prefered way to play and it isn't really a cheat in my opinion. So I felt it belongs in the main game's "Display" menu. Also the default brightness has been set to "100", it's vanilla maximum. But you will see it is only half-way in the Brightness options. You can now increase the brightness beyond the original limits and importantly without over saturating. Visually this does not magically remove the darkness, but I hope increases accessibility. As when Doom 64 was released a major complaint was that it was too dark (even on maximum), and on the 2020 release I have seen a lot of people using the additional brightness slider, so this brings a similar feature to the N64 compatible version.
+### Video Menu Options
+The option to turn off the classic N64 3-point linear filtering has been moved from the "Features" cheat menu in Doom 64 RE, to the main "Video" menu in the options. This allows it to be accessible without beating "Hectic" or using a pass code. Doom 64 is known for being a particularly dark. Even at maximum brightness many screens still struggle with it. Now the brightness option for Doom 64 has been extended. By default, this version sets the brightness to the original maximum value. However it now can be extended even beyond that by twice without oversaturating the screen. There are also new video options which utilize the Nintendo 64 hardware features, such as anti-aliasing, video dithering, and color dithering. Some combinations have a nicely retro look!
+
+### Display Menu Options
+Many players have expressed motion sickness when playing Doom 64. There is an overall swaying motion which happens when the player is moving. This also causes the weapon to bob up and down which may be making some players sick. Now in the “Display” menu there is a slider which can reduce this bobbing motion to the point of being turned off. 
 
 ### Infrared Goggles Improvement
-With the new brightness setting, the infrared goggles have a less noticeable effect. Their utility was under question anyway as they only appear in two main game levels. However, now they have an overall boost to the gradient lighting without altering saturated colors. It is similar to the classic Doom's infrared goggles without the blinding brightness. I think it now strikes a good balance of utility and aesthetics. Perhaps for future custom maps it will find a purpose.
+With the new brightness setting, the infrared goggles have a less noticeable effect. Their utility was under question anyway as they only appear in two main game levels. However, now they have an overall boost to the gradient lighting without altering saturated colors. It is similar to the classic Doom's infrared goggles without the blinding brightness. The goal is to balance utility and aesthetics, which may be useful in the future.
 
-### New Defaults
-As mentioned before the brightness has a new default setting, but the sound is also by default is set to the max. This is my preferred way to play as it's slightly louder than the ambient music. More interestingly there is an additional new defaul gamepad option. If you have a Retro Fighter's controller (or even the Hori or Super Pad 64) option 6 has my preffered layout.
+### Other New Default Options
+As mentioned the brightness has a new default setting, but also the sound volume default has been set to the maximum. This sets it slightly louder than the ambient music. Further, to honor Retro Fighter’s commitment to continuously improving their N64 controller designs, there is a new default option in the “Game Pad” menu. For controllers where all of the N64 buttons are accessible in one position, like the Retro Fighters controller, variants of the Super Pad 64, or the Hori controller, then the new “Retro Fighters” option might be the optimal layout.
+
+## Doom 64 RE Features Menu Additions
+SECURITY KEYS: Inaccessible in the original game, this will give you all the keys available in the level.
+WALL BLOCKING: Inaccessible in the original game, this will allow you to walk through walls.
+LOCK MONSTERS: Inaccessible in the original game, stops the movement of enemies.
+MUSIC TEST: Inaccessible in the original game, you can test all of the music in the game.
+COLORS: Added by Erick194, this turns off the colored lighting in the game.
+FULL BRIGHT: Added by Erick194, all sectors will be at maximum brightness.
+FILTER: Added by Erick194, this activates and deactivates the 3-point linear filter. This has been moved to the "Video" menu by Immorpher.
 
 ## Installation
+Here is an edited version of Erick194's installation instructions.
 
-You need to download and install the N64 SDK: https://mega.nz/#!AOYDkSxA!MuAqt8iRBk0GGbaqaXVYB9tfZxsquKg5QkbCRL3VOLM
-You can also go to this link if it is of your own interest https://n64.dev/
+You need to download and install the N64 SDK as assembled by Crash Override at this link: https://n64.dev/
 
-To compile it is required to use Windows XP, you can also use virtual machine for such purposes
+These tools require Windows XP, where a virtual machine such as Oracle's Virtual Box might be of use: https://www.virtualbox.org/
 
-Once the N64SDK is installed, copy the "doom64" folder to the root "C:" of your hard drive.
+Once the N64SDK is installed, copy the "doom64" folder to the root "C:" of the hard drive.
 
-For now it is compatible with the USA version of Doom 64.
-Of course, before compiling you need the data of the original Doom64 (DOOM64.WAD | DOOM64.WMD | DOOM64.WSD | DOOM64.WDD).
-To obtain them, go to the Tools folder and extract the content of the Doom64Extractor.zip file, "source code included".
-Edit the file ExtraerDatos.bat and you change the text "Doom 64 (Usa) .z64" by the name of the rom you have, it is very important that it is in "z64" format later you execute the file ExtraerDatos.bat and copy the extracted data in the folder "Data".
-If you can't get the rom in "z64" format there is a file in the Tools folder that is Tool64_v1.11.zip extract them and you can convert the "n64 and v64" formats to "z64".
-Finally you run the MAKE_ROM.bat file to compile and obtain a file called doom64.n64
+The data extractor utility requires the USA version of Doom 64 1.0 and runs on modern Windows (such as Windows 10). Before attempting to compile, you need to copy the data of the original Doom64 (DOOM64.WAD | DOOM64.WMD | DOOM64.WSD | DOOM64.WDD) from the extractor to the data folder. To obtain them, go to the "Tools" folder and extract the content of the "Doom64Extractor.zip" file (which includes the source code). Edit the file "ExtraerDatos.bat" and change the text "Doom 64 (Usa) .z64" by the name of the rom you have, where it is important that it is in "z64" format. Then execute the file "ExtraerDatos.bat" and copy the extracted data in the folder "Data". If you can't get the rom in "z64" format there is a file in the "Tools" folder that is "Tool64_v1.11.zip" which can convert the "n64 and v64" formats to "z64".
+Finally run the "MAKE_ROM.bat" file to compile which generates the Doom 64 rom as "doom64.n64".
 
 ## iQue Installation
-
 You need to download and install the iQue SDK: https://ultra64.ca/resources/software/
 
-To compile it is required to use Red Hat Linux 9, you can also use virtual machine for such purposes
+Red Hat Linux 9 is required for compilation, where a virtual machine as mentioned previously might be of use. Once the iQue SDK is installed, copy the "doom64" folder to the home folder.
 
-Once the iQue SDK is installed, copy the "doom64" folder to your home folder.
-
-For now it is compatible with the USA version of Doom 64.
-
-Of course, before compiling you need the data of the original Doom64 (DOOM64.WAD | DOOM64.WMD | DOOM64.WSD | DOOM64.WDD).
-To obtain them, go to the Tools folder and compile the Doom64 Extractor (instructions in dm64ex.cpp)
-Then extract your rom ``./dm64ex -i baserom.us.z64`` 
-The romname is an example, however it must be in .z64.
-
-Then copy the extracted data to "Data" folder, then cd to the main doom64 folder and run make:
-
-``make PLATFORM=BB``
-
-Your ROM will be in doom64.n64, and can be ran on your iQue.
+The data extractor utility requires the USA version of Doom 64 1.0 as before in the "z64" format. To obtain this utility, go to the "Tools" folder and compile the Doom64 Extractor (instructions in dm64ex.cpp). Then use this command to extract the data of the rom "./dm64ex -i baserom.us.z64". Then copy the extracted data to "Data" folder, and change directory to the main doom64 folder awhere you can use the make command: "make PLATFORM=BB". The ROM will appear as "doom64.n64", and can be ran on the iQue.
 
 ## Notes
-The project was created with CodeBlocks, although it does not serve to compile, but to have the code in order and verification.
+Erick194 created this project with CodeBlocks for the purposes of organization rather than compilation. Immorpher used Notepad++ to make code updates.
 
-You can also use the WESSLIB.o from the original Mortal Kombat Trilogy n64 and not use the code rebuilt by me.
-For this go to the file "wessarc.h" and remove the slashes from the text "//#define NOUSEWESSCODE" it should look like this "#define NOUSEWESSCODE".
-Then go to the Makefile and remove the "#" from the following line (WESSLIB = #wesslib.o) it should look like this (WESSLIB = wesslib.o) and I added the "#" in the following line (ASMFILES = wessint_s.s) it should look like this (ASMFILES = #wessint_s.s) and you proceed to compile the Rom.
+Interestingly, you can also use the WESSLIB.o from the original Mortal Kombat Trilogy on the Nintendo 64 as opposed to the rebuilt code here. For this go to the file "wessarc.h" and remove the slashes from the text "//#define NOUSEWESSCODE". Then go to the Makefile and remove the "#" from the following line "WESSLIB = #wesslib.o". Then add "#" in the following line "ASMFILES = wessint_s.s" to make it into "ASMFILES = #wessint_s.s". Now you can compile the Rom.
 
-Special thanks to my brothers for the help to the community in DoomWorld and Kaiser since he is the only one to see the progress of my work and helps me in several occasions.
+Erick194 gives special thanks to his brothers for help, the Doomworld community, and Kaiser for assistance and looking over the progress. Immorpher would like to thank Erick194, Kaiser, and Quasar for their years in effort in the Doom community. Further, Immorpher would like to thank CrashOveride, Buu343, and Elfor for their assitance in the Nintendo 64 community.
+
 GEC Team Discord:  https://discord.gg/aEZD4Y7
 
-Immorpher's additional note! Whether obsessed or new to Doom 64, you're welcome on the Doom 64 discord: https://discord.gg/Ktxz8nz
-
-## News
-* Features: SECURITY KEYS "locked from the original game, give all the keys available in the level"
-* Features: WALL BLOCKING "locked from the original game, I consider it as Noclip"
-* Features: LOCK MONSTERS "locked from the original game, stops the movement of enemies like Doom 64 Ex"
-* Features: MUSIC TEST "locked from the original game, you can play the music available from the game"
-* Features: Colors "new feature for me, turn colors on and off making the game experience more interesting"
-* Features: FULL BRIGHT "new feature for me, all colors will be completely clear"
-* Features: FILTER "new feature for me, activates and deactivates the 3-point filter of the game"
+Doom 64 Discord: https://discord.gg/Ktxz8nz
