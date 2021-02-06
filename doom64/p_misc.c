@@ -657,6 +657,82 @@ void P_SetMovingCamera(line_t *line) // 8000F2F8
         return;
     }
 }
+void P_RefreshVideo(void) // [Immorpher] video refresh
+{
+	OSViMode *ViMode;
+	
+	if(antialiasing==true && interlacing==true)
+	{
+		if(osTvType == OS_TV_PAL)
+		{
+			ViMode = &osViModeTable[OS_VI_PAL_LAF2];
+		}
+		else if(osTvType == OS_TV_NTSC)
+		{
+			ViMode = &osViModeTable[OS_VI_NTSC_LAF2];
+		}
+		else if(osTvType == OS_TV_MPAL)
+		{
+			ViMode = &osViModeTable[OS_VI_MPAL_LAF2];
+		}
+	}
+	else if(antialiasing==true)
+	{
+		if(osTvType == OS_TV_PAL)
+		{
+			ViMode = &osViModeTable[OS_VI_PAL_LAN2];
+		}
+		else if(osTvType == OS_TV_NTSC)
+		{
+			ViMode = &osViModeTable[OS_VI_NTSC_LAN2];
+		}
+		else if(osTvType == OS_TV_MPAL)
+		{
+			ViMode = &osViModeTable[OS_VI_MPAL_LAN2];
+		}
+	}
+	else if(interlacing==true)
+	{
+		if(osTvType == OS_TV_PAL)
+		{
+			ViMode = &osViModeTable[OS_VI_PAL_LPF2];
+		}
+		else if(osTvType == OS_TV_NTSC)
+		{
+			ViMode = &osViModeTable[OS_VI_NTSC_LPF2];
+		}
+		else if(osTvType == OS_TV_MPAL)
+		{
+			ViMode = &osViModeTable[OS_VI_MPAL_LPF2];
+		}
+	}
+	else
+	{
+		if(osTvType == OS_TV_PAL)
+		{
+			ViMode = &osViModeTable[OS_VI_PAL_LPN2];
+		}
+		else if(osTvType == OS_TV_NTSC)
+		{
+			ViMode = &osViModeTable[OS_VI_NTSC_LPN2];
+		}
+		else if(osTvType == OS_TV_MPAL)
+		{
+			ViMode = &osViModeTable[OS_VI_MPAL_LPN2];
+		}
+	}
+	
+    osViSetMode(ViMode);
+	
+	if(DitherFilter == true) // [Immorpher] Dither filter option
+	{
+		osViSetSpecialFeatures(OS_VI_GAMMA_OFF|OS_VI_GAMMA_DITHER_OFF|OS_VI_DIVOT_OFF|OS_VI_DITHER_FILTER_ON);
+	}
+	else {
+		osViSetSpecialFeatures(OS_VI_GAMMA_OFF|OS_VI_GAMMA_DITHER_OFF|OS_VI_DIVOT_OFF|OS_VI_DITHER_FILTER_OFF);
+	}
+
+}
 
 void P_RefreshBrightness(void) // 8000f410
 {
@@ -685,9 +761,6 @@ void P_SetLightFactor(int lightfactor) // 8000F458
     int factor;
     int i;
 	int inframorph; // new test for infrared full bright
-	float inframorph_r; // test red
-	float inframorph_g; // test green
-	float inframorph_b; // test blue
 
     maplight = maplights;
     light = lights;

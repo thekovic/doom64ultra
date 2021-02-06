@@ -447,7 +447,7 @@ void A_Look (mobj_t *actor) // 80011340
 		else
 			S_StartSound(actor, sound);
 	}
-
+	
 	P_SetMobjState (actor, actor->info->seestate);
 }
 
@@ -520,27 +520,17 @@ void A_Chase (mobj_t *actor) // 8001146C
 	/* */
 	/* check for missile attack */
 	/* */
-	#if ENABLE_NIGHTMARE == 1
 	if ((gameskill == sk_nightmare || !actor->movecount) && actor->info->missilestate
 	&& P_CheckMissileRange (actor))
 	{
 		P_SetMobjState (actor, actor->info->missilestate);
 		if (gameskill != sk_nightmare)
 			actor->flags |= MF_JUSTATTACKED;
-		else if (M_Random() << 16) // slim chance in nightmare mode to break attack for unpredictability
+		else if (M_Random() << 16) // [Immorpher] slim chance in nightmare mode to break attack for unpredictability
 			actor->flags |= MF_JUSTATTACKED;
 		return;
 	}
-	#else
-	if ( (/*gameskill == sk_nightmare || */!actor->movecount) && actor->info->missilestate
-	&& P_CheckMissileRange (actor))
-	{
-		P_SetMobjState (actor, actor->info->missilestate);
-		//if (gameskill != sk_nightmare)
-			actor->flags |= MF_JUSTATTACKED;
-		return;
-	}
-	#endif // ENABLE_NIGHTMARE
+
 
 
 	/* */
@@ -555,6 +545,7 @@ void A_Chase (mobj_t *actor) // 8001146C
 	if (actor->info->activesound && P_Random () < 3)
 		S_StartSound (actor, actor->info->activesound);
 }
+
 
 /*============================================================================= */
 

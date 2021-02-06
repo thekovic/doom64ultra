@@ -108,22 +108,14 @@ mobj_t *P_SpawnMapThing (mapthing_t *mthing) // 80018C24
 		return NULL;
 	}
 
-	#if ENABLE_NIGHTMARE == 1
-	if (gameskill == sk_baby)
-		bit = 1;
-	else if (gameskill == sk_nightmare)
-		bit = 4;
-	else
-		bit = 1<<(gameskill-1);
-	#else
 	if (gameskill == sk_baby || gameskill == sk_easy)
 		bit = 1;
 	else if (gameskill == sk_medium)
 		bit = 2;
 	else if (gameskill == sk_hard)
 		bit = 4;
-
-	#endif // ENABLE_NIGHTMARE
+	else if (gameskill == sk_nightmare)
+		bit = 4;
 
 	if (!(mthing->options & bit) )
 		return NULL;

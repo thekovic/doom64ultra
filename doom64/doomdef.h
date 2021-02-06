@@ -31,7 +31,7 @@ extern u32 cfb[2][SCREEN_WD*SCREEN_HT]; // 8036A000
 /* Fixes and Version Update Here*/
 
 // NEWS Updates
-#define ENABLE_NIGHTMARE    1       // Originally Activated in the project [GEC] Master Edition.
+// Nightmare Mode Originally Activated in the project [GEC] Master Edition.
 
 // FIXES
 #define FIX_LINEDEFS_DELETION   1   // Fixes for the 'linedef deletion' bug. From PsyDoom
@@ -484,7 +484,6 @@ typedef struct player_s
 
 #define CF_NOCOLORS     0x20000    // [GEC] NEW CHEAT CODE
 #define CF_FULLBRIGHT   0x40000    // [GEC] NEW CHEAT CODE
-#define CF_FILTER       0x80000    // [GEC] NEW CHEAT CODE
 
 #define	AF_LINES		1				/* automap active on lines mode */
 #define	AF_SUBSEC		2               /* automap active on subsector mode */
@@ -796,6 +795,12 @@ extern int MusVolume;               // 8005A7C4
 extern int brightness;              // 8005A7C8
 extern int M_SENSITIVITY;           // 8005A7CC
 extern boolean FeaturesUnlocked;    // 8005A7D0
+extern int WeaponBob;				// [Immorpher] Motion Bob
+extern boolean VideoFilter;			// [GEC & Immorpher] VideoFilter
+extern boolean antialiasing;     	// [Immorpher] Anti-aliasing
+extern boolean interlacing;     	// [Immorpher] Interlacing
+extern boolean DitherFilter;     	// [Immorpher] Dither Filter
+extern int ColorDither;     		// [Immorpher] Color Dither
 
 int M_RunTitle(void); // 80007630
 
@@ -818,7 +823,8 @@ void M_MenuTitleDrawer(void); // 80008E7C
 void M_FeaturesDrawer(void); // 800091C0
 void M_VolumeDrawer(void); // 800095B4
 void M_ControlStickDrawer(void); // 80009738
-void M_DisplayDrawer(void); // 80009884
+void M_VideoDrawer(void); // 80009884
+void M_DisplayDrawer(void); // [Immorpher] new menu
 
 void M_DrawBackground(int x, int y, int color, char *name); // 80009A68
 void M_DrawOverlay(int x, int y, int w, int h, int color); // 80009F58

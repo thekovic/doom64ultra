@@ -31,7 +31,7 @@ char *ControlText[] =   //8007517C
 
 #define M_TXT00	"Control Pad"
 #define M_TXT01	"Volume"
-#define M_TXT02	"Display"
+#define M_TXT02	"Video"
 #define M_TXT03	"Password"
 #define M_TXT04	"Main Menu"
 #define M_TXT05	"Restart Level"
@@ -41,14 +41,14 @@ char *ControlText[] =   //8007517C
 #define M_TXT09 "Brightness"
 #define M_TXT10 "Resume"
 #define M_TXT11 "Options"
-#define M_TXT12 "Default"
-#define M_TXT13 "Default"
+#define M_TXT12 "Default" // default for volume
+#define M_TXT13 "Default" // default for video
 #define M_TXT14 "New Game"
 #define M_TXT15 "Be Gentle!"
-#define M_TXT16 "Bring it on!"
-#define M_TXT17 "I own Doom!"
-#define M_TXT18 "Watch me die!"
-#define M_TXT19 "Nightmare!"
+#define M_TXT16 "Bring It On!"
+#define M_TXT17 "I Own Doom!"
+#define M_TXT18 "Watch Me Die!"
+#define M_TXT19 "Be Merciless!"
 #define M_TXT20 "Yes"
 #define M_TXT21 "No"
 #define M_TXT22 "Features"
@@ -80,7 +80,13 @@ char *ControlText[] =   //8007517C
 
 #define M_TXT48 "COLORS"     // [GEC] NEW CHEAT CODE
 #define M_TXT49 "FULL BRIGHT"   // [GEC] NEW CHEAT CODE
-#define M_TXT50 "Filter:"   // [GEC] New video filter option
+#define M_TXT50 "Filtering:"   // [GEC] New video filter option
+#define M_TXT51 "Display"   // [Immorpher] New menu item
+#define M_TXT52 "Motion Bob"   // [Immorpher] New menu item
+#define M_TXT53 "Dither Filter:" // [Immorpher] Dither Filter
+#define M_TXT54 "Anti-Aliasing:" // [Immorpher] New anti-aliasing option
+#define M_TXT55 "Interlacing:" // [Immorpher] New interlacing option
+#define M_TXT56 "Color Dither:" // [Immorpher] New color dither options
 
 char *MenuText[] =   // 8005ABA0
 {
@@ -93,8 +99,9 @@ char *MenuText[] =   // 8005ABA0
     M_TXT30, M_TXT31, M_TXT32, M_TXT33, M_TXT34,
     M_TXT35, M_TXT36, M_TXT37, M_TXT38, M_TXT39,
     M_TXT40, M_TXT41, M_TXT42, M_TXT43, M_TXT44,
-    M_TXT45, M_TXT46, M_TXT47,
-    M_TXT48, M_TXT49, M_TXT50  // [GEC] NEW
+    M_TXT45, M_TXT46, M_TXT47, M_TXT48, M_TXT49,
+	M_TXT50, M_TXT51, M_TXT52, M_TXT53, M_TXT54,
+	M_TXT55, M_TXT56
 };
 
 menuitem_t Menu_Title[2] = // 8005A978
@@ -103,30 +110,25 @@ menuitem_t Menu_Title[2] = // 8005A978
 	{ 11, 115, 210 },   // Options
 };
 
-#if ENABLE_NIGHTMARE == 1
 menuitem_t Menu_Skill[5] = // 8005A990
-#else
-menuitem_t Menu_Skill[4] = // 8005A990
-#endif // ENABLE_NIGHTMARE
 {
     { 15, 102, 80 },    // Be Gentle!
     { 16, 102, 100},    // Bring it on!
     { 17, 102, 120},    // I own Doom!
     { 18, 102, 140},    // Watch me die!
-    /* Disable on Doom 64 Original */
-    #if ENABLE_NIGHTMARE == 1
-    { 19, 102, 160},    // Nightmare
-    #endif // ENABLE_NIGHTMARE
+    { 19, 102, 160},    // Be merciless!
 };
 
-menuitem_t Menu_Options[6] = // 8005A9C0
+menuitem_t Menu_Options[8] = // 8005A9C0
 {
     {  0, 102, 60 },    // Control Pad
     { 41, 102, 80 },    // Control Stick
     {  1, 102, 100},    // Volume
-    {  2, 102, 120},    // Display
-    {  3, 102, 140},    // Password
-    {  6, 102, 160},    // Return
+    {  2, 102, 120},    // Video
+    { 51, 102, 140},    // Display
+    { 13, 102, 160},    // Default settings
+    {  3, 102, 180},    // Password
+    {  6, 102, 200},    // Return
 };
 
 menuitem_t Menu_Volume[4] = // 8005AA08
@@ -144,15 +146,24 @@ menuitem_t Menu_ControlStick[3] = // 8005AA38
     {  6, 102, 150},    // Return
 };
 
-menuitem_t Menu_Display[7] = // 8005AA5C
+menuitem_t Menu_Video[7] = // 8005AA5C
 {
     {  9, 102, 60 },    // Brightness
+    { 50, 102, 100},    // Video Filter
+    { 56, 102, 120},    // Color Dither
+    { 54, 102, 140},    // Anti-Aliasing
+    { 55, 102, 160},    // Interlacing
+    { 53, 102, 180},    // Dither Filter
+    {  6, 102, 200},    // Return
+};
+
+menuitem_t Menu_Display[5] = // [Immorpher] New menu
+{
+    { 52, 102, 60 },    // Motion Bob
     { 32, 102, 100},    // Center Display
     { 33, 102, 120},    // Messages
     { 34, 102, 140},    // Status Bar
-    { 50, 102, 160},    // Video Filter
-    { 13, 102, 180},    // Default Display
-    {  6, 102, 200},    // Return
+    {  6, 102, 160},    // Return
 };
 
 menuitem_t Menu_Game[4] = // 8005AAA4
@@ -255,12 +266,17 @@ int Display_X = 0;              // 8005A7B0
 int Display_Y = 0;              // 8005A7B4
 boolean enable_messages = true; // 8005A7B8
 boolean enable_statusbar = true;// 8005A7BC
-boolean enable_filter = true; // new feature
 int SfxVolume = 100;             // 8005A7C0
 int MusVolume = 80;             // 8005A7C4
 int brightness = 100;             // 8005A7C8
 int M_SENSITIVITY = 0;          // 8005A7CC
 boolean FeaturesUnlocked = false; // 8005A7D0
+int WeaponBob = 0x100000; // [Immorpher] Motion Bob works in hexadecimal
+boolean VideoFilter = true; // [GEC & Immorpher] Set 3 point filtering on or off
+boolean antialiasing = false; // [Immorpher] Anti-Aliasing
+boolean interlacing = false; // [Immorpher] Interlacing
+boolean DitherFilter = false; // [Immorpher] Dither filter
+int ColorDither = 0; // [Immorpher] Color dithering options (Off, Square, Bayer, Noise)
 
 int TempConfiguration[13] = // 8005A80C
 {
@@ -738,15 +754,15 @@ int M_MenuTicker(void) // 80007E0C
                     }
                     break;
 
-                case 2: // Display
+                case 2: // Video
                     if (truebuttons)
                     {
                         S_StartSound(NULL, sfx_pistol);
                         M_SaveMenuData();
 
-                        MenuItem = Menu_Display;
+                        MenuItem = Menu_Video;
                         itemlines = 7;
-                        MenuCall = M_DisplayDrawer;
+                        MenuCall = M_VideoDrawer;
                         cursorpos = 0;
 
                         MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
@@ -925,11 +941,11 @@ int M_MenuTicker(void) // 80007E0C
                 case 9: // Brightness
                     if (buttons & PAD_RIGHT)
                     {
-                        brightness += 2; // increments doubled for scroll speed
-                        if (brightness <= 200) // limit extended to 200 from 100 for an optional brightness boost
+                        brightness += 2; // [Immorpher] increments doubled for scroll speed
+                        if (brightness <= 200) // [Immorpher] limit extended to 200 from 100 for an optional brightness boost
                         {
                             P_RefreshBrightness();
-                            if (brightness & 1)
+                            if (brightness & 2)
                             {
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
@@ -937,12 +953,12 @@ int M_MenuTicker(void) // 80007E0C
                         }
                         else
                         {
-                            brightness = 200; // new limit is 200 instead of 100
+                            brightness = 200; // [Immorpher] new limit is 200 instead of 100
                         }
                     }
                     else if (buttons & PAD_LEFT)
                     {
-                        brightness -= 2; // decrement speed doubled
+                        brightness -= 2; // [Immorpher] decrement speed doubled
                         if (brightness < 0)
                         {
                             brightness = 0;
@@ -950,7 +966,7 @@ int M_MenuTicker(void) // 80007E0C
                         else
                         {
                             P_RefreshBrightness();
-                            if (brightness & 1)
+                            if (brightness & 2)
                             {
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
@@ -966,7 +982,7 @@ int M_MenuTicker(void) // 80007E0C
                         M_SaveMenuData();
 
                         MenuItem = Menu_Options;
-                        itemlines = 6;
+                        itemlines = 8;
                         MenuCall = M_MenuTitleDrawer;
                         cursorpos = 0;
 
@@ -995,7 +1011,7 @@ int M_MenuTicker(void) // 80007E0C
                     }
                     break;
 
-                case 13: // Default Display
+                case 13: // Default Video
                     if (truebuttons)
                     {
                         S_StartSound(NULL, sfx_switch2);
@@ -1003,12 +1019,22 @@ int M_MenuTicker(void) // 80007E0C
                         Display_X = 0;
                         Display_Y = 0;
 
+                        brightness = 0;
+						VideoFilter = true; // [Immorpher] new video option
+						antialiasing = false; // [Immorpher] new video option
+						interlacing = false;  // [Immorpher] new video option
+						DitherFilter = false;  // [Immorpher] new video option
+						ColorDither = 0;  // [Immorpher] new video option
+						
                         enable_messages = true;
                         enable_statusbar = true;
-
-                        brightness = 0;
+						
+						WeaponBob = 0x100000;
+						
                         I_MoveDisplay(0,0);
                         P_RefreshBrightness();
+						P_RefreshVideo();
+						
                         return ga_nothing;
                     }
                     break;
@@ -1023,11 +1049,7 @@ int M_MenuTicker(void) // 80007E0C
                         EnableExpPak = (M_ControllerPak() == 0);
 
                         MenuItem = Menu_Skill;
-                        #if ENABLE_NIGHTMARE == 1
                         itemlines = 5;
-                        #else
-                        itemlines = 4;
-                        #endif // ENABLE_NIGHTMARE
                         MenuCall = M_MenuTitleDrawer;
                         cursorpos = 1;  // Set Default Bring it on!
 
@@ -1042,7 +1064,7 @@ int M_MenuTicker(void) // 80007E0C
                 case 16: // Bring it on!
                 case 17: // I own Doom!
                 case 18: // Watch me die!
-				case 19: // Nightmare!
+				case 19: // Be merciless!
                 
                     if (truebuttons)
                     {
@@ -1484,18 +1506,112 @@ int M_MenuTicker(void) // 80007E0C
                         return ga_nothing;
                     }
                     break;
-
-                case 50: // FILTER [GEC] new code in display menu now
+					
+                case 50: // [GEC and Immorpher] Video filtering mode
                     if (truebuttons)
                     {
-						enable_filter ^= true;
-                        players[0].cheats ^= CF_FILTER;
-                        gobalcheats ^= CF_FILTER;
                         S_StartSound(NULL, sfx_switch2);
+                        VideoFilter ^= true;
+                        return ga_nothing;
+                    }
+					break;
+			
+                case 51: // Display
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_pistol);
+                        M_SaveMenuData();
+
+                        MenuItem = Menu_Display;
+                        itemlines = 5;
+                        MenuCall = M_DisplayDrawer;
+                        cursorpos = 0;
+
+                        MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
+                        M_RestoreMenuData(true);
                         return ga_nothing;
                     }
                     break;
-                }
+					
+                case 52: // Motion Bob
+                    if (buttons & PAD_RIGHT)
+                    {
+                        WeaponBob += 0x8000; // increments
+                        if (WeaponBob <= 0x100000) // Maximum is 32 in hex
+                        {
+                            if (WeaponBob & 0x8000)
+                            {
+                                S_StartSound(NULL, sfx_secmove);
+                                return ga_nothing;
+                            }
+                        }
+                        else
+                        {
+                            WeaponBob = 0x100000; // The Limit
+                        }
+                    }
+                    else if (buttons & PAD_LEFT)
+                    {
+                        WeaponBob -= 0x8000; // decrements 
+                        if (WeaponBob < 0x0)
+                        {
+                            WeaponBob = 0x0;
+                        }
+                        else
+                        {
+                            if (WeaponBob & 0x8000)
+                            {
+                                S_StartSound(NULL, sfx_secmove);
+                                return ga_nothing;
+                            }
+                        }
+                    }
+                    break;		
+
+                case 53: // [Immorpher] Dither Filter
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+                        DitherFilter ^= true;
+						P_RefreshVideo();
+                        return ga_nothing;
+                    }
+                    break;
+					
+                case 54: // [Immorpher] Anti-Aliasing
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+                        antialiasing ^= true;
+						P_RefreshVideo();
+                        return ga_nothing;
+                    }
+                    break;
+					
+                case 55: // [Immorpher] Interlacing
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+                        interlacing ^= true;
+						P_RefreshVideo();
+                        return ga_nothing;
+                    }
+                    break;	
+					
+                case 56: // [Immorpher] Color Dither
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+                        ColorDither += 1;
+						if (ColorDither > 3)
+						{
+							ColorDither = 0;
+						}
+                        return ga_nothing;
+                    }
+                    break;	
+					
+				}
 
             exit = ga_nothing;
         }
@@ -1690,38 +1806,56 @@ void M_ControlStickDrawer(void) // 80009738
     ST_DrawSymbol(M_SENSITIVITY + 103, 110, 69, text_alpha | 0xffffff00);
 }
 
-void M_DisplayDrawer(void) // 80009884
+void M_VideoDrawer(void) // 80009884
 {
     char *text;
     menuitem_t *item;
     int i, casepos;
 
-    ST_DrawString(-1, 20, "Display", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Video", text_alpha | 0xc0000000);
 
-    item = Menu_Display;
+    item = Menu_Video;
 
     for(i = 0; i < 7; i++)
     {
         casepos = item->casepos;
-
-        if (casepos == 33) // Messages:
+		
+        if (casepos == 50) // [GEC and Immorpher] New video filter
         {
-            if (enable_messages)
+            if (VideoFilter)
+                text = "On";
+            else
+                text = "Off";
+        }		
+        else if (casepos == 54) // [Immorpher] Anti-Aliasing
+        {
+            if (antialiasing)
                 text = "On";
             else
                 text = "Off";
         }
-        else if (casepos == 34) // Status Bar:
+        else if (casepos == 55) // [Immorpher] Interlacing
         {
-            if (enable_statusbar)
+            if (interlacing)
                 text = "On";
             else
                 text = "Off";
         }
-        else if (casepos == 50) // New video filter
+        else if (casepos == 53) // [Immorpher] Dither Filter
         {
-            if (enable_filter)
+            if (DitherFilter)
                 text = "On";
+            else
+                text = "Off";
+        }
+        else if (casepos == 56) // [Immorpher] Dither Filter
+        {
+            if (ColorDither == 1)
+                text = "Square";
+            else if (ColorDither == 2)
+                text = "Bayer";
+            else if (ColorDither == 3)
+                text = "Noise";
             else
                 text = "Off";
         }
@@ -1740,6 +1874,53 @@ void M_DisplayDrawer(void) // 80009884
 
     ST_DrawSymbol(102, 80, 68, text_alpha | 0xffffff00);
     ST_DrawSymbol(brightness/2 + 103, 80, 69, text_alpha | 0xffffff00);
+
+    ST_DrawSymbol(Menu_Video[0].x - 37, Menu_Video[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
+}
+
+void M_DisplayDrawer(void) // 80009884
+{
+    char *text;
+    menuitem_t *item;
+    int i, casepos;
+
+    ST_DrawString(-1, 20, "Display", text_alpha | 0xc0000000);
+
+    item = Menu_Display;
+
+    for(i = 0; i < 5; i++)
+    {
+        casepos = item->casepos;
+
+        if (casepos == 33) // Messages:
+        {
+            if (enable_messages)
+                text = "On";
+            else
+                text = "Off";
+        }
+        else if (casepos == 34) // Status Bar:
+        {
+            if (enable_statusbar)
+                text = "On";
+            else
+                text = "Off";
+        }
+        else
+        {
+            text = NULL;
+        }
+
+        if (text)
+            ST_DrawString(item->x + 140, item->y, text, text_alpha | 0xc0000000);
+
+        ST_DrawString(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+
+        item++;
+    }
+
+    ST_DrawSymbol(102, 80, 68, text_alpha | 0xffffff00);
+	ST_DrawSymbol(WeaponBob/0x28F6 + 103, 80, 69, text_alpha | 0xffffff00);
 
     ST_DrawSymbol(Menu_Display[0].x - 37, Menu_Display[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 }
@@ -2176,7 +2357,20 @@ int M_SavePakTicker(void) // 8000A804
         if ((buttons != oldbuttons) && (buttons == (PAD_RIGHT_C|PAD_LEFT_C)))
         {
             // save the next level number and password data in text format
-            sprintf(&Pak_Data[cursorpos * 32], "level %2.2d", nextmap);
+			if (gameskill == sk_baby) {
+				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - bg", nextmap);
+			} else if (gameskill == sk_easy) {
+				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - bio", nextmap);
+			} else if (gameskill == sk_medium) {
+				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - iod", nextmap);
+			} else if (gameskill == sk_hard) {
+				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - wmd", nextmap);
+			} else if (gameskill == sk_nightmare) {
+				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - bm", nextmap);
+			} else {
+				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d", nextmap);
+			}
+			
             D_memcpy(&Pak_Data[(cursorpos * 32) + 16], &Passwordbuff, 16);
 
             if (I_SavePakFile(File_Num, PFS_WRITE, Pak_Data, Pak_Size) == 0) {
@@ -2641,8 +2835,13 @@ void M_ControlPadDrawer(void) // 8000B988
                 }
             }
 
-            sprintf(buffer, *text, ConfgNumb + 1);
-            ST_DrawString(80, ((lpos - linepos) * 18) + 68, buffer, text_alpha | 0xc0000000);
+			if (ConfgNumb==5 && lpos == 0) { // [Immorpher] If statement for new retro fighters
+				sprintf(buffer, "Retro Fighters");
+				ST_DrawString(80, ((lpos - linepos) * 18) + 68, buffer, text_alpha | 0xc0000000);
+			} else {
+				sprintf(buffer, *text, ConfgNumb + 1);
+				ST_DrawString(80, ((lpos - linepos) * 18) + 68, buffer, text_alpha | 0xc0000000);
+			}
 
             lpos += 1;
             text += 1;

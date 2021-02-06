@@ -495,13 +495,7 @@ void AM_DrawLine(player_t *player) // 800014C8
     gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
     gDPSetTexturePersp(GFX1++, G_TP_PERSP);
 
-    // [GEC] New Cheat Codes
-    if (player->cheats & CF_FILTER) {
-        gDPSetTextureFilter(GFX1++, G_TF_POINT); // <- Nearest Texture Filtering
-    }
-    else {
-        gDPSetTextureFilter(GFX1++, G_TF_BILERP); // <- Bilinear Texture Filtering
-    }
+    R_RenderFilter();    // [GEC and Immorpher] New filter options
 
     gDPSetRenderMode(GFX1++,G_RM_AA_XLU_LINE,G_RM_AA_XLU_LINE2);
     gDPSetCombineMode(GFX1++, G_CC_D64COMB02, G_CC_D64COMB02);

@@ -751,13 +751,7 @@ void I_ClearFrame(void) // 8000637C
     gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_32b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
     gDPSetScissor(GFX1++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WD, SCREEN_HT);
 
-    // [GEC] New Cheat Codes
-    if (players[0].cheats & CF_FILTER) {
-        gDPSetTextureFilter(GFX1++, G_TF_POINT); // <- Nearest texture
-    }
-    else {
-        gDPSetTextureFilter(GFX1++, G_TF_BILERP); // <- Bilinear texture
-    }
+	R_RenderFilter();    // [GEC and Immorpher] New filter options
 
     gSPViewport(GFX1++, &vid_viewport);
 

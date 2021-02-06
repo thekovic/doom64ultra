@@ -176,7 +176,9 @@ void R_RenderPlayerView(void) // 80023448
 	// Phase 2
 	if (rendersky)
     {
+		gDPSetTextureFilter(GFX1++, G_TF_BILERP); // <- Linear Texture Filtering
         R_RenderSKY();
+        R_RenderFilter();
         gDPPipeSync(GFX1++);
     }
 
