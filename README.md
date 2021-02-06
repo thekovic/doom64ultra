@@ -23,7 +23,7 @@ Now the memory pak save files include abbreviations for the difficulty. It is ea
 As mentioned the brightness has a new default setting, but also the sound volume default has been set to the maximum. This sets it slightly louder than the ambient music. Further, to honor Retro Fighter’s commitment to continuously improving their N64 controller designs, there is a new default option in the “Game Pad” menu. For controllers where all of the N64 buttons are accessible in one position, like the Retro Fighters controller, variants of the Super Pad 64, or the Hori controller, then the new “Retro Fighters” option might be the optimal layout.
 
 ## Doom 64 RE Features Menu
-These are bonus additions to the cheat menu added by Erick194! It is now even more rewarding to beat "Hectic".
+These are bonus additions to the features menu added by Erick194! It is now even more rewarding to beat "Hectic".
 SECURITY KEYS: Inaccessible in the original game, this will give you all the keys available in the level.
 WALL BLOCKING: Inaccessible in the original game, this will allow you to walk through walls.
 LOCK MONSTERS: Inaccessible in the original game, stops the movement of enemies.
