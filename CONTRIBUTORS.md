@@ -1,5 +1,8 @@
 
-## DOOM64-RE contributors (sorted alphabetically)
+## DOOM64-RE Contributors
+* **[Erick Vásquez (Erick194)](https://github.com/Erick194)**
+    * The last man standing capable of completely reverse engineering Doom 64. Without him this code base would not exist.
+    * Doom 64 RE: https://github.com/Erick194/DOOM64-RE
 
 * **[Darragh Coy (intacowetrust)](https://github.com/BodbDearg)**
 
