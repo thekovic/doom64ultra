@@ -16,6 +16,9 @@ Many players have expressed motion sickness when playing Doom 64. There is an ov
 ### Infrared Goggles Improvement
 With the new brightness setting, the infrared goggles have a less noticeable effect. Their utility was under question anyway as they only appear in two main game levels. However, now they have an overall boost to the gradient lighting without altering saturated colors. It is similar to the classic Doom's infrared goggles without the blinding brightness. The goal is to balance utility and aesthetics, which may be useful in the future.
 
+### Save Files
+Now the memory pak save files include abbreviations for the difficulty. It is easier to keep all of those Doom 64 saves in order.
+
 ### Other New Default Options
 As mentioned the brightness has a new default setting, but also the sound volume default has been set to the maximum. This sets it slightly louder than the ambient music. Further, to honor Retro Fighter’s commitment to continuously improving their N64 controller designs, there is a new default option in the “Game Pad” menu. For controllers where all of the N64 buttons are accessible in one position, like the Retro Fighters controller, variants of the Super Pad 64, or the Hori controller, then the new “Retro Fighters” option might be the optimal layout.
 
