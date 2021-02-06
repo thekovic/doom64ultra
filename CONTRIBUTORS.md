@@ -20,7 +20,7 @@
 
 ## DOOM64-RE hardware testers (sorted alphabetically)
 
-* ** [CrashOveride] (https://github.com/CrashOveride95)**
-* ** [Immorpher] (Doom 64 Discord: https://discord.gg/Ktxz8nz)**
-* ** [sector666] (Kex Engine Discord: https://discord.gg/4gVTcD5)**
-* ** [streams] (Discord ID: streams#3746)**
+* **[CrashOveride] (https://github.com/CrashOveride95)**
+* **[Immorpher] (Doom 64 Discord: https://discord.gg/Ktxz8nz)**
+* **[sector666] (Kex Engine Discord: https://discord.gg/4gVTcD5)**
+* **[streams] (Discord ID: streams#3746)**
