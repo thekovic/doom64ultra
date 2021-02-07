@@ -90,7 +90,7 @@ void T_Glow(glow_t *g) // 80015820
 			g->sector->lightlevel += GLOWSPEED;
 			if (g->maxlight < g->sector->lightlevel)
 			{
-				g->sector->lightlevel = g->maxlight;
+				g->sector->lightlevel = FlashBrightness*(g->maxlight)/32;
 
 				if(g->type == PULSERANDOM)
                     g->minlight = (P_Random() & 15);
@@ -211,7 +211,7 @@ void T_StrobeFlash (strobe_t *flash) // 80015B28
 
 	if (flash->sector->lightlevel == 0)
 	{
-		flash->sector->lightlevel = flash->maxlight;
+		flash->sector->lightlevel = FlashBrightness*(flash->maxlight)/32;
 		flash->count = flash->brighttime;
 	}
 	else

@@ -168,9 +168,9 @@ void P_CheckCheats (void) // 8002187C
             cursorpos = 0;
 
             if (FeaturesUnlocked == false)
-                itemlines = 3;
+                itemlines = 4;
             else
-                itemlines = 4;  // Enable cheat menu
+                itemlines = 5;  // Enable cheat menu
 
             MenuIdx = 0;
             text_alpha = 255;

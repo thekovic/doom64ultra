@@ -73,7 +73,7 @@ boolean P_CheckMissileRange (mobj_t *actor) // 80010C10
 		return true;
 	}
 	
-    if (gameskill == sk_nightmare && M_Random() << 16) // early attack on nightmare
+    if (gameskill == sk_nightmare && M_Random() << 16) // [Immorpher] Early attack on nightmare
     {
         return true;        /* super sneak attack mofo! */
     }

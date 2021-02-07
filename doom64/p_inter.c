@@ -56,9 +56,12 @@ boolean P_GiveAmmo (player_t *player, ammotype_t ammo, int num) // 800143E0
         num = num/2;
     }
 
-    // Like PC Doom / Doom 64 EX
-    if (gameskill == sk_baby || gameskill == sk_nightmare)
-		num <<= 1;			/* give double ammo in trainer mode */
+    // [GEC] Like PC Doom / Doom 64 EX
+    if (gameskill == sk_baby) {
+		num <<= 1;			// give double ammo in very easy mode
+	} else if (gameskill == sk_nightmare) {
+		num = 1.5*num; // [Immorpher] for nightmare give a boost but not a crazy one
+	}
 
 	oldammo = player->ammo[ammo];
 	player->ammo[ammo] += num;
@@ -362,9 +365,11 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
 	case MT_AMMO_SHELL:
 		if (!P_GiveAmmo (player, am_shell,1))
 			return;
-        if (gameskill == sk_baby || gameskill == sk_nightmare)
+        if (gameskill == sk_baby)
             message = "Picked up 8 shotgun shells.";
-        else
+        else if (gameskill == sk_nightmare) // [Immorpher and GEC] Nightmare ammo boost!
+            message = "Picked up 6 shotgun shells.";
+		else
             message = "Picked up 4 shotgun shells.";
 		break;
 	case MT_AMMO_SHELLBOX:

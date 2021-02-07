@@ -32,7 +32,7 @@ void	R_RenderFilter(void); // [Immorpher] Rendering function to set filter
 void R_RenderFilter(void)
 {
 	// Texture Filtering
-	if (VideoFilter) {
+	if (VideoFilter == 0) {
         gDPSetTextureFilter(GFX1++, G_TF_BILERP); // <- Linear Texture Filtering
     }
     else {

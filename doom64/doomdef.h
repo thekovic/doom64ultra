@@ -763,7 +763,7 @@ typedef struct
 } menudata_t;
 
 extern menudata_t MenuData[8];      // 800A54F0
-extern menuitem_t Menu_Game[4];     // 8005AAA4
+extern menuitem_t Menu_Game[5];     // 8005AAA4
 extern int MenuAnimationTic;        // 800a5570
 extern int cursorpos;               // 800A5574
 extern int m_vframe1;               // 800A5578
@@ -796,11 +796,12 @@ extern int brightness;              // 8005A7C8
 extern int M_SENSITIVITY;           // 8005A7CC
 extern boolean FeaturesUnlocked;    // 8005A7D0
 extern int WeaponBob;				// [Immorpher] Motion Bob
-extern boolean VideoFilter;			// [GEC & Immorpher] VideoFilter
+extern int VideoFilter;				// [GEC & Immorpher] VideoFilter
 extern boolean antialiasing;     	// [Immorpher] Anti-aliasing
 extern boolean interlacing;     	// [Immorpher] Interlacing
 extern boolean DitherFilter;     	// [Immorpher] Dither Filter
 extern int ColorDither;     		// [Immorpher] Color Dither
+extern int FlashBrightness;     	// [Immorpher] Strobe brightness adjustment, will need to be float
 
 int M_RunTitle(void); // 80007630
 

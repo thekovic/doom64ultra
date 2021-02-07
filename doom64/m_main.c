@@ -87,6 +87,7 @@ char *ControlText[] =   //8007517C
 #define M_TXT54 "Anti-Aliasing:" // [Immorpher] New anti-aliasing option
 #define M_TXT55 "Interlacing:" // [Immorpher] New interlacing option
 #define M_TXT56 "Color Dither:" // [Immorpher] New color dither options
+#define M_TXT57 "Flash Brightness" // [Immorpher] New flash brightness option
 
 char *MenuText[] =   // 8005ABA0
 {
@@ -101,12 +102,13 @@ char *MenuText[] =   // 8005ABA0
     M_TXT40, M_TXT41, M_TXT42, M_TXT43, M_TXT44,
     M_TXT45, M_TXT46, M_TXT47, M_TXT48, M_TXT49,
 	M_TXT50, M_TXT51, M_TXT52, M_TXT53, M_TXT54,
-	M_TXT55, M_TXT56
+	M_TXT55, M_TXT56, M_TXT57
 };
 
-menuitem_t Menu_Title[2] = // 8005A978
+menuitem_t Menu_Title[3] = // 8005A978
 {
-    { 14, 115, 190 },   // New Game
+    { 14, 115, 170 },   // New Game
+    { 3, 115, 190 },   // Password
 	{ 11, 115, 210 },   // Options
 };
 
@@ -119,55 +121,56 @@ menuitem_t Menu_Skill[5] = // 8005A990
     { 19, 102, 160},    // Be merciless!
 };
 
-menuitem_t Menu_Options[8] = // 8005A9C0
+menuitem_t Menu_Options[7] = // 8005A9C0
 {
-    {  0, 102, 60 },    // Control Pad
-    { 41, 102, 80 },    // Control Stick
-    {  1, 102, 100},    // Volume
-    {  2, 102, 120},    // Video
-    { 51, 102, 140},    // Display
-    { 13, 102, 160},    // Default settings
-    {  3, 102, 180},    // Password
-    {  6, 102, 200},    // Return
+    {  0, 82, 60 },    // Control Pad
+    { 41, 82, 80 },    // Control Stick
+    {  1, 82, 100},    // Volume
+    {  2, 82, 120},    // Video
+    { 51, 82, 140},    // Display
+    { 13, 82, 160},    // Default settings
+    {  6, 82, 180},    // Return
 };
 
 menuitem_t Menu_Volume[4] = // 8005AA08
 {
-    {  7, 102, 60 },    // Music Volume
-    {  8, 102, 100},    // Sound Volume
-    { 12, 102, 140},    // Default Volume
-    {  6, 102, 160},    // Return
+    {  7, 82, 60 },    // Music Volume
+    {  8, 82, 100},    // Sound Volume
+    { 12, 82, 140},    // Default Volume
+    {  6, 82, 160},    // Return
 };
 
 menuitem_t Menu_ControlStick[3] = // 8005AA38
 {
-    { 43, 102, 90 },    // Sensitivity
-    { 42, 102, 130},    // Default Sensitivity
-    {  6, 102, 150},    // Return
+    { 43, 82, 90 },    // Sensitivity
+    { 42, 82, 130},    // Default Sensitivity
+    {  6, 82, 150},    // Return
 };
 
 menuitem_t Menu_Video[7] = // 8005AA5C
 {
-    {  9, 102, 60 },    // Brightness
-    { 50, 102, 100},    // Video Filter
-    { 56, 102, 120},    // Color Dither
-    { 54, 102, 140},    // Anti-Aliasing
-    { 55, 102, 160},    // Interlacing
-    { 53, 102, 180},    // Dither Filter
-    {  6, 102, 200},    // Return
+    {  9, 82, 60 },    // Brightness
+    { 50, 82, 100},    // Video Filter
+    { 56, 82, 120},    // Color Dither
+    { 54, 82, 140},    // Anti-Aliasing
+    { 55, 82, 160},    // Interlacing
+    { 53, 82, 180},    // Dither Filter
+    {  6, 82, 200},    // Return
 };
 
-menuitem_t Menu_Display[5] = // [Immorpher] New menu
+menuitem_t Menu_Display[6] = // [Immorpher] New menu
 {
-    { 52, 102, 60 },    // Motion Bob
-    { 32, 102, 100},    // Center Display
-    { 33, 102, 120},    // Messages
-    { 34, 102, 140},    // Status Bar
-    {  6, 102, 160},    // Return
+    { 52, 82, 60 },    // Motion Bob
+    { 57, 82, 100},    // Flash Brightness
+    { 32, 82, 140},    // Center Display
+    { 33, 82, 160},    // Messages
+    { 34, 82, 180},    // Status Bar
+    {  6, 82, 200},    // Return
 };
 
-menuitem_t Menu_Game[4] = // 8005AAA4
+menuitem_t Menu_Game[5] = // 8005AAA4
 {
+    { 3, 122, 60 },    // Password
     { 11, 122, 80 },    // Options
     {  4, 122, 100},    // Main Menu
     {  5, 122, 120},    // Restart Level
@@ -272,11 +275,12 @@ int brightness = 100;             // 8005A7C8
 int M_SENSITIVITY = 0;          // 8005A7CC
 boolean FeaturesUnlocked = false; // 8005A7D0
 int WeaponBob = 0x100000; // [Immorpher] Motion Bob works in hexadecimal
-boolean VideoFilter = true; // [GEC & Immorpher] Set 3 point filtering on or off
+int VideoFilter = 0; // [GEC & Immorpher] Set 3 point filtering on or off
 boolean antialiasing = false; // [Immorpher] Anti-Aliasing
 boolean interlacing = false; // [Immorpher] Interlacing
 boolean DitherFilter = false; // [Immorpher] Dither filter
 int ColorDither = 0; // [Immorpher] Color dithering options (Off, Square, Bayer, Noise)
+int FlashBrightness = 32; // [Immorpher] Strobe brightness adjustment, will need to change to float
 
 int TempConfiguration[13] = // 8005A80C
 {
@@ -364,7 +368,7 @@ int M_RunTitle(void) // 80007630
     MenuItem = Menu_Title;
     MenuCall = M_MenuTitleDrawer;
     text_alpha = 0;
-    itemlines = 2;
+    itemlines = 3;
     cursorpos = 0;
     last_ticon = 0;
 
@@ -821,7 +825,7 @@ int M_MenuTicker(void) // 80007E0C
                         M_SaveMenuData();
 
                         MenuItem = Menu_Quit;
-                        itemlines = 2;
+                        itemlines = 3;
                         MenuCall = M_MenuTitleDrawer;
                         cursorpos = 1;
 
@@ -982,7 +986,7 @@ int M_MenuTicker(void) // 80007E0C
                         M_SaveMenuData();
 
                         MenuItem = Menu_Options;
-                        itemlines = 8;
+                        itemlines = 7;
                         MenuCall = M_MenuTitleDrawer;
                         cursorpos = 0;
 
@@ -1011,7 +1015,7 @@ int M_MenuTicker(void) // 80007E0C
                     }
                     break;
 
-                case 13: // Default Video
+                case 13: // Default Optios
                     if (truebuttons)
                     {
                         S_StartSound(NULL, sfx_switch2);
@@ -1020,11 +1024,12 @@ int M_MenuTicker(void) // 80007E0C
                         Display_Y = 0;
 
                         brightness = 0;
-						VideoFilter = true; // [Immorpher] new video option
+						VideoFilter = 0; // [Immorpher] new video option
 						antialiasing = false; // [Immorpher] new video option
 						interlacing = false;  // [Immorpher] new video option
 						DitherFilter = false;  // [Immorpher] new video option
 						ColorDither = 0;  // [Immorpher] new video option
+						FlashBrightness = 32;  // [Immorpher] new video option
 						
                         enable_messages = true;
                         enable_statusbar = true;
@@ -1511,10 +1516,14 @@ int M_MenuTicker(void) // 80007E0C
                     if (truebuttons)
                     {
                         S_StartSound(NULL, sfx_switch2);
-                        VideoFilter ^= true;
+                        VideoFilter += 1;
+						if (VideoFilter > 2)
+						{
+							VideoFilter = 0;
+						}
                         return ga_nothing;
                     }
-					break;
+                    break;
 			
                 case 51: // Display
                     if (truebuttons)
@@ -1523,7 +1532,7 @@ int M_MenuTicker(void) // 80007E0C
                         M_SaveMenuData();
 
                         MenuItem = Menu_Display;
-                        itemlines = 5;
+                        itemlines = 6;
                         MenuCall = M_DisplayDrawer;
                         cursorpos = 0;
 
@@ -1609,10 +1618,43 @@ int M_MenuTicker(void) // 80007E0C
 						}
                         return ga_nothing;
                     }
-                    break;	
+                    break;
 					
+                case 57: // FlashBrightness
+                    if (buttons & PAD_RIGHT)
+                    {
+                        FlashBrightness += 1; // increments
+                        if (FlashBrightness  <= 32) // Maximum is 32
+                        {
+                            if (FlashBrightness & 1)
+                            {
+                                S_StartSound(NULL, sfx_secmove);
+                                return ga_nothing;
+                            }
+                        }
+                        else
+                        {
+                            FlashBrightness = 32; // The Limit
+                        }
+                    }
+                    else if (buttons & PAD_LEFT)
+                    {
+                        FlashBrightness -= 1; // decrements 
+                        if (FlashBrightness < 0)
+                        {
+                            FlashBrightness = 0;
+                        }
+                        else
+                        {
+                            if (FlashBrightness & 1)
+                            {
+                                S_StartSound(NULL, sfx_secmove);
+                                return ga_nothing;
+                            }
+                        }
+                    }
+                    break;		
 				}
-
             exit = ga_nothing;
         }
     }
@@ -1778,11 +1820,11 @@ void M_VolumeDrawer(void) // 800095B4
 
     ST_DrawSymbol(MenuItem->x - 37, MenuItem[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
-    ST_DrawSymbol(102, 80, 68, text_alpha | 0xffffff00);
-    ST_DrawSymbol(MusVolume + 103, 80, 69, text_alpha | 0xffffff00);
+    ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
+    ST_DrawSymbol(MusVolume + 83, 80, 69, text_alpha | 0xffffff00);
 
-    ST_DrawSymbol(102, 120, 68, text_alpha | 0xffffff00);
-    ST_DrawSymbol(SfxVolume + 103, 120, 69, text_alpha | 0xffffff00);
+    ST_DrawSymbol(82, 120, 68, text_alpha | 0xffffff00);
+    ST_DrawSymbol(SfxVolume + 83, 120, 69, text_alpha | 0xffffff00);
 }
 
 void M_ControlStickDrawer(void) // 80009738
@@ -1802,8 +1844,8 @@ void M_ControlStickDrawer(void) // 80009738
 
     ST_DrawSymbol(MenuItem->x - 37, MenuItem[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
-    ST_DrawSymbol(102,110,68,text_alpha | 0xffffff00);
-    ST_DrawSymbol(M_SENSITIVITY + 103, 110, 69, text_alpha | 0xffffff00);
+    ST_DrawSymbol(82,110,68,text_alpha | 0xffffff00);
+    ST_DrawSymbol(M_SENSITIVITY + 83, 110, 69, text_alpha | 0xffffff00);
 }
 
 void M_VideoDrawer(void) // 80009884
@@ -1822,8 +1864,10 @@ void M_VideoDrawer(void) // 80009884
 		
         if (casepos == 50) // [GEC and Immorpher] New video filter
         {
-            if (VideoFilter)
+            if (VideoFilter == 0)
                 text = "On";
+            else if (VideoFilter == 1)
+                text = "Skies";
             else
                 text = "Off";
         }		
@@ -1872,8 +1916,8 @@ void M_VideoDrawer(void) // 80009884
         item++;
     }
 
-    ST_DrawSymbol(102, 80, 68, text_alpha | 0xffffff00);
-    ST_DrawSymbol(brightness/2 + 103, 80, 69, text_alpha | 0xffffff00);
+    ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
+    ST_DrawSymbol(brightness/2 + 83, 80, 69, text_alpha | 0xffffff00);
 
     ST_DrawSymbol(Menu_Video[0].x - 37, Menu_Video[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 }
@@ -1888,7 +1932,7 @@ void M_DisplayDrawer(void) // 80009884
 
     item = Menu_Display;
 
-    for(i = 0; i < 5; i++)
+    for(i = 0; i < 6; i++)
     {
         casepos = item->casepos;
 
@@ -1919,8 +1963,13 @@ void M_DisplayDrawer(void) // 80009884
         item++;
     }
 
-    ST_DrawSymbol(102, 80, 68, text_alpha | 0xffffff00);
-	ST_DrawSymbol(WeaponBob/0x28F6 + 103, 80, 69, text_alpha | 0xffffff00);
+	// Motion bob
+    ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
+	ST_DrawSymbol(WeaponBob/0x28F6 + 83, 80, 69, text_alpha | 0xffffff00);
+	
+	// Flash brightness
+    ST_DrawSymbol(82, 120, 68, text_alpha | 0xffffff00);
+	ST_DrawSymbol(100*FlashBrightness/32 + 83, 120, 69, text_alpha | 0xffffff00);
 
     ST_DrawSymbol(Menu_Display[0].x - 37, Menu_Display[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 }
