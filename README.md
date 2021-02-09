@@ -1,26 +1,32 @@
-Merciless Edition is a fork of Doom 64 RE where new features are implemented with the goal of maintaining Nintendo 64 hardware and vanilla gameplay compatibility. Here Doom 64 RE is a complete reverse engineering of Doom 64 by Erick194, which has provided the pathway to achieve such modifications.
+Merciless Edition is a fork of Doom 64 RE where new features are implemented with the goal of maintaining Nintendo 64 hardware and vanilla gameplay compatibility. Where Doom 64 RE is a complete reverse engineering of Doom 64 by Erick194, which has provided the pathway to achieve such modifications.
 
 ## Current Differences from Doom 64 RE
 ### "Be Merciless!" Difficulty
 The “Be Merciless!” difficulty setting combines parts of the “Nightmare!” mode introduced in Doom 64 RE with the "Hardcore!" mode of Doom 64 and other tweaks. As opposed to emulating the difficulties of other Doom 64 ports, it is now an experience focused on brutal action. Enemies are more aggressive, unpredictable, faster, and agile. However, the ammo bonuses are increased and the weapon switching is faster. Overall, it is a more violent experience which may appeal to fans of the newer iterations of the Doom series.
 
-### Menu Reorganization
-The menus have been reorganized to accomodate the additional options and accessibility. A new "Video" menu has been added to toggle the various new video modes. Then many of the new accessibility options have been added to the "Display" menu. Further, the "Password" menu option has been moved to the main menu for easier access.
+### Menu Reorganization and Defaults
+Many of the menus have been reorganized and renamed to accomodate the additional options and accessibility. A new "Video" menu has been added to toggle the various new video modes. Then many of the new accessibility options have been added to the "Display" menu. Further, the "Password" menu option has been moved to the main menu for easier access. There is also a new "Defaults" menu to restore the game to the original Doom 64 settings, Merciless Edition settings, Immorpher's settings, or Accessible settings for increased Doom 64 accessibility.
+
+### Movement Menu Options
+Many players have expressed motion sickness when playing Doom 64. There is an overall swaying motion which happens when the player is moving. This also causes the weapon to bob up and down which may be making some players sick. Now there is a slider which can reduce this bobbing motion to the point of being turned off. Digital movement in Doom 64 was restricted to "walking" speed, unless the "speed" button is pressed. The new "Autorun" setting defaults digital movement to running, where now the "speed" button slows the player down.
 
 ### Video Menu Options
 The option to turn off the classic N64 3-point linear filtering has been moved from the "Features" cheat menu in Doom 64 RE, to the main "Video" menu in the options. This allows it to be accessible without beating "Hectic" or using a pass code. Further, this option has been extended to filter skies only (like Doom 64 Remaster) or completely off (like Doom 64 EX). Doom 64 is known for being a particularly dark. Even at maximum brightness many screens still struggle with it. Now the brightness option has been extended. By default, this version sets the brightness to the original maximum value. However it now can be extended even beyond that by twice without oversaturating the screen. Further, there are additional video options which utilize the Nintendo 64 hardware features, such as anti-aliasing, video dithering, interlacing, and color dithering. Some combinations have a nicely retro look!
 
 ### Display Menu Options
-The "Display" options now contains many additional features to make the game more accessible. Many players have expressed motion sickness when playing Doom 64. There is an overall swaying motion which happens when the player is moving. This also causes the weapon to bob up and down which may be making some players sick. Now there is a slider which can reduce this bobbing motion to the point of being turned off. Futher some parts of the game have intense flashing, which has the risk of inducing seizures in some players. Now there is an option to reduce or turn off these flashes.
-
-### Infrared Goggles Improvement
-With the new brightness setting, the infrared goggles have a less noticeable effect. Their utility was under question anyway as they only appear in two main game levels. However, now they have an overall boost to the gradient lighting without altering saturated colors. It is similar to the classic Doom's infrared goggles without the blinding brightness. The goal is to balance utility and aesthetics, which may be useful in the future.
+The "Display" options now contains a flash brightness option to make the game more accessible. Some parts of the game have intense flashing, particularly the first megasphere in "Holding Area", which has the risk of inducing seizures in some players. Now there is an option to reduce or turn off these flashes.
 
 ### Save Files
 Now the memory pak save files include abbreviations for the difficulty. It is easier to keep all of those Doom 64 saves in order.
 
+### Zombiemen Sound Restoration
+The third sight and death sounds in Doom 64 would go unplayed due to the randomization in the code. Now this randomization routine has been updated such that these sounds will be played.
+
+### Infrared Goggles Improvement
+With the new brightness setting, the infrared goggles have a less noticeable effect. Their utility was under question anyway as they only appear in two main game levels. However, now they have an overall boost to the gradient lighting without altering saturated colors. It is similar to the classic Doom's infrared goggles without the blinding brightness. The goal is to balance utility and aesthetics, which may be useful in the future.
+
 ### Other New Default Options
-As mentioned the brightness has a new default setting, but also the sound volume default has been set to the maximum. This sets it slightly louder than the ambient music. Further, to honor Retro Fighter’s commitment to continuously improving their N64 controller designs, there is a new default option in the “Game Pad” menu. For controllers where all of the N64 buttons are accessible in one position, like the Retro Fighters controller, variants of the Super Pad 64, or the Hori controller, then the new “Retro Fighters” option might be the optimal layout.
+As mentioned the brightness has a new default setting, but also the sound volume default has been set to the maximum. This sets it slightly louder than the ambient music. Further, to honor Retro Fighter’s commitment to continuously improving their N64 controller designs, there is a new default option in the “Gamepad” menu. For controllers where all of the N64 buttons are accessible in one position, like the Retro Fighters controller, variants of the Super Pad 64, or the Hori controller, then the new “Retro Fighters” option might be the optimal layout.
 
 ### Optimizations
 F3DEX rendering is replaced with the later F3DEX2 rendering. This should improve geometry calculations. Although this is not a major slowdown in Doom 64, it may result in a slightly more-stable frame rate and perhaps allow for more geometry in future custom maps. Further it is compiled with level 3 optimizations (O3), which improves code execution speed. In some code bases this can be unstable, but so far no issues have been found. Importantly compatibility with the original Doom 64 demos are retained.
