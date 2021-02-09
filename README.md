@@ -4,7 +4,7 @@ Merciless Edition is a fork of Doom 64 RE where new features are implemented wit
 ### "Be Merciless!" Difficulty
 The “Be Merciless!” difficulty setting combines parts of the “Nightmare!” mode introduced in Doom 64 RE with the "Hardcore!" mode of Doom 64 and other tweaks. As opposed to emulating the difficulties of other Doom 64 ports, it is now an experience focused on brutal action. Enemies are more aggressive, unpredictable, faster, and agile. However, the ammo bonuses are increased and the weapon switching is faster. Overall, it is a more violent experience which may appeal to fans of the newer iterations of the Doom series.
 
-### Menu Reorganization and Defaults
+### Menu Reorganization and Defaults Menu
 Many of the menus have been reorganized and renamed to accomodate the additional options and accessibility. A new "Video" menu has been added to toggle the various new video modes. Then many of the new accessibility options have been added to the "Display" menu. Further, the "Password" menu option has been moved to the main menu for easier access. There is also a new "Defaults" menu to restore the game to the original Doom 64 settings, Merciless Edition settings, Immorpher's settings, or Accessible settings for increased Doom 64 accessibility.
 
 ### Movement Menu Options
