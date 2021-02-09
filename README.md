@@ -65,7 +65,7 @@ Erick194 created this project with CodeBlocks for the purposes of organization r
 
 Interestingly, you can also use the WESSLIB.o from the original Mortal Kombat Trilogy on the Nintendo 64 as opposed to the rebuilt code here. For this go to the file "wessarc.h" and remove the slashes from the text "//#define NOUSEWESSCODE". Then go to the Makefile and remove the "#" from the following line "WESSLIB = #wesslib.o". Then add "#" in the following line "ASMFILES = wessint_s.s" to make it into "ASMFILES = #wessint_s.s". Now you can compile the Rom.
 
-Erick194 gives special thanks to his brothers for help, the Doomworld community, and Kaiser for assistance and looking over the progress. Immorpher would like to thank Erick194, Kaiser, and Quasar for their years in effort in the Doom community. Further, Immorpher would like to thank CrashOveride, Buu343, and Elfor for their assitance in the Nintendo 64 community.
+Erick194 gives special thanks to his brothers for help, the Doomworld community, and Kaiser for assistance and looking over the progress. Immorpher would like to thank Erick194, Kaiser, and Quasar for their years in effort in the Doom community. Further, Immorpher would like to thank CrashOveride, Buu343, Neigh Winny, IRL Random Hajile, and Elfor for their assitance in the Nintendo 64 community.
 
 GEC Team Discord:  https://discord.gg/aEZD4Y7
 
