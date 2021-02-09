@@ -276,8 +276,13 @@ void P_BuildMove (player_t *player) // 80022154
 	oldbuttons = oldticbuttons[0];
 
     player->forwardmove = player->sidemove = player->angleturn = 0;
-
-	speed = (buttons & cbutton->BT_SPEED) > 0;
+	
+	if(Autorun == true && demoplayback == false) { // [Immorpher] New autorun option
+		speed = (buttons & cbutton->BT_SPEED) < 1;	
+	}
+	else {
+		speed = (buttons & cbutton->BT_SPEED) > 0;
+	}
 	sensitivity = 0;
 
 	/*  */
@@ -444,9 +449,9 @@ void P_CalcHeight (player_t *player) // 80022670
 	player->bob += FixedMul(val, val);
 
 	player->bob >>= 2;
-	if (player->bob > WeaponBob)
+	if (player->bob > MotionBob)
 	{
-		player->bob = WeaponBob;
+		player->bob = MotionBob;
 	}
 
 	if (!player->onground)

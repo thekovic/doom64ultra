@@ -29,7 +29,7 @@ char *ControlText[] =   //8007517C
 	CT_TXT10, CT_TXT11, CT_TXT12, CT_TXT13
 };
 
-#define M_TXT00	"Control Pad"
+#define M_TXT00	"Gamepad"
 #define M_TXT01	"Volume"
 #define M_TXT02	"Video"
 #define M_TXT03	"Password"
@@ -41,8 +41,8 @@ char *ControlText[] =   //8007517C
 #define M_TXT09 "Brightness"
 #define M_TXT10 "Resume"
 #define M_TXT11 "Options"
-#define M_TXT12 "Default" // default for volume
-#define M_TXT13 "Default" // default for video
+#define M_TXT12 "Autorun:"
+#define M_TXT13 "Defaults" // default for video
 #define M_TXT14 "New Game"
 #define M_TXT15 "Be Gentle!"
 #define M_TXT16 "Bring It On!"
@@ -70,8 +70,8 @@ char *ControlText[] =   //8007517C
 #define M_TXT38 "MACRO PEEK"
 #define M_TXT39 "MUSIC TEST"
 #define M_TXT40 "WARP TO FUN"
-#define M_TXT41 "Control Stick"
-#define M_TXT42 "Default"
+#define M_TXT41 "Movement"
+#define M_TXT42 "Original" // Original default for Doom 64
 #define M_TXT43 "Sensitivity"
 #define M_TXT44 "Manage Pak"
 #define M_TXT45 "Do not use Pak"
@@ -88,6 +88,9 @@ char *ControlText[] =   //8007517C
 #define M_TXT55 "Interlacing:" // [Immorpher] New interlacing option
 #define M_TXT56 "Color Dither:" // [Immorpher] New color dither options
 #define M_TXT57 "Flash Brightness" // [Immorpher] New flash brightness option
+#define M_TXT58 "Merciless" // [Immorpher] Merciless default settings
+#define M_TXT59 "Immorpher" // [Immorpher] Immorpher default settings
+#define M_TXT60 "Accessible" // [Immorpher] Increased accessibility default settings
 
 char *MenuText[] =   // 8005ABA0
 {
@@ -102,7 +105,8 @@ char *MenuText[] =   // 8005ABA0
     M_TXT40, M_TXT41, M_TXT42, M_TXT43, M_TXT44,
     M_TXT45, M_TXT46, M_TXT47, M_TXT48, M_TXT49,
 	M_TXT50, M_TXT51, M_TXT52, M_TXT53, M_TXT54,
-	M_TXT55, M_TXT56, M_TXT57
+	M_TXT55, M_TXT56, M_TXT57, M_TXT58, M_TXT59,
+	M_TXT60
 };
 
 menuitem_t Menu_Title[3] = // 8005A978
@@ -123,28 +127,28 @@ menuitem_t Menu_Skill[5] = // 8005A990
 
 menuitem_t Menu_Options[7] = // 8005A9C0
 {
-    {  0, 82, 60 },    // Control Pad
-    { 41, 82, 80 },    // Control Stick
-    {  1, 82, 100},    // Volume
-    {  2, 82, 120},    // Video
-    { 51, 82, 140},    // Display
-    { 13, 82, 160},    // Default settings
-    {  6, 82, 180},    // Return
+    {  0, 112, 60 },    // Gamepad
+    { 41, 112, 80 },    // Movement
+    {  1, 112, 100},    // Volume
+    {  2, 112, 120},    // Video
+    { 51, 112, 140},    // Display
+    { 13, 112, 160},    // Default settings
+    {  6, 112, 180},    // Return
 };
 
-menuitem_t Menu_Volume[4] = // 8005AA08
+menuitem_t Menu_Volume[3] = // 8005AA08
 {
     {  7, 82, 60 },    // Music Volume
     {  8, 82, 100},    // Sound Volume
-    { 12, 82, 140},    // Default Volume
-    {  6, 82, 160},    // Return
+    {  6, 82, 140},    // Return
 };
 
-menuitem_t Menu_ControlStick[3] = // 8005AA38
+menuitem_t Menu_Movement[4] = // [Immorpher] Movement
 {
-    { 43, 82, 90 },    // Sensitivity
-    { 42, 82, 130},    // Default Sensitivity
-    {  6, 82, 150},    // Return
+    { 52, 82, 60 },    // Motion Bob
+    { 43, 82, 100 },   // Sensitivity
+    { 12, 82, 140},    // Autorun
+    {  6, 82, 160},    // Return
 };
 
 menuitem_t Menu_Video[7] = // 8005AA5C
@@ -158,14 +162,22 @@ menuitem_t Menu_Video[7] = // 8005AA5C
     {  6, 82, 200},    // Return
 };
 
-menuitem_t Menu_Display[6] = // [Immorpher] New menu
+menuitem_t Menu_Display[5] = // [Immorpher] New menu
 {
-    { 52, 82, 60 },    // Motion Bob
-    { 57, 82, 100},    // Flash Brightness
-    { 32, 82, 140},    // Center Display
-    { 33, 82, 160},    // Messages
-    { 34, 82, 180},    // Status Bar
-    {  6, 82, 200},    // Return
+    { 57, 82, 60},    	// Flash Brightness
+    { 32, 82, 100},    // Center Display
+    { 33, 82, 120},    // Messages
+    { 34, 82, 140},    // Status Bar
+    {  6, 82, 160},    // Return
+};
+
+menuitem_t Menu_Defaults[5] = // [Immorpher] New menu
+{
+    { 42, 102, 60},    	// Original doom 64 defaults
+    { 58, 102, 80},    	// Merciless edition defaults
+    { 59, 102, 100},    	// Immorpher's defaults
+    { 60, 102, 120},    	// Accessibility defaults
+    {  6, 102, 140},    	// Return
 };
 
 menuitem_t Menu_Game[5] = // 8005AAA4
@@ -274,13 +286,14 @@ int MusVolume = 80;             // 8005A7C4
 int brightness = 100;             // 8005A7C8
 int M_SENSITIVITY = 0;          // 8005A7CC
 boolean FeaturesUnlocked = false; // 8005A7D0
-int WeaponBob = 0x100000; // [Immorpher] Motion Bob works in hexadecimal
+int MotionBob = 0x100000; // [Immorpher] Motion Bob works in hexadecimal
 int VideoFilter = 0; // [GEC & Immorpher] Set 3 point filtering on or off
 boolean antialiasing = false; // [Immorpher] Anti-Aliasing
 boolean interlacing = false; // [Immorpher] Interlacing
 boolean DitherFilter = false; // [Immorpher] Dither filter
 int ColorDither = 0; // [Immorpher] Color dithering options (Off, Square, Bayer, Noise)
 int FlashBrightness = 32; // [Immorpher] Strobe brightness adjustment, will need to change to float
+boolean Autorun = false; // [Immorpher] New autorun option!
 
 int TempConfiguration[13] = // 8005A80C
 {
@@ -725,7 +738,7 @@ int M_MenuTicker(void) // 80007E0C
                 switch(MenuItem[cursorpos].casepos)
                 {
 
-                case 0: // Control Pad
+                case 0: // Gamepad
                     if (truebuttons)
                     {
                         S_StartSound(NULL, sfx_pistol);
@@ -748,7 +761,7 @@ int M_MenuTicker(void) // 80007E0C
                         M_SaveMenuData();
 
                         MenuItem = Menu_Volume;
-                        itemlines = 4;
+                        itemlines = 3;
                         MenuCall = M_VolumeDrawer;
                         cursorpos = 0;
 
@@ -1000,46 +1013,28 @@ int M_MenuTicker(void) // 80007E0C
                     }
                     break;
 
-                case 12: // Default Volume
+                case 12: // Autorun
                     if (truebuttons)
                     {
                         S_StartSound(NULL, sfx_switch2);
-
-                        SfxVolume = 0x50;
-                        MusVolume = 0x50;
-
-                        S_SetMusicVolume(MusVolume);
-                        S_SetSoundVolume(SfxVolume);
-
+                        Autorun ^= true;
                         return ga_nothing;
                     }
                     break;
 
-                case 13: // Default Optios
+                case 13: // Set defaults
                     if (truebuttons)
                     {
-                        S_StartSound(NULL, sfx_switch2);
+                        S_StartSound(NULL, sfx_pistol);
+                        M_SaveMenuData();
 
-                        Display_X = 0;
-                        Display_Y = 0;
+                        MenuItem = Menu_Defaults;
+                        itemlines = 5;
+                        MenuCall = M_DefaultsDrawer;
+                        cursorpos = 0;
 
-                        brightness = 0;
-						VideoFilter = 0; // [Immorpher] new video option
-						antialiasing = false; // [Immorpher] new video option
-						interlacing = false;  // [Immorpher] new video option
-						DitherFilter = false;  // [Immorpher] new video option
-						ColorDither = 0;  // [Immorpher] new video option
-						FlashBrightness = 32;  // [Immorpher] new video option
-						
-                        enable_messages = true;
-                        enable_statusbar = true;
-						
-						WeaponBob = 0x100000;
-						
-                        I_MoveDisplay(0,0);
-                        P_RefreshBrightness();
-						P_RefreshVideo();
-						
+                        MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
+                        M_RestoreMenuData(true);
                         return ga_nothing;
                     }
                     break;
@@ -1415,9 +1410,9 @@ int M_MenuTicker(void) // 80007E0C
                         S_StartSound(NULL, sfx_pistol);
                         M_SaveMenuData();
 
-                        MenuItem = Menu_ControlStick;
-                        itemlines = 3;
-                        MenuCall = M_ControlStickDrawer;
+                        MenuItem = Menu_Movement;
+                        itemlines = 4;
+                        MenuCall = M_MovementDrawer;
                         cursorpos = 0;
 
                         MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
@@ -1427,11 +1422,43 @@ int M_MenuTicker(void) // 80007E0C
                     }
                     break;
 
-                case 42: // Default Sensitivity
+                case 42: // Original Doom 64 defaults
                     if (truebuttons)
                     {
                         S_StartSound(NULL, sfx_switch2);
-                        M_SENSITIVITY = 0;
+						
+						// Set movement/controller options
+						MotionBob = 0x100000;
+                        M_SENSITIVITY = 0; // stick sensitivity
+						ConfgNumb = 0;    // gamepad configuration
+						Autorun = false;
+
+						// Set video options
+                        brightness = 0;
+						VideoFilter = 0; // [Immorpher] new video option
+						antialiasing = false; // [Immorpher] new video option
+						interlacing = false;  // [Immorpher] new video option
+						DitherFilter = false;  // [Immorpher] new video option
+						ColorDither = 0;  // [Immorpher] new video option
+						FlashBrightness = 32;  // [Immorpher] new video option
+						
+						// Set display options
+                        enable_messages = true;
+                        enable_statusbar = true;
+						
+						// Set sound options
+                        SfxVolume = 0x50;
+                        MusVolume = 0x50;
+						
+						// Reset functions
+						D_memcpy(ActualConfiguration, DefaultConfiguration[ConfgNumb], (13 * sizeof(int)));
+                        I_MoveDisplay(0,0);
+                        P_RefreshBrightness();
+						P_RefreshVideo();
+                        S_SetMusicVolume(MusVolume);
+                        S_SetSoundVolume(SfxVolume);
+						
+                        return ga_nothing;
                     }
                     break;
 
@@ -1532,7 +1559,7 @@ int M_MenuTicker(void) // 80007E0C
                         M_SaveMenuData();
 
                         MenuItem = Menu_Display;
-                        itemlines = 6;
+                        itemlines = 5;
                         MenuCall = M_DisplayDrawer;
                         cursorpos = 0;
 
@@ -1545,10 +1572,10 @@ int M_MenuTicker(void) // 80007E0C
                 case 52: // Motion Bob
                     if (buttons & PAD_RIGHT)
                     {
-                        WeaponBob += 0x8000; // increments
-                        if (WeaponBob <= 0x100000) // Maximum is 32 in hex
+                        MotionBob += 0x8000; // increments
+                        if (MotionBob <= 0x100000) // Maximum is 32 in hex
                         {
-                            if (WeaponBob & 0x8000)
+                            if (MotionBob & 0x8000)
                             {
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
@@ -1556,19 +1583,19 @@ int M_MenuTicker(void) // 80007E0C
                         }
                         else
                         {
-                            WeaponBob = 0x100000; // The Limit
+                            MotionBob = 0x100000; // The Limit
                         }
                     }
                     else if (buttons & PAD_LEFT)
                     {
-                        WeaponBob -= 0x8000; // decrements 
-                        if (WeaponBob < 0x0)
+                        MotionBob -= 0x8000; // decrements 
+                        if (MotionBob < 0x0)
                         {
-                            WeaponBob = 0x0;
+                            MotionBob = 0x0;
                         }
                         else
                         {
-                            if (WeaponBob & 0x8000)
+                            if (MotionBob & 0x8000)
                             {
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
@@ -1653,7 +1680,128 @@ int M_MenuTicker(void) // 80007E0C
                             }
                         }
                     }
-                    break;		
+                    break;	
+					
+                case 58: // Merciless edition defaults
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+						
+						// Set movement/controller options
+						MotionBob = 0x100000;
+                        M_SENSITIVITY = 0; // stick sensitivity
+						ConfgNumb = 0;    // gamepad configuration
+						Autorun = false;
+
+						// Set video options
+                        brightness = 100;
+						VideoFilter = 0; // [Immorpher] new video option
+						antialiasing = false; // [Immorpher] new video option
+						interlacing = false;  // [Immorpher] new video option
+						DitherFilter = false;  // [Immorpher] new video option
+						ColorDither = 0;  // [Immorpher] new video option
+						FlashBrightness = 32;  // [Immorpher] new video option
+						
+						// Set display options
+                        enable_messages = true;
+                        enable_statusbar = true;
+						
+						// Set sound options
+                        SfxVolume = 100;
+                        MusVolume = 0x50;
+						
+						// Reset functions
+						D_memcpy(ActualConfiguration, DefaultConfiguration[ConfgNumb], (13 * sizeof(int)));
+                        I_MoveDisplay(0,0);
+                        P_RefreshBrightness();
+						P_RefreshVideo();
+                        S_SetMusicVolume(MusVolume);
+                        S_SetSoundVolume(SfxVolume);
+						
+                        return ga_nothing;
+                    }
+                    break;
+					
+                case 59: // Immorpher's defaults
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+						
+						// Set movement/controller options
+						MotionBob = 0x100000;
+                        M_SENSITIVITY = 0; // stick sensitivity
+						ConfgNumb = 5;    // gamepad configuration
+						Autorun = true;
+
+						// Set video options
+                        brightness = 200;
+						VideoFilter = 1; // [Immorpher] new video option
+						antialiasing = false; // [Immorpher] new video option
+						interlacing = false;  // [Immorpher] new video option
+						DitherFilter = false;  // [Immorpher] new video option
+						ColorDither = 2;  // [Immorpher] new video option
+						
+						// Set display options
+						FlashBrightness = 32;  // [Immorpher] new video option
+                        enable_messages = true;
+                        enable_statusbar = true;
+						
+						// Set sound options
+                        SfxVolume = 100;
+                        MusVolume = 0x50;
+						
+						// Reset functions
+						D_memcpy(ActualConfiguration, DefaultConfiguration[ConfgNumb], (13 * sizeof(int)));
+                        I_MoveDisplay(0,0);
+                        P_RefreshBrightness();
+						P_RefreshVideo();
+                        S_SetMusicVolume(MusVolume);
+                        S_SetSoundVolume(SfxVolume);
+						
+                        return ga_nothing;
+                    }
+                    break;
+
+                case 60: // Accessibility defaults
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+						
+						// Set movement/controller options
+						MotionBob = 0x0;
+                        M_SENSITIVITY = 0; // stick sensitivity
+						ConfgNumb = 0;    // gamepad configuration
+						Autorun = true;
+
+						// Set video options
+                        brightness = 200;
+						VideoFilter = 0; // [Immorpher] new video option
+						antialiasing = false; // [Immorpher] new video option
+						interlacing = false;  // [Immorpher] new video option
+						DitherFilter = false;  // [Immorpher] new video option
+						ColorDither = 0;  // [Immorpher] new video option
+						FlashBrightness = 0;  // [Immorpher] new video option
+						
+						// Set display options
+                        enable_messages = true;
+                        enable_statusbar = true;
+						
+						// Set sound options
+                        SfxVolume = 100;
+                        MusVolume = 0x50;
+						
+						// Reset functions
+						D_memcpy(ActualConfiguration, DefaultConfiguration[ConfgNumb], (13 * sizeof(int)));
+                        I_MoveDisplay(0,0);
+                        P_RefreshBrightness();
+						P_RefreshVideo();
+                        S_SetMusicVolume(MusVolume);
+                        S_SetSoundVolume(SfxVolume);
+						
+                        return ga_nothing;
+                    }
+                    break;					
+
 				}
             exit = ga_nothing;
         }
@@ -1827,25 +1975,49 @@ void M_VolumeDrawer(void) // 800095B4
     ST_DrawSymbol(SfxVolume + 83, 120, 69, text_alpha | 0xffffff00);
 }
 
-void M_ControlStickDrawer(void) // 80009738
+void M_MovementDrawer(void) // 80009738
 {
+    char *text;
     menuitem_t *item;
-    int i;
+    int i, casepos;
 
-    ST_DrawString(-1, 20, "Control Stick", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Movement", text_alpha | 0xc0000000);
 
-    item = Menu_ControlStick;
+    item = Menu_Movement;
 
     for(i = 0; i < itemlines; i++)
     {
+        casepos = item->casepos;
+		
+		if (casepos == 12) // [Immorpher] Autorun
+        {
+            if (Autorun)
+                text = "On";
+            else
+                text = "Off";
+        }
+        else
+        {
+            text = NULL;
+        }
+		
+		if (text)
+			ST_DrawString(item->x + 100, item->y, text, text_alpha | 0xc0000000);
+		
         ST_DrawString(item->x, item->y, MenuText[item->casepos], text_alpha | 0xc0000000);
         item++;
     }
 
     ST_DrawSymbol(MenuItem->x - 37, MenuItem[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
-    ST_DrawSymbol(82,110,68,text_alpha | 0xffffff00);
-    ST_DrawSymbol(M_SENSITIVITY + 83, 110, 69, text_alpha | 0xffffff00);
+	// Sensitivity
+    ST_DrawSymbol(82,120,68,text_alpha | 0xffffff00);
+    ST_DrawSymbol(M_SENSITIVITY + 83, 120, 69, text_alpha | 0xffffff00);
+	
+	// Motion bob
+    ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
+	ST_DrawSymbol(MotionBob/0x28F6 + 83, 80, 69, text_alpha | 0xffffff00);
+	
 }
 
 void M_VideoDrawer(void) // 80009884
@@ -1909,7 +2081,7 @@ void M_VideoDrawer(void) // 80009884
         }
 
         if (text)
-            ST_DrawString(item->x + 140, item->y, text, text_alpha | 0xc0000000);
+			ST_DrawString(item->x + 140, item->y, text, text_alpha | 0xc0000000);
 
         ST_DrawString(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
 
@@ -1932,7 +2104,7 @@ void M_DisplayDrawer(void) // 80009884
 
     item = Menu_Display;
 
-    for(i = 0; i < 6; i++)
+    for(i = 0; i < itemlines; i++)
     {
         casepos = item->casepos;
 
@@ -1956,22 +2128,39 @@ void M_DisplayDrawer(void) // 80009884
         }
 
         if (text)
-            ST_DrawString(item->x + 140, item->y, text, text_alpha | 0xc0000000);
+            ST_DrawString(item->x + 120, item->y, text, text_alpha | 0xc0000000);
+
+        ST_DrawString(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+
+        item++;
+    }
+	
+	// Flash brightness
+    ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
+	ST_DrawSymbol(100*FlashBrightness/32 + 83, 80, 69, text_alpha | 0xffffff00);
+
+    ST_DrawSymbol(Menu_Display[0].x - 37, Menu_Display[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
+}
+
+void M_DefaultsDrawer(void) // [Immorpher] new defaults drawer
+{
+    menuitem_t *item;
+    int i, casepos;
+
+    ST_DrawString(-1, 20, "Set Defaults", text_alpha | 0xc0000000);
+
+    item = Menu_Defaults;
+
+    for(i = 0; i < itemlines; i++)
+    {
+        casepos = item->casepos;
 
         ST_DrawString(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
 
         item++;
     }
 
-	// Motion bob
-    ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
-	ST_DrawSymbol(WeaponBob/0x28F6 + 83, 80, 69, text_alpha | 0xffffff00);
-	
-	// Flash brightness
-    ST_DrawSymbol(82, 120, 68, text_alpha | 0xffffff00);
-	ST_DrawSymbol(100*FlashBrightness/32 + 83, 120, 69, text_alpha | 0xffffff00);
-
-    ST_DrawSymbol(Menu_Display[0].x - 37, Menu_Display[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
+    ST_DrawSymbol(Menu_Defaults[0].x - 37, Menu_Defaults[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 }
 
 void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
@@ -2735,7 +2924,7 @@ int M_CenterDisplayTicker(void) // 8000B4C4
 void M_CenterDisplayDrawer(void) // 8000B604
 {
     ST_DrawString(-1, 20, "Center Display", text_alpha | 0xc0000000);
-    ST_DrawString(-1, 114, "use control pad to adjust", text_alpha | 0xffffff00);
+    ST_DrawString(-1, 114, "use gamepad to adjust", text_alpha | 0xffffff00);
     ST_DrawString(-1, 210, "press \x8d to exit", text_alpha | 0xffffff00);
 }
 
@@ -2858,7 +3047,7 @@ void M_ControlPadDrawer(void) // 8000B988
     char **text;
     char buffer [44];
 
-    ST_DrawString(-1, 20, "Control Pad", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Gamepad", text_alpha | 0xc0000000);
 
     if (linepos < (linepos + 6))
     {

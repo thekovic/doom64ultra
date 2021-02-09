@@ -213,7 +213,7 @@ void G_InitNew (skill_t skill, int map, gametype_t gametype) // 800046F4
 		mobjinfo[MT_IMP2].radius = 28*FRACUNIT;
 		mobjinfo[MT_IMP2].height = 87*FRACUNIT;
 		mobjinfo[MT_CACODEMON].radius = 41*FRACUNIT;
-		mobjinfo[MT_CACODEMON].height = 93*FRACUNIT;
+		mobjinfo[MT_CACODEMON].height = 89*FRACUNIT;
 		mobjinfo[MT_BRUISER1].radius = 24*FRACUNIT;
 		mobjinfo[MT_BRUISER1].height = 99*FRACUNIT;
 		mobjinfo[MT_BRUISER2].radius = 24*FRACUNIT;
@@ -274,8 +274,8 @@ void G_InitNew (skill_t skill, int map, gametype_t gametype) // 800046F4
 		mobjinfo[MT_IMP1].height = 94*FRACUNIT;
 		mobjinfo[MT_IMP2].radius = 42*FRACUNIT;
 		mobjinfo[MT_IMP2].height = 94*FRACUNIT;
-		mobjinfo[MT_CACODEMON].radius = 42*FRACUNIT;
-		mobjinfo[MT_CACODEMON].height = 94*FRACUNIT;
+		mobjinfo[MT_CACODEMON].radius = 55*FRACUNIT;
+		mobjinfo[MT_CACODEMON].height = 90*FRACUNIT;
 		mobjinfo[MT_BRUISER1].radius = 24*FRACUNIT;
 		mobjinfo[MT_BRUISER1].height = 100*FRACUNIT;
 		mobjinfo[MT_BRUISER2].radius = 24*FRACUNIT;

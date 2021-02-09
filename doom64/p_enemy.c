@@ -431,7 +431,7 @@ void A_Look (mobj_t *actor) // 80011340
 		case sfx_possit1://sfx_posit1:
 		case sfx_possit2://sfx_posit2:
 		case sfx_possit3://sfx_posit3:
-			sound = sfx_possit1+(P_Random()&1);
+			sound = sfx_possit1+P_Random()/86; // [Immorpher] integer rounding to have 0,1,2 and restore missing sounds
 			break;
 		case sfx_impsit1://sfx_bgsit1:
 		case sfx_impsit2://sfx_bgsit2:
@@ -594,7 +594,7 @@ void A_Scream (mobj_t *actor) // 80011740
 	case sfx_posdie1://sfx_podth1:
 	case sfx_posdie2://sfx_podth2:
 	case sfx_posdie3://sfx_podth3:
-		sound = sfx_posdie1 + (P_Random ()&1);
+		sound = sfx_posdie1 + P_Random()/86; // [Immorpher] now the third death sound happens given integer rounding
 		break;
 
 	case sfx_impdth1://sfx_bgdth1:

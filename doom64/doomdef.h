@@ -795,13 +795,14 @@ extern int MusVolume;               // 8005A7C4
 extern int brightness;              // 8005A7C8
 extern int M_SENSITIVITY;           // 8005A7CC
 extern boolean FeaturesUnlocked;    // 8005A7D0
-extern int WeaponBob;				// [Immorpher] Motion Bob
+extern int MotionBob;				// [Immorpher] Motion Bob
 extern int VideoFilter;				// [GEC & Immorpher] VideoFilter
 extern boolean antialiasing;     	// [Immorpher] Anti-aliasing
 extern boolean interlacing;     	// [Immorpher] Interlacing
 extern boolean DitherFilter;     	// [Immorpher] Dither Filter
 extern int ColorDither;     		// [Immorpher] Color Dither
 extern int FlashBrightness;     	// [Immorpher] Strobe brightness adjustment, will need to be float
+extern boolean Autorun;     		// [Immorpher] Autorun
 
 int M_RunTitle(void); // 80007630
 
@@ -823,9 +824,10 @@ void M_MenuClearCall(void); // 80008E6C
 void M_MenuTitleDrawer(void); // 80008E7C
 void M_FeaturesDrawer(void); // 800091C0
 void M_VolumeDrawer(void); // 800095B4
-void M_ControlStickDrawer(void); // 80009738
+void M_MovementDrawer(void); // 80009738
 void M_VideoDrawer(void); // 80009884
 void M_DisplayDrawer(void); // [Immorpher] new menu
+void M_DefaultsDrawer(void); // [Immorpher] new menu
 
 void M_DrawBackground(int x, int y, int color, char *name); // 80009A68
 void M_DrawOverlay(int x, int y, int w, int h, int color); // 80009F58
