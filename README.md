@@ -41,7 +41,8 @@ COLORS: Added by Erick194, this turns off the colored lighting in the game.
 FULL BRIGHT: Added by Erick194, all sectors will be at maximum brightness.
 FILTER: Added by Erick194, this activates and deactivates the 3-point linear filter. This has been moved to the "Video" menu by Immorpher.
 
-## Installation
+## Source Code Installation
+### Nintendo 64
 Here is an edited version of Erick194's installation instructions.
 
 You need to download and install the N64 SDK as assembled by Crash Override at this link: https://n64.dev/
@@ -53,7 +54,7 @@ Once the N64SDK is installed, copy the "doom64" folder to the root "C:" of the h
 The data extractor utility requires the USA version of Doom 64 1.0 and runs on modern Windows (such as Windows 10). Before attempting to compile, you need to copy the data of the original Doom64 (DOOM64.WAD | DOOM64.WMD | DOOM64.WSD | DOOM64.WDD) from the extractor to the data folder. To obtain them, go to the "Tools" folder and extract the content of the "Doom64Extractor.zip" file (which includes the source code). Edit the file "ExtraerDatos.bat" and change the text "Doom 64 (Usa) .z64" by the name of the rom you have, where it is important that it is in "z64" format. Then execute the file "ExtraerDatos.bat" and copy the extracted data in the folder "Data". If you can't get the rom in "z64" format there is a file in the "Tools" folder that is "Tool64_v1.11.zip" which can convert the "n64 and v64" formats to "z64".
 Finally run the "MAKE_ROM.bat" file to compile which generates the Doom 64 rom as "doom64.n64".
 
-## iQue Installation
+### iQue
 You need to download and install the iQue SDK: https://ultra64.ca/resources/software/
 
 Red Hat Linux 9 is required for compilation, where a virtual machine as mentioned previously might be of use. Once the iQue SDK is installed, copy the "doom64" folder to the home folder.
