@@ -1,6 +1,6 @@
-Merciless Edition is a fork of Doom 64 RE where new features are implemented with the goal of maintaining Nintendo 64 hardware and vanilla gameplay compatibility. Where Doom 64 RE is a complete reverse engineering of Doom 64 by Erick194, which has provided the pathway to achieve such modifications.
+Merciless Edition is a fork of Doom 64 RE where new features for Doom 64 are implemented with the goal of maintaining Nintendo 64 hardware and vanilla gameplay compatibility. Where Doom 64 RE is a complete reverse engineering of Doom 64 by Erick194, which has provided the pathway to achieve such modifications.
 
-## Current Differences from Doom 64 RE
+## Current Differences from Doom 64 RE and Original Doom 64
 ### "Be Merciless!" Difficulty
 The “Be Merciless!” difficulty setting combines parts of the “Nightmare!” mode introduced in Doom 64 RE with the "Hardcore!" mode of Doom 64 and other tweaks. As opposed to emulating the difficulties of other Doom 64 ports, it is now an experience focused on brutal action. Enemies are more aggressive, unpredictable, faster, and agile. However, the ammo bonuses are increased and the weapon switching is faster. Overall, it is a more violent experience which may appeal to fans of the newer iterations of the Doom series.
 
