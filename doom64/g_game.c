@@ -81,7 +81,10 @@ void G_PlayerFinishLevel (int player) // 80004598
 	p->bonuscount = 0;
     p->bfgcount = 0;
     p->automapflags = 0;
-    p->messagetic = 0;
+    p->messagetic = 0; 
+    p->messagetic1 = 0;  // [Immorpher] Clear messages
+    p->messagetic2 = 0;  // [Immorpher] Clear messages
+    p->messagetic3 = 0;  // [Immorpher] Clear messages
 }
 
 /*
@@ -311,7 +314,12 @@ void G_RunGame (void) // 80004794
 	{
         /* load a level */
         G_DoLoadLevel ();
-
+		
+		if(runintroduction && StoryText == true) { // [Immorpher] run introduction text screen
+			runintroduction = false; // [Immorpher] only run it once!
+			MiniLoop(F_StartIntermission, F_StopIntermission, F_TickerIntermission, F_DrawerIntermission);
+		}
+			
         //printf("RUN P_Start\n");
         //PRINTF_D2(WHITE, 0, 28, "RUN P_Start\n");
 		/* run a level until death or completion */
@@ -338,7 +346,7 @@ void G_RunGame (void) // 80004794
            ((gamemap ==  4) && (nextmap == 29)) ||
            ((gamemap == 12) && (nextmap == 30)) ||
            ((gamemap == 18) && (nextmap == 31)) ||
-           ((gamemap ==  1) && (nextmap == 32)))
+           ((gamemap ==  1) && (nextmap == 32)) && StoryText == true)
         {
             /* run the intermission if needed */
             MiniLoop(F_StartIntermission, F_StopIntermission, F_TickerIntermission, F_DrawerIntermission);

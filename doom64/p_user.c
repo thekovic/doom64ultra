@@ -4,27 +4,180 @@
 #include "p_local.h"
 #include "st_main.h"
 
-#define MAXMOCKTIME     1800
+#define MAXMOCKTIME     900 // [Immorpher] Reduced this by half for the fun!
 int deathmocktics; // 800A56A0
 
-#define MK_TXT01	"HAHAHAHA!"
-#define MK_TXT02	"YOU SHOULDN'T HAVE DONE THAT."
-#define MK_TXT03	"TRY AN EASIER LEVEL..."
-#define MK_TXT04	"WOW! LOOK AT THOSE DEMON FEET."
-#define MK_TXT05	"I PLAY DOOM AND I CAN'T GET UP."
-#define MK_TXT06	"OUCH! THAT HAD TO HURT."
-#define MK_TXT07	"LOOK AT ME! I'M FLAT!"
-#define MK_TXT08	"THANKS FOR PLAYING!"
-#define MK_TXT09	"YOU LAZY @&$#!"
-#define MK_TXT10	"HAVE YOU HAD ENOUGH?"
-#define MK_TXT11	"THE DEMONS GAVE YOU THE BOOT!"
-#define MK_TXT12	"THE LEAD DEMON VANQUISHED YOU!"
+// Bonus mock texts from the Doom 64 community!
+#define MK_TXT01t1	"MOTHER DEMON: HAHAHAHA!"
+#define MK_TXT01t2	""
+#define MK_TXT01t3	""
+#define MK_TXT02t1	"MOTHER DEMON: YOU SHOULDN'T HAVE"
+#define MK_TXT02t2	"DONE THAT."
+#define MK_TXT02t3	""
+#define MK_TXT03t1	"MIDWAY: TRY AN EASIER LEVEL..."
+#define MK_TXT03t2	""
+#define MK_TXT03t3	""
+#define MK_TXT04t1	"MIDWAY: WOW! LOOK AT THOSE DEMON"
+#define MK_TXT04t2	"FEET."
+#define MK_TXT04t3	""
+#define MK_TXT05t1	"MIDWAY: I PLAY DOOM AND I CAN'T GET"
+#define MK_TXT05t2	"UP."
+#define MK_TXT05t3	""
+#define MK_TXT06t1	"DEMON: OUCH! THAT HAD TO HURT."
+#define MK_TXT06t2	""
+#define MK_TXT06t3	""
+#define MK_TXT07t1	"DEMON: LOOK AT ME! I'M FLAT!"
+#define MK_TXT07t2	""
+#define MK_TXT07t3	""
+#define MK_TXT08t1	"MIDWAY: THANKS FOR PLAYING!"
+#define MK_TXT08t2	""
+#define MK_TXT08t3	""
+#define MK_TXT09t1	"MOTHER DEMON: YOU LAZY @&$#!"
+#define MK_TXT09t2	""
+#define MK_TXT09t3	""
+#define MK_TXT10t1	"MOTHER DEMON: HAVE YOU HAD ENOUGH?"
+#define MK_TXT10t2	""
+#define MK_TXT10t3	""
+#define MK_TXT11t1	"MIDWAY: THE DEMONS GAVE YOU THE"
+#define MK_TXT11t2	"BOOT!"
+#define MK_TXT11t3	""
+#define MK_TXT12t1	"MIDWAY: THE LEAD DEMON VANQUISHED"
+#define MK_TXT12t2	"YOU!"
+#define MK_TXT12t3	""
+#define MK_TXT13t1	"IMMORPHER: WELCOME TO THE IQ64"
+#define MK_TXT13t2	"CLUB! MIGHT AS WELL JOIN THE GOOFS"
+#define MK_TXT13t3	"ON THE DOOM 64 DISCORD SERVER!"
+#define MK_TXT14t1	"IRL RANDOM HAJILE: HMMM, THAT'S ONE"
+#define MK_TXT14t2	"DOOMED SPACE MARINE."
+#define MK_TXT14t3	""
+#define MK_TXT15t1	"RETROTOUR: NO RUSH. JUST RESTART"
+#define MK_TXT15t2	"WHEN YOU'RE READY."
+#define MK_TXT15t3	""
+#define MK_TXT16t1	"SCD: GO BACK TO QUAKE, YA MORON!"
+#define MK_TXT16t2	""
+#define MK_TXT16t3	""
+#define MK_TXT17t1	"WHINNY: I BET YOU STILL SLEEP WITH"
+#define MK_TXT17t2	"YOUR NIGHT LIGHT, WAAAAH!!!"
+#define MK_TXT17t3	""
+#define MK_TXT18t1	"UMLAUT: IF YOU'D LIKE TO JOIN US,"
+#define MK_TXT18t2	"YOU'RE ALWAYS WELCOME, DEAD OR"
+#define MK_TXT18t3	"ALIVE. MUAHAHAHA..."
+#define MK_TXT19t1	"TAUFAN99: NOW YOU KNOW THIS IS NO"
+#define MK_TXT19t2	"SUPERHERO SHOW."
+#define MK_TXT19t3	""
+#define MK_TXT20t1	"QUASIOTTER: EVERY TIME YOU DIE,"
+#define MK_TXT20t2	"A PUPPY IS BORN. THE DEMONS ARE"
+#define MK_TXT20t3	"JUST TRYING TO MAKE MORE PUPPIES."
+#define MK_TXT21t1	"GEC: HOT OR COLD, WHICH SIDE DO YOU"
+#define MK_TXT21t2	"WANT TO BE ON?"
+#define MK_TXT21t3	""
+#define MK_TXT22t1	"WOLF MCBEARD: IT'S OK, I WON'T TELL"
+#define MK_TXT22t2	"ANYONE YOU CALL ME DADDY."
+#define MK_TXT22t3	""
+#define MK_TXT23t1	"POOPSTER: NO MORE SEQUELS FOR"
+#define MK_TXT23t2	"YOU.... YET."
+#define MK_TXT23t3	""
+#define MK_TXT24t1	"WHYBMONOTACRAB: IF ONLY YOU COULD"
+#define MK_TXT24t2	"TALK TO THESE DEMONS, THEN PERHAPS"
+#define MK_TXT24t3	"YOU COULD TRY TO BECOME FRIENDS."
+#define MK_TXT25t1	"CAPTAIN CALEB: YOU'VE HAD OVER"
+#define MK_TXT25t2	"TWENTY YEARS, AND YOU STILL SUCK"
+#define MK_TXT25t3	"AT THIS GAME?"
+#define MK_TXT26t1	"DUKE: WHAT ARE YOU WAITING FOR,"
+#define MK_TXT26t2	"CHRISTMAS?"
+#define MK_TXT26t3	""
+#define MK_TXT27t1	"COLLECTONIAN: UGH, YOU FORGOT"
+#define MK_TXT27t2	"AGAIN!? LAST TIME: ROCKETS ARE"
+#define MK_TXT27t3	"FOR KILLING DEMONS, NOT YOURSELF!"
+#define MK_TXT28t1	"NEVANDER: THAT LOOKED LIKE IT HURT."
+#define MK_TXT28t2	"WELL, WHAT ARE YOU WAITING FOR?"
+#define MK_TXT28t3	"TRY AGAIN AND KICK THEIR ASSES!"
+#define MK_TXT29t1	"SCWIBA: YO IMMORPHER, I SAID NO"
+#define MK_TXT29t2	"MORE DOOM 64! WHY AM I EVEN IN"
+#define MK_TXT29t3	"THIS MOD?!"
+#define MK_TXT30t1	"GRAV: YOU KNOW YOU CAN BEAT THIS"
+#define MK_TXT30t2	"GAME IN 30 MINUTES RIGHT? WHAT'S"
+#define MK_TXT30t3	"TAKING SO LONG?"
+#define MK_TXT31t1	"HARDCORE_GAMER: THIS IS WHAT"
+#define MK_TXT31t2	"HAPPENS WHEN YOU'VE HAD TOO"
+#define MK_TXT31t3	"MANY CORONAS."
+#define MK_TXT32t1	"ISANN KEKET: ON YOUR FEET, MARINE."
+#define MK_TXT32t2	"SLAYERS NEVER SLEEP!"
+#define MK_TXT32t3	""
+#define MK_TXT33t1	"AMUSED BRIAN: WELL THAT DIDN'T GO"
+#define MK_TXT33t2	"ACCORDING TO PLAN..."
+#define MK_TXT33t3	""
+#define MK_TXT34t1	"SECTOR666: IF YOU HIDE ON THE FLOOR"
+#define MK_TXT34t2	"FOREVER AT LEAST YOU WON'T DIE..."
+#define MK_TXT34t3	"WHOOPS, TOO LATE..."
+#define MK_TXT35t1	"DEXIAZ: IT'S OFFICIAL! YOU SUCK AT"
+#define MK_TXT35t2	"PLAYING MAPS!"
+#define MK_TXT35t3	""
+#define MK_TXT36t1	"Z0K: IF YOU DROPPED SOME WEAPONS,"
+#define MK_TXT36t2	"YOU COULD HAVE DODGED, FATSO!"
+#define MK_TXT36t3	""
+#define MK_TXT37t1	"PUZZLEWELL: THEY'LL BURY YOU IN A"
+#define MK_TXT37t2	"LUNCHBOX (WAIT WRONG GAME...)."
+#define MK_TXT37t3	""
+#define MK_TXT38t1	"KMXEXII: I CAN ONLY HOPE THAT THIS"
+#define MK_TXT38t2	"DEATH WAS IN SOME WAY LOST SOUL OR"
+#define MK_TXT38t3	"PAIN ELEMENTAL RELATED."
+#define MK_TXT39t1	"ENDLESS: ENDLESSLY DYING IS NOT"
+#define MK_TXT39t2	"A GOOD STRATEGY."
+#define MK_TXT39t3	""
+#define MK_TXT40t1	"ERROR: BACK TO THE DRAWING BOARD..."
+#define MK_TXT40t2	"TOO BAD YOU CAN'T DRAW."
+#define MK_TXT40t3	""
+#define MK_TXT41t1	"BLUETHUNDER: SO... YOU'RE GONNA DIE"
+#define MK_TXT41t2	"NOW... SERIOUSLY?!!"
+#define MK_TXT41t3	""
+#define MK_TXT42t1	"HYACSHO: MAYBE YOU SHOULD PLAY"
+#define MK_TXT42t2	"DOOM 1993 INSTEAD?"
+#define MK_TXT42t3	""
 
-char *mockstrings[] =   // 8005A290
+char *mockstrings1[] =   // 8005A290
 {
-    MK_TXT01, MK_TXT02, MK_TXT03, MK_TXT04,
-	MK_TXT05, MK_TXT06, MK_TXT07, MK_TXT08,
-	MK_TXT09, MK_TXT10, MK_TXT11, MK_TXT12,
+    MK_TXT01t1, MK_TXT02t1, MK_TXT03t1, MK_TXT04t1,
+	MK_TXT05t1, MK_TXT06t1, MK_TXT07t1, MK_TXT08t1,
+	MK_TXT09t1, MK_TXT10t1, MK_TXT11t1, MK_TXT12t1,
+	MK_TXT13t1, MK_TXT14t1, MK_TXT15t1, MK_TXT16t1,
+	MK_TXT17t1, MK_TXT18t1, MK_TXT19t1, MK_TXT20t1,
+	MK_TXT21t1, MK_TXT22t1, MK_TXT23t1, MK_TXT24t1,
+	MK_TXT25t1, MK_TXT26t1, MK_TXT27t1, MK_TXT28t1,
+	MK_TXT29t1, MK_TXT30t1, MK_TXT31t1, MK_TXT32t1,
+	MK_TXT33t1, MK_TXT34t1, MK_TXT35t1, MK_TXT36t1,
+	MK_TXT37t1, MK_TXT38t1, MK_TXT39t1, MK_TXT40t1,
+	MK_TXT41t1, MK_TXT42t1, 
+};
+
+char *mockstrings2[] =   // 8005A290
+{
+    MK_TXT01t2, MK_TXT02t2, MK_TXT03t2, MK_TXT04t2,
+	MK_TXT05t2, MK_TXT06t2, MK_TXT07t2, MK_TXT08t2,
+	MK_TXT09t2, MK_TXT10t2, MK_TXT11t2, MK_TXT12t2,
+	MK_TXT13t2, MK_TXT14t2, MK_TXT15t2, MK_TXT16t2,
+	MK_TXT17t2, MK_TXT18t2, MK_TXT19t2, MK_TXT20t2,
+	MK_TXT21t2, MK_TXT22t2, MK_TXT23t2, MK_TXT24t2,
+	MK_TXT25t2, MK_TXT26t2, MK_TXT27t2, MK_TXT28t2,
+	MK_TXT29t2, MK_TXT30t2, MK_TXT31t2, MK_TXT32t2,
+	MK_TXT33t2, MK_TXT34t2, MK_TXT35t2, MK_TXT36t2,
+	MK_TXT37t2, MK_TXT38t2, MK_TXT39t2, MK_TXT40t2,
+	MK_TXT41t2, MK_TXT42t2, 
+};
+
+char *mockstrings3[] =   // 8005A290
+{
+    MK_TXT01t3, MK_TXT02t3, MK_TXT03t3, MK_TXT04t3,
+	MK_TXT05t3, MK_TXT06t3, MK_TXT07t3, MK_TXT08t3,
+	MK_TXT09t3, MK_TXT10t3, MK_TXT11t3, MK_TXT12t3,
+	MK_TXT13t3, MK_TXT14t3, MK_TXT15t3, MK_TXT16t3,
+	MK_TXT17t3, MK_TXT18t3, MK_TXT19t3, MK_TXT20t3,
+	MK_TXT21t3, MK_TXT22t3, MK_TXT23t3, MK_TXT24t3,
+	MK_TXT25t3, MK_TXT26t3, MK_TXT27t3, MK_TXT28t3,
+	MK_TXT29t3, MK_TXT30t3, MK_TXT31t3, MK_TXT32t3,
+	MK_TXT33t3, MK_TXT34t3, MK_TXT35t3, MK_TXT36t3,
+	MK_TXT37t3, MK_TXT38t3, MK_TXT39t3, MK_TXT40t3,
+	MK_TXT41t3, MK_TXT42t3, 
 };
 
 fixed_t 		forwardmove[2] = {0xE000, 0x16000}; // 8005B060
@@ -537,6 +690,7 @@ void P_MovePlayer (player_t *player) // 8002282C
 void P_DeathThink (player_t *player) // 80022914
 {
 	angle_t		angle, delta;
+	int mockrandom; // [Immorpher] store mock text randomizer
 
 	P_MovePsprites (player);
 
@@ -569,8 +723,14 @@ void P_DeathThink (player_t *player) // 80022914
 	/* mocking text */
     if ((ticon - deathmocktics) > MAXMOCKTIME)
     {
-        player->messagetic = MSGTICS;
-        player->message = mockstrings[P_Random() % 12];
+		mockrandom = P_Random() % 42;
+        player->messagetic = 2*MSGTICS; // [Immorpher] Doubled message time to read them!
+        player->messagetic1 = 2*MSGTICS;
+        player->messagetic2 = 2*MSGTICS;
+        player->messagetic3 = 2*MSGTICS;
+        player->message1 = mockstrings1[mockrandom];
+        player->message2 = mockstrings2[mockrandom];
+        player->message3 = mockstrings3[mockrandom];
         deathmocktics = ticon;
     }
 

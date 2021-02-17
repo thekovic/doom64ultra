@@ -7,6 +7,21 @@
 
 #define T_NULL	        ""
 
+// [Immorpher] New introduction text adapted from Doom 64 reloaded!
+#define C_INTRO_TXT01	"This outpost was entombed"
+#define C_INTRO_TXT02	"in a lifeless nuclear haze."
+#define C_INTRO_TXT03	"Hell has reached back in."
+#define C_INTRO_TXT04	" "
+#define C_INTRO_TXT05	"Something has distorted"
+#define C_INTRO_TXT06	"reality and brought the"
+#define C_INTRO_TXT07	"corpses back to life."
+#define C_INTRO_TXT08	" "
+#define C_INTRO_TXT09	"It plays with madness."
+#define C_INTRO_TXT10	"Sanity is at an edge and"
+#define C_INTRO_TXT11	"the only therapy is..."
+#define C_INTRO_TXT12	" "
+#define C_INTRO_TXT13	"Merciless Extermination!"
+
 #define C_END1_TXT01	"you cackle as the"
 #define C_END1_TXT02	"familiarity of the"
 #define C_END1_TXT03	"situation occurs to you."
@@ -82,6 +97,24 @@
 #define C_END6_TXT13	"demon ever rises again."
 #define C_END6_TXT14	" "
 #define C_END6_TXT15	"The End."
+
+char *introcluster[] =   // [Immorpher] new intro text adapted from Doom 64 reloaded
+{
+    C_INTRO_TXT01,
+	C_INTRO_TXT02,
+	C_INTRO_TXT03,
+	C_INTRO_TXT04,
+	C_INTRO_TXT05,
+	C_INTRO_TXT06,
+	C_INTRO_TXT07,
+	C_INTRO_TXT08,
+	C_INTRO_TXT09,
+	C_INTRO_TXT10,
+	C_INTRO_TXT11,
+	C_INTRO_TXT12,
+	C_INTRO_TXT13,
+	T_NULL
+};
 
 char *endcluster1[] =   // 8005A2C0
 {
@@ -191,7 +224,7 @@ char *endcluster6[] =   // 8005A3B0
 //#define CC_HEAVY	"Heavy Weapon Dude" // Enemy Removed
 #define CC_IMP		"Imp"
 #define CC_NIMP		"Nightmare Imp" // New Enemy on Doom64
-#define CC_DEMON	"Demon"
+#define CC_DEMON	"Bull Demon"
 #define CC_SPECT	"Spectre"   // New Enemy on Doom64
 #define CC_LOST		"Lost Soul"
 #define CC_CACO		"Cacodemon"
@@ -204,6 +237,7 @@ char *endcluster6[] =   // 8005A3B0
 //#define CC_ARCH	"Arch-Vile" // Enemy Removed
 //#define CC_SPIDER	"The Spider Mastermind" // Enemy Removed
 #define CC_CYBER	"The Cyberdemon"
+#define CC_MOTHER	"Mother Demon"
 #define CC_HERO		"Our Hero"
 
 //
@@ -237,6 +271,7 @@ static castinfo_t	castorder[] = // 8005A3F0
 	//{ CC_ARCH, MT_VILE },
 	//{ CC_SPIDER, MT_SPIDER },
 	{ CC_CYBER, MT_CYBORG },// MT_CYBORG
+	{ CC_MOTHER, MT_RESURRECTOR },// MT_CYBORG
 	{ CC_HERO, MT_PLAYER },// MT_PLAYER
 	{ NULL, 0 }
 };
@@ -265,7 +300,12 @@ static int textalpha;			// 800631FC
 
 void F_StartIntermission(void) // 80002CD0
 {
-    if ((gamemap == 8) && (nextmap == 9))
+    if (nextmap == 1)
+    {
+        text = introcluster;
+        textypos = 27;
+    }
+    else if ((gamemap == 8) && (nextmap == 9))
     {
         text = endcluster1;
         textypos = 15;
@@ -294,6 +334,8 @@ void F_StartIntermission(void) // 80002CD0
     DrawerStatus = 2;
     textline = 0;
     textalpha = 0;
+	
+	S_StartMusic(116); // [Immorpher] Play menu music for intermission
 }
 
 /*
@@ -306,6 +348,7 @@ void F_StartIntermission(void) // 80002CD0
 
 void F_StopIntermission(void) // 80002E14
 {
+	S_StopMusic(); // [Immorpher] stop intermission music
     gamepaused = false;
     DrawerStatus = 0;
     I_WIPE_FadeOutScreen();

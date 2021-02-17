@@ -242,7 +242,13 @@ void P_SpawnPlayer(/*mapthing_t *mthing*/) // 80018F94
 	p->playerstate = PST_LIVE;
 	p->refire = 0;
 	p->message = NULL;
+	p->message1 = NULL;  // [Immorpher] reset messages
+	p->message2 = NULL;  // [Immorpher] reset messages
+	p->message3 = NULL;  // [Immorpher] reset messages
 	p->messagetic = 0;
+	p->messagetic1 = 0;  // [Immorpher] reset messages
+	p->messagetic2 = 0;  // [Immorpher] reset messages
+	p->messagetic2 = 0;  // [Immorpher] reset messages
 	p->damagecount = 0;
 	p->bonuscount = 0;
 	p->extralight = 0;

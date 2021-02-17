@@ -91,6 +91,7 @@ char *ControlText[] =   //8007517C
 #define M_TXT58 "Merciless" // [Immorpher] Merciless default settings
 #define M_TXT59 "Immorpher" // [Immorpher] Immorpher default settings
 #define M_TXT60 "Accessible" // [Immorpher] Increased accessibility default settings
+#define M_TXT61 "Story Text:" // [Immorpher] Skip cut scenes
 
 char *MenuText[] =   // 8005ABA0
 {
@@ -106,7 +107,7 @@ char *MenuText[] =   // 8005ABA0
     M_TXT45, M_TXT46, M_TXT47, M_TXT48, M_TXT49,
 	M_TXT50, M_TXT51, M_TXT52, M_TXT53, M_TXT54,
 	M_TXT55, M_TXT56, M_TXT57, M_TXT58, M_TXT59,
-	M_TXT60
+	M_TXT60, M_TXT61
 };
 
 menuitem_t Menu_Title[3] = // 8005A978
@@ -116,13 +117,14 @@ menuitem_t Menu_Title[3] = // 8005A978
 	{ 11, 115, 210 },   // Options
 };
 
-menuitem_t Menu_Skill[5] = // 8005A990
+menuitem_t Menu_Skill[6] = // 8005A990
 {
-    { 15, 102, 80 },    // Be Gentle!
-    { 16, 102, 100},    // Bring it on!
-    { 17, 102, 120},    // I own Doom!
-    { 18, 102, 140},    // Watch me die!
-    { 19, 102, 160},    // Be merciless!
+    { 15, 102, 70 },    // Be Gentle!
+    { 16, 102, 90},    // Bring it on!
+    { 17, 102, 110},    // I own Doom!
+    { 18, 102, 130},    // Watch me die!
+    { 19, 102, 150},    // Be merciless!
+    { 6, 102, 180},    	// Return
 };
 
 menuitem_t Menu_Options[7] = // 8005A9C0
@@ -162,13 +164,14 @@ menuitem_t Menu_Video[7] = // 8005AA5C
     {  6, 82, 200},    // Return
 };
 
-menuitem_t Menu_Display[5] = // [Immorpher] New menu
+menuitem_t Menu_Display[6] = // [Immorpher] New menu
 {
     { 57, 82, 60},    	// Flash Brightness
     { 32, 82, 100},    // Center Display
     { 33, 82, 120},    // Messages
     { 34, 82, 140},    // Status Bar
-    {  6, 82, 160},    // Return
+    { 61, 82, 160},    // Story Text
+    {  6, 82, 180},    // Return
 };
 
 menuitem_t Menu_Defaults[5] = // [Immorpher] New menu
@@ -294,6 +297,8 @@ boolean DitherFilter = false; // [Immorpher] Dither filter
 int ColorDither = 0; // [Immorpher] Color dithering options (Off, Square, Bayer, Noise)
 int FlashBrightness = 32; // [Immorpher] Strobe brightness adjustment, will need to change to float
 boolean Autorun = false; // [Immorpher] New autorun option!
+boolean runintroduction = false; // [Immorpher] New introduction sequence!
+boolean StoryText = true; // [Immorpher] Skip story cut scenes?
 
 int TempConfiguration[13] = // 8005A80C
 {
@@ -852,24 +857,31 @@ int M_MenuTicker(void) // 80007E0C
                     }
                     break;
 
-                case 5: // Restart Level
+                case 5: // [Immorpher] Updated Restart Level
                     if (truebuttons)
                     {
+						
                         S_StartSound(NULL, sfx_pistol);
                         M_SaveMenuData();
 
-                        MenuItem = Menu_Quit;
-                        itemlines = 2;
+                        MenuItem = Menu_Skill;
+                        itemlines = 6;
                         MenuCall = M_MenuTitleDrawer;
-                        cursorpos = 1;
+                        cursorpos = gameskill;  // Set default to current difficulty
 
                         exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
-                        M_RestoreMenuData((exit == ga_exit));
 
-                        if (exit == ga_exit)
+                        if (exit == ga_exit && cursorpos == 5) { // [Immorpher] 5th to exit menu
+							M_RestoreMenuData((exit == ga_exit));
                             return ga_nothing;
-
-                        return ga_restart;
+						}
+						
+                        gameskill = cursorpos;
+						
+						startmap = gamemap;
+						startskill = gameskill;
+						
+						return ga_warped;
                     }
                     break;
 
@@ -1043,18 +1055,28 @@ int M_MenuTicker(void) // 80007E0C
                     if (truebuttons)
                     {
                         S_StartSound(NULL, sfx_pistol);
-                        M_FadeOutStart(8);
-
-                        // Check ControllerPak
-                        EnableExpPak = (M_ControllerPak() == 0);
+						
+                        M_SaveMenuData();
 
                         MenuItem = Menu_Skill;
-                        itemlines = 5;
+                        itemlines = 6;
                         MenuCall = M_MenuTitleDrawer;
                         cursorpos = 1;  // Set Default Bring it on!
+						
+                        exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
+						
+						if (exit == ga_exit && cursorpos == 5) { // [Immorpher] 5th to exit menu
+							M_RestoreMenuData((exit == ga_exit));
+                            return ga_nothing;
+						}
+						
+                        // Check ControllerPak
+                        EnableExpPak = (M_ControllerPak() == 0);
+						
+						nextmap = 1; // [Immorpher] For running introduction text"
+						runintroduction = true; // [Immorpher] turn introduction on
 
-                        MiniLoop(M_FadeInStart, M_MenuClearCall, M_MenuTicker, M_MenuGameDrawer);
-                        startskill = MenuItem[cursorpos].casepos - 15;
+                        startskill = cursorpos;
 
                         return ga_exit;
                     }
@@ -1154,8 +1176,8 @@ int M_MenuTicker(void) // 80007E0C
                 case 24: // INVULNERABLE
                     if (((gamemap != 32) & truebuttons))
                     {
-                        players[0].cheats ^= CF_GODMODE;
                         S_StartSound(NULL, sfx_switch2);
+                        players[0].cheats ^= CF_GODMODE;
                         return ga_nothing;
                     }
                     break;
@@ -1163,10 +1185,10 @@ int M_MenuTicker(void) // 80007E0C
                 case 25: // HEALTH BOOST
                     if (truebuttons)
                     {
+                        S_StartSound(NULL, sfx_switch2);
                         players[0].cheats |= CF_HEALTH;
                         players[0].health = 100;
                         players[0].mo->health = 100;
-                        S_StartSound(NULL, sfx_switch2);
                         return ga_nothing;
                     }
                     break;
@@ -1178,6 +1200,7 @@ int M_MenuTicker(void) // 80007E0C
                     */
                     if (truebuttons)
                     {
+                        S_StartSound(NULL, sfx_switch2);
                         players[0].cheats |= CF_ALLKEYS;
 
                         for (m = mobjhead.next; m != &mobjhead; m = m->next)
@@ -1234,7 +1257,6 @@ int M_MenuTicker(void) // 80007E0C
                             }
                         }
 
-                        S_StartSound(NULL, sfx_switch2);
                         return ga_nothing;
                     }
                     break;
@@ -1242,6 +1264,7 @@ int M_MenuTicker(void) // 80007E0C
                 case 27: // WEAPONS
                     if (truebuttons)
                     {
+                        S_StartSound(NULL, sfx_switch2);
                         players[0].cheats |= CF_WEAPONS;
 
                         for(i = 0; i < NUMWEAPONS; i++) {
@@ -1252,7 +1275,6 @@ int M_MenuTicker(void) // 80007E0C
                             players[0].ammo[i] = players[0].maxammo[i];
                         }
 
-                        S_StartSound(NULL, sfx_switch2);
                         return ga_nothing;
                     }
                     break;
@@ -1265,8 +1287,8 @@ int M_MenuTicker(void) // 80007E0C
                     /* Not available in the release code */
                     if (truebuttons)
                     {
-                        players[0].cheats ^= CF_DEBUG;
                         S_StartSound(NULL, sfx_switch2);
+                        players[0].cheats ^= CF_DEBUG;
                         return ga_nothing;
                     }
                     break;
@@ -1275,8 +1297,8 @@ int M_MenuTicker(void) // 80007E0C
                     /* Not available in the release code */
                     if (truebuttons)
                     {
-                        players[0].cheats ^= CF_TEX_TEST;
                         S_StartSound(NULL, sfx_switch2);
+                        players[0].cheats ^= CF_TEX_TEST;
                         return ga_nothing;
                     }
                     break;
@@ -1288,9 +1310,9 @@ int M_MenuTicker(void) // 80007E0C
                     */
                     if (truebuttons)
                     {
+                        S_StartSound(NULL, sfx_switch2);
                         players[0].cheats ^= CF_WALLBLOCKING;
                         players[0].mo->flags ^= MF_NOCLIP;
-                        S_StartSound(NULL, sfx_switch2);
                         return ga_nothing;
                     }
                     break;
@@ -1315,6 +1337,7 @@ int M_MenuTicker(void) // 80007E0C
                     {
                         S_StartSound(NULL, sfx_switch2);
                         enable_messages ^= true;
+                        return ga_nothing;
                     }
                     break;
 
@@ -1323,6 +1346,7 @@ int M_MenuTicker(void) // 80007E0C
                     {
                         S_StartSound(NULL, sfx_switch2);
                         enable_statusbar ^= true;
+                        return ga_nothing;
                     }
                     break;
 
@@ -1333,8 +1357,8 @@ int M_MenuTicker(void) // 80007E0C
                     */
                     if (truebuttons)
                     {
-                        players[0].cheats ^= CF_LOCKMOSTERS;
                         S_StartSound(NULL, sfx_switch2);
+                        players[0].cheats ^= CF_LOCKMOSTERS;
                         return ga_nothing;
                     }
                     break;
@@ -1343,8 +1367,8 @@ int M_MenuTicker(void) // 80007E0C
                     /* Not available in the release code */
                     if (truebuttons)
                     {
-                        players[0].cheats ^= CF_SCREENSHOT;
                         S_StartSound(NULL, sfx_switch2);
+                        players[0].cheats ^= CF_SCREENSHOT;
                         return ga_nothing;
                     }
                     break;
@@ -1352,8 +1376,8 @@ int M_MenuTicker(void) // 80007E0C
                 case 37: // MAP EVERYTHING
                     if (truebuttons)
                     {
-                        players[0].cheats ^= CF_ALLMAP;
                         S_StartSound(NULL, sfx_switch2);
+                        players[0].cheats ^= CF_ALLMAP;
                         return ga_nothing;
                     }
                     break;
@@ -1362,8 +1386,8 @@ int M_MenuTicker(void) // 80007E0C
                     /* Not available in the release code */
                     if (truebuttons)
                     {
-                        players[0].cheats ^= CF_MACROPEEK;
                         S_StartSound(NULL, sfx_switch2);
+                        players[0].cheats ^= CF_MACROPEEK;
                         return ga_nothing;
                     }
                     break;
@@ -1445,6 +1469,7 @@ int M_MenuTicker(void) // 80007E0C
 						// Set display options
                         enable_messages = true;
                         enable_statusbar = true;
+						StoryText = true; // [Immorpher] Skip story cut scenes?
 						
 						// Set sound options
                         SfxVolume = 0x50;
@@ -1520,10 +1545,10 @@ int M_MenuTicker(void) // 80007E0C
                 case 48: // COLORS [GEC] NEW CHEAT CODE
                     if (truebuttons)
                     {
+                    S_StartSound(NULL, sfx_switch2);
                     players[0].cheats ^= CF_NOCOLORS;
                     gobalcheats ^= CF_NOCOLORS;
                     P_RefreshBrightness();
-                    S_StartSound(NULL, sfx_switch2);
                     return ga_nothing;
                     }
                     break;
@@ -1531,10 +1556,10 @@ int M_MenuTicker(void) // 80007E0C
                 case 49: // FULL BRIGHT [GEC] NEW CHEAT CODE
                     if (truebuttons)
                     {
+                        S_StartSound(NULL, sfx_switch2);
                         players[0].cheats ^= CF_FULLBRIGHT;
                         gobalcheats ^= CF_FULLBRIGHT;
                         P_RefreshBrightness();
-                        S_StartSound(NULL, sfx_switch2);
                         return ga_nothing;
                     }
                     break;
@@ -1559,7 +1584,7 @@ int M_MenuTicker(void) // 80007E0C
                         M_SaveMenuData();
 
                         MenuItem = Menu_Display;
-                        itemlines = 5;
+                        itemlines = 6;
                         MenuCall = M_DisplayDrawer;
                         cursorpos = 0;
 
@@ -1705,6 +1730,7 @@ int M_MenuTicker(void) // 80007E0C
 						// Set display options
                         enable_messages = true;
                         enable_statusbar = true;
+						StoryText = true; // [Immorpher] Skip story cut scenes?
 						
 						// Set sound options
                         SfxVolume = 100;
@@ -1745,6 +1771,7 @@ int M_MenuTicker(void) // 80007E0C
 						FlashBrightness = 32;  // [Immorpher] new video option
                         enable_messages = true;
                         enable_statusbar = true;
+						StoryText = true; // [Immorpher] Skip story cut scenes?
 						
 						// Set sound options
                         SfxVolume = 100;
@@ -1785,6 +1812,7 @@ int M_MenuTicker(void) // 80007E0C
 						// Set display options
                         enable_messages = true;
                         enable_statusbar = true;
+						StoryText = true; // [Immorpher] Skip story cut scenes?
 						
 						// Set sound options
                         SfxVolume = 100;
@@ -1800,8 +1828,18 @@ int M_MenuTicker(void) // 80007E0C
 						
                         return ga_nothing;
                     }
-                    break;					
-
+                    break;	
+					
+                case 61: // [Immorpher] Story Text
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+                        StoryText ^= true;
+						P_RefreshVideo();
+                        return ga_nothing;
+                    }
+                    break;	
+					
 				}
             exit = ga_nothing;
         }
@@ -2122,13 +2160,20 @@ void M_DisplayDrawer(void) // 80009884
             else
                 text = "Off";
         }
+        else if (casepos == 61) // Story Text:
+        {
+            if (StoryText)
+                text = "On";
+            else
+                text = "Off";
+        }
         else
         {
             text = NULL;
         }
 
         if (text)
-            ST_DrawString(item->x + 120, item->y, text, text_alpha | 0xc0000000);
+            ST_DrawString(item->x + 130, item->y, text, text_alpha | 0xc0000000);
 
         ST_DrawString(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
 

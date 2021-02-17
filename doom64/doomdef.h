@@ -454,7 +454,13 @@ typedef struct player_s
 
 	int			killcount, itemcount, secretcount;		/* for intermission */
 	char		*message;				/* hint messages */
+	char		*message1;				// [Immorpher] additional message levels
+	char		*message2;				// [Immorpher] additional message levels
+	char		*message3;				// [Immorpher] additional message levels
 	int         messagetic;             /* messages tic countdown*/
+	int         messagetic1;            // [Immorpher] message tic buffer
+	int         messagetic2;            // [Immorpher] message tic buffer
+	int         messagetic3;            // [Immorpher] message tic buffer
 	int			damagecount, bonuscount;/* for screen flashing */
 	int			bfgcount;               /* for bfg screen flashing */
 	mobj_t		*attacker;				/* who did damage (NULL for floors) */
@@ -803,6 +809,9 @@ extern boolean DitherFilter;     	// [Immorpher] Dither Filter
 extern int ColorDither;     		// [Immorpher] Color Dither
 extern int FlashBrightness;     	// [Immorpher] Strobe brightness adjustment, will need to be float
 extern boolean Autorun;     		// [Immorpher] Autorun
+extern boolean runintroduction; 	// [Immorpher] New introduction text
+extern boolean StoryText; 			// [Immorpher] Enable story text
+extern int skill; 					// [Immorpher] Define skill for restart
 
 int M_RunTitle(void); // 80007630
 

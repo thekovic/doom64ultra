@@ -165,6 +165,9 @@ void ST_Ticker (void) // 80029C88
 	/* Countdown time for the message */
 	/* */
     player->messagetic--;
+    player->messagetic1--; // [Immorpher] decriment message buffer
+    player->messagetic2--; // [Immorpher] decriment message buffer
+    player->messagetic3--; // [Immorpher] decriment message buffer
 
 	/* */
 	/* Tried to open a CARD or SKULL door? */
@@ -230,14 +233,49 @@ void ST_Drawer (void) // 80029DC0
     /* */
 	/* Draw Text Message */
 	/* */
-    ms_alpha = players[0].messagetic << 3;
-    if ((enable_messages) && (ms_alpha > 0))
-    {
-        if (ms_alpha >= 255)
-            ms_alpha = 255;
+	
+	if ((enable_messages) && players[0].messagetic > 0) // [Immorpher] only display messages and calculate if global tic is active
+	{
+		if (players[0].messagetic != players[0].messagetic1) // [Immorpher] new global tic indicates new message to add
+		{	// Sequentially shift messages to lower states
+			players[0].message3 = players[0].message2;
+			players[0].messagetic3 = players[0].messagetic2;
 
-        ST_Message(20, 20, players[0].message, ms_alpha | 0xffffff00);
-    }
+			players[0].message2 = players[0].message1;
+			players[0].messagetic2 = players[0].messagetic1;
+
+			players[0].message1 = players[0].message;
+			players[0].messagetic1 = players[0].messagetic;
+		}
+		
+		if (players[0].messagetic1 > 0) // display message 1
+		{
+			ms_alpha = players[0].messagetic1 << 3; // set message alpha
+			if (ms_alpha >= 255)
+				ms_alpha = 255;
+			
+			ST_Message(20, 20, players[0].message1, ms_alpha | 0xffffff00); // display message
+		}
+		
+		if (players[0].messagetic2 > 0) // display message 2
+		{
+			ms_alpha = players[0].messagetic2 << 3; // set message alpha
+			if (ms_alpha >= 255)
+				ms_alpha = 255;
+			
+			ST_Message(20, 32, players[0].message2, ms_alpha | 0xffffff00); // display message
+		}
+		
+		if (players[0].messagetic3 > 0) // display message 3
+		{
+			ms_alpha = players[0].messagetic3 << 3; // set message alpha
+			if (ms_alpha >= 255)
+				ms_alpha = 255;
+			
+			ST_Message(20, 44, players[0].message3, ms_alpha | 0xffffff00); // display message
+		}
+	}
+
 
     if (enable_statusbar)
     {
@@ -715,7 +753,7 @@ void ST_UpdateFlash(void) // 8002AC30
         /* bonus flash (yellow) */
         else if (plyr->bonuscount)
         {
-            cnt = (plyr->bonuscount + 7) >> 3;
+            cnt = FlashBrightness*((plyr->bonuscount + 7) >> 3)/32;
 
             if (cnt > ST_MAXBONCOUNT)
                 cnt = ST_MAXBONCOUNT;
