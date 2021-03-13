@@ -840,6 +840,7 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
             {
                 player->message = "You need a blue key.";
                 player->messagetic = MSGTICS;
+				player->messagecolor = 0x0080ff00;
                 S_StartSound(thing, sfx_oof);
 
                 if (player == &players[0])
@@ -855,6 +856,7 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
             {
                 player->message = "You need a yellow key.";
                 player->messagetic = MSGTICS;
+				player->messagecolor = 0xC4C40000;
                 S_StartSound(thing, sfx_oof);
 
                 if (player == &players[0])
@@ -870,6 +872,7 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
             {
                 player->message = "You need a red key.";
                 player->messagetic = MSGTICS;
+				player->messagecolor = 0xff404000;
                 S_StartSound(thing, sfx_oof);   // ?? line missing on Doom64
 
                 if (player == &players[0])
@@ -890,6 +893,7 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
         {
             player->message = "You lack the ability to activate it.";
             player->messagetic = MSGTICS;
+			player->messagecolor = 0xC4C4C400;
             S_StartSound(thing, sfx_oof);
 
             return false;

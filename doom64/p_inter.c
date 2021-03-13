@@ -271,6 +271,7 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
 	fixed_t		delta;
 	int			sound;
 	char        *message;
+	char        *message2;
 	int         artflag;
 
 	delta = special->z - toucher->z;
@@ -283,6 +284,7 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
 		return;						/* can happen with a sliding player corpse */
 
     message = NULL;
+    message2 = NULL;
 
 	switch (special->type)
 	{
@@ -503,8 +505,10 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
 	case MT_ITEM_MEDKIT:
 		if (!P_GiveBody(player, 25))
 			return;
-		if (player->health < 25)
-			message = "You pick up a medikit that you REALLY need!";
+		if (player->health < 50) { // [Immorpher] Fix! If your resultant health is below 50 then you really needed it!
+            message = "You pick up a medikit";
+            message2 = "that you REALLY need!";
+		}
 		else
 			message = "You pick up a medikit.";
 		break;
@@ -560,10 +564,14 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
 
         player->artifacts |= artflag;
 
-        if (ArtifactLookupTable[player->artifacts] == 1) /* ART_FAST */
-            message = "You have a feeling that\nit wasn't to be touched...";
-        else if (ArtifactLookupTable[player->artifacts] == 2) /* ART_TRIPLE */
-            message = "Whatever it is, it doesn't\nbelong in this world...";
+        if (ArtifactLookupTable[player->artifacts] == 1) { /* ART_FAST */
+            message = "You have a feeling that it";
+            message2 = "wasn't to be touched...";
+		}
+        else if (ArtifactLookupTable[player->artifacts] == 2) { /* ART_TRIPLE */
+            message = "Whatever it is, it doesn't";
+            message2 = "belong in this world...";
+		}
         else /* ART_DOUBLE */
             message = "It must do something...";
 
@@ -582,10 +590,38 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
 		break;
 	}
 
-    if (message)
+	if (message2) { // [Immorpher] double message!
+		// Dump current message into third
+		player->message3 = player->message1;
+		player->messagetic3 = player->messagetic1;
+		player->messagecolor3 = player->messagecolor1;
+		
+		// Set messages
+		player->message1 = message;
+		player->message2 = message2;
+		
+		// Set tics and color
+		player->messagetic = MSGTICS; // [Immorpher] message time to activate messages
+		player->messagetic1 = MSGTICS; // [Immorpher]
+		player->messagetic2 = MSGTICS; // [Immorpher]
+		if (special->flags & MF_COUNTSECRET) {
+			player->messagecolor1 = 0x00ffff00; // [Immorpher]
+			player->messagecolor2 = 0x00ffff00; // [Immorpher]
+		} else {
+			player->messagecolor1 = 0xC4C4C400; // [Immorpher]
+			player->messagecolor2 = 0xC4C4C400; // [Immorpher]
+		}
+		
+	}
+    else if (message)
     {
         player->message = message;
         player->messagetic = MSGTICS;
+		if (special->flags & MF_COUNTSECRET) {
+			player->messagecolor = 0x00ffff00;
+		} else {
+			player->messagecolor = 0xC4C4C400;
+		}
     }
 
 	if (special->flags & MF_COUNTITEM)
@@ -668,7 +704,6 @@ void P_KillMobj (mobj_t *source, mobj_t *target) // 80015080
 		if (target->health < -50)
 		{
 		    forceXdeath = true; //Force the player to the state of Xdeath
-
 			S_StartSound (target, sfx_slop);
 		}
 		else

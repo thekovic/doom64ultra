@@ -188,7 +188,7 @@ mobj_t *P_SpawnMapThing (mapthing_t *mthing) // 80018C24
 		totalsecret++;
     }
 
-    if (mthing->options & MTF_NOINFIGHTING)
+    if (mthing->options & MTF_NOINFIGHTING || gameskill == sk_nightmare) // [Immorpher] No infighting on merciless difficulty!
 		mobj->flags |= MF_NOINFIGHTING;
 
     return mobj;
@@ -411,10 +411,12 @@ mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yof
 	int			speed;
 	fixed_t     x, y, z;
 	int         rnd1, rnd2;
+	int			vertspread; // [Immorpher] Vertical spread for merciless
 
 	x = source->x + xoffs;
     y = source->y + yoffs;
     z = source->z + heightoffs;
+	vertspread = 1; // Set to default 1 which is center of destination height
 
 	th = P_SpawnMobj (x, y, z, type);
 	if (th->info->seesound)
@@ -432,6 +434,17 @@ mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yof
         rnd2 = P_Random();
 		an += ((rnd2 - rnd1) << 20);
     }
+	
+	if (gameskill == sk_nightmare && type != MT_PROJ_DART) { // [Immorpher] randomize projectiles a bit for merciless
+		
+		vertspread = P_Random() % 3; // [Immorpher] Randomize vertical
+		
+		if (P_Random() <= 96) { // [Immorpher] Randomize horizontal
+			rnd1 = P_Random();
+			rnd2 = P_Random();
+			an += (2*(rnd2 - rnd1) << 20);
+		}
+	}
 
     th->angle = an;
     an >>= ANGLETOFINESHIFT;
@@ -445,7 +458,7 @@ mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yof
         dist = dist / (th->info->speed << FRACBITS);
         if (dist < 1)
             dist = 1;
-        th->momz = ((dest->z + (dest->height >> 1)) - z) / dist;
+        th->momz = ((dest->z + (dest->height >> vertspread)) - z) / dist;
     }
 
 	if (!P_CheckPosition (th, th->x, th->y))

@@ -73,11 +73,11 @@ boolean P_CheckMissileRange (mobj_t *actor) // 80010C10
 		return true;
 	}
 	
-    if (gameskill == sk_nightmare && M_Random() << 16) // [Immorpher] Early attack on nightmare
+    if (gameskill == sk_nightmare && (M_Random()+ticon)%16 == 0) // [Immorpher] Early attack on nightmare
     {
-        return true;        /* super sneak attack mofo! */
+        return true;        // super sneak attack mofo!
     }
-	
+
 	if (actor->reactiontime)
 		return false;		/* don't attack yet */
 
@@ -526,7 +526,7 @@ void A_Chase (mobj_t *actor) // 8001146C
 		P_SetMobjState (actor, actor->info->missilestate);
 		if (gameskill != sk_nightmare)
 			actor->flags |= MF_JUSTATTACKED;
-		else if (M_Random() << 16) // [Immorpher] slim chance in nightmare mode to break attack for unpredictability
+		else if ((M_Random()+ticon)%16 == 0) // [Immorpher] slim chance in nightmare mode to break attack for unpredictability
 			actor->flags |= MF_JUSTATTACKED;
 		return;
 	}
@@ -542,8 +542,9 @@ void A_Chase (mobj_t *actor) // 8001146C
 	/* */
 	/* make active sound */
 	/* */
-	if (actor->info->activesound && P_Random () < 3)
+	if (actor->info->activesound && P_Random () < 3) {
 		S_StartSound (actor, actor->info->activesound);
+	}
 }
 
 

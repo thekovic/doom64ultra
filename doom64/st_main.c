@@ -212,9 +212,6 @@ void ST_Ticker (void) // 80029C88
 =
 ====================
 */
-#if SHOWFPS == 1
-//extern int fps;
-#endif // _SHOWFPS
 
 static char buffer[16][256];
 static int debugX, debugY;//80077E5C|uGp00000a4c, 80077E68|uGp00000a58
@@ -227,6 +224,7 @@ void ST_Drawer (void) // 80029DC0
     player_t    *player;
     weapontype_t weapon;
 	int ammo, ind, ms_alpha;
+	
 
     player = &players[0];
 
@@ -240,45 +238,47 @@ void ST_Drawer (void) // 80029DC0
 		{	// Sequentially shift messages to lower states
 			players[0].message3 = players[0].message2;
 			players[0].messagetic3 = players[0].messagetic2;
+			players[0].messagecolor3 = players[0].messagecolor2;
 
 			players[0].message2 = players[0].message1;
 			players[0].messagetic2 = players[0].messagetic1;
+			players[0].messagecolor2 = players[0].messagecolor1;
 
 			players[0].message1 = players[0].message;
 			players[0].messagetic1 = players[0].messagetic;
+			players[0].messagecolor1 = players[0].messagecolor;
 		}
 		
 		if (players[0].messagetic1 > 0) // display message 1
 		{
 			ms_alpha = players[0].messagetic1 << 3; // set message alpha
-			if (ms_alpha >= 255)
-				ms_alpha = 255;
+			if (ms_alpha >= 196)
+				ms_alpha = 196;
 			
-			ST_Message(20, 20, players[0].message1, ms_alpha | 0xffffff00); // display message
+			ST_Message(2+HUDmargin, HUDmargin, players[0].message1, ms_alpha | players[0].messagecolor1); // display message
 		}
 		
 		if (players[0].messagetic2 > 0) // display message 2
 		{
 			ms_alpha = players[0].messagetic2 << 3; // set message alpha
-			if (ms_alpha >= 255)
-				ms_alpha = 255;
+			if (ms_alpha >= 196)
+				ms_alpha = 196;
 			
-			ST_Message(20, 32, players[0].message2, ms_alpha | 0xffffff00); // display message
+			ST_Message(2+HUDmargin, 10+HUDmargin, players[0].message2, ms_alpha | players[0].messagecolor2); // display message
 		}
 		
 		if (players[0].messagetic3 > 0) // display message 3
 		{
 			ms_alpha = players[0].messagetic3 << 3; // set message alpha
-			if (ms_alpha >= 255)
-				ms_alpha = 255;
+			if (ms_alpha >= 196)
+				ms_alpha = 196;
 			
-			ST_Message(20, 44, players[0].message3, ms_alpha | 0xffffff00); // display message
+			ST_Message(2+HUDmargin, 20+HUDmargin, players[0].message3, ms_alpha | players[0].messagecolor3); // display message
 		}
 	}
 
 
-    if (enable_statusbar)
-    {
+    if (HUDopacity){
         I_CheckGFX();
 
         debug = 1;//
@@ -318,15 +318,15 @@ void ST_Drawer (void) // 80029DC0
         gDPPipeSync(GFX1++);
 
         /* */
-        /* Gray color with alpha 144 */
+        /* Gray color */
         /* */
-        gDPSetPrimColor(GFX1++, 0, 0, 104, 104, 104, 144);
+        gDPSetPrimColor(GFX1++, 0, 0, 128, 128, 128, HUDopacity);
 
         /* */
         /* Health */
         /* */
-        gSPTextureRectangle(GFX1++, (29 << 2), (203 << 2),
-                                    (69 << 2), (209 << 2),
+        gSPTextureRectangle(GFX1++, (2+HUDmargin << 2), (218 - HUDmargin << 2),
+                                    (42 + HUDmargin << 2), (224 - HUDmargin  << 2),
                                     G_TX_RENDERTILE,
                                     (0 << 5), (0 << 5),
                                     (1 << 10), (1 << 10));
@@ -334,16 +334,16 @@ void ST_Drawer (void) // 80029DC0
         /* */
         /* Armor */
         /* */
-        gSPTextureRectangle(GFX1++, (253 << 2), (203 << 2),
-                                    (289 << 2), (209 << 2),
+        gSPTextureRectangle(GFX1++, (280-HUDmargin << 2), (218 - HUDmargin << 2),
+                                    (316-HUDmargin << 2), (224 - HUDmargin << 2),
                                     G_TX_RENDERTILE,
                                     (40 << 5), (0 << 5),
                                     (1 << 10), (1 << 10));
 
         /* */
-        /* White color with alpha 128 */
+        /* White color */
         /* */
-        gDPSetPrimColor(GFX1++, 0, 0, 255, 255, 255, 128);
+        gDPSetPrimColor(GFX1++, 0, 0, 255, 255, 255, HUDopacity);
 
         /* */
         /* Cards & skulls */
@@ -355,8 +355,8 @@ void ST_Drawer (void) // 80029DC0
                 /* */
                 /* Draw Keys Graphics */
                 /* */
-                gSPTextureRectangle(GFX1++, card_x[ind], (216 << 2),
-                                            card_x[ind]+(9 << 2), (226 << 2),
+                gSPTextureRectangle(GFX1++, card_x[ind], (230-HUDmargin << 2),
+                                            card_x[ind]+(9 << 2), (240-HUDmargin << 2),
                                             G_TX_RENDERTILE,
                                             ((ind * 9) << 5), (6 << 5),
                                             (1 << 10), (1 << 10));
@@ -376,27 +376,44 @@ void ST_Drawer (void) // 80029DC0
             ammo = player->ammo[weaponinfo[weapon].ammo];
             if (ammo < 0)
                 ammo = 0;
-
-            ST_DrawNumber(160, 215, ammo, 0, PACKRGBA(224,0,0,128)); // 0xe0000080
+			
+			if (!ColoredHUD) { // skip the hud coloring
+				ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(224,0,0,HUDopacity)); // 0xe0000080
+			} else if (weaponinfo[weapon].ammo == am_clip) { // [Immorpher] clip ammo
+				ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(96,96,128,HUDopacity)); // [Immorpher] colored hud
+			} else if (weaponinfo[weapon].ammo == am_shell) { // [Immorpher] shell ammo
+				ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(196,32,0,HUDopacity)); // [Immorpher] colored hud
+			} else if (weaponinfo[weapon].ammo == am_cell) { // [Immorpher] cell ammo
+				ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(0,96,128,HUDopacity)); // [Immorpher] colored hud
+			} else { // [Immorpher] it must be rockets
+				ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(164,96,0,HUDopacity)); // [Immorpher] colored hud
+			}
         }
 
         /* */
         /* Health */
         /* */
-        ST_DrawNumber(49, 215, player->health, 0, PACKRGBA(224,0,0,128)); // 0xe0000080
+		if (!ColoredHUD) { // skip the hud coloring
+			ST_DrawNumber(22+HUDmargin, 227-HUDmargin, player->health, 0, PACKRGBA(224,0,0,HUDopacity));
+		} else if (player->health <= 67) { // [Immorpher] colored hud
+			ST_DrawNumber(22+HUDmargin, 227-HUDmargin, player->health, 0, PACKRGBA(224-96*player->health/67,128*player->health/67,0,HUDopacity));
+		} else if (player->health <= 133) { // [Immorpher] colored hud
+			ST_DrawNumber(22+HUDmargin, 227-HUDmargin, player->health, 0, PACKRGBA(256-256*player->health/133,128,64*player->health/133-32,HUDopacity));
+		} else { // [Immorpher] colored hud
+			ST_DrawNumber(22+HUDmargin, 227-HUDmargin, player->health, 0, PACKRGBA(0,256-192*player->health/200,288*player->health/200-160,HUDopacity));
+		}
 
         /* */
         /* Armor */
         /* */
-        ST_DrawNumber(271, 215, player->armorpoints, 0, PACKRGBA(224,0,0,128)); // 0xe0000080
+		if (!ColoredHUD || player->armorpoints == 0) { // [Immorpher] No armor
+			ST_DrawNumber(298-HUDmargin, 227-HUDmargin, player->armorpoints, 0, PACKRGBA(224,0,0,HUDopacity)); // 0xe0000080
+		} else if (player->armortype == 1) { // [Immorpher] Green armor
+			ST_DrawNumber(298-HUDmargin, 227-HUDmargin, player->armorpoints, 0, PACKRGBA(0,128,64,HUDopacity)); 
+		} else { // [Immorpher] Blue armor
+			ST_DrawNumber(298-HUDmargin, 227-HUDmargin, player->armorpoints, 0, PACKRGBA(0,64,128,HUDopacity)); 
+		}
     }
-
-    #if SHOWFPS == 1
-    //fps = (60-((fps)/60));
-    //fps = fps > 0? fps:0;
-    //D_DebugSetPrintPos(10, 10);
-    //D_DebugPrint("fps %d", fps);
-    #endif // SHOWFPS
 
     if(debug)
     {

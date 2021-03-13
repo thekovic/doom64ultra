@@ -231,6 +231,9 @@ void AM_Drawer (void) // 800009AC
 	int			scale;
 	int         artflag;
 	char        map_name[48];
+	char		killcount[20]; // [Immorpher] Automap kill count
+	char		itemcount[20]; // [Immorpher] Automap item count
+	char		secretcount[20]; // [Immorpher] Automap secret count
 
     gDPPipeSync(GFX1++);
     gDPSetCycleType(GFX1++, G_CYC_FILL);
@@ -394,15 +397,26 @@ void AM_Drawer (void) // 800009AC
         if (p->messagetic <= 0)
         {
             sprintf(map_name, "LEVEL %d: %s", gamemap, MapInfo[gamemap].name);
-            ST_Message(20, 20, map_name, 0xffffffff);
+            ST_Message(2+HUDmargin,HUDmargin, map_name, 196 | 0xffffff00);
         }
         else
         {
-            ST_Message(20, 20, p->message, 0xffffffff);
+            ST_Message(2+HUDmargin,HUDmargin, p->message, 196 | p->messagecolor);
         }
     }
+	
 
-    xpos = 280;
+	// [Immorpher] kill count
+	if(MapStats) {
+		sprintf(killcount, "KILLS: %d/%d", players[0].killcount, totalkills);
+		ST_Message(2+HUDmargin, 212-HUDmargin, killcount, 196 | 0xffffff00);
+		sprintf(itemcount, "ITEMS: %d/%d", players[0].itemcount, totalitems);
+		ST_Message(2+HUDmargin, 222-HUDmargin, itemcount, 196| 0xffffff00);
+		sprintf(secretcount, "SECRETS: %d/%d", players[0].secretcount, totalsecret);
+		ST_Message(2+HUDmargin, 232-HUDmargin, secretcount, 196 | 0xffffff00);
+	}
+
+    xpos = 297-HUDmargin;
     artflag = 4;
     do
     {
@@ -410,15 +424,15 @@ void AM_Drawer (void) // 800009AC
         {
             if (artflag == 4)
             {
-                BufferedDrawSprite(MT_ITEM_ARTIFACT3, &states[S_559], 0, 0xffffff80, xpos, 255);
+                BufferedDrawSprite(MT_ITEM_ARTIFACT3, &states[S_559], 0, 0xffffff80, xpos, 266-HUDmargin);
             }
             else if (artflag == 2)
             {
-                BufferedDrawSprite(MT_ITEM_ARTIFACT2, &states[S_551], 0, 0xffffff80, xpos, 255);
+                BufferedDrawSprite(MT_ITEM_ARTIFACT2, &states[S_551], 0, 0xffffff80, xpos, 266-HUDmargin);
             }
             else if (artflag == 1)
             {
-                BufferedDrawSprite(MT_ITEM_ARTIFACT1, &states[S_543], 0, 0xffffff80, xpos, 255);
+                BufferedDrawSprite(MT_ITEM_ARTIFACT1, &states[S_543], 0, 0xffffff80, xpos, 266-HUDmargin);
             }
 
             xpos -= 40;

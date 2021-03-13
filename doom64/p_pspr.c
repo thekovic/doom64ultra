@@ -343,10 +343,12 @@ void P_BringUpWeapon (player_t *player) // 8001B4BC
 	if (player->pendingweapon == wp_nochange)
 		player->pendingweapon = player->readyweapon;
 
-	if (player->pendingweapon == wp_chainsaw)
+	if (player->pendingweapon == wp_chainsaw) {
         S_StartSound(player->mo, sfx_sawup);
-    else if (player->pendingweapon == wp_plasma)
+	}
+    else if (player->pendingweapon == wp_plasma) {
         S_StartSound(player->mo, sfx_electric);
+	}
 
 	new = weaponinfo[player->pendingweapon].upstate;
 
@@ -740,7 +742,7 @@ void A_Saw (player_t *player, pspdef_t *psp) // 8001BC1C
 /*
 ==================
 =
-= A_FireMissile
+= A_ChainSawReady
 =
 ==================
 */
@@ -790,7 +792,7 @@ void A_FireBFG (player_t *player, pspdef_t *psp) // 8001BE78
 /*
 ==================
 =
-= A_FirePlasma
+= A_PlasmaAnimate
 =
 ==================
 */
@@ -885,7 +887,6 @@ void P_GunShot (mobj_t *mo, boolean accurate) // 8001C024
 void A_FirePistol (player_t *player, pspdef_t *psp) // 8001C0B4
 {
 	S_StartSound (player->mo, sfx_pistol);
-
 	player->ammo[weaponinfo[player->readyweapon].ammo]--;
 	P_SetPsprite (player,ps_flashalpha,weaponinfo[player->readyweapon].flashstate);
 	P_BulletSlope(player->mo);
@@ -908,7 +909,6 @@ void A_FireShotgun (player_t *player, pspdef_t *psp) // 8001C138
 	int			i;
 
 	S_StartSound (player->mo, sfx_shotgun);
-
 	player->ammo[weaponinfo[player->readyweapon].ammo]--;
 	player->recoilpitch = RECOILPITCH;
 

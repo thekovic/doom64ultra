@@ -8,19 +8,26 @@
 #define T_NULL	        ""
 
 // [Immorpher] New introduction text adapted from Doom 64 reloaded!
-#define C_INTRO_TXT01	"This outpost was entombed"
-#define C_INTRO_TXT02	"in a lifeless nuclear haze."
-#define C_INTRO_TXT03	"Hell has reached back in."
-#define C_INTRO_TXT04	" "
-#define C_INTRO_TXT05	"Something has distorted"
-#define C_INTRO_TXT06	"reality and brought the"
-#define C_INTRO_TXT07	"corpses back to life."
-#define C_INTRO_TXT08	" "
-#define C_INTRO_TXT09	"It plays with madness."
-#define C_INTRO_TXT10	"Sanity is at an edge and"
-#define C_INTRO_TXT11	"the only therapy is..."
-#define C_INTRO_TXT12	" "
-#define C_INTRO_TXT13	"Merciless Extermination!"
+#define C_INTRO_TXT01	"Surviving the poison of evil has"
+#define C_INTRO_TXT02	"pushed sanity to an edge. The"
+#define C_INTRO_TXT03	"doctor's treatments are of little"
+#define C_INTRO_TXT04	"help. Nightmares of so many demons"
+#define C_INTRO_TXT05	"pouring through will not stop."
+#define C_INTRO_TXT06	" "
+#define C_INTRO_TXT07	"The outpost at Phobos was left dead"
+#define C_INTRO_TXT08	"in a nuclear haze. However, hell"
+#define C_INTRO_TXT09	"has reached back in. Something has"
+#define C_INTRO_TXT10	"distorted reality and resurrected"
+#define C_INTRO_TXT11	"decaying carnage back into hideous"
+#define C_INTRO_TXT12	"living tissue."
+#define C_INTRO_TXT13	" "
+#define C_INTRO_TXT14	"The mutations are devastating. The"
+#define C_INTRO_TXT15	"Demons have returned even stronger"
+#define C_INTRO_TXT16	"and more vicious than before. As"
+#define C_INTRO_TXT17	"the only one who has survived the"
+#define C_INTRO_TXT18	"horror, the mission is clear..."
+#define C_INTRO_TXT19	" "
+#define C_INTRO_TXT20	"MERCILESS EXTERMINATION!"
 
 #define C_END1_TXT01	"you cackle as the"
 #define C_END1_TXT02	"familiarity of the"
@@ -113,6 +120,13 @@ char *introcluster[] =   // [Immorpher] new intro text adapted from Doom 64 relo
 	C_INTRO_TXT11,
 	C_INTRO_TXT12,
 	C_INTRO_TXT13,
+	C_INTRO_TXT14,
+	C_INTRO_TXT15,
+	C_INTRO_TXT16,
+	C_INTRO_TXT17,
+	C_INTRO_TXT18,
+	C_INTRO_TXT19,
+	C_INTRO_TXT20,
 	T_NULL
 };
 
@@ -303,7 +317,7 @@ void F_StartIntermission(void) // 80002CD0
     if (nextmap == 1)
     {
         text = introcluster;
-        textypos = 27;
+        textypos = 20;
     }
     else if ((gamemap == 8) && (nextmap == 9))
     {
@@ -390,6 +404,12 @@ int F_TickerIntermission(void) // 80002E44
         {
             exit = ga_exit;
         }
+		
+		 // [Immorpher] Speed up text intermission by pressing buttons
+		if (buttons & (ALL_CBUTTONS|ALL_TRIG|PAD_A|PAD_B))
+        {
+            textalpha += 256;
+        }
 	}
 
 	return exit;
@@ -421,11 +441,20 @@ void F_DrawerIntermission(void) // 80002F14
     ypos = textypos;
     for(i = 0; i < textline; i++)
     {
-        ST_DrawString(-1, ypos, text[i], 0xc0c0c0ff);
-        ypos += 14;
+		if(runintroduction) {
+			ST_Message(20, ypos, text[i], 0xc0c0c0ff);
+			ypos += 10;
+		} else {
+			ST_DrawString(-1, ypos, text[i], 0xc0c0c0ff);
+			ypos += 14;
+		}
     }
 
-    ST_DrawString(-1, ypos, text[i], textalpha | 0xc0c0c000);
+	if(runintroduction) {
+		ST_Message(20, ypos, text[i], textalpha | 0xc0c0c000);
+	} else {
+		ST_DrawString(-1, ypos, text[i], textalpha | 0xc0c0c000);
+	}
 
     if (MenuCall)
     {

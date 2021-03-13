@@ -171,6 +171,7 @@ void G_InitNew (skill_t skill, int map, gametype_t gametype) // 800046F4
 
 	BT_DATA[0] = (buttons_t *)ActualConfiguration;
 
+	/*
 	if (skill == sk_nightmare)
 	{
 		// Faster enemies
@@ -293,7 +294,7 @@ void G_InitNew (skill_t skill, int map, gametype_t gametype) // 800046F4
 		mobjinfo[MT_PAIN].height = 112*FRACUNIT;
 		mobjinfo[MT_RESURRECTOR].radius = 80*FRACUNIT;
 		mobjinfo[MT_RESURRECTOR].height = 150*FRACUNIT;
-	}
+	}*/
 }
 
 /*============================================================================  */
@@ -316,8 +317,8 @@ void G_RunGame (void) // 80004794
         G_DoLoadLevel ();
 		
 		if(runintroduction && StoryText == true) { // [Immorpher] run introduction text screen
-			runintroduction = false; // [Immorpher] only run it once!
 			MiniLoop(F_StartIntermission, F_StopIntermission, F_TickerIntermission, F_DrawerIntermission);
+			runintroduction = false; // [Immorpher] only run it once!
 		}
 			
         //printf("RUN P_Start\n");
@@ -337,10 +338,9 @@ void G_RunGame (void) // 80004794
         if (gameaction == ga_exitdemo)
             return;
 
-        /* run a stats intermission */
-        if (nextmap != 32) {
-            MiniLoop(IN_Start, IN_Stop, IN_Ticker, IN_Drawer);
-        }
+        /* run a stats intermission - [Immorpher] Removed Hectic exception */
+		MiniLoop(IN_Start, IN_Stop, IN_Ticker, IN_Drawer);
+
 
         if(((gamemap ==  8) && (nextmap ==  9)) ||
            ((gamemap ==  4) && (nextmap == 29)) ||

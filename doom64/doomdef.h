@@ -282,7 +282,6 @@ typedef struct laser_s
 /* Doom 64 New Flags */
 #define	MF_COUNTSECRET  0x8000000   /* [d64] Count as secret when picked up (for intermissions) */
 #define	MF_RENDERLASER  0x10000000  /* [d64] Exclusive to MT_LASERMARKER only */
-#define	MF_NIGHTMARE    0x20000000  /* [kex] Enables nightmare mode */
 #define	MF_SHADOW       0x40000000  /* temporary player invisibility powerup. */
 #define	MF_NOINFIGHTING 0x80000000  /* [d64] Do not switch targets */
 
@@ -367,7 +366,7 @@ typedef enum
 {
 	am_clip,		/* pistol / chaingun */
 	am_shell,		/* shotgun */
-	am_cell,		/* BFG */
+	am_cell,		/* BFG / plasma / #$&%*/
 	am_misl,		/* missile launcher */
 	NUMAMMO,
 	am_noammo		/* chainsaw / fist */
@@ -461,6 +460,10 @@ typedef struct player_s
 	int         messagetic1;            // [Immorpher] message tic buffer
 	int         messagetic2;            // [Immorpher] message tic buffer
 	int         messagetic3;            // [Immorpher] message tic buffer
+	unsigned int		messagecolor;			// [Immorpher] message color
+	unsigned int		messagecolor1;			// [Immorpher] message color 1
+	unsigned int		messagecolor2;			// [Immorpher] message color 2
+	unsigned int		messagecolor3;			// [Immorpher] message color 3
 	int			damagecount, bonuscount;/* for screen flashing */
 	int			bfgcount;               /* for bfg screen flashing */
 	mobj_t		*attacker;				/* who did damage (NULL for floors) */
@@ -490,6 +493,7 @@ typedef struct player_s
 
 #define CF_NOCOLORS     0x20000    // [GEC] NEW CHEAT CODE
 #define CF_FULLBRIGHT   0x40000    // [GEC] NEW CHEAT CODE
+#define CF_GAMMA		0x80000    // [Immorpher] NEW CHEAT CODE
 
 #define	AF_LINES		1				/* automap active on lines mode */
 #define	AF_SUBSEC		2               /* automap active on subsector mode */
@@ -795,7 +799,7 @@ extern int ConfgNumb;               // 8005A7AC
 extern int Display_X;               // 8005A7B0
 extern int Display_Y;               // 8005A7B4
 extern boolean enable_messages;     // 8005A7B8
-extern boolean enable_statusbar;    // 8005A7BC
+extern int HUDopacity;    			// [Immorpher] HUD 0pacity options
 extern int SfxVolume;               // 8005A7C0
 extern int MusVolume;               // 8005A7C4
 extern int brightness;              // 8005A7C8
@@ -811,7 +815,9 @@ extern int FlashBrightness;     	// [Immorpher] Strobe brightness adjustment, wi
 extern boolean Autorun;     		// [Immorpher] Autorun
 extern boolean runintroduction; 	// [Immorpher] New introduction text
 extern boolean StoryText; 			// [Immorpher] Enable story text
-extern int skill; 					// [Immorpher] Define skill for restart
+extern boolean MapStats; 			// [Immorpher] Enable automap statistics
+extern int HUDmargin; 				// [Immorpher] HUD margin options
+extern boolean ColoredHUD;     		// [Immorpher] Colored hud
 
 int M_RunTitle(void); // 80007630
 
@@ -836,7 +842,9 @@ void M_VolumeDrawer(void); // 800095B4
 void M_MovementDrawer(void); // 80009738
 void M_VideoDrawer(void); // 80009884
 void M_DisplayDrawer(void); // [Immorpher] new menu
+void M_StatusHUDDrawer(void); // [Immorpher] new menu
 void M_DefaultsDrawer(void); // [Immorpher] new menu
+void M_CreditsDrawer(void); // [Immorpher] new menu
 
 void M_DrawBackground(int x, int y, int color, char *name); // 80009A68
 void M_DrawOverlay(int x, int y, int w, int h, int color); // 80009F58
@@ -965,8 +973,6 @@ void S_StopAll(void);
 int S_SoundStatus(int seqnum);
 void S_StartSound(mobj_t *origin, int sound_id);
 int S_AdjustSoundParams(mobj_t *listener, mobj_t *origin, int* vol, int* pan);
-
-void S_StartSoundTest(int origin, int sound_id);
 
 /*--------*/
 /* I_MAIN */

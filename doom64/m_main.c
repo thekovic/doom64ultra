@@ -63,7 +63,7 @@ char *ControlText[] =   //8007517C
 #define M_TXT31 "WALL BLOCKING"
 #define M_TXT32 "Center Display"
 #define M_TXT33 "Messages:"
-#define M_TXT34 "Status Bar:"
+#define M_TXT34 "Opacity"
 #define M_TXT35 "LOCK MONSTERS"
 #define M_TXT36 "SCREENSHOT"
 #define M_TXT37 "MAP EVERYTHING"
@@ -78,6 +78,7 @@ char *ControlText[] =   //8007517C
 #define M_TXT46 "Try again"
 #define M_TXT47 "Create game note"
 
+// New additions to Doom 64 RE and Merciless Edition
 #define M_TXT48 "COLORS"     // [GEC] NEW CHEAT CODE
 #define M_TXT49 "FULL BRIGHT"   // [GEC] NEW CHEAT CODE
 #define M_TXT50 "Filtering:"   // [GEC] New video filter option
@@ -92,6 +93,30 @@ char *ControlText[] =   //8007517C
 #define M_TXT59 "Immorpher" // [Immorpher] Immorpher default settings
 #define M_TXT60 "Accessible" // [Immorpher] Increased accessibility default settings
 #define M_TXT61 "Story Text:" // [Immorpher] Skip cut scenes
+#define M_TXT62 "Map Stats:" // [Immorpher] Display automap statistics
+#define M_TXT63 "Status HUD" // [Immorpher] New menu option for HUD elements!
+#define M_TXT64 "Margin" // [Immorpher] Adjust the margin for the HUD
+#define M_TXT65 "WARP TO MOTHER" // [Immorpher] New features menu warps
+#define M_TXT66 "WARP TO SECRET" // [Immorpher] New features menu warps
+#define M_TXT67 "Colored:" // [Immorpher] Colored hud
+#define M_TXT68 "GAMMA CORRECT"   // [Immorpher] NEW CHEAT CODE
+
+// Merciless Edition Credits
+#define M_TXT69 "MERCILESS EDITION CREDITS"   // [Immorpher] Credits
+#define M_TXT70 "MERCILESS PROGRAMMING: IMMORPHER"   // [Immorpher] Credits
+#define M_TXT71 "REVERSE ENGINEERING: ERICK194"   // [Immorpher] Credits
+#define M_TXT72 "KAISER"   // [Immorpher] Credits
+#define M_TXT73 "QUASAR"   // [Immorpher] Credits
+#define M_TXT74 "COMPILER ASSETS: CRASHOVERIDE"   // [Immorpher] Credits
+#define M_TXT75 "ALPHATANGO"   // [Immorpher] Credits
+#define M_TXT76 "PLAY TESTING: IRL RANDOM HAJILE"   // [Immorpher] Credits
+#define M_TXT77 "BUU342, TAUFAN99"   // [Immorpher] Credits
+#define M_TXT78 "SPECIAL THANKS: GEC TEAM, DOOMWORLD"   // [Immorpher] Credits
+#define M_TXT79 "DOOM 64 DISCORD"   // [Immorpher] Credits
+#define M_TXT80 "NEIGH WINNY, SCD"   // [Immorpher] Credits
+#define M_TXT81 "ISANN KEKET"   // [Immorpher] Credits
+#define M_TXT82 "NEVANDER"   // [Immorpher] Credits
+
 
 char *MenuText[] =   // 8005ABA0
 {
@@ -107,7 +132,11 @@ char *MenuText[] =   // 8005ABA0
     M_TXT45, M_TXT46, M_TXT47, M_TXT48, M_TXT49,
 	M_TXT50, M_TXT51, M_TXT52, M_TXT53, M_TXT54,
 	M_TXT55, M_TXT56, M_TXT57, M_TXT58, M_TXT59,
-	M_TXT60, M_TXT61
+	M_TXT60, M_TXT61, M_TXT62, M_TXT63, M_TXT64,
+	M_TXT65, M_TXT66, M_TXT67, M_TXT68, M_TXT69,
+	M_TXT70, M_TXT71, M_TXT72, M_TXT73, M_TXT74,
+    M_TXT75, M_TXT76, M_TXT77, M_TXT78, M_TXT79,
+	M_TXT80, M_TXT81, M_TXT82,
 };
 
 menuitem_t Menu_Title[3] = // 8005A978
@@ -127,15 +156,16 @@ menuitem_t Menu_Skill[6] = // 8005A990
     { 6, 102, 180},    	// Return
 };
 
-menuitem_t Menu_Options[7] = // 8005A9C0
+menuitem_t Menu_Options[8] = // 8005A9C0
 {
     {  0, 112, 60 },    // Gamepad
     { 41, 112, 80 },    // Movement
     {  1, 112, 100},    // Volume
     {  2, 112, 120},    // Video
     { 51, 112, 140},    // Display
-    { 13, 112, 160},    // Default settings
-    {  6, 112, 180},    // Return
+    { 63, 112, 160},    // Status HUD
+    { 13, 112, 180},    // Default settings
+    {  6, 112, 200},    // Return
 };
 
 menuitem_t Menu_Volume[3] = // 8005AA08
@@ -164,17 +194,25 @@ menuitem_t Menu_Video[7] = // 8005AA5C
     {  6, 82, 200},    // Return
 };
 
-menuitem_t Menu_Display[6] = // [Immorpher] New menu
+menuitem_t Menu_Display[5] = // [Immorpher] Display menu
 {
     { 57, 82, 60},    	// Flash Brightness
     { 32, 82, 100},    // Center Display
-    { 33, 82, 120},    // Messages
-    { 34, 82, 140},    // Status Bar
-    { 61, 82, 160},    // Story Text
+    { 61, 82, 120},    // Story Text
+    { 62, 82, 140},    // Map Stats
+    {  6, 82, 160},    // Return
+};
+
+menuitem_t Menu_StatusHUD[5] = // [Immorpher] Status HUD
+{
+    { 64, 82, 60},   	// Margin
+    { 34, 82, 100},    // Opacity
+    { 67, 82, 140},    // Colored HUD
+    { 33, 82, 160},    // Messages
     {  6, 82, 180},    // Return
 };
 
-menuitem_t Menu_Defaults[5] = // [Immorpher] New menu
+menuitem_t Menu_Defaults[5] = // [Immorpher] Defaults menu
 {
     { 42, 102, 60},    	// Original doom 64 defaults
     { 58, 102, 80},    	// Merciless edition defaults
@@ -224,9 +262,9 @@ menuitem_t Menu_CreateNote[3] = // 8005AB40
     { 44, 110, 130},    // Manage Pak
 };
 
-//#define MAXFEATURES 5
-//#define MAXFEATURES 9
-#define MAXFEATURES 11
+//#define MAXFEATURES 5 [Original]
+//#define MAXFEATURES 9 [Doom 64 RE]
+#define MAXFEATURES 13
 menuitem_t Menu_Features[MAXFEATURES] = // 8005AB64
 {
     { 23, 40, 50},      // WARP TO LEVEL
@@ -242,19 +280,29 @@ menuitem_t Menu_Features[MAXFEATURES] = // 8005AB64
     //
     { 48, 40, 140},      // COLORS [GEC] NEW CHEAT CODE
     { 49, 40, 150},      // FULL BRIGHT [GEC] NEW CHEAT CODE
+    { 68, 40, 160},      // Gamma correction [Immorpher] NEW CHEAT CODE
+	{ 69, 40, 180},      // [Immorpher] Merciless Edition Credits
+};
 
-    // no usados
-//#define M_TXT26 "SECURITY KEYS"
-//#define M_TXT28 "Exit"
-//#define M_TXT29 "DEBUG"
-//#define M_TXT30 "TEXTURE TEST"
-//#define M_TXT31 "WALL BLOCKING"
-//#define M_TXT35 "LOCK MONSTERS"
-//#define M_TXT36 "SCREENSHOT"
-//#define M_TXT38 "MACRO PEEK"
-//#define M_TXT39 "MUSIC TEST"
-//#define M_TXT40 "WARP TO FUN"
-
+menuitem_t Merciless_Credits[13] = // 8005AB64
+{
+	{70, 20, 50},      // Credits
+	
+    {71, 20, 70},      // Credits
+    {72, 188, 80},      // Credits
+    {73, 188, 90},      // Credits
+	
+    {74, 20, 110},      // Credits
+    {75, 156, 120},      // Credits
+	
+    {76, 20, 140},      // Credits
+    {77, 133, 150},      // Credits
+	
+    {78, 20, 170},      // Credits
+    {79, 148, 180},      // Credits
+    {80, 148, 190},      // Credits
+    {81, 148, 200},      // Credits
+    {82, 148, 210},      // Credits
 };
 
 menudata_t MenuData[8]; // 800A54F0
@@ -283,7 +331,7 @@ int ConfgNumb = 0;              // 8005A7AC
 int Display_X = 0;              // 8005A7B0
 int Display_Y = 0;              // 8005A7B4
 boolean enable_messages = true; // 8005A7B8
-boolean enable_statusbar = true;// 8005A7BC
+int HUDopacity = 128;			// [Immorpher] HUD opacity
 int SfxVolume = 100;             // 8005A7C0
 int MusVolume = 80;             // 8005A7C4
 int brightness = 100;             // 8005A7C8
@@ -299,6 +347,9 @@ int FlashBrightness = 32; // [Immorpher] Strobe brightness adjustment, will need
 boolean Autorun = false; // [Immorpher] New autorun option!
 boolean runintroduction = false; // [Immorpher] New introduction sequence!
 boolean StoryText = true; // [Immorpher] Skip story cut scenes?
+boolean MapStats = false; // [Immorpher] Enable map statistics for automap?
+int HUDmargin = 15; // [Immorpher] HUD margin options (default 20)
+boolean ColoredHUD = true; // [Immorpher] Colored hud
 
 int TempConfiguration[13] = // 8005A80C
 {
@@ -1011,7 +1062,7 @@ int M_MenuTicker(void) // 80007E0C
                         M_SaveMenuData();
 
                         MenuItem = Menu_Options;
-                        itemlines = 7;
+                        itemlines = 8;
                         MenuCall = M_MenuTitleDrawer;
                         cursorpos = 0;
 
@@ -1144,8 +1195,8 @@ int M_MenuTicker(void) // 80007E0C
                         if (buttons & PAD_LEFT)
                         {
                             m_actualmap -= 1;
-                            if (m_actualmap > 27)
-                                m_actualmap = 27;
+                            if (m_actualmap > 32)
+                                m_actualmap = 32;
 
                             if (m_actualmap > 0)
                             {
@@ -1157,12 +1208,12 @@ int M_MenuTicker(void) // 80007E0C
                         else if (buttons & PAD_RIGHT)
                         {
                             m_actualmap += 1;
-                            if (m_actualmap < 28)
+                            if (m_actualmap < 33)
                             {
                                 S_StartSound(NULL, sfx_switch2);
                                 return ga_nothing;
                             }
-                            m_actualmap = 27;
+                            m_actualmap = 32;
                         }
                         else if (buttons & ALL_CBUTTONS)
                         {
@@ -1341,12 +1392,38 @@ int M_MenuTicker(void) // 80007E0C
                     }
                     break;
 
-                case 34: // Status Bar
-                    if (truebuttons)
+                case 34: // [Immorpher] HUD opacity
+                    if (buttons & PAD_RIGHT)
                     {
-                        S_StartSound(NULL, sfx_switch2);
-                        enable_statusbar ^= true;
-                        return ga_nothing;
+                        HUDopacity += 4;
+                        if (HUDopacity <= 255)
+                        {
+                            if (HUDopacity & 4)
+                            {
+                                S_StartSound(NULL, sfx_secmove);
+                                return ga_nothing;
+                            }
+                        }
+                        else
+                        {
+                            HUDopacity = 255;
+                        }
+                    }
+                    else if (buttons & PAD_LEFT)
+                    {
+                        HUDopacity -= 4;
+                        if (HUDopacity < 0)
+                        {
+                            HUDopacity = 0;
+                        }
+                        else
+                        {
+                            if (HUDopacity & 4)
+                            {
+                                S_StartSound(NULL, sfx_secmove);
+                                return ga_nothing;
+                            }
+                        }
                     }
                     break;
 
@@ -1464,12 +1541,17 @@ int M_MenuTicker(void) // 80007E0C
 						interlacing = false;  // [Immorpher] new video option
 						DitherFilter = false;  // [Immorpher] new video option
 						ColorDither = 0;  // [Immorpher] new video option
-						FlashBrightness = 32;  // [Immorpher] new video option
 						
 						// Set display options
-                        enable_messages = true;
-                        enable_statusbar = true;
+						FlashBrightness = 32;  // [Immorpher] new video option
 						StoryText = true; // [Immorpher] Skip story cut scenes?
+						MapStats = false; // [Immorpher] Display automap stats?
+						
+						// Set HUD options
+                        enable_messages = true;
+                        HUDopacity = 128;
+						HUDmargin = 19; // [Immorpher] HUD margin options
+						ColoredHUD = false; // [Immorpher] Colored hud
 						
 						// Set sound options
                         SfxVolume = 0x50;
@@ -1584,7 +1666,7 @@ int M_MenuTicker(void) // 80007E0C
                         M_SaveMenuData();
 
                         MenuItem = Menu_Display;
-                        itemlines = 6;
+                        itemlines = 5;
                         MenuCall = M_DisplayDrawer;
                         cursorpos = 0;
 
@@ -1672,7 +1754,7 @@ int M_MenuTicker(void) // 80007E0C
                     }
                     break;
 					
-                case 57: // FlashBrightness
+                case 57: // Flash Brightness
                     if (buttons & PAD_RIGHT)
                     {
                         FlashBrightness += 1; // increments
@@ -1725,12 +1807,17 @@ int M_MenuTicker(void) // 80007E0C
 						interlacing = false;  // [Immorpher] new video option
 						DitherFilter = false;  // [Immorpher] new video option
 						ColorDither = 0;  // [Immorpher] new video option
-						FlashBrightness = 32;  // [Immorpher] new video option
 						
 						// Set display options
-                        enable_messages = true;
-                        enable_statusbar = true;
+						FlashBrightness = 32;  // [Immorpher] new video option
 						StoryText = true; // [Immorpher] Skip story cut scenes?
+						MapStats = false; // [Immorpher] Display automap stats?
+						
+						// Set HUD options
+                        enable_messages = true;
+                        HUDopacity = 128;
+						HUDmargin = 15; // [Immorpher] HUD margin options
+						ColoredHUD = true; // [Immorpher] Colored hud
 						
 						// Set sound options
                         SfxVolume = 100;
@@ -1769,9 +1856,14 @@ int M_MenuTicker(void) // 80007E0C
 						
 						// Set display options
 						FlashBrightness = 32;  // [Immorpher] new video option
+						StoryText = true; // [Immorpher] Keep story cut scenes?
+						MapStats = true; // [Immorpher] Display automap stats?
+						
+						// Set HUD options
                         enable_messages = true;
-                        enable_statusbar = true;
-						StoryText = true; // [Immorpher] Skip story cut scenes?
+                        HUDopacity = 196;
+						HUDmargin = 5; // [Immorpher] HUD margin options
+						ColoredHUD = true; // [Immorpher] Colored hud
 						
 						// Set sound options
                         SfxVolume = 100;
@@ -1807,12 +1899,17 @@ int M_MenuTicker(void) // 80007E0C
 						interlacing = false;  // [Immorpher] new video option
 						DitherFilter = false;  // [Immorpher] new video option
 						ColorDither = 0;  // [Immorpher] new video option
-						FlashBrightness = 0;  // [Immorpher] new video option
 						
 						// Set display options
-                        enable_messages = true;
-                        enable_statusbar = true;
+						FlashBrightness = 0;  // [Immorpher] new video option
 						StoryText = true; // [Immorpher] Skip story cut scenes?
+						MapStats = false; // [Immorpher] Display automap stats?
+						
+						// Set HUD options
+                        enable_messages = true;
+                        HUDopacity = 255;
+						HUDmargin = 15; // [Immorpher] HUD margin options (default 20)
+						ColoredHUD = true; // [Immorpher] Colored hud
 						
 						// Set sound options
                         SfxVolume = 100;
@@ -1835,12 +1932,113 @@ int M_MenuTicker(void) // 80007E0C
                     {
                         S_StartSound(NULL, sfx_switch2);
                         StoryText ^= true;
-						P_RefreshVideo();
                         return ga_nothing;
                     }
                     break;	
 					
-				}
+                case 62: // [Immorpher] Map stats
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+                        MapStats ^= true;
+                        return ga_nothing;
+                    }
+                    break;	
+							
+                case 63: // [Immorpher] Status HUD
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_pistol);
+                        M_SaveMenuData();
+
+                        MenuItem = Menu_StatusHUD;
+                        itemlines = 5;
+                        MenuCall = M_StatusHUDDrawer;
+                        cursorpos = 0;
+
+                        MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
+                        M_RestoreMenuData(true);
+                        return ga_nothing;
+                    }
+                    break;
+					
+                case 64: // HUDmargin
+                    if (buttons & PAD_RIGHT)
+                    {
+                        HUDmargin += 1; // increments
+                        if (HUDmargin <= 20) // Maximum is 20
+                        {
+                            if (HUDmargin & 1)
+                            {
+                                S_StartSound(NULL, sfx_secmove);
+                                return ga_nothing;
+                            }
+                        }
+                        else
+                        {
+                            HUDmargin = 20; // The Limit
+                        }
+                    }
+                    else if (buttons & PAD_LEFT)
+                    {
+                        HUDmargin -= 1; // decrements 
+                        if (HUDmargin < 0)
+                        {
+                            HUDmargin = 0;
+                        }
+                        else
+                        {
+                            if (HUDmargin & 1)
+                            {
+                                S_StartSound(NULL, sfx_secmove);
+                                return ga_nothing;
+                            }
+                        }
+                    }
+                    break;	
+					
+                case 67: // [Immorpher] Colored HUD
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+                        ColoredHUD ^= true;
+                        return ga_nothing;
+                    }
+                    break;	
+
+				case 68: // Gamma Correction [Immorpher] NEW CHEAT CODE
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+                        players[0].cheats ^= CF_GAMMA;
+                        gobalcheats ^= CF_GAMMA;
+						P_RefreshVideo();
+                        return ga_nothing;
+                    }
+                    break;
+					
+				case 69: // Credits
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_pistol);
+                        M_SaveMenuData();
+
+                        MenuItem = Merciless_Credits;
+                        itemlines = 13;
+                        MenuCall = M_CreditsDrawer;
+                        cursorpos = 0;
+
+                        exit = MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
+                        M_RestoreMenuData((exit == 8));
+
+                        if (exit == 8)
+                            return ga_nothing;
+
+                        return exit;
+                    }
+                    break;
+					
+			}
             exit = ga_nothing;
         }
     }
@@ -1918,6 +2116,14 @@ void M_FeaturesDrawer(void) // 800091C0
             /* Show "WARP TO FUN" text */
             ST_Message(item->x, item->y, MenuText[40], text_alpha | 0xffffff00);
         }
+		else if ((item->casepos == 23) && (m_actualmap == 28)) // [Immorpher] Show "WARP TO MOTHER" text
+		{ 
+            ST_Message(item->x, item->y, MenuText[65], text_alpha | 0xffffff00);
+		}
+		else if ((item->casepos == 23) && (m_actualmap > 28)) // [Immorpher] Show "WARP TO SECRET" text
+		{
+            ST_Message(item->x, item->y, MenuText[66], text_alpha | 0xffffff00);
+		}
         else
         {
             /* Show "WARP TO LEVEL" text */
@@ -1978,8 +2184,12 @@ void M_FeaturesDrawer(void) // 800091C0
                 text = (!(players[0].cheats & CF_FULLBRIGHT)) ? "OFF": "ON";
                 break;
 
+            case 68: /* Gamma Correction */
+                text = (!(players[0].cheats & CF_GAMMA)) ? "OFF": "ON";
+                break;
+				
             default:
-                text = "NOT IMPLEMENTED";
+                text = ""; // [Immorpher] set to null for credits menu
                 break;
         }
 
@@ -1988,6 +2198,28 @@ void M_FeaturesDrawer(void) // 800091C0
     }
 
     ST_DrawSymbol(MenuItem->x -10, MenuItem[cursorpos].y -1, 78, text_alpha | 0xffffff00);
+}
+
+void M_CreditsDrawer(void) // 800091C0
+{
+    char *text, textbuff[16];
+    menuitem_t *item;
+    int i;
+
+    ST_DrawString(-1, 20, "Merciless Credits", text_alpha | 0xc0000000);
+    item = MenuItem;
+
+    for(i = 0; i < itemlines; i++)
+    {
+        
+		/* Show "WARP TO LEVEL" text */
+		ST_Message(item->x, item->y, MenuText[item->casepos], text_alpha | 0xffffff00);
+
+        text = textbuff;
+
+        ST_Message(item->x + 130, item->y, text, text_alpha | 0xffffff00);
+        item++;
+    }
 }
 
 void M_VolumeDrawer(void) // 800095B4
@@ -2146,23 +2378,16 @@ void M_DisplayDrawer(void) // 80009884
     {
         casepos = item->casepos;
 
-        if (casepos == 33) // Messages:
-        {
-            if (enable_messages)
-                text = "On";
-            else
-                text = "Off";
-        }
-        else if (casepos == 34) // Status Bar:
-        {
-            if (enable_statusbar)
-                text = "On";
-            else
-                text = "Off";
-        }
-        else if (casepos == 61) // Story Text:
+        if (casepos == 61) // Story Text:
         {
             if (StoryText)
+                text = "On";
+            else
+                text = "Off";
+        }
+        else if (casepos == 62) // Map stats:
+        {
+            if (MapStats)
                 text = "On";
             else
                 text = "Off";
@@ -2185,6 +2410,58 @@ void M_DisplayDrawer(void) // 80009884
 	ST_DrawSymbol(100*FlashBrightness/32 + 83, 80, 69, text_alpha | 0xffffff00);
 
     ST_DrawSymbol(Menu_Display[0].x - 37, Menu_Display[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
+}
+
+void M_StatusHUDDrawer(void) // 80009884
+{
+    char *text;
+    menuitem_t *item;
+    int i, casepos;
+
+    ST_DrawString(-1, 20, "Status HUD", text_alpha | 0xc0000000);
+
+    item = Menu_StatusHUD;
+
+    for(i = 0; i < itemlines; i++)
+    {
+        casepos = item->casepos;
+
+        if (casepos == 33) // Messages:
+        {
+            if (enable_messages)
+                text = "On";
+            else
+                text = "Off";
+        }
+        else if (casepos == 67) // Colored HUD:
+        {
+            if (ColoredHUD)
+                text = "On";
+            else
+                text = "Off";
+        }
+        else
+        {
+            text = NULL;
+        }
+
+        if (text)
+            ST_DrawString(item->x + 130, item->y, text, text_alpha | 0xc0000000);
+
+        ST_DrawString(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+
+        item++;
+    }
+	
+	// HUD Margin
+    ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
+	ST_DrawSymbol(100*HUDmargin/20 + 83, 80, 69, text_alpha | 0xffffff00);
+	
+	// HUD Opacity
+    ST_DrawSymbol(82, 120, 68, text_alpha | 0xffffff00);
+    ST_DrawSymbol(100*HUDopacity/255 + 83, 120, 69, text_alpha | 0xffffff00);
+
+    ST_DrawSymbol(Menu_StatusHUD[0].x - 37, Menu_StatusHUD[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 }
 
 void M_DefaultsDrawer(void) // [Immorpher] new defaults drawer
