@@ -725,6 +725,7 @@ extern	boolean	demoplayback, demorecording;
 extern	int		*demo_p, *demobuffer;
 
 void G_InitNew (skill_t skill, int map, gametype_t gametype);
+void G_InitSkill(skill_t skill); // [Immorpher] skill initialize
 void G_CompleteLevel (void);
 void G_RecordDemo (void);
 int G_PlayDemoPtr (int skill, int map);
@@ -811,7 +812,7 @@ extern boolean antialiasing;     	// [Immorpher] Anti-aliasing
 extern boolean interlacing;     	// [Immorpher] Interlacing
 extern boolean DitherFilter;     	// [Immorpher] Dither Filter
 extern int ColorDither;     		// [Immorpher] Color Dither
-extern int FlashBrightness;     	// [Immorpher] Strobe brightness adjustment, will need to be float
+extern int FlashBrightness;     	// [Immorpher] Strobe brightness adjustment
 extern boolean Autorun;     		// [Immorpher] Autorun
 extern boolean runintroduction; 	// [Immorpher] New introduction text
 extern boolean StoryText; 			// [Immorpher] Enable story text
@@ -950,6 +951,7 @@ extern mapinfo_t MapInfo[];
 extern unsigned char rndtable[256];
 int M_Random (void);
 int P_Random (void);
+int I_Random (void); // [Immorpher] new random table
 void M_ClearRandom (void);
 void M_ClearBox (fixed_t *box);
 void M_AddToBox (fixed_t *box, fixed_t x, fixed_t y);

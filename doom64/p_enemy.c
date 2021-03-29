@@ -73,7 +73,7 @@ boolean P_CheckMissileRange (mobj_t *actor) // 80010C10
 		return true;
 	}
 	
-    if (gameskill == sk_nightmare && (M_Random()+ticon)%16 == 0) // [Immorpher] Early attack on nightmare
+    if (gameskill >= sk_nightmare && I_Random() < 16) // [Immorpher] Early attack on nightmare
     {
         return true;        // super sneak attack mofo!
     }
@@ -338,7 +338,7 @@ boolean P_LookForPlayers (mobj_t *actor, boolean allaround) // 8001115C
 	mo = actor->target;
 	if (!mo || mo->health <= 0 || !(actor->flags & MF_SEETARGET))
 	{
-		if(actor->type > MT_PLAYERBOT3)   /* for monsters */
+		if(actor->type > MT_PLAYERBOT3)   /* for monsters with immorpher fun for intro at skill 6 */
         {
             actor->target = players[0].mo;
         }
@@ -520,13 +520,13 @@ void A_Chase (mobj_t *actor) // 8001146C
 	/* */
 	/* check for missile attack */
 	/* */
-	if ((gameskill == sk_nightmare || !actor->movecount) && actor->info->missilestate
+	if ((gameskill >= sk_nightmare || !actor->movecount) && actor->info->missilestate
 	&& P_CheckMissileRange (actor))
 	{
 		P_SetMobjState (actor, actor->info->missilestate);
-		if (gameskill != sk_nightmare)
+		if (gameskill < sk_nightmare)
 			actor->flags |= MF_JUSTATTACKED;
-		else if ((M_Random()+ticon)%16 == 0) // [Immorpher] slim chance in nightmare mode to break attack for unpredictability
+		else if (I_Random() < 16) // [Immorpher] slim chance in nightmare mode to break attack for unpredictability
 			actor->flags |= MF_JUSTATTACKED;
 		return;
 	}

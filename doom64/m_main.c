@@ -109,13 +109,14 @@ char *ControlText[] =   //8007517C
 #define M_TXT73 "QUASAR"   // [Immorpher] Credits
 #define M_TXT74 "COMPILER ASSETS: CRASHOVERIDE"   // [Immorpher] Credits
 #define M_TXT75 "ALPHATANGO"   // [Immorpher] Credits
-#define M_TXT76 "PLAY TESTING: IRL RANDOM HAJILE"   // [Immorpher] Credits
-#define M_TXT77 "BUU342, TAUFAN99"   // [Immorpher] Credits
-#define M_TXT78 "SPECIAL THANKS: GEC TEAM, DOOMWORLD"   // [Immorpher] Credits
-#define M_TXT79 "DOOM 64 DISCORD"   // [Immorpher] Credits
-#define M_TXT80 "NEIGH WINNY, SCD"   // [Immorpher] Credits
-#define M_TXT81 "ISANN KEKET"   // [Immorpher] Credits
-#define M_TXT82 "NEVANDER"   // [Immorpher] Credits
+#define M_TXT76 "PLAY TESTING: SCD, BUU342"   // [Immorpher] Credits
+#define M_TXT77 "IRL RANDOM HAJILE"   // [Immorpher] Credits
+#define M_TXT78 "TAUFAN99"   // [Immorpher] Credits
+#define M_TXT79 "SPECIAL THANKS: GEC TEAM, DOOMWORLD"   // [Immorpher] Credits
+#define M_TXT80 "DOOM 64 DISCORD"   // [Immorpher] Credits
+#define M_TXT81 "NEIGH WINNY"   // [Immorpher] Credits
+#define M_TXT82 "ISANN KEKET"   // [Immorpher] Credits
+#define M_TXT83 "NEVANDER"   // [Immorpher] Credits
 
 
 char *MenuText[] =   // 8005ABA0
@@ -136,7 +137,7 @@ char *MenuText[] =   // 8005ABA0
 	M_TXT65, M_TXT66, M_TXT67, M_TXT68, M_TXT69,
 	M_TXT70, M_TXT71, M_TXT72, M_TXT73, M_TXT74,
     M_TXT75, M_TXT76, M_TXT77, M_TXT78, M_TXT79,
-	M_TXT80, M_TXT81, M_TXT82,
+	M_TXT80, M_TXT81, M_TXT82, M_TXT83,
 };
 
 menuitem_t Menu_Title[3] = // 8005A978
@@ -284,25 +285,26 @@ menuitem_t Menu_Features[MAXFEATURES] = // 8005AB64
 	{ 69, 40, 180},      // [Immorpher] Merciless Edition Credits
 };
 
-menuitem_t Merciless_Credits[13] = // 8005AB64
+menuitem_t Merciless_Credits[14] = // 8005AB64
 {
 	{70, 20, 50},      // Credits
 	
-    {71, 20, 70},      // Credits
-    {72, 188, 80},      // Credits
-    {73, 188, 90},      // Credits
+    {71, 20, 68},      // Credits
+    {72, 188, 78},      // Credits
+    {73, 188, 88},      // Credits
 	
-    {74, 20, 110},      // Credits
-    {75, 156, 120},      // Credits
+    {74, 20, 106},      // Credits
+    {75, 156, 116},      // Credits
 	
-    {76, 20, 140},      // Credits
-    {77, 133, 150},      // Credits
+    {76, 20, 134},      // Credits
+    {77, 133, 144},      // Credits
+    {78, 133, 154},      // Credits
 	
-    {78, 20, 170},      // Credits
-    {79, 148, 180},      // Credits
-    {80, 148, 190},      // Credits
-    {81, 148, 200},      // Credits
-    {82, 148, 210},      // Credits
+    {79, 20, 172},      // Credits
+    {80, 148, 182},      // Credits
+    {81, 148, 192},      // Credits
+    {82, 148, 202},      // Credits
+    {83, 148, 212},      // Credits
 };
 
 menudata_t MenuData[8]; // 800A54F0
@@ -931,6 +933,7 @@ int M_MenuTicker(void) // 80007E0C
 						
 						startmap = gamemap;
 						startskill = gameskill;
+						G_InitSkill (gameskill); // [Immorpher] initialize new skill
 						
 						return ga_warped;
                     }
@@ -1121,13 +1124,14 @@ int M_MenuTicker(void) // 80007E0C
                             return ga_nothing;
 						}
 						
-                        // Check ControllerPak
-                        EnableExpPak = (M_ControllerPak() == 0);
 						
 						nextmap = 1; // [Immorpher] For running introduction text"
 						runintroduction = true; // [Immorpher] turn introduction on
 
                         startskill = cursorpos;
+						
+                        // Check ControllerPak
+                        EnableExpPak = (M_ControllerPak() == 0);
 
                         return ga_exit;
                     }
@@ -2024,7 +2028,7 @@ int M_MenuTicker(void) // 80007E0C
                         M_SaveMenuData();
 
                         MenuItem = Merciless_Credits;
-                        itemlines = 13;
+                        itemlines = 14;
                         MenuCall = M_CreditsDrawer;
                         cursorpos = 0;
 
@@ -3145,6 +3149,7 @@ int M_LoadPakTicker(void) // 8000AFE4
                 startmap = gamemap = levelnum;
                 startskill = gameskill = skill;
 
+				G_InitSkill (gameskill); // [Immorpher] Initialize new game skill
                 exit = ga_warped;
             }
         }

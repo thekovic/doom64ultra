@@ -10,7 +10,7 @@
 // [Immorpher] New introduction text adapted from Doom 64 reloaded!
 #define C_INTRO_TXT01	"Surviving the poison of evil has"
 #define C_INTRO_TXT02	"pushed sanity to an edge. The"
-#define C_INTRO_TXT03	"doctor's treatments are of little"
+#define C_INTRO_TXT03	"doctors' treatments are of little"
 #define C_INTRO_TXT04	"help. Nightmares of so many demons"
 #define C_INTRO_TXT05	"pouring through will not stop."
 #define C_INTRO_TXT06	" "
@@ -29,10 +29,10 @@
 #define C_INTRO_TXT19	" "
 #define C_INTRO_TXT20	"MERCILESS EXTERMINATION!"
 
-#define C_END1_TXT01	"you cackle as the"
+#define C_END1_TXT01	"You cackle as the"
 #define C_END1_TXT02	"familiarity of the"
 #define C_END1_TXT03	"situation occurs to you."
-#define C_END1_TXT04	"The gateway to the Demons"
+#define C_END1_TXT04	"The gateway to the demons"
 #define C_END1_TXT05	"domain was too accessible."
 #define C_END1_TXT06	"You realize the demons mock"
 #define C_END1_TXT07	"you with their invitation."
@@ -62,7 +62,7 @@
 #define C_END3_TXT03	"What strange place have"
 #define C_END3_TXT04	"you stumbled upon?"
 #define C_END3_TXT05	" "
-#define C_END3_TXT06	"The Demons did not expect"
+#define C_END3_TXT06	"The demons did not expect"
 #define C_END3_TXT07	"you to survive this far."
 #define C_END3_TXT08	"You feel their demonic"
 #define C_END3_TXT09	"presence waiting for you..."
@@ -72,7 +72,7 @@
 #define C_END4_TXT01	"You wretch as a strange"
 #define C_END4_TXT02	"acrid odor assaults you."
 #define C_END4_TXT03	" "
-#define C_END4_TXT04	"Death and Demon carcass!"
+#define C_END4_TXT04	"Death and demon carcass!"
 #define C_END4_TXT05	" "
 #define C_END4_TXT06	"No nightmare could have"
 #define C_END4_TXT07	"prepared you for this."
@@ -105,7 +105,7 @@
 #define C_END6_TXT14	" "
 #define C_END6_TXT15	"The End."
 
-char *introcluster[] =   // [Immorpher] new intro text adapted from Doom 64 reloaded
+char *introcluster[] =   // [Immorpher] new intro text adapted from Doom 64 Manual and Doom 64 Reloaded
 {
     C_INTRO_TXT01,
 	C_INTRO_TXT02,
@@ -451,9 +451,9 @@ void F_DrawerIntermission(void) // 80002F14
     }
 
 	if(runintroduction) {
-		ST_Message(20, ypos, text[i], textalpha | 0xc0c0c000);
+		ST_Message(20, ypos, text[i], textalpha | PACKRGBA(192, 192*textalpha/255, 192*textalpha/255, 0));
 	} else {
-		ST_DrawString(-1, ypos, text[i], textalpha | 0xc0c0c000);
+		ST_DrawString(-1, ypos, text[i], textalpha | PACKRGBA(192, 192*textalpha/255, 192*textalpha/255, 0));
 	}
 
     if (MenuCall)

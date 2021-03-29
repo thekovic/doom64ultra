@@ -112,9 +112,7 @@ mobj_t *P_SpawnMapThing (mapthing_t *mthing) // 80018C24
 		bit = 1;
 	else if (gameskill == sk_medium)
 		bit = 2;
-	else if (gameskill == sk_hard)
-		bit = 4;
-	else if (gameskill == sk_nightmare)
+	else if (gameskill >= sk_hard)
 		bit = 4;
 
 	if (!(mthing->options & bit) )
@@ -435,14 +433,14 @@ mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yof
 		an += ((rnd2 - rnd1) << 20);
     }
 	
-	if (gameskill == sk_nightmare && type != MT_PROJ_DART) { // [Immorpher] randomize projectiles a bit for merciless
+	if (gameskill >= sk_nightmare && type != MT_PROJ_DART) { // [Immorpher] randomize projectiles a bit for merciless
 		
-		vertspread = P_Random() % 3; // [Immorpher] Randomize vertical
+		vertspread = I_Random() % 3; // [Immorpher] Randomize vertical
 		
 		if (P_Random() <= 96) { // [Immorpher] Randomize horizontal
-			rnd1 = P_Random();
+			rnd1 = I_Random();
 			rnd2 = P_Random();
-			an += (2*(rnd2 - rnd1) << 20);
+			an += (3*(rnd2 - rnd1)/2 << 20);
 		}
 	}
 

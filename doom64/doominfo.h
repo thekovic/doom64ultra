@@ -1107,7 +1107,6 @@ typedef struct {
 	int	flags;
 	int palette;
     int alpha;
-    int caption; // [Immorpher] Caption Number
 } mobjinfo_t;
 
 extern mobjinfo_t mobjinfo[NUMMOBJTYPES];

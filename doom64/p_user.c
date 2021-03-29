@@ -58,6 +58,7 @@ int deathmocktics; // 800A56A0
 #define MK_TXT48t1	"GERARDO: WHAT?? FEELING SLEEPY NOW?\nYOU CONSIDER YOURSELF SLAYER AND\nYOU WANT TO REST? SHAME ON YOU!"
 #define MK_TXT49t1	"HEADSHOT: YOU'VE HUMOURED THE\nDEMONS GREATLY WITH YOUR\nARROGANCE AND CONTEMPT..."
 #define MK_TXT50t1	"ZELLLOOO: WE HAVE PINKY,\nBUT WHERE'S THE BRAIN?"
+#define MK_TXT51t1	"PEACHES: THIS ACTION TO DEFY THE\nEVIL ONE IS NOT WITHOUT RISK.\nCONFRONTATION IS OFTEN BEST\nAVOIDED..."
 
 char *mockstrings1[] =   // 8005A290
 {
@@ -73,7 +74,7 @@ char *mockstrings1[] =   // 8005A290
 	MK_TXT37t1, MK_TXT38t1, MK_TXT39t1, MK_TXT40t1,
 	MK_TXT41t1, MK_TXT42t1, MK_TXT43t1, MK_TXT44t1,
 	MK_TXT45t1, MK_TXT46t1, MK_TXT47t1, MK_TXT48t1,
-	MK_TXT49t1, MK_TXT50t1,
+	MK_TXT49t1, MK_TXT50t1, MK_TXT51t1,
 };
 
 fixed_t 		forwardmove[2] = {0xE000, 0x16000}; // 8005B060
@@ -620,12 +621,12 @@ void P_DeathThink (player_t *player) // 80022914
     if ((ticon - deathmocktics) > MAXMOCKTIME)
     {
 		do { // [Immorpher] Prevent mock string from repeating twice
-			mockrandom = (P_Random()+ticon) % 50; // Updated randomizer for more fun
+			mockrandom = (I_Random()+ticon) % 51; // Updated randomizer for more fun
 		} while(player->message1 == mockstrings1[mockrandom]);
 		
         player->messagetic = 2*MSGTICS; // [Immorpher] Doubled message time to read them!
         player->message = mockstrings1[mockrandom];
-		player->messagecolor = 0xff000000;
+		player->messagecolor = 0xff200000;
         deathmocktics = ticon;
     }
 
@@ -759,26 +760,19 @@ void P_PlayerThink (player_t *player) // 80022D60
 		if (weapon == wp_nochange)
 			weapon = player->readyweapon;
 
-		if ((buttons & cbutton->BT_WEAPONBACKWARD) && !(oldbuttons & cbutton->BT_WEAPONBACKWARD))
+		if ((buttons & cbutton->BT_WEAPONBACKWARD) && !(oldbuttons & cbutton->BT_WEAPONBACKWARD)) // [Immorpher] Change weapon decriment for easier chainsaw access
 		{
-            if (weapon == wp_chainsaw)
-            {
-                player->pendingweapon = wp_fist;
-            }
-            else
-            {
-                if((int)(weapon-1) >= wp_chainsaw)
-                {
-                    while(--weapon >= wp_chainsaw && !player->weaponowned[weapon]);
-                }
-
-                if((int)weapon >= wp_chainsaw)
-                    player->pendingweapon = weapon;
-            }
+			if((int)(weapon) >= wp_chainsaw)
+			{
+				while(--weapon >= wp_chainsaw && !player->weaponowned[weapon]);
+			}
+			
+			if((int)weapon >= wp_chainsaw)
+				player->pendingweapon = weapon;
 		}
 		else if ((buttons & cbutton->BT_WEAPONFORWARD) && !(oldbuttons & cbutton->BT_WEAPONFORWARD))
 		{
-		    if((int)(weapon+1) < NUMWEAPONS)
+		    if((int)(weapon) < NUMWEAPONS)
             {
                 while(++weapon < NUMWEAPONS && !player->weaponowned[weapon]);
             }

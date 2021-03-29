@@ -922,7 +922,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_DROPOFF|MF_PICKUP|MF_NOTDMATCH,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		1, // [Immorpher] sound caption
     },
 
     {	/* MT_PLAYERBOT1 */
@@ -950,7 +949,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_DROPOFF|MF_COUNTKILL|MF_NOTDMATCH,	/* flags */
         1,	/* palette */
         255,	/* alpha */
-		2, // [Immorpher] sound caption
     },
 
     {	/* MT_PLAYERBOT2 */
@@ -978,7 +976,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_DROPOFF|MF_COUNTKILL|MF_NOTDMATCH,	/* flags */
         2,	/* palette */
         255,	/* alpha */
-		2, // [Immorpher] sound caption
     },
 
     {	/* MT_PLAYERBOT3 */
@@ -1006,7 +1003,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_DROPOFF|MF_COUNTKILL|MF_NOTDMATCH,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		2, // [Immorpher] sound caption
     },
 
     {	/* MT_DEMON1 */
@@ -1034,7 +1030,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_COUNTKILL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		3, // [Immorpher] sound caption
     },
 
     {	/* MT_DEMON2 */
@@ -1062,7 +1057,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_COUNTKILL,	/* flags */
         1,	/* palette */
         255,	/* alpha */
-		4, // [Immorpher] sound caption
     },
 
     {	/* MT_MANCUBUS */
@@ -1090,7 +1084,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_COUNTKILL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		5, // [Immorpher] sound caption
     },
 
     {	/* MT_POSSESSED1 */
@@ -1118,7 +1111,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_COUNTKILL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		6, // [Immorpher] sound caption
     },
 
     {	/* MT_POSSESSED2 */
@@ -1146,7 +1138,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_COUNTKILL,	/* flags */
         1,	/* palette */
         255,	/* alpha */
-		7, // [Immorpher] sound caption
     },
 
     {	/* MT_IMP1 */
@@ -1174,7 +1165,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_COUNTKILL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		8, // [Immorpher] sound caption
     },
 
     {	/* MT_IMP2 */
@@ -1202,7 +1192,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_COUNTKILL|MF_SHADOW,	/* flags */
         1,	/* palette */
         180,	/* alpha */
-		9, // [Immorpher] sound caption
     },
 
     {	/* MT_CACODEMON */
@@ -1230,7 +1219,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_FLOAT|MF_COUNTKILL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		10, // [Immorpher] sound caption
     },
 
     {	/* MT_BRUISER1 */
@@ -1258,7 +1246,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_COUNTKILL,	/* flags */
         1,	/* palette */
         255,	/* alpha */
-		12, // [Immorpher] sound caption
     },
 
     {	/* MT_BRUISER2 */
@@ -1286,7 +1273,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_COUNTKILL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		11, // [Immorpher] sound caption
     },
 
     {	/* MT_SKULL */
@@ -1314,7 +1300,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_FLOAT|MF_COUNTKILL,	/* flags */
         0,	/* palette */
         192,	/* alpha */
-		13, // [Immorpher] sound caption
     },
 
     {	/* MT_BABY */
@@ -1342,7 +1327,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_COUNTKILL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		14, // [Immorpher] sound caption
     },
 
     {	/* MT_CYBORG */
@@ -1370,7 +1354,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_COUNTKILL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		15, // [Immorpher] sound caption
     },
 
     {	/* MT_CYBORG_TITLE */
@@ -1398,7 +1381,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_COUNTKILL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		15, // [Immorpher] sound caption
     },
 
     {	/* MT_PAIN */
@@ -1426,7 +1408,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_FLOAT|MF_COUNTKILL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		16, // [Immorpher] sound caption
     },
 
     {	/* MT_RESURRECTOR */
@@ -1454,7 +1435,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_GRAVITY|MF_DROPOFF|MF_COUNTKILL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		17, // [Immorpher] sound caption
     },
 
     {	/* MT_CAMERA */
@@ -1482,7 +1462,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOSECTOR|MF_NOBLOCKMAP,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_DEST_TELEPORT */
@@ -1510,7 +1489,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOSECTOR|MF_NOBLOCKMAP,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_DEST_PROJECTILE */
@@ -1538,7 +1516,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOSECTOR|MF_NOBLOCKMAP,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_FAKEITEM */
@@ -1566,7 +1543,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL|MF_NOSECTOR,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_LASERMARKER */
@@ -1594,7 +1570,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_RENDERLASER,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROJ_ROCKET */
@@ -1622,7 +1597,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_DROPOFF|MF_MISSILE,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROJ_PLASMA */
@@ -1650,7 +1624,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_DROPOFF|MF_MISSILE,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROJ_BFG */
@@ -1678,7 +1651,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_DROPOFF|MF_MISSILE,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROJ_LASER */
@@ -1706,7 +1678,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROJ_IMP1 */
@@ -1734,7 +1705,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_DROPOFF|MF_MISSILE,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROJ_IMP2 */
@@ -1762,7 +1732,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_DROPOFF|MF_MISSILE,	/* flags */
         0,	/* palette */
         100,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROJ_HEAD */
@@ -1790,7 +1759,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_DROPOFF|MF_MISSILE,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROJ_BRUISER1 */
@@ -1818,7 +1786,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_DROPOFF|MF_MISSILE,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROJ_BRUISER2 */
@@ -1846,7 +1813,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_DROPOFF|MF_MISSILE,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROJ_BABY */
@@ -1874,7 +1840,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_DROPOFF|MF_MISSILE,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROJ_FATSO */
@@ -1902,7 +1867,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_DROPOFF|MF_MISSILE,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROJ_TRACER */
@@ -1930,7 +1894,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_DROPOFF|MF_MISSILE,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROJ_DART */
@@ -1958,7 +1921,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_DROPOFF|MF_MISSILE,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROJ_RECTFIRE */
@@ -1986,7 +1948,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_GRAVITY|MF_DROPOFF|MF_MISSILE|MF_SHADOW,	/* flags */
         0,	/* palette */
         180,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROJ_RECT */
@@ -2014,7 +1975,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_DROPOFF|MF_MISSILE,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_SMOKE_GRAY */
@@ -2042,7 +2002,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP,	/* flags */
         0,	/* palette */
         120,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_SMOKE_RED */
@@ -2070,7 +2029,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP,	/* flags */
         0,	/* palette */
         120,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_SMOKE_SMALL */
@@ -2098,7 +2056,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_SHADOW,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_BLOOD */
@@ -2126,7 +2083,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_GRAVITY,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_CRUSHED */
@@ -2154,7 +2110,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         0,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_TELEPORTFOG */
@@ -2182,7 +2137,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_SHADOW,	/* flags */
         0,	/* palette */
         140,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_BFGSPREAD */
@@ -2210,7 +2164,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_ARMOR1 */
@@ -2238,7 +2191,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_ARMOR2 */
@@ -2266,7 +2218,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_BONUSHEALTH */
@@ -2294,7 +2245,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL|MF_COUNTITEM,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_BONUSARMOR */
@@ -2322,7 +2272,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL|MF_COUNTITEM,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_BLUECARDKEY */
@@ -2350,7 +2299,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL|MF_NOTDMATCH,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_REDCARDKEY */
@@ -2378,7 +2326,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL|MF_NOTDMATCH,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_YELLOWCARDKEY */
@@ -2406,7 +2353,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL|MF_NOTDMATCH,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_YELLOWSKULLKEY */
@@ -2434,7 +2380,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL|MF_NOTDMATCH,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_REDSKULLKEY */
@@ -2462,7 +2407,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL|MF_NOTDMATCH,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_BLUESKULLKEY */
@@ -2490,7 +2434,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL|MF_NOTDMATCH,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_ARTIFACT1 */
@@ -2518,7 +2461,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_ARTIFACT2 */
@@ -2546,7 +2488,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_ARTIFACT3 */
@@ -2574,7 +2515,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_STIMPACK */
@@ -2602,7 +2542,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_MEDKIT */
@@ -2630,7 +2569,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_SOULSPHERE */
@@ -2658,7 +2596,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL|MF_COUNTITEM,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_INVULSPHERE */
@@ -2686,7 +2623,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL|MF_COUNTITEM,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_BERSERK */
@@ -2714,7 +2650,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL|MF_COUNTITEM,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_INVISSPHERE */
@@ -2742,7 +2677,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL|MF_COUNTITEM|MF_SHADOW,	/* flags */
         0,	/* palette */
         176,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_RADSPHERE */
@@ -2770,7 +2704,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_AUTOMAP */
@@ -2798,7 +2731,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL|MF_COUNTITEM,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_PVIS */
@@ -2826,7 +2758,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL|MF_COUNTITEM,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_ITEM_MEGASPHERE */
@@ -2854,7 +2785,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL|MF_COUNTITEM,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_AMMO_CLIP */
@@ -2882,7 +2812,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_AMMO_CLIPBOX */
@@ -2910,7 +2839,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_AMMO_ROCKET */
@@ -2938,7 +2866,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_AMMO_ROCKETBOX */
@@ -2966,7 +2893,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_AMMO_CELL */
@@ -2994,7 +2920,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_AMMO_CELLPACK */
@@ -3022,7 +2947,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_AMMO_SHELL */
@@ -3050,7 +2974,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_AMMO_SHELLBOX */
@@ -3078,7 +3001,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_AMMO_BACKPACK */
@@ -3106,7 +3028,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_WEAP_BFG */
@@ -3134,7 +3055,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_WEAP_CHAINSAW */
@@ -3162,7 +3082,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_WEAP_CHAINGUN */
@@ -3190,7 +3109,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_WEAP_LAUNCHER */
@@ -3218,7 +3136,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_WEAP_PLASMA */
@@ -3246,7 +3163,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_WEAP_SHOTGUN */
@@ -3274,7 +3190,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_WEAP_SSHOTGUN */
@@ -3302,7 +3217,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_WEAP_LCARBINE */
@@ -3330,7 +3244,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SPECIAL,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_FIRE */
@@ -3358,7 +3271,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SHADOW,	/* flags */
         0,	/* palette */
         140,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_CANDLE */
@@ -3386,7 +3298,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         0,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_BARREL */
@@ -3414,7 +3325,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID|MF_SHOOTABLE|MF_NOBLOOD,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_EXPLOSION1 */
@@ -3442,7 +3352,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP,	/* flags */
         0,	/* palette */
         80,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_EXPLOSION2 */
@@ -3470,7 +3379,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP,	/* flags */
         0,	/* palette */
         80,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_TECHLAMP1 */
@@ -3498,7 +3406,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_SPAWNCEILING,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_TECHLAMP2 */
@@ -3526,7 +3433,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_SPAWNCEILING,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_TORCHBLUE */
@@ -3554,7 +3460,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         0,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_TORCHYELLOW */
@@ -3582,7 +3487,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         0,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_TORCHRED */
@@ -3610,7 +3514,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         0,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_POLEBASELONG */
@@ -3638,7 +3541,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_POLEBASESHORT */
@@ -3666,7 +3568,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_FIREBLUE */
@@ -3694,7 +3595,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         0,	/* flags */
         0,	/* palette */
         192,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_FIRERED */
@@ -3722,7 +3622,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         0,	/* flags */
         0,	/* palette */
         192,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_FIREYELLOW */
@@ -3750,7 +3649,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         0,	/* flags */
         0,	/* palette */
         192,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_MEATSTICK */
@@ -3778,7 +3676,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_MEATHANG */
@@ -3806,7 +3703,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_SPAWNCEILING,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_TORSOHANG */
@@ -3834,7 +3730,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_SPAWNCEILING,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_RIBFLOOR */
@@ -3862,7 +3757,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         0,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_TWITCHFLOOR */
@@ -3890,7 +3784,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         0,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_BLOODPOOL */
@@ -3918,7 +3811,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         0,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_BONEFLOOR */
@@ -3946,7 +3838,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         0,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_MEATRIBFLOOR */
@@ -3974,7 +3865,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         0,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_MEATRIBCAGE */
@@ -4002,7 +3892,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         0,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_CHAINHOOK */
@@ -4030,7 +3919,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_SPAWNCEILING,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_HANGCAGE */
@@ -4058,7 +3946,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_SPAWNCEILING,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_CHAINPINSER */
@@ -4086,7 +3973,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_SPAWNCEILING,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_CHAINARM */
@@ -4114,7 +4000,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_SPAWNCEILING,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_HANGMACE1 */
@@ -4142,7 +4027,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_SPAWNCEILING,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_HEADSTICK1 */
@@ -4170,7 +4054,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_HEADSTICK2 */
@@ -4198,7 +4081,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_DOUBLEMEATSTICK */
@@ -4226,7 +4108,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_STATUE1 */
@@ -4254,7 +4135,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_STATUE2 */
@@ -4282,7 +4162,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_TECHPOLELONG */
@@ -4310,7 +4189,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_TECHPOLESHORT */
@@ -4338,7 +4216,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_TREESTUMPSMALL */
@@ -4366,7 +4243,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_TREESTUMPLARGE */
@@ -4394,7 +4270,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_TREE */
@@ -4422,7 +4297,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_PROP_BLOODYPOLE */
@@ -4450,7 +4324,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_SOLID,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_HANGMACE2 */
@@ -4478,7 +4351,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_SPAWNCEILING,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_HANGWHITEMEAT */
@@ -4506,7 +4378,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_SPAWNCEILING,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_HANGHEAD */
@@ -4534,7 +4405,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_SPAWNCEILING,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     },
 
     {	/* MT_GIB_HANGRIB */
@@ -4562,7 +4432,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         MF_NOBLOCKMAP|MF_SPAWNCEILING,	/* flags */
         0,	/* palette */
         255,	/* alpha */
-		0, // [Immorpher] sound caption
     }
 };
 
