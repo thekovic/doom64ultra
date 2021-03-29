@@ -54,6 +54,27 @@ WARP: Features menu now can warp to the final and secret levels.
 GAMMA CORRECT: This utilizes the N64 brightness adjustment, making the game very bright.
 MERCILESS CREDITS: Those who have helped the "Merciless Edition" make it to completion.
 
+## Known Issues
+Here are a list of known issues which are being worked on.
+
+### General
+In "Even Simpler" only one out of the four staircases raise. This has been observed in Doom 64 RE as well and is inherited from that code base.
+
+An infrequent freeze occurs on the "Absolution" which seems to be lost soul spawning related as it only appears on the harder difficulties, where Pain Elementals are more aggressive.
+
+In "Tech Center", Lost Souls sometimes don't appear after grabbing the blue key in harder difficulties.
+
+The switch which opens the door in the red key room in "Burnt Offerings" doesn't make a sound.
+
+### Known Emulator Bugs
+This bugs may or may not appear depending on which emulator is used. These are due to emulators having inconsitencies with Nintendo 64 hardware.
+
+For all versions of Doom 64, the blood melt screen transition isn't rendered properly in many emulators. Due to some of the optimizations on this version, a few emulators have reduced framerate during this screen transition.
+
+Enabling dithering and entering the "Adjust Screen Center" mode will cause the screen to jitter.
+
+Entering the menu from the automap screen sometimes produces weird graphical bugs.
+
 ## Source Code Installation
 ### Nintendo 64
 Here is an edited version of Erick194's installation instructions.
