@@ -106,18 +106,18 @@ char *ControlText[] =   //8007517C
 #define M_TXT70 "MERCILESS PROGRAMMING: IMMORPHER"   // [Immorpher] Credits
 #define M_TXT71 "REVERSE ENGINEERING: ERICK194"   // [Immorpher] Credits
 #define M_TXT72 "KAISER"   // [Immorpher] Credits
-#define M_TXT73 "QUASAR"   // [Immorpher] Credits
-#define M_TXT74 "COMPILER ASSETS: CRASHOVERIDE"   // [Immorpher] Credits
-#define M_TXT75 "ALPHATANGO"   // [Immorpher] Credits
-#define M_TXT76 "PLAY TESTING: SCD, BUU342"   // [Immorpher] Credits
-#define M_TXT77 "IRL RANDOM HAJILE"   // [Immorpher] Credits
-#define M_TXT78 "TAUFAN99"   // [Immorpher] Credits
-#define M_TXT79 "SPECIAL THANKS: GEC TEAM, DOOMWORLD"   // [Immorpher] Credits
-#define M_TXT80 "DOOM 64 DISCORD"   // [Immorpher] Credits
-#define M_TXT81 "NEIGH WINNY"   // [Immorpher] Credits
-#define M_TXT82 "ISANN KEKET"   // [Immorpher] Credits
-#define M_TXT83 "NEVANDER"   // [Immorpher] Credits
-
+#define M_TXT73 "BODB DEARG"   // [Immorpher] Credits
+#define M_TXT74 "QUASAR"   // [Immorpher] Credits
+#define M_TXT75 "COMPILER ASSETS: CRASHOVERIDE"   // [Immorpher] Credits
+#define M_TXT76 "ALPHATANGO"   // [Immorpher] Credits
+#define M_TXT77 "PLAY TESTING: SCD, BUU342"   // [Immorpher] Credits
+#define M_TXT78 "IRL RANDOM HAJILE"   // [Immorpher] Credits
+#define M_TXT79 "TAUFAN99"   // [Immorpher] Credits
+#define M_TXT80 "SPECIAL THANKS: GEC TEAM, DOOMWORLD"   // [Immorpher] Credits
+#define M_TXT81 "DOOM 64 DISCORD"   // [Immorpher] Credits
+#define M_TXT82 "NEIGH WINNY"   // [Immorpher] Credits
+#define M_TXT83 "ISANN KEKET"   // [Immorpher] Credits
+#define M_TXT84 "NEVANDER"   // [Immorpher] Credits
 
 char *MenuText[] =   // 8005ABA0
 {
@@ -137,7 +137,7 @@ char *MenuText[] =   // 8005ABA0
 	M_TXT65, M_TXT66, M_TXT67, M_TXT68, M_TXT69,
 	M_TXT70, M_TXT71, M_TXT72, M_TXT73, M_TXT74,
     M_TXT75, M_TXT76, M_TXT77, M_TXT78, M_TXT79,
-	M_TXT80, M_TXT81, M_TXT82, M_TXT83,
+	M_TXT80, M_TXT81, M_TXT82, M_TXT83, M_TXT84,
 };
 
 menuitem_t Menu_Title[3] = // 8005A978
@@ -285,26 +285,27 @@ menuitem_t Menu_Features[MAXFEATURES] = // 8005AB64
 	{ 69, 40, 180},      // [Immorpher] Merciless Edition Credits
 };
 
-menuitem_t Merciless_Credits[14] = // 8005AB64
+menuitem_t Merciless_Credits[15] = // 8005AB64
 {
-	{70, 20, 50},      // Credits
+	{70, 20, 48},      // Credits
 	
-    {71, 20, 68},      // Credits
-    {72, 188, 78},      // Credits
-    {73, 188, 88},      // Credits
+    {71, 20, 65},      // Credits
+    {72, 188, 75},      // Credits
+    {73, 188, 85},      // Credits
+    {74, 188, 95},      // Credits
 	
-    {74, 20, 106},      // Credits
-    {75, 156, 116},      // Credits
+    {75, 20, 112},      // Credits
+    {76, 156, 122},      // Credits
 	
-    {76, 20, 134},      // Credits
-    {77, 133, 144},      // Credits
-    {78, 133, 154},      // Credits
+    {77, 20, 139},      // Credits
+    {78, 133, 149},      // Credits
+    {79, 133, 159},      // Credits
 	
-    {79, 20, 172},      // Credits
-    {80, 148, 182},      // Credits
-    {81, 148, 192},      // Credits
-    {82, 148, 202},      // Credits
-    {83, 148, 212},      // Credits
+    {80, 20, 176},      // Credits
+    {81, 148, 186},      // Credits
+    {82, 148, 196},      // Credits
+    {83, 148, 206},      // Credits
+    {84, 148, 216},      // Credits
 };
 
 menudata_t MenuData[8]; // 800A54F0
@@ -2028,7 +2029,7 @@ int M_MenuTicker(void) // 80007E0C
                         M_SaveMenuData();
 
                         MenuItem = Merciless_Credits;
-                        itemlines = 14;
+                        itemlines = 15;
                         MenuCall = M_CreditsDrawer;
                         cursorpos = 0;
 
