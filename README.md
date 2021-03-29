@@ -66,7 +66,7 @@ In "Tech Center", Lost Souls sometimes don't appear after grabbing the blue key 
 
 The switch which opens the door in the red key room in "Burnt Offerings" doesn't make a sound.
 
-### Known Emulator Bugs
+### Emulator Specific
 This bugs may or may not appear depending on which emulator is used. These are due to emulators having inconsitencies with Nintendo 64 hardware.
 
 For all versions of Doom 64, the blood melt screen transition isn't rendered properly in many emulators. Due to some of the optimizations on this version, a few emulators have reduced framerate during this screen transition.
