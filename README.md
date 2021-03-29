@@ -35,7 +35,7 @@ Now the memory pak save files include abbreviations for the difficulty. It is ea
 The third sight and death sounds in Doom 64 would go unplayed due to the limited randomization in the code. Now this randomization routine has been updated such that these sounds will be played. Also the missing "You pick up a medikit that you REALLY need!" has been restored.
 
 ### Other Updates
-With the new brightness setting, the infrared goggles have a less noticeable effect. However, now they have an overall boost to the gradient lighting without altering saturated colors. Exiting to "Hectic" will now will give you a stats screen and allow you to save.
+With the new brightness setting, the infrared goggles have a less noticeable effect. However, now they have an overall boost to the gradient lighting without altering saturated colors. Exiting to "Hectic" will now show a stats screen and allow saving. Unusual capitalization and grammar has been fixed for the text screens. Weapon selection ending cycles have been altered to stop at the ending weapon, which is hopefully less confusing.
 
 ### Optimizations
 F3DEX rendering is replaced with the later F3DEX2 rendering. This should improve geometry calculations. Although this is not a major slowdown in Doom 64, it may result in a slightly more-stable frame rate and perhaps allow for more geometry in future custom maps. Further it is compiled with level 3 optimizations (O3), which improves code execution speed. In some code bases this can be unstable, but so far no issues have been found. Importantly compatibility with the original Doom 64 demos are retained.
