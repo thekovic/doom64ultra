@@ -18,7 +18,12 @@ int PassInvalidTic;     // 800A55C4
 boolean doPassword = false; // 8005A7A0
 int CurPasswordSlot = 0;    // 8005ACBC
 
-char *passFeatures = "3n4bl3f34tvr3s??"; // New Pass Code By [GEC]
+char *passFeatures[3] = 
+{
+    "3n4bl3f34tvr3s??", // New Pass Code By [GEC]
+    "???03?15?1983???",
+    "k41s3r?w4s?h3r3?"
+};
 
 // [GEC] NEW FLAGS
 #define NIGHTMARE	0x40
@@ -498,6 +503,7 @@ int M_PasswordTicker(void) // 8000C774
     int exit;
     int skill;
     int levelnum;
+    int i;
 
     if (last_ticon)
     {
@@ -625,19 +631,22 @@ int M_PasswordTicker(void) // 8000C774
                     }
 
                     // [GEC] New Password Code Enable Features Menu.
-                    fpassbuf = passFeatures;
-                    passbuf = Passwordbuff;
-                    do
+                    for (i = 0; i < 3; i++)
                     {
-                        if (passwordChar[*passbuf++] != *fpassbuf++)
-                            break;
+                        fpassbuf = passFeatures[i];
+                        passbuf = Passwordbuff;
+                        do
+                        {
+                            if (passwordChar[*passbuf++] != *fpassbuf++)
+                                break;
 
-                    } while (fpassbuf != (passFeatures + 16));
+                        } while (fpassbuf != (passFeatures[i] + 16));
 
-                    if ((passFeatures + 15) < fpassbuf)
-                    {
-                        FeaturesUnlocked = true;
-                        return ga_exit;
+                        if ((passFeatures[i] + 15) < fpassbuf)
+                        {
+                            FeaturesUnlocked = true;
+                            return ga_exit;
+                        }
                     }
 
                     if (M_DecodePassword(Passwordbuff, &levelnum, &skill, NULL) == 0)
