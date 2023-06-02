@@ -303,8 +303,8 @@ void P_LoadThings (void) // 8001D864
 		mt->tid = LITTLESHORT(mt->tid);
 		P_SpawnMapThing (mt);
 
-		if (mt->type >= 4096)
-			I_Error("P_LoadThings: doomednum:%d >= 4096", mt->type);
+		//if (mt->type >= 4096)
+		//	I_Error("P_LoadThings: doomednum:%d >= 4096", mt->type);
 	}
 }
 
