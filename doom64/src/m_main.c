@@ -60,6 +60,7 @@ char *ControlText[] =   //8007517C
 #define M_TXT25 "HEALTH BOOST"
 #define M_TXT26 "SECURITY KEYS"
 #define M_TXT27 "WEAPONS"
+#define M_TXT85 "ARTIFACTS"
 #define M_TXT28 "Exit"
 #define M_TXT29 "DEBUG"
 #define M_TXT30 "TEXTURE TEST"
@@ -134,13 +135,14 @@ char *MenuText[] =   // 8005ABA0
     M_TXT35, M_TXT36, M_TXT37, M_TXT38, M_TXT39,
     M_TXT40, M_TXT41, M_TXT42, M_TXT43, M_TXT44,
     M_TXT45, M_TXT46, M_TXT47, M_TXT48, M_TXT49,
-	M_TXT50, M_TXT51, M_TXT52, M_TXT53, M_TXT54,
-	M_TXT55, M_TXT56, M_TXT57, M_TXT58, M_TXT59,
-	M_TXT60, M_TXT61, M_TXT62, M_TXT63, M_TXT64,
-	M_TXT65, M_TXT66, M_TXT67, M_TXT68, M_TXT69,
-	M_TXT70, M_TXT71, M_TXT72, M_TXT73, M_TXT74,
+    M_TXT50, M_TXT51, M_TXT52, M_TXT53, M_TXT54,
+    M_TXT55, M_TXT56, M_TXT57, M_TXT58, M_TXT59,
+    M_TXT60, M_TXT61, M_TXT62, M_TXT63, M_TXT64,
+    M_TXT65, M_TXT66, M_TXT67, M_TXT68, M_TXT69,
+    M_TXT70, M_TXT71, M_TXT72, M_TXT73, M_TXT74,
     M_TXT75, M_TXT76, M_TXT77, M_TXT78, M_TXT79,
-	M_TXT80, M_TXT81, M_TXT82, M_TXT83, M_TXT84,
+    M_TXT80, M_TXT81, M_TXT82, M_TXT83, M_TXT84,
+    M_TXT85
 };
 
 menuitem_t Menu_Title[3] = // 8005A978
@@ -268,13 +270,14 @@ menuitem_t Menu_CreateNote[3] = // 8005AB40
 
 //#define MAXFEATURES 5 [Original]
 //#define MAXFEATURES 9 [Doom 64 RE]
-#define MAXFEATURES 13
+#define MAXFEATURES 14
 menuitem_t Menu_Features[MAXFEATURES] = // 8005AB64
 {
     { 23, 40, 50},      // WARP TO LEVEL
     { 24, 40, 60},      // INVULNERABLE
     { 25, 40, 70},      // HEALTH BOOST
     { 27, 40, 80},      // WEAPONS
+    { 85, 40, 100},      // ARTIFACTS
     { 37, 40, 90},      // MAP EVERYTHING
     //
     { 26, 40, 100},      // SECURITY KEYS
@@ -2049,6 +2052,18 @@ int M_MenuTicker(void) // 80007E0C
                         return exit;
                     }
                     break;
+
+                case 85: // ARTIFACTS
+                    if (truebuttons)
+                    {
+                        players[0].artifacts |= 4;
+                        players[0].artifacts |= 2;
+                        players[0].artifacts |= 1;
+
+                        S_StartSound(NULL, sfx_switch2);
+                        return ga_nothing;
+                    }
+                    break;
 					
 			}
             exit = ga_nothing;
@@ -2199,7 +2214,11 @@ void M_FeaturesDrawer(void) // 800091C0
             case 68: /* Gamma Correction */
                 text = (!(players[0].cheats & CF_GAMMA)) ? "OFF": "ON";
                 break;
-				
+
+            case 85: /* ARTIFACTS */
+                text = (!(players[0].artifacts & 1 && players[0].artifacts & 2 && players[0].artifacts & 4)) ? "-" : "100%";
+                break;
+
             default:
                 text = ""; // [Immorpher] set to null for credits menu
                 break;
