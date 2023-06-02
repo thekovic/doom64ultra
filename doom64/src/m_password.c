@@ -26,7 +26,11 @@ char *passFeatures[3] =
 };
 
 // [GEC] NEW FLAGS
-#define NIGHTMARE	0x40
+#define PW_MAPUP     0x20
+#define PW_NIGHTMARE 0x40
+#define PW_BACKPACK  0x80
+#define PW_ARMORMASK 0x03
+#define PW_ARTIMASK  0x1c
 
 void M_EncodePassword(byte *buff) // 8000BC10
 {
@@ -90,7 +94,7 @@ void M_EncodePassword(byte *buff) // 8000BC10
 		maxshell <<= 1;
 		maxcell <<= 1;
 		maxmisl <<= 1;
-        encode[5] |= 0x80;
+        encode[5] |= PW_BACKPACK;
     }
 
     //
@@ -145,10 +149,11 @@ void M_EncodePassword(byte *buff) // 8000BC10
     //
     encode[5] |= (player->artifacts << 2);
 
-	// [GEC] I used the ArmorType space to add the 0x40 flag to identify that the difficulty is nightmare
-	if(skillnightmare != 0) {
-        encode[5] |= NIGHTMARE;
-    }
+    // [GEC] I used the ArmorType space to add the 0x40 flag to identify that the difficulty is nightmare
+    if(skillnightmare != 0)
+        encode[5] |= PW_NIGHTMARE;
+    if (nextmap >= 64)
+        encode[5] |= PW_MAPUP;
 
     decodebit[0] = (*(short*)&encode[0]);
     decodebit[1] = (*(short*)&encode[2]);
@@ -315,6 +320,12 @@ int M_DecodePassword(byte *inbuff, int *levelnum, int *skill, player_t *player) 
     //
     *levelnum = (decode[0] >> 2);
 
+    if (decode[5] & PW_MAPUP)
+    {
+        decode[5] &= ~PW_MAPUP;
+        *levelnum |= 64;
+    }
+
     //
     // Verify Map
     //
@@ -329,9 +340,9 @@ int M_DecodePassword(byte *inbuff, int *levelnum, int *skill, player_t *player) 
     *skill = (decode[0] & 3);
 
     //Check that the flag is 0x40, add the nightmare difficulty and remove the flag 0x80
-    if (decode[5] & NIGHTMARE)
+    if (decode[5] & PW_NIGHTMARE)
     {
-        decode[5] &= ~NIGHTMARE;
+        decode[5] &= ~PW_NIGHTMARE;
         *skill = sk_nightmare;
     }
 
@@ -370,7 +381,7 @@ int M_DecodePassword(byte *inbuff, int *levelnum, int *skill, player_t *player) 
     //
     // Verify Armortype
     //
-    if((decode[5] & 3) >= 3)
+    if((decode[5] & PW_ARMORMASK) >= 3)
     {
         return false;
     }
@@ -397,7 +408,7 @@ int M_DecodePassword(byte *inbuff, int *levelnum, int *skill, player_t *player) 
         //
         // Get Backpack
         //
-        if(decode[5] & 0x80)
+        if(decode[5] & PW_BACKPACK)
         {
             if (!player->backpack)
             {
@@ -454,12 +465,12 @@ int M_DecodePassword(byte *inbuff, int *levelnum, int *skill, player_t *player) 
         //
         // Get Armor Type
         //
-        player->armortype = (decode[5] & 3);
+        player->armortype = (decode[5] & PW_ARMORMASK);
 
         //
         // Get Artifacts
         //
-        player->artifacts = ((decode[5] >> 2) & 7);
+        player->artifacts = ((decode[5] & PW_ARTIMASK) >> 2);
 
         //
         // Apply Health on mobj_t
