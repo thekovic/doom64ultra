@@ -525,6 +525,8 @@ void R_RenderSwitch(seg_t *seg, int texture, int topOffset, int color) // 800276
     fixed_t sin, cos;
     int wshift, hshift;
 
+    if (texture <= 1) return;
+
     if (texture != globallump)
     {
         /*
