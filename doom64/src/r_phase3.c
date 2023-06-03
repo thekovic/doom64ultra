@@ -875,7 +875,12 @@ void R_RenderThings(subsector_t *sub) // 80028248
             lump = vissprite_p->lump;
             flip = vissprite_p->flip;
 
-            if (thing->frame & FF_FULLBRIGHT)
+            if (thing->flags & MF_NIGHTMARE)
+            {
+                color = PACKRGBA(64, 255, 0, 255);
+                gDPSetRenderMode(GFX1++, G_RM_XLU_SURF_CLAMP, G_RM_XLU_SURF2_ADD);
+            }
+            else if (thing->frame & FF_FULLBRIGHT)
             {
                 color = PACKRGBA(255, 255, 255, 255);//0xffffffff;
             }
@@ -885,7 +890,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
             }
 
             gDPSetPrimColorD64(GFX1++, 0, vissprite_p->sector->lightlevel, thing->alpha);
-
+            
             data = W_CacheLumpNum(lump, PU_CACHE, dec_jag);
 
             compressed = ((spriteN64_t*)data)->compressed;
@@ -1068,6 +1073,11 @@ void R_RenderThings(subsector_t *sub) // 80028248
             }
 
             vissprite_p = vissprite_p->next;
+
+            if (thing->flags & MF_NIGHTMARE)
+            {
+                gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_TEX_EDGE2);
+            }
         }
 
         globallump = -1;

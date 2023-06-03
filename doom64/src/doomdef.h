@@ -1154,6 +1154,13 @@ void I_WIPE_FadeOutScreen(void); // 80006D34
 #define	G_RM_XLU_SURF2_CLAMP		RM_XLU_SURF_CLAMP(2)
 
 
+#define	RM_XLU_SURF_ADD(clk)					\
+	IM_RD | CVG_DST_SAVE | FORCE_BL | ZMODE_OPA |		\
+	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1)
+
+#define	G_RM_XLU_SURF_ADD		RM_XLU_SURF_ADD(1)
+#define	G_RM_XLU_SURF2_ADD		RM_XLU_SURF_ADD(2)
+
 #define	gDPSetPrimColorD64(pkt, m, l, rgba)				\
 {									\
 	Gfx *_g = (Gfx *)(pkt);						\
