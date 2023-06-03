@@ -122,8 +122,8 @@ void AM_Control (player_t *player) // 800004F4
 
         angle = (ANG90 - player->mo->angle) >> ANGLETOFINESHIFT;
 
-        fs = finesine[angle];
-        fc = finecosine[angle];
+        fs = finesine(angle);
+        fc = finecosine(angle);
 
         for(i = 0; i < 8; i+=2)
         {
@@ -263,14 +263,14 @@ void AM_Drawer (void) // 800009AC
         angle = (p->mo->angle + ANG270) >> ANGLETOFINESHIFT;
         ox = (p->automapx - xpos) >> 16;
         oy = (p->automapy - ypos) >> 16;
-        xpos += ((ox * finecosine[angle]) - (oy * finesine  [angle]));
-        ypos += ((ox * finesine  [angle]) + (oy * finecosine[angle]));
+        xpos += ((ox * finecosine(angle)) - (oy * finesine(angle)));
+        ypos += ((ox * finesine(angle)));
     }
 
     angle = p->mo->angle >> ANGLETOFINESHIFT;
 
-    s = finesine[angle];
-    c = finecosine[angle];
+    s = finesine(angle);
+    c = finecosine(angle);
 
     gSPMatrix(GFX1++, OS_K0_TO_PHYSICAL(MTX1), G_MTX_MODELVIEW| G_MTX_LOAD | G_MTX_NOPUSH);
     MTX1->m[0][0] = 0x10000;
@@ -576,16 +576,16 @@ void AM_DrawThings(fixed_t x, fixed_t y, angle_t angle, int color) // 80001834
     gSPVertex(GFX1++, (VTX1), 3, 0);
 
     ang = (angle) >> ANGLETOFINESHIFT;
-    VTX1[0].v.ob[0] = ((finecosine[ang] << 5) + x) >> FRACBITS;
-    VTX1[0].v.ob[2] =-((finesine  [ang] << 5) + y) >> FRACBITS;
+    VTX1[0].v.ob[0] = ((finecosine(ang) << 5) + x) >> FRACBITS;
+    VTX1[0].v.ob[2] =-((finesine(ang) << 5) + y) >> FRACBITS;
 
     ang = (angle + 0xA0000000) >> ANGLETOFINESHIFT;
-    VTX1[1].v.ob[0] = ((finecosine[ang] << 5) + x) >> FRACBITS;
-    VTX1[1].v.ob[2] =-((finesine  [ang] << 5) + y) >> FRACBITS;
+    VTX1[1].v.ob[0] = ((finecosine(ang) << 5) + x) >> FRACBITS;
+    VTX1[1].v.ob[2] =-((finesine(ang) << 5) + y) >> FRACBITS;
 
     ang = (angle + 0x60000000) >> ANGLETOFINESHIFT;
-    VTX1[2].v.ob[0] = ((finecosine[ang] << 5) + x) >> FRACBITS;
-    VTX1[2].v.ob[2] =-((finesine  [ang] << 5) + y) >> FRACBITS;
+    VTX1[2].v.ob[0] = ((finecosine(ang) << 5) + x) >> FRACBITS;
+    VTX1[2].v.ob[2] =-((finesine(ang) << 5) + y) >> FRACBITS;
 
     VTX1[0].v.ob[1] = VTX1[1].v.ob[1] = VTX1[2].v.ob[1] = 0;
 

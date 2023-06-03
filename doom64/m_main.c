@@ -339,7 +339,7 @@ int SfxVolume = 100;             // 8005A7C0
 int MusVolume = 80;             // 8005A7C4
 int brightness = 100;             // 8005A7C8
 int M_SENSITIVITY = 0;          // 8005A7CC
-boolean FeaturesUnlocked = false; // 8005A7D0
+boolean FeaturesUnlocked = true; // 8005A7D0
 int MotionBob = 0x100000; // [Immorpher] Motion Bob works in hexadecimal
 int VideoFilter = 0; // [GEC & Immorpher] Set 3 point filtering on or off
 boolean antialiasing = false; // [Immorpher] Anti-Aliasing
@@ -347,12 +347,12 @@ boolean interlacing = false; // [Immorpher] Interlacing
 boolean DitherFilter = false; // [Immorpher] Dither filter
 int ColorDither = 0; // [Immorpher] Color dithering options (Off, Square, Bayer, Noise)
 int FlashBrightness = 32; // [Immorpher] Strobe brightness adjustment, will need to change to float
-boolean Autorun = false; // [Immorpher] New autorun option!
+boolean Autorun = true; // [Immorpher] New autorun option!
 boolean runintroduction = false; // [Immorpher] New introduction sequence!
-boolean StoryText = true; // [Immorpher] Skip story cut scenes?
+boolean StoryText = false; // [Immorpher] Skip story cut scenes?
 boolean MapStats = false; // [Immorpher] Enable map statistics for automap?
 int HUDmargin = 15; // [Immorpher] HUD margin options (default 20)
-boolean ColoredHUD = true; // [Immorpher] Colored hud
+boolean ColoredHUD = false; // [Immorpher] Colored hud
 
 int TempConfiguration[13] = // 8005A80C
 {
@@ -673,6 +673,7 @@ void M_RestoreMenuData(boolean alpha_in) // 80007BB8
     if (alpha_in)
         MiniLoop(M_AlphaInStart, NULL, M_AlphaInOutTicker, M_MenuGameDrawer);
 }
+extern int gobalcheats; // [GEC]
 
 void M_MenuGameDrawer(void) // 80007C48
 {
@@ -699,6 +700,9 @@ void M_MenuGameDrawer(void) // 80007C48
         M_DrawBackground(56, 57, 80, "TITLE");
 
         if (MenuItem != Menu_Title) {
+            players[0].cheats |= CF_GAMMA;
+            gobalcheats |= CF_GAMMA;
+            P_RefreshVideo();
             M_DrawOverlay(0, 0, 320, 240, 96);
         }
 
@@ -1806,7 +1810,7 @@ int M_MenuTicker(void) // 80007E0C
 						Autorun = false;
 
 						// Set video options
-                        brightness = 100;
+                        brightness = 0;
 						VideoFilter = 0; // [Immorpher] new video option
 						antialiasing = false; // [Immorpher] new video option
 						interlacing = false;  // [Immorpher] new video option

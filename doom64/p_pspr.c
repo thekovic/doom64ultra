@@ -500,9 +500,9 @@ void A_WeaponReady (player_t *player, pspdef_t *psp) // 8001B83C
 	/* */
 	//angle = (64*gamevbls)&(FINEANGLES-1);
 	angle = (64*ticon)&(FINEANGLES-1); // PsxDoom/D64 use ticon no gamevbls
-	psp->sx = WEAPONX + FixedMul(player->bob, finecosine[angle]);
+	psp->sx = WEAPONX + FixedMul(player->bob, finecosine(angle));
 	angle &= FINEANGLES/2-1;
-	psp->sy = WEAPONTOP + FixedMul(player->bob, finesine[angle]);
+	psp->sy = WEAPONTOP + FixedMul(player->bob, finesine(angle));
 }
 
 
@@ -1332,8 +1332,8 @@ void A_FireLaser(player_t *player, pspdef_t *psp) // 8001CAC0
         break;
     }
 
-    x1 = mobj->x + (finecosine[mobj->angle >> ANGLETOFINESHIFT] * LASERDISTANCE);
-    y1 = mobj->y + (finesine[mobj->angle >> ANGLETOFINESHIFT] * LASERDISTANCE);
+    x1 = mobj->x + (finecosine(mobj->angle >> ANGLETOFINESHIFT) * LASERDISTANCE);
+    y1 = mobj->y + (finesine(mobj->angle >> ANGLETOFINESHIFT) * LASERDISTANCE);
     z1 = mobj->z + LASERAIMHEIGHT;
 
     /* setup laser beams */
@@ -1346,8 +1346,8 @@ void A_FireLaser(player_t *player, pspdef_t *psp) // 8001CAC0
         else
             laserfrac = (2048*FRACUNIT);
 
-        slopex = finecosine[angleoffs >> ANGLETOFINESHIFT];
-        slopey = finesine[angleoffs >> ANGLETOFINESHIFT];
+        slopex = finecosine(angleoffs >> ANGLETOFINESHIFT);
+        slopey = finesine(angleoffs >> ANGLETOFINESHIFT);
 
         x2 = mobj->x + FixedMul(slopex, laserfrac);
         y2 = mobj->y + FixedMul(slopey, laserfrac);
