@@ -130,7 +130,8 @@ mobj_t *P_SpawnMapThing (mapthing_t *mthing) // 80018C24
 
 	if (i==NUMMOBJTYPES)
     {
-		I_Error ("P_SpawnMapThing: Unknown type %d at (%d, %d)",mthing->type , mthing->x, mthing->y);
+		//I_Error ("P_SpawnMapThing: Unknown type %d at (%d, %d)",mthing->type , mthing->x, mthing->y);
+		return NULL;
     }
 
     //
