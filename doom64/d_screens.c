@@ -49,7 +49,7 @@ void D_DrawWarning(void) // 8002B430
     gDPPipeSync(GFX1++);
     gDPSetCycleType(GFX1++, G_CYC_FILL);
     gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_32b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
+    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
     gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,0) << 16 | GPACK_RGBA5551(0,0,0,0));
     gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
 
@@ -87,7 +87,7 @@ void D_DrawLegal(void) // 8002B644
     gDPPipeSync(GFX1++);
     gDPSetCycleType(GFX1++, G_CYC_FILL);
     gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_32b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
+    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
     gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,0) << 16 | GPACK_RGBA5551(0,0,0,0));
     gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
 
@@ -115,7 +115,7 @@ void D_DrawNoPak(void) // 8002B7F4
     gDPPipeSync(GFX1++);
     gDPSetCycleType(GFX1++, G_CYC_FILL);
     gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_32b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
+    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
     gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,0) << 16 | GPACK_RGBA5551(0,0,0,0));
     gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
 
@@ -239,13 +239,13 @@ void D_CreditDrawer(void) // 8002BBE4
     gDPPipeSync(GFX1++);
     gDPSetCycleType(GFX1++, G_CYC_FILL);
     gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_32b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
+    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
 
     if (cred_next == 0)
     {
         // Set Background Color (Dark Blue)
         color = (cred1_alpha * 16) / 255;
-        gDPSetFillColor(GFX1++, color << 8 | 255);
+        gDPSetFillColor(GFX1++, GPACK_RGBA5551(color,0,0,255) << 16 | GPACK_RGBA5551(color,0,0,255));
         gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
 
         M_DrawBackground(68, 21, cred1_alpha, "IDCRED1");
@@ -257,7 +257,7 @@ void D_CreditDrawer(void) // 8002BBE4
         {
             // Set Background Color (Dark Grey)
             color = (cred1_alpha * 30) / 255;
-            gDPSetFillColor(GFX1++, color << 24 | color << 16 | color << 8 | 255);
+            gDPSetFillColor(GFX1++, GPACK_RGBA5551(color,color,color,255) << 16 | GPACK_RGBA5551(color,color,color,255));
             gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
 
             M_DrawBackground(22, 82, cred1_alpha, "WMSCRED1");
