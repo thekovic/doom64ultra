@@ -355,11 +355,15 @@ void AM_Drawer (void) // 800009AC
             if (mo->flags & (MF_NOSECTOR|MF_RENDERLASER))
                 continue;
 
+            if ((players->artifacts & 1) != 0 && mo->type == MT_ITEM_ARTIFACT1) continue;
+            if ((players->artifacts & 2) != 0 && mo->type == MT_ITEM_ARTIFACT2) continue;
+            if ((players->artifacts & 4) != 0 && mo->type == MT_ITEM_ARTIFACT3) continue;
+
             if (mo->flags & (MF_SHOOTABLE|MF_MISSILE))
                 color = COLOR_RED;
             else
                 color = COLOR_AQUA;
-
+            
             AM_DrawThings(mo->x, mo->y, mo->angle, color);
 
             if (p->automapflags & AF_LINES)
