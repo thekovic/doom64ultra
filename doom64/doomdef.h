@@ -9,6 +9,8 @@
 #include <assert.h>
 #include <libaudio.h>
 
+#include "i_main.h"
+
 /* TEST DEBUG */
 #include "graph.h"
 
@@ -21,8 +23,6 @@
 /*-----------*/
 /* SYSTEM IO */
 /*-----------*/
-#define	SCREEN_HT	240
-#define	SCREEN_WD	320
 
 extern u32 cfb[2][SCREEN_WD*SCREEN_HT]; // 8036A000
 
