@@ -2191,7 +2191,7 @@ void M_FeaturesDrawer(void) // 800091C0
                 text = (!(players[0].cheats & CF_TEX_TEST)) ? "OFF": "ON";
                 break;
             case 31: /* WALL BLOCKING */
-                text = (!(players[0].cheats & CF_WALLBLOCKING)) ? "ON": "OFF";
+                text = (!(players[0].mo->flags & MF_NOCLIP)) ? "ON": "OFF";
                 break;
             case 35: /* LOCK MONSTERS */
                 text = (!(players[0].cheats & CF_LOCKMOSTERS)) ? "OFF": "ON";
