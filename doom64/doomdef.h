@@ -61,8 +61,8 @@ extern u16 cfb[2][SCREEN_WD*SCREEN_HT]; // 8036A000
 int D_vsprintf(char *string, const char *format, int *argptr);
 
 /* c_convert.c  */
-void LightGetHSV(int r,int g,int b,int *h,int *s,int *v); // 800020BC
-void LightGetRGB(int h,int s,int v,int *r,int *g,int *b); // 8000248C
+int LightGetHSV(int r,int g,int b); // 800020BC
+int LightGetRGB(int h,int s,int v); // 8000248C
 
 /*
 ===============================================================================
