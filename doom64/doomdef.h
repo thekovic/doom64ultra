@@ -92,8 +92,8 @@ typedef unsigned angle_t;
 #define	FINEMASK			(FINEANGLES-1)
 #define	ANGLETOFINESHIFT	19	/* 0x100000000 to 0x2000 */
 
-extern	fixed_t		finesine[5*FINEANGLES/4];
-extern	fixed_t		*finecosine;
+//extern	fixed_t		finesine(5*FINEANGLES/4);
+//extern	fixed_t		*finecosine;
 
 typedef enum
 {

@@ -6,6 +6,37 @@
 #include "p_spec.h"
 #include "r_local.h"
 
+fixed_t finesine(int x)
+{
+    // original has qA = 12 (output range [-4095,4095])
+    // we need 16 (output range [-65535,65535])
+//    static const int qN = 13, qA= 16, qP= 15, qR= 2*qN-qP, qS= qN+qP+1-qA;
+
+    // scale the input range
+    // this makes it work as a replacement for the old finesine table
+//    x <<= 2;
+//    x = (x << (30 - qN));
+
+    x = x << 19;
+
+    if ((x ^ (x << 1)) < 0)
+        x = (1 << 31) - x;
+
+//    x = x >> (30 - qN);
+    x = x >> 17;
+
+//    return x * ((3 << qP) - ((x * x) >> qR)) >> qS;
+    return x * (98304 - ((x * x) >> 11)) >> 13;
+}
+
+fixed_t finecosine(int x) {
+    return finesine(x + 2048);
+}
+
+angle_t tantoangle(int x) {
+    return ((angle_t)((-47*((x)*(x))) + (359628*(x)) - 3150270));
+}
+
 /*
 ===============
 =

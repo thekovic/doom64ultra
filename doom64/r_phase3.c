@@ -587,8 +587,8 @@ void R_RenderSwitch(seg_t *seg, int texture, int topOffset, int color) // 800276
     x >>= 1;
     y >>= 1;
 
-    cos = finecosine[seg->angle >> ANGLETOFINESHIFT] << 1;
-    sin = finesine  [seg->angle >> ANGLETOFINESHIFT] << 1;
+    cos = finecosine(seg->angle >> ANGLETOFINESHIFT) << 1;
+    sin = finesine(seg->angle >> ANGLETOFINESHIFT) << 1;
 
     // x coordinates
     VTX1[0].v.ob[0] = VTX1[3].v.ob[0] = ((x) - (cos << 3) + sin) >> 16;

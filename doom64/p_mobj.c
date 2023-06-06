@@ -447,8 +447,8 @@ mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yof
     th->angle = an;
     an >>= ANGLETOFINESHIFT;
     speed = th->info->speed;
-    th->momx = speed * finecosine[an];
-    th->momy = speed * finesine[an];
+    th->momx = speed * finecosine(an);
+    th->momy = speed * finesine(an);
 
     if (dest)
     {
@@ -541,12 +541,12 @@ void P_SpawnPlayerMissile (mobj_t *source, mobjtype_t type) // 80019668
 
 	speed = th->info->speed;
 
-	th->momx = speed * finecosine[an>>ANGLETOFINESHIFT];
-	th->momy = speed * finesine[an>>ANGLETOFINESHIFT];
+	th->momx = speed * finecosine(an>>ANGLETOFINESHIFT);
+	th->momy = speed * finesine(an>>ANGLETOFINESHIFT);
 	th->momz = speed * slope;
 
-	x = source->x + (offset * finecosine[an>>ANGLETOFINESHIFT]);
-    y = source->y + (offset * finesine[an>>ANGLETOFINESHIFT]);
+	x = source->x + (offset * finecosine(an>>ANGLETOFINESHIFT));
+    y = source->y + (offset * finesine(an>>ANGLETOFINESHIFT));
 
 	// [d64]: checking against very close lines?
     if((shotline && aimfrac <= 0xC80) || !P_TryMove(th, x, y))

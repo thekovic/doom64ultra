@@ -466,8 +466,8 @@ void P_BuildMove (player_t *player) // 80022154
 void P_Thrust (player_t *player, angle_t angle, fixed_t move) // 800225BC
 {
     angle >>= ANGLETOFINESHIFT;
-	player->mo->momx += FixedMul(vblsinframe[0] * move, finecosine[angle]);
-	player->mo->momy += FixedMul(vblsinframe[0] * move, finesine[angle]);
+	player->mo->momx += FixedMul(vblsinframe[0] * move, finecosine(angle));
+	player->mo->momy += FixedMul(vblsinframe[0] * move, finesine(angle));
 }
 
 
@@ -513,10 +513,10 @@ void P_CalcHeight (player_t *player) // 80022670
 	}
 
 	angle = (FINEANGLES/40*ticon)&(FINEANGLES-1);
-	bob = FixedMul((player->bob / 2), finesine[angle]);
+	bob = FixedMul((player->bob / 2), finesine(angle));
 
-	//ST_DebugPrint("bob %x",FixedMul((player->bob / 2), finesine[angle]));
-	//ST_DebugPrint("bob2 %x",FixedMul2((player->bob / 2), finesine[angle]));
+	//ST_DebugPrint("bob %x",FixedMul((player->bob / 2), finesine(angle)));
+	//ST_DebugPrint("bob2 %x",FixedMul2((player->bob / 2), finesine(angle)));
 
 	//ST_DebugPrint("bobdiv %x",FixedDiv2(0x49003, 0x2));
 	//ST_DebugPrint("bobdiv2 %x",FixedMul3(0x49003, 0x2));

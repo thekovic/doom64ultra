@@ -86,7 +86,7 @@ Mtx R_ModelMatrix =                             // 8005b0C8
 /* */
 /* precalculated math */
 /* */
-fixed_t*    finecosine = &finesine[FINEANGLES / 4]; // 8005B890
+//fixed_t*    finecosine = &finesine(FINEANGLES / 4); // 8005B890
 
 int         infraredFactor; // 800A810C
 int         FlashEnvColor;  // 800A8110
@@ -165,8 +165,8 @@ void R_RenderPlayerView(void) // 80023448
     viewz += quakeviewy;
 
 	viewangle = cameratarget->angle + quakeviewx;
-	viewcos = finecosine[viewangle >> ANGLETOFINESHIFT];
-	viewsin = finesine[viewangle >> ANGLETOFINESHIFT];
+	viewcos = finecosine(viewangle >> ANGLETOFINESHIFT);
+	viewsin = finesine(viewangle >> ANGLETOFINESHIFT);
 
 	// Phase 1
 	R_BSP();
@@ -203,8 +203,8 @@ void R_RenderPlayerView(void) // 80023448
     // Apply Fog Color
     gDPSetFogColorD64(GFX1++, FogColor);
 
-    sin = finesine[pitch];
-    cos = finecosine[pitch];
+    sin = finesine(pitch);
+    cos = finecosine(pitch);
 
     gSPMatrix(GFX1++, OS_K0_TO_PHYSICAL(MTX1), G_MTX_MODELVIEW| G_MTX_LOAD | G_MTX_NOPUSH);
     MTX1->m[0][0] = 0x10000;
@@ -348,9 +348,9 @@ struct subsector_s *R_PointInSubsector(fixed_t x, fixed_t y) // 80023C44
 ===============================================================================
 */
 
-extern	angle_t	tantoangle[SLOPERANGE + 1];
+//extern	angle_t	tantoangle(SLOPERANGE + 1);
 
-int SlopeDiv(unsigned num, unsigned den) // 80023D10
+static int SlopeDiv(unsigned num, unsigned den) // 80023D10
 {
 	unsigned ans;
 	if (den < 512)
@@ -375,17 +375,17 @@ angle_t R_PointToAngle2(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2) // 80023
 		if (y >= 0)
 		{	/* y>= 0 */
 			if (x>y)
-				return tantoangle[SlopeDiv(y, x)];     /* octant 0 */
+				return tantoangle(SlopeDiv(y, x));     /* octant 0 */
 			else
-				return ANG90 - 1 - tantoangle[SlopeDiv(x, y)];  /* octant 1 */
+				return ANG90 - 1 - tantoangle(SlopeDiv(x, y));  /* octant 1 */
 		}
 		else
 		{	/* y<0 */
 			y = -y;
 			if (x>y)
-				return -tantoangle[SlopeDiv(y, x)];  /* octant 8 */
+				return -tantoangle(SlopeDiv(y, x));  /* octant 8 */
 			else
-				return ANG270 + tantoangle[SlopeDiv(x, y)];  /* octant 7 */
+				return ANG270 + tantoangle(SlopeDiv(x, y));  /* octant 7 */
 		}
 	}
 	else
@@ -394,17 +394,17 @@ angle_t R_PointToAngle2(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2) // 80023
 		if (y >= 0)
 		{	/* y>= 0 */
 			if (x>y)
-				return ANG180 - 1 - tantoangle[SlopeDiv(y, x)]; /* octant 3 */
+				return ANG180 - 1 - tantoangle(SlopeDiv(y, x)); /* octant 3 */
 			else
-				return ANG90 + tantoangle[SlopeDiv(x, y)];  /* octant 2 */
+				return ANG90 + tantoangle(SlopeDiv(x, y));  /* octant 2 */
 		}
 		else
 		{	/* y<0 */
 			y = -y;
 			if (x>y)
-				return ANG180 + tantoangle[SlopeDiv(y, x)];  /* octant 4 */
+				return ANG180 + tantoangle(SlopeDiv(y, x));  /* octant 4 */
 			else
-				return ANG270 - 1 - tantoangle[SlopeDiv(x, y)];  /* octant 5 */
+				return ANG270 - 1 - tantoangle(SlopeDiv(x, y));  /* octant 5 */
 		}
 	}
 }
