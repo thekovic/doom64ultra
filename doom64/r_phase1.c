@@ -98,16 +98,95 @@ void R_BSP(void) // 80023F30
 // Recursively descend through the BSP, classifying nodes according to the
 // player's point of view, and render subsectors in view.
 //
+static boolean R_RenderBspSubsector(int bspnum)
+{
+	if(bspnum & NF_SUBSECTOR)
+	{
+	    if(bspnum == -1)
+			R_Subsector(0);
+		else
+			R_Subsector(bspnum & (~NF_SUBSECTOR));
+		
+		return true;
+	}
+    return false;	
+}
+
+#define MAX_BSP_DEPTH 128
+//
+// RenderBSPNode
+// Renders all subsectors below a given node,
+//  traversing subtree recursively.
+// Just call with BSP root.
+static int bspstack[MAX_BSP_DEPTH];
 
 void R_RenderBSPNode(int bspnum) // 80024020
 {
+	int sp = 0;
 	node_t *bsp;
 	int     side;
 	fixed_t	dx, dy;
 	fixed_t	left, right;
 
 	//printf("R_RenderBSPNode\n");
+	while(true)
+	{
+		while (!R_RenderBspSubsector(bspnum))
+		{
+			if(sp == MAX_BSP_DEPTH)
+				break;
+			
+			bsp = &nodes[bspnum];
+//			side = R_PointOnSide(viewx,viewy,bsp);
+        dx = (viewx - bsp->line.x);
+        dy = (viewy - bsp->line.y);
 
+        left = (bsp->line.dy >> 16) * (dx >> 16);
+        right = (dy >> 16) * (bsp->line.dx >> 16);
+
+        if (right < left)
+            side = 0;		/* front side */
+        else
+            side = 1;		/* back side */
+			
+			bspstack[sp++] = bspnum;
+			bspstack[sp++] = side;
+			
+			bspnum = bsp->children[side];
+			
+		}
+        if(sp == 0)
+        {
+            //back at root node and not visible. All done!
+            return;
+        }
+
+        //Back sides.
+        side = bspstack[--sp];
+        bspnum = bspstack[--sp];
+        bsp = &nodes[bspnum];
+
+        // Possibly divide back space.
+        //Walk back up the tree until we find
+        //a node that has a visible backspace.
+        while(!R_CheckBBox (bsp->bbox[side^1]))
+        {
+            if(sp == 0)
+            {
+                //back at root node and not visible. All done!
+                return;
+            }
+
+            //Back side next.
+            side = bspstack[--sp];
+            bspnum = bspstack[--sp];
+
+            bsp = &nodes[bspnum];
+        }
+
+        bspnum = bsp->children[side^1];		
+	}
+#if 0	
     while(!(bspnum & NF_SUBSECTOR))
     {
         bsp = &nodes[bspnum];
@@ -146,6 +225,7 @@ void R_RenderBSPNode(int bspnum) // 80024020
         bspnum = 0;
 
     R_Subsector(bspnum & ~NF_SUBSECTOR);
+#endif
 }
 
 //
