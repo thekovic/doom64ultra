@@ -131,6 +131,32 @@ void D_DrawNoPak(void) // 8002B7F4
     I_DrawFrame();
 }
 
+#ifdef REQUIRE_EXPANSION_PAK
+void D_DrawNoMemory(void)
+{
+    I_ClearFrame();
+
+    gDPPipeSync(GFX1++);
+    gDPSetCycleType(GFX1++, G_CYC_FILL);
+    gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
+    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_32b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
+    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,0) << 16 | GPACK_RGBA5551(0,0,0,0));
+    gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+
+    ST_DrawString(-1,  20, "no expansion pak.", 0xffffffff);
+    ST_DrawString(-1,  40, "complex levels outside", 0xffffffff);
+    ST_DrawString(-1,  60, "the original campaign", 0xffffffff);
+    ST_DrawString(-1,  80, "may not be rendered", 0xffffffff);
+    ST_DrawString(-1, 100, "properly or crash.", 0xffffffff);
+    ST_DrawString(-1, 140, "please turn off your", 0xffffffff);
+    ST_DrawString(-1, 160, "nintendo 64 system", 0xffffffff);
+    ST_DrawString(-1, 180, "before inserting an", 0xffffffff);
+    ST_DrawString(-1, 200, "expansion pak.", 0xffffffff);
+
+    I_DrawFrame();
+}
+#endif
+
 void D_SplashScreen(void) // 8002B988
 {
     /* */
@@ -153,6 +179,16 @@ void D_SplashScreen(void) // 8002B988
         last_ticon = 0;
         MiniLoop(NULL, NULL, D_NoPakTicker, D_DrawNoPak);
     }
+
+#ifdef REQUIRE_EXPANSION_PAK
+    /* */
+    /* Check if expansion pak is connected if >8MB memory */
+    /* */
+    if (osGetMemSize() < 0x800000)
+    {
+        MiniLoop(NULL, NULL, D_NoPakTicker, D_DrawNoMemory);
+    }
+#endif
 
     /* */
     /* show the legals screen */
