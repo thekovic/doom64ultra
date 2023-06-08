@@ -144,7 +144,7 @@ void M_ClearRandom(void) // 80002980
 =
 ===============
 */
-
+u32 last_iter_count;
 int MiniLoop(void(*start)(void), void(*stop)(),
              int(*ticker)(void), void(*drawer)(void)) // 80002998
 {
@@ -168,6 +168,7 @@ int MiniLoop(void(*start)(void), void(*stop)(),
 
 	while (true)
 	{
+        u32 start_iter_count = osGetCount();
 		vblsinframe[0] = drawsync1;
 
 		// get buttons for next tic
@@ -220,6 +221,7 @@ int MiniLoop(void(*start)(void), void(*stop)(),
         }
 
 		gamevbls = gametic;
+        last_iter_count = ((osGetCount() - start_iter_count) + last_iter_count) / 2;
 	}
 
 	I_GetScreenGrab();

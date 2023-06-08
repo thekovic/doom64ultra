@@ -50,9 +50,8 @@ FixedMul:   /* 800044D0 */
 
     dmult   $4, $5
     mflo    $2
-    dsra    $2, $2, 16
     jr      $31
-    nop
+    dsra    $2, $2, 16
 
 .end FixedMul
 
@@ -60,39 +59,69 @@ FixedMul:   /* 800044D0 */
 /* fixed_t	FixedDiv2 (fixed_t a, fixed_t b) */
 /*-------------------------------------------*/
 
-.globl FixedDiv2
-.ent FixedDiv2
+.global FixedDiv5
+.ent FixedDiv5
+.set noat
 
-FixedDiv2:   /* 800044E4 */
+FixedDiv5:
+                xor     $8, $4, $5
+                bgtz    $4, loc_8003EF00
+                move    $2, $4
+                neg     $2, $4
+
+loc_8003EF00:
+                bgtz    $5, loc_8003EF0C
+                move    $3, $5
+                neg     $3, $5
+
+loc_8003EF0C:
+                lui     $6, 1
+                sltu    $1, $3, $2
+                beqz    $1, loc_8003EF30
+                and     $9, $0, $6
+
+loc_8003EF1C:
+                sll     $3, 1
+                sll     $6, 1
+                sltu    $1, $3, $2
+                bnez    $1, loc_8003EF1C
+                and     $10, $0, $6
+
+loc_8003EF30:
+
+                slt     $1, $2, $3
+                bnez    $1, loc_8003EF44
+                nop
+                sub     $2, $3
+                or      $10, $6
+
+loc_8003EF44:
+                sll     $2, 1
+                srl     $6, 1
+                beqz    $6, loc_8003EF5C
+                nop
+                bnez    $2, loc_8003EF30
+                nop
+
+loc_8003EF5C:
+                bgez    $8, locret_8003EF68
+                move    $2, $10
+                neg     $2, $10
+
+locret_8003EF68:
+                jr      $31
+                nop
+.set at
+.end FixedDiv5
+
+.globl FixedDiv4
+.ent FixedDiv4
+
+FixedDiv4:   /* 800044E4 */
 
     dsll    $4, $4, 16
     ddiv    $4, $5
-
-/*---------------------------------------------------*/
-/* automatically generated with opcode (ddiv $4, $5) */
-/* and -mips3 on command line                        */
-/*---------------------------------------------------*/
-/*
-    bne     $5, $0, loc_800044F8
-    nop
-    break   0x1C00
-
-loc_800044F8:
-    daddiu  $1, $0, 0xffff
-    bne     $5, $1, loc_80004514
-    daddiu  $1, $0, 0x0001
-    dsll32  $1, $1, 0x1f
-    bne     $4, $1, loc_80004514
-    nop
-    break   0x1800
-
-loc_80004514:
-    mflo    $4
-*/
-/*--------------------------------------------------*/
-
     mflo    $2
     jr      $31
     nop
-
-.end FixedDiv2
+.end FixedDiv4

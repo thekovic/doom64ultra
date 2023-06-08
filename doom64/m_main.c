@@ -337,7 +337,7 @@ boolean enable_messages = true; // 8005A7B8
 int HUDopacity = 128;			// [Immorpher] HUD opacity
 int SfxVolume = 100;             // 8005A7C0
 int MusVolume = 80;             // 8005A7C4
-int brightness = 100;             // 8005A7C8
+int brightness = 200;             // 8005A7C8
 int M_SENSITIVITY = 0;          // 8005A7CC
 boolean FeaturesUnlocked = true; // 8005A7D0
 int MotionBob = 0x100000; // [Immorpher] Motion Bob works in hexadecimal
@@ -673,7 +673,6 @@ void M_RestoreMenuData(boolean alpha_in) // 80007BB8
     if (alpha_in)
         MiniLoop(M_AlphaInStart, NULL, M_AlphaInOutTicker, M_MenuGameDrawer);
 }
-extern int gobalcheats; // [GEC]
 
 void M_MenuGameDrawer(void) // 80007C48
 {
@@ -700,9 +699,6 @@ void M_MenuGameDrawer(void) // 80007C48
         M_DrawBackground(56, 57, 80, "TITLE");
 
         if (MenuItem != Menu_Title) {
-            players[0].cheats |= CF_GAMMA;
-            gobalcheats |= CF_GAMMA;
-            P_RefreshVideo();
             M_DrawOverlay(0, 0, 320, 240, 96);
         }
 
@@ -1810,7 +1806,7 @@ int M_MenuTicker(void) // 80007E0C
 						Autorun = false;
 
 						// Set video options
-                        brightness = 0;
+                        brightness = 100;
 						VideoFilter = 0; // [Immorpher] new video option
 						antialiasing = false; // [Immorpher] new video option
 						interlacing = false;  // [Immorpher] new video option

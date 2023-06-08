@@ -218,6 +218,14 @@ static int debugX, debugY;//80077E5C|uGp00000a4c, 80077E68|uGp00000a58
 static int debugcnt = 0;
 static int debug = 0;
 
+extern memzone_t	*mainzone;
+extern int Z_FreeMemory (memzone_t *mainzone); // 8002D188
+
+extern u32 last_bsp_count;
+extern u32 last_phase3_count;
+extern u32 last_iter_count;
+
+
 void ST_Drawer (void) // 80029DC0
 {
     byte        *src;
@@ -377,6 +385,8 @@ void ST_Drawer (void) // 80029DC0
             if (ammo < 0)
                 ammo = 0;
 			
+            ammo = OS_CYCLES_TO_NSEC(last_iter_count) / 1000;//Z_FreeMemory(mainzone);
+
 			if (!ColoredHUD) { // skip the hud coloring
 				ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(224,0,0,HUDopacity)); // 0xe0000080
 			} else if (weaponinfo[weapon].ammo == am_clip) { // [Immorpher] clip ammo
@@ -393,8 +403,9 @@ void ST_Drawer (void) // 80029DC0
         /* */
         /* Health */
         /* */
+        
 		if (!ColoredHUD) { // skip the hud coloring
-			ST_DrawNumber(22+HUDmargin, 227-HUDmargin, player->health, 0, PACKRGBA(224,0,0,HUDopacity));
+			ST_DrawNumber(22+HUDmargin, 227-HUDmargin, /*player->health*/OS_CYCLES_TO_NSEC(last_bsp_count)/1000, 0, PACKRGBA(224,0,0,HUDopacity));
 		} else if (player->health <= 67) { // [Immorpher] colored hud
 			ST_DrawNumber(22+HUDmargin, 227-HUDmargin, player->health, 0, PACKRGBA(224-96*player->health/67,128*player->health/67,0,HUDopacity));
 		} else if (player->health <= 133) { // [Immorpher] colored hud
@@ -407,7 +418,7 @@ void ST_Drawer (void) // 80029DC0
         /* Armor */
         /* */
 		if (!ColoredHUD || player->armorpoints == 0) { // [Immorpher] No armor
-			ST_DrawNumber(298-HUDmargin, 227-HUDmargin, player->armorpoints, 0, PACKRGBA(224,0,0,HUDopacity)); // 0xe0000080
+			ST_DrawNumber(298-HUDmargin, 227-HUDmargin, /*player->armorpoints*/OS_CYCLES_TO_NSEC(last_phase3_count)/1000, 0, PACKRGBA(224,0,0,HUDopacity)); // 0xe0000080
 		} else if (player->armortype == 1) { // [Immorpher] Green armor
 			ST_DrawNumber(298-HUDmargin, 227-HUDmargin, player->armorpoints, 0, PACKRGBA(0,128,64,HUDopacity)); 
 		} else { // [Immorpher] Blue armor

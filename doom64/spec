@@ -19,7 +19,7 @@ beginseg
 	name "cfb"
 	flags OBJECT
 	after "code"
-	align 65536
+	align 16
 	include "cfb.o"
 endseg
 
@@ -27,7 +27,7 @@ beginseg
 	name "audio_heap"
 	flags OBJECT
 	after "cfb"
-	align 65536
+	align 16
 	include "audio_heap.o"
 endseg
 
@@ -35,7 +35,7 @@ beginseg
 	name "mem_heap"
 	flags OBJECT
 	after "audio_heap"
-	align 65536
+	align 16
 	include "mem_heap.o"
 endseg
 

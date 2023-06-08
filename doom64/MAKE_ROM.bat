@@ -21,6 +21,8 @@ cd %mypath%
 
 make PLATFORM=PARTNER
 
+copy "codesegment.o" "codesegment"
+
 @echo off
 ::remove the ".o" extension from the wesslib temporarily:
 ren "WESSLIB.o" "WESSLIB"

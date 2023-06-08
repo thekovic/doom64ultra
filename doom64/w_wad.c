@@ -210,11 +210,13 @@ int W_LumpLength (int lump) // 8002C204
 =
 ====================
 */
+// 96 kb buffer to replace Z_Alloc in W_ReadLump
+static u64 input_w_readlump[16384]; 
+static byte *input = (byte*)input_w_readlump;
 
 void W_ReadLump (int lump, void *dest, decodetype dectype) // 8002C260
 {
     OSIoMesg romio_msgbuf;
-	byte *input;
 	lumpinfo_t *l;
 	int lumpsize;
 
@@ -227,7 +229,6 @@ void W_ReadLump (int lump, void *dest, decodetype dectype) // 8002C260
 		if ((l->name[0] & 0x80)) /* compressed */
 		{
 			lumpsize = l[1].filepos - (l->filepos);
-			input = Z_Alloc(lumpsize, PU_STATIC, NULL);
 
 			osInvalDCache((void *)input, lumpsize);
 
@@ -242,7 +243,6 @@ void W_ReadLump (int lump, void *dest, decodetype dectype) // 8002C260
 			else // dec_d64
 				DecodeD64((byte *)input, (byte *)dest);
 
-			Z_Free(input);
 			return;
 		}
 	}

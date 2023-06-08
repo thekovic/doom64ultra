@@ -18,9 +18,12 @@ void R_RenderLaser(mobj_t *thing);
 void R_RenderPSprites(void);
 //-----------------------------------//
 
+u32 last_phase3_count;
+
 void R_RenderAll(void) // 80026590
 {
     subsector_t *sub;
+    u32 start_phase3_count = osGetCount();
 
     while (endsubsector--, (endsubsector >= solidsubsectors))
     {
@@ -30,6 +33,8 @@ void R_RenderAll(void) // 80026590
 
         sub->drawindex = 0x7fff;
     }
+
+    last_phase3_count = ((osGetCount() - start_phase3_count) + last_phase3_count) / 2;
 }
 
 void R_RenderWorld(subsector_t *sub) // 80026638

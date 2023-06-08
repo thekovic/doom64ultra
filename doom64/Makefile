@@ -36,10 +36,11 @@ APP	=	doom64.out
 
 TARGETS	=	doom64.n64
 
-ASMFILES   =	wessint_s.s
-#m_fixed_s.s
+ASMFILES   =	wessint_s.s	\
+				m_fixed_s.s
 
-CODEFILES   =	graph.c asci.c \
+CODEFILES   =	graph.c \
+				asci.c \
 				doominfo.c \
 				sprinfo.c \
 				m_bbox.c \

@@ -44,7 +44,45 @@ angle_t tantoangle(int x) {
 =
 ===============
 */
+fixed_t FixedDiv2(register fixed_t a, register fixed_t b)//L8003EEF0()
+{
+	register unsigned        c;
+	register unsigned        bit;
+	register int             sign;
 
+	sign = a^b;
+
+	if (a <= 0)
+		a = -a;
+
+	if (b <= 0)
+		b = -b;
+
+	bit = 0x10000;
+	do
+	{
+		b <<= 1;
+		bit <<= 1;
+	} while (b < a);
+
+	c = 0;
+	do
+	{
+		if (a >= b)
+		{
+			a -= b;
+			c |= bit;
+		}
+		a <<= 1;
+		bit >>= 1;
+	} while (bit && a);
+
+	if (sign < 0)
+		c = -c;
+
+	return c;
+}
+#if 1
 fixed_t FixedDiv(fixed_t a, fixed_t b) // 80002BF8
 {
     fixed_t     aa, bb;
@@ -75,6 +113,7 @@ fixed_t FixedDiv(fixed_t a, fixed_t b) // 80002BF8
 
     return c;
 }
+#endif
 
 /*
 ===============
@@ -83,14 +122,14 @@ fixed_t FixedDiv(fixed_t a, fixed_t b) // 80002BF8
 =
 ===============
 */
-
-fixed_t FixedMul(fixed_t a, fixed_t b) // 800044D0
+#if 1
+fixed_t FixedMul2(fixed_t a, fixed_t b) // 800044D0
 {
     s64 result = ((s64) a * (s64) b) >> 16;
 
     return (fixed_t) result;
 }
-
+#endif
 #if 0
 s64 FixedMul2(s64 a, s64 b) // 800044D0
 {
@@ -122,7 +161,7 @@ s64 FixedMul2(s64 a, s64 b) // 800044D0
 ===============
 */
 
-fixed_t FixedDiv2(fixed_t a, fixed_t b) // 800044E4
+fixed_t FixedDiv3(fixed_t a, fixed_t b) // 800044E4
 {
     s64 result = ((s64) a << 16) / (s64)b;
 

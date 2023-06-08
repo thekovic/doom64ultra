@@ -8,4 +8,4 @@
 
 /* for mem_heap and z_zone
  */
-#define MEM_HEAP_SIZE (0x650000) // 6.3125 MB
+#define MEM_HEAP_SIZE (0x68D4F0 - 0x50 - 0x60 - 0x20 - 0x80 - 0xA0 - 0x1000) 
