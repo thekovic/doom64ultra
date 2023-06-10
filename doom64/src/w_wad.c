@@ -214,7 +214,7 @@ int W_LumpLength (int lump) // 8002C204
 =
 ====================
 */
-// preallocated buffer to replace Z_Alloc in W_ReadLump
+// 96 kb buffer to replace Z_Alloc in W_ReadLump
 static u64 input_w_readlump[16384]; 
 static byte *input = (byte*)input_w_readlump;
 

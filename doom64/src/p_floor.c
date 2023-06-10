@@ -342,8 +342,8 @@ int EV_BuildStairs(line_t *line, stair_e type) // 80013DB0
 	int		texture;
 	int		ok;
 	int		rtn;
-	fixed_t	stairsize;
-    fixed_t	speed;
+	fixed_t	stairsize = 0;
+    fixed_t	speed = 0;
 	sector_t	*sec, *tsec;
 	floormove_t	*floor;
 

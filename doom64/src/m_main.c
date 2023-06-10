@@ -2929,17 +2929,17 @@ int M_SavePakTicker(void) // 8000A804
         {
             // save the next level number and password data in text format
 			if (gameskill == sk_baby) {
-				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - bg", nextmap);
+				sprintf((char*)&Pak_Data[cursorpos * 32], "level %2.2d - bg", nextmap);
 			} else if (gameskill == sk_easy) {
-				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - bio", nextmap);
+				sprintf((char*)&Pak_Data[cursorpos * 32], "level %2.2d - bio", nextmap);
 			} else if (gameskill == sk_medium) {
-				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - iod", nextmap);
+				sprintf((char*)&Pak_Data[cursorpos * 32], "level %2.2d - iod", nextmap);
 			} else if (gameskill == sk_hard) {
-				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - wmd", nextmap);
+				sprintf((char*)&Pak_Data[cursorpos * 32], "level %2.2d - wmd", nextmap);
 			} else if (gameskill == sk_nightmare) {
-				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - bm", nextmap);
+				sprintf((char*)&Pak_Data[cursorpos * 32], "level %2.2d - bm", nextmap);
 			} else {
-				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d", nextmap);
+				sprintf((char*)&Pak_Data[cursorpos * 32], "level %2.2d", nextmap);
 			}
 			
             D_memcpy(&Pak_Data[(cursorpos * 32) + 16], &Passwordbuff, 16);

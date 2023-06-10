@@ -396,7 +396,7 @@ boolean PIT_RadiusAttack (mobj_t *thing) // 80016E3C
 	dy = D_abs(thing->y - bombspot->y);
 
 	dist = dx>dy ? dx : dy;
-	dist = dist - thing->radius >> FRACBITS;
+	dist = (dist - thing->radius) >> FRACBITS;
 
 	if (dist < 0)
 		dist = 0;

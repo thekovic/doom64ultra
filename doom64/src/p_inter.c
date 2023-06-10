@@ -627,8 +627,8 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
 	if (special->flags & MF_COUNTITEM)
 		player->itemcount++;
 
-    if (special->flags & MF_COUNTSECRET)
-        player->secretcount++;
+        if (special->flags & MF_COUNTSECRET)
+                player->secretcount++;
 
 	P_RemoveMobj (special);
 	player->bonuscount += BONUSADD;
@@ -712,7 +712,7 @@ void P_KillMobj (mobj_t *source, mobj_t *target) // 80015080
         deathmocktics = ticon;
 	}
 
-	if (forceXdeath || (target->health < -target->info->spawnhealth) && target->info->xdeathstate)
+	if (forceXdeath || ((target->health < -target->info->spawnhealth) && target->info->xdeathstate))
 		P_SetMobjState (target, target->info->xdeathstate);
 	else
 		P_SetMobjState (target, target->info->deathstate);
