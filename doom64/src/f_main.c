@@ -813,7 +813,6 @@ int F_Ticker(void) // 80003258
 void F_Drawer(void) // 800039DC
 {
 	int i, type, alpha, ypos;
-	char buff[64];
 
 	I_ClearFrame();
 
@@ -898,7 +897,7 @@ void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int x
     int xoffs;
     int yoffs;
 
-    int tilecnt;
+    int tilecnt = 0;
     int dsdx;
     int spos;
     int tpos;
@@ -945,7 +944,7 @@ void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int x
 
     if (compressed < 0)
     {
-        width2 = width + 7 & ~7;
+        width2 = (width + 7) & ~7;
         tilew = tileh * width2;
 
         if (((spriteN64_t*)data)->cmpsize & 1)
@@ -971,7 +970,7 @@ void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int x
     }
     else
     {
-        width2 = width + 15 & ~15;
+        width2 = (width + 15) & ~15;
         tilew = tileh * width2;
 
         if (tilew < 0) {

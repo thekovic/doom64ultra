@@ -95,31 +95,8 @@ int wess_rom_copy(char *src, char *dest, int len) // 8002E334
 	return 0;
 }
 
-/*LEAF(milli_to_param)
-lui     $at, 0x447A
-mtc1    $a1, $f12
-mtc1    $at, $f8
-mtc1    $a0, $f4
-div.s   $f10, $f12, $f8
-cvt.s.w $f6, $f4
-mul.s   $f16, $f6, $f10
-cfc1    $t6, FCSR
-nop
-li      $at, $t6, 3
-xori    $at, $at, 2
-ctc1    $at, FCSR
-li      $at, 0xFFFFFFF8
-cvt.w.s $f18, $f16
-mfc1    $v0, $f18
-ctc1    $t6, FCSR
-and     $t7, $v0, $at
-jr      $ra
-move    $v0, $t7
-END(milli_to_param)*/
-
-s32 milli_to_param(register s32 paramvalue, register s32 rate) // 8002E3D0
+s32 milli_to_param(s32 paramvalue, s32 rate) // 8002E3D0
 {
-	register u32 fpstat, fpstatset, out;
 	return (s32)((paramvalue * rate) / 1000) &~0x7;
 }
 
@@ -307,7 +284,6 @@ OSTask *__amHandleFrameMsg(AudioInfo *info) // 8002EBD8
 	Acmd	*cmdp;
 	s32		cmdLen;
 	int		samplesLeft;
-	int		check;
 
 	/* audFrameCnt updated here */
 	__clearAudioDMA(); /* call once a frame, before doing alAudioFrame */
@@ -326,7 +302,7 @@ OSTask *__amHandleFrameMsg(AudioInfo *info) // 8002EBD8
 	samplesLeft = osAiGetLength() >> 2; /* divide by four, to convert bytes */
 
 	/* to stereo 16 bit samples */
-	info->frameSamples = ((frameSize - samplesLeft) + wess_driver_extra_samples & ~0xf) + 16;
+	info->frameSamples = (((frameSize - samplesLeft) + wess_driver_extra_samples) & ~0xf) + 16;
 
 	/* no longer necessary to have extra samples, because the buffers */
 	/* will be swapped exactly when the buffer runs out */

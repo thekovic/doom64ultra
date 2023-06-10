@@ -40,8 +40,8 @@ mapthing_t	playerstarts[MAXPLAYERS];   // 800a8c60
 
 void G_DoLoadLevel (void) // 80004530
 {
-    if (((gameaction == 7) || (gameaction == 4)) || (players[0].playerstate == PST_DEAD))
-        players[0].playerstate = PST_REBORN;
+	if (((gameaction == 7) || (gameaction == 4)) || (players[0].playerstate == PST_DEAD))
+		players[0].playerstate = PST_REBORN;
 
 	P_SetupLevel(gamemap, gameskill);
 	gameaction = ga_nothing;
@@ -377,11 +377,11 @@ void G_RunGame (void) // 80004794
 		MiniLoop(IN_Start, IN_Stop, IN_Ticker, IN_Drawer);
 
 
-        if(((gamemap ==  8) && (nextmap ==  9)) ||
+        if((((gamemap ==  8) && (nextmap ==  9)) ||
            ((gamemap ==  4) && (nextmap == 29)) ||
            ((gamemap == 12) && (nextmap == 30)) ||
            ((gamemap == 18) && (nextmap == 31)) ||
-           ((gamemap ==  1) && (nextmap == 32)) && StoryText == true)
+           ((gamemap ==  1) && (nextmap == 32))) && StoryText == true)
         {
             /* run the intermission if needed */
             MiniLoop(F_StartIntermission, F_StopIntermission, F_TickerIntermission, F_DrawerIntermission);

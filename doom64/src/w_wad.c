@@ -136,27 +136,31 @@ int W_CheckNumForName(char *name, int hibit1, int hibit2) // 8002C0F4 removed un
 	tmp = name8;
 	while ((c = *name) != 0)
 	{
-	    *tmp++ = c;
+		*tmp++ = c;
 
-        if ((tmp >= name8+8))
-            break;
+		if ((tmp >= name8+8))
+		{
+			break;
+		}
 
-	    name++;
+		name++;
 	}
 
 	/* scan backwards so patch lump files take precedence */
 
 	lump_p = lumpinfo;
 	for(i = 0; i < numlumps; i++)
-    {
-        if ((*(int *)&name8[0] == (*(int *)&lump_p->name[0] & hibit1)) &&
-            (*(int *)&name8[4] == (*(int *)&lump_p->name[4] & hibit2)))
-                return i;
+	{
+		if (	(*(int *)&name8[0] == (*(int *)&lump_p->name[0] & hibit1)) &&
+			(*(int *)&name8[4] == (*(int *)&lump_p->name[4] & hibit2))	)
+		{
+			return i;
+		}
 
-        lump_p++;
-    }
+		lump_p++;
+	}
 
-    return -1;
+	return -1;
 }
 
 /*
@@ -434,27 +438,31 @@ int W_MapGetNumForName(char *name) // 8002C7D0
 	tmp = name8;
 	while ((c = *name) != 0)
 	{
-	    *tmp++ = c;
+		*tmp++ = c;
 
-        if ((tmp >= name8+8))
-            break;
+		if (tmp >= (name8+8))
+		{
+			break;
+		}
 
-	    name++;
+		name++;
 	}
 
 	/* scan backwards so patch lump files take precedence */
 
 	lump_p = maplump;
 	for(i = 0; i < mapnumlumps; i++)
-    {
-        if ((*(int *)&name8[0] == (*(int *)&lump_p->name[0] & 0x7fffffff)) &&
-            (*(int *)&name8[4] == (*(int *)&lump_p->name[4])))
-                return i;
+	{
+		if (	(*(int *)&name8[0] == (*(int *)&lump_p->name[0] & 0x7fffffff)) &&
+			(*(int *)&name8[4] == (*(int *)&lump_p->name[4]))	)
+		{
+			return i;
+		}
 
-        lump_p++;
-    }
+	        lump_p++;
+	}
 
-    return -1;
+	return -1;
 }
 
 /*
@@ -468,11 +476,8 @@ int W_MapGetNumForName(char *name) // 8002C7D0
 
 void  *W_GetMapLump(int lump) // 8002C890
 {
-	lumpinfo_t *l;
-	int lumpsize;
-
 	if (lump >= mapnumlumps)
 		I_Error("W_GetMapLump: lump %d out of range", lump);
 
-    return (void *) ((byte *)mapfileptr + maplump[lump].filepos);
+	return (void *) ((byte *)mapfileptr + maplump[lump].filepos);
 }

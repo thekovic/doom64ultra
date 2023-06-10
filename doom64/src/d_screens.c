@@ -39,7 +39,7 @@ int D_TitleMap(void) // 8002B358
 int D_WarningTicker(void) // 8002B3E8
 {
     if ((gamevbls < gametic) && !(gametic & 7))
-        MenuAnimationTic = MenuAnimationTic + 1 & 7;
+        MenuAnimationTic = (MenuAnimationTic + 1) & 7;
     return 0;
 }
 

@@ -266,7 +266,7 @@ void I_SystemTicker(void *arg) // 80005730
 {
     int vbi_msg;
     int vidside;
-    int side, stat, ret;
+    int side, ret;
     int current_fbuf, next_fbuf;
     OSTask *wess;
     OSTask *rspTask;
@@ -274,6 +274,7 @@ void I_SystemTicker(void *arg) // 80005730
 
     //char str[64];
 
+    vidside = 0;
     rspTask = NULL;
     rspTaskPrev = NULL;
     side = 1;
@@ -514,7 +515,8 @@ extern void S_Init(void);
 
 void I_Init(void) // 80005C50
 {
-    OSViMode *ViMode;
+    // assume NTSC
+    OSViMode *ViMode = &osViModeTable[OS_VI_NTSC_LPN1];
 
     vid_rsptask[0].t.ucode_boot_size = (int)rspbootTextEnd - (int)rspbootTextStart;	// set ucode size (waste but who cares)
     vid_rsptask[1].t.ucode_boot_size = (int)rspbootTextEnd - (int)rspbootTextStart;	// set ucode size (waste but who cares)
@@ -795,7 +797,7 @@ void I_GetScreenGrab(void) // 800066C0
 
 long LongSwap(long dat) // 80006724
 {
-    return (u32)dat >> 0x18 | dat >> 8 & 0xff00U | (dat & 0xff00U) << 8 | dat << 0x18;
+    return (u32)dat >> 0x18 | (dat >> 8 & 0xff00U) | (dat & 0xff00U) << 8 | dat << 0x18;
 }
 
 short LittleShort(short dat) // 80006750
@@ -1051,8 +1053,8 @@ int I_DeletePakFile(int filenumb) // 80007224
         ret = osPfsDeleteFile(&ControllerPak,
             FileState[filenumb].company_code,
             FileState[filenumb].game_code,
-            FileState[filenumb].game_name,
-            FileState[filenumb].ext_name);
+            (u8*)FileState[filenumb].game_name,
+            (u8*)FileState[filenumb].ext_name);
 
         if (ret == PFS_ERR_INCONSISTENT)
             ret = osPfsChecker(&ControllerPak);
@@ -1113,7 +1115,7 @@ int I_ReadPakFile(void) // 800073B8
     Pak_Size = 0;
     ext_name = NULL;
 
-    ret = osPfsFindFile(&ControllerPak, COMPANY_CODE, GAME_CODE, Game_Name, ext_name, &File_Num);
+    ret = osPfsFindFile(&ControllerPak, COMPANY_CODE, GAME_CODE, (u8*)Game_Name, ext_name, &File_Num);
 
     if (ret == 0)
     {
@@ -1151,7 +1153,7 @@ int I_CreatePakFile(void) // 800074D4
 
     *(int*)ExtName = 0;
 
-    ret = osPfsAllocateFile(&ControllerPak, COMPANY_CODE, GAME_CODE, Game_Name, ExtName, Pak_Size, &File_Num);
+    ret = osPfsAllocateFile(&ControllerPak, COMPANY_CODE, GAME_CODE, (u8*)Game_Name, ExtName, Pak_Size, &File_Num);
 
     if (ret == PFS_ERR_INCONSISTENT)
         ret = osPfsChecker(&ControllerPak);
