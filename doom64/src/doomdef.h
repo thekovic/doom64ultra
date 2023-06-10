@@ -107,9 +107,13 @@ static inline fixed_t FixedDiv2(fixed_t a, fixed_t b)
     fixed_t flo;
 
     asm volatile(
+    ".set noreorder\n\t"
+    ".set nomacro\n\t"
     "dsll   %1, %1, 16\n\t"
-    "ddiv   %1, %2\n\t"
-    "mflo   %0"
+    "ddiv   $0, %1, %2\n\t"
+    "mflo   %0\n\t"
+    ".set macro\n\t"
+    ".set reorder"
     : "=r" (flo)
     : "r" (a), "r" (b)
     );
@@ -122,12 +126,15 @@ static inline fixed_t FixedMul(fixed_t a, fixed_t b)
     fixed_t flo;
 
     asm volatile(
+    ".set noreorder\n\t"
+    ".set nomacro\n\t"
     "dmult   %1, %2\n\t"
-    "mflo    $3\n\t"
-    "dsra    %0, $3, 16"
+    "mflo    %0\n\t"
+    "dsra    %0, %0, 16\n\t"
+    ".set macro\n\t"
+    ".set reorder"
     : "=r" (flo)
     : "r" (a), "r" (b)
-    : "$3"
     );
 
     return (fixed_t) flo;
