@@ -416,7 +416,7 @@ void wess_seq_loader_exit(void) // 80039EA4
 int wess_seq_sizeof(int seqnum) // 80039EC8
 {
 	sequence_data *psq_info;
-	int seq_sizeof, numtracks;
+	int numtracks;
 
 	if (seq_loader_enable)
 	{

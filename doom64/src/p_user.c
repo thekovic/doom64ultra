@@ -173,8 +173,8 @@ void P_PlayerXYMovement (mobj_t *mo) // 80021E20
     /* */
 	/* try to slide along a blocked move */
 	/* */
-    if (!P_TryMove(mo, mo->x + mo->momx, mo->y + mo->momy))
-        P_SlideMove(mo);
+        if (!P_TryMove(mo, mo->x + mo->momx, mo->y + mo->momy))
+            P_SlideMove(mo);
 
 	/* */
 	/* slow down */

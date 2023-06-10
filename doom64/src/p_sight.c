@@ -283,12 +283,12 @@ boolean PS_CrossBSPNode(int bspnum) // 8001F15C
     if(right < left)
         side1 = 0;    // front side
 
-	// cross the starting side
-	if (!PS_CrossBSPNode(bsp->children[side1]))
-		return false;
+    // cross the starting side
+    if (!PS_CrossBSPNode(bsp->children[side1]))
+        return false;
 
-	// the partition plane is crossed here
-	side2 = 1;
+    // the partition plane is crossed here
+    side2 = 1;
 
     dx = (t2x - bsp->line.x);
     dy = (t2y - bsp->line.y);
@@ -299,9 +299,9 @@ boolean PS_CrossBSPNode(int bspnum) // 8001F15C
     if(right < left)
         side2 = 0;    // front side
 
-	if (side1 == side2)
-		return true; // the line doesn't touch the other side
+    if (side1 == side2)
+        return true; // the line doesn't touch the other side
 
-	// cross the ending side
-	return PS_CrossBSPNode(bsp->children[side1 ^ 1]);
+    // cross the ending side
+    return PS_CrossBSPNode(bsp->children[side1 ^ 1]);
 }

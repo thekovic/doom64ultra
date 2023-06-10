@@ -26,14 +26,11 @@ extern void wess_get_tweaks2(WessTweakAttr *attr);
 void S_Init(void) // 80029590
 {
 	int audioHeapEnd;
-	int wmdlength;
-	int loaded;
+	//int loaded;
 	int modulesize;
 	int seqsize, seqtblsize;
 	char *moduleptr;
 	char *seqptr, *seqtblptr;
-	u32 old_ovmemptr;
-	void *tempram;
 
 	WessTweakAttr tweak;
 	WessConfig wess_config;
@@ -80,17 +77,18 @@ void S_Init(void) // 80029590
 
 	// now we load the .wmd image into a temporary ram space
 	modulesize = wess_size_module(_doom64_wmdSegmentRomStart);
-	modulesize = (modulesize + 15 & ~15);
+	modulesize = ((modulesize + 15) & ~15);
 	moduleptr = alHeapAlloc(&sys_aheap, 1, modulesize);
 	//PRINTF_D(WHITE, "modulesize %d", modulesize);
 	//PRINTF_D(WHITE, "moduleptr %x", (int)&moduleptr);
 
-	loaded = wess_load_module(_doom64_wmdSegmentRomStart, moduleptr, modulesize);
+	//loaded = 
+	wess_load_module(_doom64_wmdSegmentRomStart, moduleptr, modulesize);
 	//PRINTF_D(WHITE, "loaded %d", loaded);
 
 
 	seqtblsize = wess_seq_loader_sizeof(wess_get_master_status(), _doom64_wsdSegmentRomStart);
-	seqtblsize = (seqtblsize + 15 & ~15);
+	seqtblsize = ((seqtblsize + 15) & ~15);
 	seqtblptr = alHeapAlloc(&sys_aheap, 1, seqtblsize);
 	//PRINTF_D(WHITE, "seqtblsize %d", seqtblsize);
 	//PRINTF_D(WHITE, "seqtblptr %x", (int)&seqtblptr);
@@ -99,7 +97,7 @@ void S_Init(void) // 80029590
 	wess_seq_loader_init(wess_get_master_status(), _doom64_wsdSegmentRomStart, NoOpenSeqHandle, seqtblptr, seqtblsize);
 
 	seqsize = wess_seq_range_sizeof(0, wess_seq_loader_count());
-	seqtblsize = (seqsize + 15 & ~15);
+	seqtblsize = ((seqsize + 15) & ~15);
 	seqptr = alHeapAlloc(&sys_aheap, 1, seqsize);
 
 	//PRINTF_D(WHITE, "seqsize %d", seqsize);
