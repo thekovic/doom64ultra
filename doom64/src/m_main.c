@@ -357,14 +357,14 @@ boolean MapStats = false; // [Immorpher] Enable map statistics for automap?
 int HUDmargin = 20; // [Immorpher] HUD margin options (default 20)
 boolean ColoredHUD = false; // [Immorpher] Colored hud
 
-int TempConfiguration[13] = // 8005A80C
+int __attribute__((aligned(16))) TempConfiguration[13] = // 8005A80C
 {
     PAD_LEFT, PAD_RIGHT, PAD_UP, PAD_DOWN,
     PAD_LEFT_C, PAD_RIGHT_C, PAD_UP_C, PAD_DOWN_C,
     PAD_L_TRIG, PAD_R_TRIG, PAD_A, PAD_B, PAD_Z_TRIG
 };
 
-int ActualConfiguration[13] = // 8005A840
+int __attribute__((aligned(16))) ActualConfiguration[13] = // 8005A840
 {
     PAD_RIGHT, PAD_LEFT, PAD_UP, PAD_DOWN,
     PAD_Z_TRIG,
@@ -372,7 +372,15 @@ int ActualConfiguration[13] = // 8005A840
     PAD_L_TRIG, PAD_R_TRIG, PAD_A, PAD_B
 };
 
-int DefaultConfiguration[6][13] = // 8005A840
+int __attribute__((aligned(16))) CustomConfiguration[13] =
+{
+    PAD_RIGHT, PAD_LEFT, PAD_UP, PAD_DOWN,
+    PAD_Z_TRIG,
+    PAD_RIGHT_C, PAD_UP_C, PAD_LEFT_C, PAD_DOWN_C,
+    PAD_L_TRIG, PAD_R_TRIG, PAD_A, PAD_B
+};
+
+int __attribute__((aligned(16))) DefaultConfiguration[6][13] = // 8005A840
 {
     // Default 1
     {
@@ -386,39 +394,32 @@ int DefaultConfiguration[6][13] = // 8005A840
     {
         PAD_RIGHT, PAD_LEFT, PAD_UP, PAD_DOWN,
         PAD_Z_TRIG,
-        PAD_RIGHT_C, PAD_UP_C,
-        PAD_R_TRIG, PAD_L_TRIG,
-        PAD_A, PAD_DOWN_C,
-        PAD_B, PAD_LEFT_C
+        PAD_RIGHT_C, PAD_UP_C, PAD_R_TRIG, PAD_L_TRIG,
+        PAD_A, PAD_DOWN_C, PAD_B, PAD_LEFT_C
     },
 
     // Default 3
     {
         PAD_RIGHT, PAD_LEFT, PAD_UP, PAD_DOWN,
         PAD_Z_TRIG,
-        PAD_UP_C, PAD_UP,
-        PAD_R_TRIG,
-        PAD_DOWN, PAD_LEFT_C, PAD_RIGHT_C,
-        PAD_A, PAD_B
+        PAD_UP_C, PAD_UP, PAD_R_TRIG, PAD_DOWN, 
+        PAD_LEFT_C, PAD_RIGHT_C, PAD_A, PAD_B
     },
 
     // Default 4
     {
-        PAD_RIGHT_C, PAD_LEFT_C,
-        PAD_UP, PAD_DOWN,
+        PAD_RIGHT_C, PAD_LEFT_C, PAD_UP, PAD_DOWN,
         PAD_Z_TRIG,
-        PAD_UP, PAD_UP_C,
-        PAD_L_TRIG,
-        PAD_DOWN_C, PAD_LEFT, PAD_RIGHT,
-        PAD_A, PAD_B
+        PAD_UP, PAD_UP_C, PAD_L_TRIG, PAD_DOWN_C,
+        PAD_LEFT, PAD_RIGHT, PAD_A, PAD_B
     },
 
     // Default 5
     {
         PAD_RIGHT, PAD_LEFT, PAD_UP, PAD_DOWN,
-        PAD_A, PAD_RIGHT_C, PAD_UP_C, PAD_DOWN_C,
-        PAD_Z_TRIG, PAD_L_TRIG, PAD_R_TRIG,
-        PAD_B, PAD_LEFT_C
+        PAD_A,
+        PAD_RIGHT_C, PAD_UP_C, PAD_DOWN_C, PAD_Z_TRIG,
+        PAD_L_TRIG, PAD_R_TRIG, PAD_B, PAD_LEFT_C
     },
 	
 	// Default 6 - New Immorpher's Retro Fighter Controller
@@ -3267,7 +3268,8 @@ int M_ControlPadTicker(void) // 8000B694
     unsigned int buttons;
     unsigned int oldbuttons;
     int exit;
-    int *tmpcfg, code;
+    int *tmpcfg;
+    int code;
 
     if ((gamevbls < gametic) && ((gametic & 3U) == 0)) {
         MenuAnimationTic = (MenuAnimationTic + 1) & 7;
@@ -3297,19 +3299,16 @@ int M_ControlPadTicker(void) // 8000B694
                 if (cursorpos > (linepos + 5))
                     linepos += 1;
             }
-            else
+            else if (buttons & PAD_UP)
             {
-                if (buttons & PAD_UP)
-                {
-                    cursorpos -= 1;
-                    if (cursorpos < 0)
-                        cursorpos = 0;
-                    else
-                        S_StartSound(NULL, sfx_switch1);
+                cursorpos -= 1;
+                if (cursorpos < 0)
+                    cursorpos = 0;
+                else
+                    S_StartSound(NULL, sfx_switch1);
 
-                    if (cursorpos < linepos)
-                        linepos -= 1;
-                }
+                if (cursorpos < linepos)
+                    linepos -= 1;
             }
         }
     }
@@ -3328,45 +3327,48 @@ int M_ControlPadTicker(void) // 8000B694
             exit = 0;
         else
         {
-            tmpcfg = TempConfiguration;
-
             if (cursorpos == 0) // Set Default Configuration
             {
-                if (!(buttons & (PAD_UP|PAD_LEFT)))
+                if (buttons & (PAD_DOWN|PAD_RIGHT))
                 {
-                    if (buttons & (PAD_DOWN|PAD_RIGHT))
-                    {
-                        ConfgNumb += 1;
-                        if(ConfgNumb > 5)
-                            ConfgNumb = 0;
-                    }
+                    ConfgNumb += 1;
+                    if(ConfgNumb > 5)
+                        ConfgNumb = 0;
                 }
-                else
+                else if (buttons & (PAD_UP|PAD_LEFT))
                 {
                     ConfgNumb -= 1;
                     if (ConfgNumb < 0)
                         ConfgNumb = 5;
                 }
 
+                D_memcpy(ActualConfiguration, DefaultConfiguration[ConfgNumb], (13 * sizeof(int)));
+                D_memcpy(CustomConfiguration, DefaultConfiguration[ConfgNumb], (13 * sizeof(int)));
                 if ((buttons & (ALL_BUTTONS|ALL_JPAD)) != 0)
                 {
-                    D_memcpy(ActualConfiguration, DefaultConfiguration[ConfgNumb], (13 * sizeof(int)));
                     S_StartSound(NULL, sfx_switch2);
                     return 0;
                 }
             }
             else // Set Custom Configuration
             {
+                ConfgNumb = 6;
+
+                tmpcfg = TempConfiguration;
+
                 do
                 {
                     code = *tmpcfg++;
                     if ((code & buttons) != 0)
                     {
-                        TempConfiguration[cursorpos + 12] = code;
+                        CustomConfiguration[(cursorpos - 1)] = code;
                         S_StartSound(NULL,sfx_switch2);
                         return 0;
                     }
-                } while (tmpcfg != (int*)(TempConfiguration+13));
+                }
+                while (tmpcfg != (int*)(TempConfiguration+13));
+
+                D_memcpy(ActualConfiguration, CustomConfiguration, (13*sizeof(int)));
             }
             exit = 0;
         }
@@ -3374,10 +3376,45 @@ int M_ControlPadTicker(void) // 8000B694
     return exit;
 }
 
+static int button_code_to_symbol_index(u32 code)
+{
+    switch(code) {
+    case PAD_LEFT:
+        return 80;
+    case PAD_RIGHT:
+        return 81;
+    case PAD_UP:
+        return 82;
+    case PAD_DOWN:
+        return 83;
+    case PAD_LEFT_C:
+        return 84;
+    case PAD_RIGHT_C:
+        return 85;
+    case PAD_UP_C:
+        return 86;
+    case PAD_DOWN_C:
+        return 87;
+    case PAD_L_TRIG:
+        return 88;
+    case PAD_R_TRIG:
+        return 89;
+    case PAD_A:
+        return 90;
+    case PAD_B:
+        return 91;
+    case PAD_Z_TRIG:
+        return 92;
+    default:
+        return 14;
+    }
+}
+
 void M_ControlPadDrawer(void) // 8000B988
 {
     int i, lpos;
     int *tmpcfg;
+    int *tc2;
     char **text;
     char buffer [44];
 
@@ -3394,26 +3431,47 @@ void M_ControlPadDrawer(void) // 8000B988
                 i = 0;
                 if(lpos != cursorpos || ((ticon & 8U) == 0))
                 {
-                    tmpcfg = TempConfiguration;
+                    if (ConfgNumb == 6)
+                    {
+                        tmpcfg = CustomConfiguration;
+                    }
+                    else
+                    {
+                        tmpcfg = DefaultConfiguration[ConfgNumb];
+                    }
+                    tc2 = tmpcfg;
+
                     do
                     {
-                        if ((*tmpcfg & TempConfiguration[lpos + 12]) != 0) break;
+                        if ((*tmpcfg & tc2[lpos + 12]) != 0)
+                            break;
 
                         i += 1;
                         tmpcfg++;
                     } while (i != 13);
 
-                    ST_DrawSymbol(60, ((lpos - linepos) * 18) + 68, i + 80, text_alpha | 0xffffff00);
+                    ST_DrawSymbol(60, ((lpos - linepos) * 18) + 68, button_code_to_symbol_index(tc2[lpos - 1]), text_alpha | 0xffffff00);
                 }
             }
 
-			if (ConfgNumb==5 && lpos == 0) { // [Immorpher] If statement for new retro fighters
-				sprintf(buffer, "Retro Fighters");
-				ST_DrawString(80, ((lpos - linepos) * 18) + 68, buffer, text_alpha | 0xc0000000);
-			} else {
-				sprintf(buffer, *text, ConfgNumb + 1);
-				ST_DrawString(80, ((lpos - linepos) * 18) + 68, buffer, text_alpha | 0xc0000000);
-			}
+            if (ConfgNumb==6 && lpos == 0)
+            { // jnmartin84 If statement for custom controller config
+                sprintf(buffer, "Custom Config");
+            }
+            else if (ConfgNumb==5 && lpos == 0)
+            { // [Immorpher] If statement for new retro fighters
+                sprintf(buffer, "Retro Fighters");
+            }
+            else if (lpos == 0)
+            {
+                sprintf(buffer, *text, ConfgNumb + 1);
+            }
+            else
+            {
+                sprintf(buffer, *text);
+            }
+
+            ST_DrawString(80, ((lpos - linepos) * 18) + 68, buffer, text_alpha | 0xc0000000);
 
             lpos += 1;
             text += 1;
