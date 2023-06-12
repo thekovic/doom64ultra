@@ -2930,17 +2930,17 @@ int M_SavePakTicker(void) // 8000A804
         {
             // save the next level number and password data in text format
 			if (gameskill == sk_baby) {
-				sprintf((char*)&Pak_Data[cursorpos * 32], "level %2.2d - bg", nextmap);
+				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - bg", nextmap);
 			} else if (gameskill == sk_easy) {
-				sprintf((char*)&Pak_Data[cursorpos * 32], "level %2.2d - bio", nextmap);
+				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - bio", nextmap);
 			} else if (gameskill == sk_medium) {
-				sprintf((char*)&Pak_Data[cursorpos * 32], "level %2.2d - iod", nextmap);
+				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - iod", nextmap);
 			} else if (gameskill == sk_hard) {
-				sprintf((char*)&Pak_Data[cursorpos * 32], "level %2.2d - wmd", nextmap);
+				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - wmd", nextmap);
 			} else if (gameskill == sk_nightmare) {
-				sprintf((char*)&Pak_Data[cursorpos * 32], "level %2.2d - bm", nextmap);
+				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - bm", nextmap);
 			} else {
-				sprintf((char*)&Pak_Data[cursorpos * 32], "level %2.2d", nextmap);
+				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d", nextmap);
 			}
 			
             D_memcpy(&Pak_Data[(cursorpos * 32) + 16], &Passwordbuff, 16);
@@ -3378,8 +3378,11 @@ int M_ControlPadTicker(void) // 8000B694
 
 static int button_code_to_symbol_index(u32 code)
 {
+    // see doomdef.h for PAD_* definitions
     switch(code) {
     case PAD_LEFT:
+        // see st_main.c for symboldata layout
+        // gamepad button symbols start at index 80
         return 80;
     case PAD_RIGHT:
         return 81;
@@ -3406,15 +3409,14 @@ static int button_code_to_symbol_index(u32 code)
     case PAD_Z_TRIG:
         return 92;
     default:
+        // question mark
         return 14;
     }
 }
 
 void M_ControlPadDrawer(void) // 8000B988
 {
-    int i, lpos;
-    int *tmpcfg;
-    int *tc2;
+    int lpos;
     char **text;
     char buffer [44];
 
@@ -3428,38 +3430,17 @@ void M_ControlPadDrawer(void) // 8000B988
         {
             if (lpos != 0)
             {
-                i = 0;
                 if(lpos != cursorpos || ((ticon & 8U) == 0))
                 {
-                    if (ConfgNumb == 6)
-                    {
-                        tmpcfg = CustomConfiguration;
-                    }
-                    else
-                    {
-                        tmpcfg = DefaultConfiguration[ConfgNumb];
-                    }
-                    tc2 = tmpcfg;
-
-                    do
-                    {
-                        if ((*tmpcfg & tc2[lpos + 12]) != 0)
-                            break;
-
-                        i += 1;
-                        tmpcfg++;
-                    } while (i != 13);
-
-                    ST_DrawSymbol(60, ((lpos - linepos) * 18) + 68, button_code_to_symbol_index(tc2[lpos - 1]), text_alpha | 0xffffff00);
+                    ST_DrawSymbol(60, ((lpos - linepos) * 18) + 68, button_code_to_symbol_index(ActualConfiguration[lpos - 1]), text_alpha | 0xffffff00);
                 }
             }
-
-            if (ConfgNumb==6 && lpos == 0)
-            { // jnmartin84 If statement for custom controller config
+            if (ConfgNumb==6 && lpos == 0) // jnmartin84 If statement for custom controller config
+            {
                 sprintf(buffer, "Custom Config");
             }
-            else if (ConfgNumb==5 && lpos == 0)
-            { // [Immorpher] If statement for new retro fighters
+            else if (ConfgNumb==5 && lpos == 0) // [Immorpher] If statement for new retro fighters
+            {
                 sprintf(buffer, "Retro Fighters");
             }
             else if (lpos == 0)
