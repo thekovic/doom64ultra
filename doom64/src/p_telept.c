@@ -119,7 +119,6 @@ int	EV_SilentTeleport( line_t *line, mobj_t *thing ) // 8000E5C0
 {
 	int		    tag;
 	mobj_t		*m;
-	unsigned	an;
 
 	tag = line->tag;
     for (m=mobjhead.next ; m != &mobjhead ; m=m->next)

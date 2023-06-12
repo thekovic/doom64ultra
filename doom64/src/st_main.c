@@ -159,7 +159,7 @@ void ST_InitEveryLevel(void) // 80029C00
 void ST_Ticker (void) // 80029C88
 {
 	player_t    *player;
-	int		    ind, base;
+	int		    ind;
 
 	player = &players[0];
 
@@ -335,8 +335,8 @@ void ST_Drawer (void) // 80029DC0
         /* */
         /* Health */
         /* */
-        gSPTextureRectangle(GFX1++, (2+HUDmargin << 2), (218 - HUDmargin << 2),
-                                    (42 + HUDmargin << 2), (224 - HUDmargin  << 2),
+        gSPTextureRectangle(GFX1++, ((2+HUDmargin) << 2), ((218 - HUDmargin) << 2),
+                                    ((42 + HUDmargin) << 2), ((224 - HUDmargin)  << 2),
                                     G_TX_RENDERTILE,
                                     (0 << 5), (0 << 5),
                                     (1 << 10), (1 << 10));
@@ -344,8 +344,8 @@ void ST_Drawer (void) // 80029DC0
         /* */
         /* Armor */
         /* */
-        gSPTextureRectangle(GFX1++, (280-HUDmargin << 2), (218 - HUDmargin << 2),
-                                    (316-HUDmargin << 2), (224 - HUDmargin << 2),
+        gSPTextureRectangle(GFX1++, ((280-HUDmargin) << 2), ((218 - HUDmargin) << 2),
+                                    ((316-HUDmargin) << 2), ((224 - HUDmargin) << 2),
                                     G_TX_RENDERTILE,
                                     (40 << 5), (0 << 5),
                                     (1 << 10), (1 << 10));
@@ -365,8 +365,8 @@ void ST_Drawer (void) // 80029DC0
                 /* */
                 /* Draw Keys Graphics */
                 /* */
-                gSPTextureRectangle(GFX1++, card_x[ind], (230-HUDmargin << 2),
-                                            card_x[ind]+(9 << 2), (240-HUDmargin << 2),
+                gSPTextureRectangle(GFX1++, card_x[ind], ((230-HUDmargin) << 2),
+                                            card_x[ind]+(9 << 2), ((240-HUDmargin) << 2),
                                             G_TX_RENDERTILE,
                                             ((ind * 9) << 5), (6 << 5),
                                             (1 << 10), (1 << 10));
@@ -445,7 +445,6 @@ void ST_Message(int x,int y,char *text,int color) // 8002A36C
     byte c;
     int s,t;
     int xpos, ypos;
-    int bVar2;
 
     if (globallump != (int)sfontlump)
     {
@@ -512,7 +511,7 @@ void ST_Message(int x,int y,char *text,int color) // 8002A36C
                 else
                     t = ST_FONTWHSIZE;
 
-                s = (c - '!' & ~32) * ST_FONTWHSIZE;
+                s = ((c - '!') & ~32) * ST_FONTWHSIZE;
 
                 gSPTextureRectangle(GFX1++,
                                     (xpos << 2), (ypos << 2),
@@ -578,7 +577,7 @@ void ST_DrawString(int x, int y, char *text, int color) // 8002A930
 
     xpos = x;
     if(xpos <= -1) /* Get Center Text Position */
-        xpos = ST_GetCenterTextX(text);
+        xpos = ST_GetCenterTextX((byte*)text);
 
     while (*text)
     {
@@ -788,7 +787,7 @@ void ST_UpdateFlash(void) // 8002AC30
             if (cnt > ST_MAXBONCOUNT)
                 cnt = ST_MAXBONCOUNT;
 
-            bnc = (cnt << 2) + cnt << 1;
+            bnc = ((cnt << 2) + cnt) << 1;
 
             FlashEnvColor = PACKRGBA(bnc, bnc, cnt, 255);
         }

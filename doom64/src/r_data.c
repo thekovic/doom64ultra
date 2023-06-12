@@ -59,7 +59,7 @@ void R_InitData (void) // 80023180
 
 void R_InitTextures(void) // 8002327C
 {
-	int lump, swx, i;
+	int swx, i;
 
 	firsttex = W_GetNumForName("T_START") + 1;
 	lasttex = W_GetNumForName("T_END") - 1;

@@ -665,7 +665,7 @@ void M_PasswordDrawer(void) // 8000CAF0
 {
     byte    pass[2];
     byte    c;
-    int     texid, cnt;
+    int     texid = 14, cnt;
     int     xpos, ypos, pos1;
 
     ST_DrawString(-1, 20, "Password", text_alpha | 0xc0000000);
@@ -741,7 +741,7 @@ void M_PasswordDrawer(void) // 8000CAF0
                 pass[0] = '.';
             }
 
-            ST_DrawString(xpos, 160, pass, text_alpha | 0xc0000000);
+            ST_DrawString(xpos, 160, (char *)pass, text_alpha | 0xc0000000);
 
             xpos += 13;
             cnt += 1;

@@ -352,6 +352,8 @@ fixed_t	P_FindNextHighestFloor(sector_t *sec,int currentheight) // 8001FAE4
 	fixed_t		height = currentheight;
 	fixed_t		heightlist[20];		/* 20 adjoining sectors max! */
 
+	D_memset(heightlist, 0, 20*sizeof(fixed_t));
+
 	for (i =0,h = 0 ;i < sec->linecount ; i++)
 	{
 		check = sec->lines[i];
@@ -887,13 +889,13 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
             actionType == 91 // ARTIFACT SWITCH 2
             actionType == 92 // ARTIFACT SWITCH 3
         */
-
+// weird condition the << specifically
         if ((actionType == 90 || actionType == 91 || actionType == 92) &&
            !((player->artifacts & 1) << ((actionType + 6) & 0x1f)))
         {
             player->message = "You lack the ability to activate it.";
             player->messagetic = MSGTICS;
-			player->messagecolor = 0xC4C4C400;
+            player->messagecolor = 0xC4C4C400;
             S_StartSound(thing, sfx_oof);
 
             return false;

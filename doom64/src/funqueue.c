@@ -129,7 +129,7 @@ void process_function_queue(void) // 80035E38
 	for (i = 0; i < func_num; i++)
 	{
 	    //PRINTF_D(WHITE,"*func %d",*func);
-		FuncQueueArr[*func]();
+		FuncQueueArr[(int)(*func)]();
 		func++;
 	}
 

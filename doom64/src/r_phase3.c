@@ -175,15 +175,15 @@ void R_WallPrep(seg_t *seg) // 80026A44
 	int pic;
 
 	unsigned int height2;
-	unsigned int r1, g1, b1;
-	unsigned int r2, g2, b2;
-	unsigned int thingcolor;
-	unsigned int upcolor;
-	unsigned int lowcolor;
-	unsigned int topcolor;
-	unsigned int bottomcolor;
-	unsigned int tmp_upcolor;
-	unsigned int tmp_lowcolor;
+	unsigned int r1 = 0, g1 = 0, b1 = 0;
+	unsigned int r2 = 0, g2 = 0, b2 = 0;
+	unsigned int thingcolor = 0;
+	unsigned int upcolor = 0;
+	unsigned int lowcolor = 0;
+	unsigned int topcolor = 0;
+	unsigned int bottomcolor = 0;
+	unsigned int tmp_upcolor = 0;
+	unsigned int tmp_lowcolor = 0;
 
     li = seg->linedef;
     side = seg->sidedef;
@@ -232,7 +232,7 @@ void R_WallPrep(seg_t *seg) // 80026A44
             else
             {
                 height = (f_ceilingheight - b_ceilingheight);
-                rowoffs = (height + 127 & -128) + (side->rowoffset >> 16);
+                rowoffs = ((height + 127) & -128) + (side->rowoffset >> 16);
             }
 
             if (li->flags & ML_BLENDING)
@@ -361,7 +361,7 @@ void R_WallPrep(seg_t *seg) // 80026A44
     if (li->flags & ML_DONTPEGBOTTOM)
     {
         height = m_top - m_bottom;
-        rowoffs = (height + 127 & -128) + (side->rowoffset >> 16);
+        rowoffs = ((height + 127) & -128) + (side->rowoffset >> 16);
     }
     else if (li->flags & ML_DONTPEGTOP)
     {
@@ -682,8 +682,8 @@ void R_RenderPlane(leaf_t *leaf, int numverts, int zpos, int texture, int xpos, 
     VTX1[0].v.ob[0] = (vrt->x >> 16);
     VTX1[0].v.ob[1] = zpos;
     VTX1[0].v.ob[2] =-(vrt->y >> 16);
-    VTX1[0].v.tc[0] = (((vrt->x + xpos & 0x3f0000U) >> 16) << 5);
-    VTX1[0].v.tc[1] =-(((vrt->y + ypos & 0x3f0000U) >> 16) << 5);
+    VTX1[0].v.tc[0] = ((((vrt->x + xpos) & 0x3f0000U) >> 16) << 5);
+    VTX1[0].v.tc[1] =-((((vrt->y + ypos) & 0x3f0000U) >> 16) << 5);
     *(int *)VTX1[0].v.cn = color;
 
     x = ((vrt->x + xpos) >> 16) & -64;
@@ -926,7 +926,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
 
             if (compressed < 0)
             {
-                width = ((spriteN64_t*)data)->width + 7 & ~7;
+                width = (((spriteN64_t*)data)->width + 7) & ~7;
                 tilew = tileh * width;
 
                 if (((spriteN64_t*)data)->cmpsize & 1)
@@ -952,7 +952,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
             }
             else
             {
-                width = ((spriteN64_t*)data)->width + 15 & ~15;
+                width = (((spriteN64_t*)data)->width + 15) & ~15;
                 tilew = tileh * width;
 
                 if (tilew < 0) {
@@ -1186,7 +1186,7 @@ void R_RenderPSprites(void) // 80028f20
             tiles = ((spriteN64_t*)data)->tiles;
             width = ((spriteN64_t*)data)->width;
             tileh = ((spriteN64_t*)data)->tileheight;
-            width2 = width + 7 & ~7;
+            width2 = (width + 7) & ~7;
             tilew = tileh * width2;
             height = ((spriteN64_t*)data)->height;
             src = data + sizeof(spriteN64_t);

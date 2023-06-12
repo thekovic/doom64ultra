@@ -63,7 +63,7 @@ int         spawncount;     // 800A5D78
 
 void P_LoadVertexes (void) // 8001CF20
 {
-	int			i, lumpSize;
+	int			i;
 	mapvertex_t	*ml;
 	vertex_t	*li;
 
@@ -760,10 +760,7 @@ void P_GroupLines (void) // 8001E614
 
 void P_SetupLevel(int map, skill_t skill) // 8001E974
 {
-	int		i, memory;
-	int		lumpnum;
-	mobj_t	*mobj;
-	char	lumpname[16];
+	int		memory;
 
 	/* free all tags except the PU_STATIC tag */
 	Z_FreeTags(mainzone, ~PU_STATIC); // (PU_LEVEL | PU_LEVSPEC | PU_CACHE)

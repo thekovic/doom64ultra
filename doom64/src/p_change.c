@@ -143,7 +143,6 @@ boolean PIT_ChangeSector (mobj_t *thing) // 80010234
 boolean P_ChangeSector (sector_t *sector, boolean crunch) // 800103BC
 {
 	int x,y;
-	int i;
 
 	/* force next sound to reflood */
     players[0].lastsoundsector = NULL;
@@ -152,8 +151,8 @@ boolean P_ChangeSector (sector_t *sector, boolean crunch) // 800103BC
 	crushchange = crunch;
 
 	// [d64] handle special case if sector's special is 666
-    if(sector->special == 666)
-        crushchange = 2;
+        if(sector->special == 666)
+            crushchange = 2;
 
 	/* recheck heights for all things near the moving sector */
 	for (x = sector->blockbox[BOXLEFT]; x <= sector->blockbox[BOXRIGHT]; x++)

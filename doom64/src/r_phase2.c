@@ -326,7 +326,7 @@ void R_RenderSkyPic(int lump, int yoffset) // 80025BDC
 
     data = W_CacheLumpNum(lump, PU_CACHE, dec_jag);
 
-    ang = (0 - ( viewangle >> 22) & 255);
+    ang = ((0 - (viewangle >> 22)) & 255);
     tileh = ((spriteN64_t*)data)->tileheight;
 
     src = data + sizeof(spriteN64_t);
@@ -521,7 +521,7 @@ void R_CloudThunder(void) // 80026418
             else if(!(LightningCounter < 6))    // Reset loop after 6 lightning flickers
             {
                 rand = (M_Random() & 7);
-                ThunderCounter = ((rand << 4) - rand << 2) + 60;
+                ThunderCounter = (((rand << 4) - rand) << 2) + 60;
                 LightningCounter = 0;
                 return;
             }

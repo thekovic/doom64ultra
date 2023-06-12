@@ -515,7 +515,6 @@ void R_AddSprite(subsector_t *sub) // 80024A98
 	int             lump;
 	fixed_t         tx, tz;
 	fixed_t         x, y;
-	int numdraw;
 
     sub->vissprite = NULL;
 
@@ -621,7 +620,7 @@ void R_AddSprite(subsector_t *sub) // 80024A98
             else
                 CurSub->vissprite = visspritehead;
 
-                visspritehead->next = VisSrpCur;
+            visspritehead->next = VisSrpCur;
 
             numdrawvissprites++;
             visspritehead++;

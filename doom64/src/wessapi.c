@@ -208,7 +208,6 @@ void wess_unload_module(void) // 8002F6F4
 int wess_size_module(char *wmd_filename) // 8002F770
 {
 	int readrequest, readresult;
-	callback_status	*pcalltable;
 	int size, i;
 
 	if (!wmd_filename)
@@ -1102,7 +1101,7 @@ void queue_wess_seq_stop(int sequence_number, enum MuteRelease mrelease, int mil
 	track_status *ptmp;
 	char *lpdest;
 	int li, lj;
-	int get_millisec;
+	int get_millisec = 0;
 
 	int _sequence_number;
 	enum MuteRelease _mrelease;

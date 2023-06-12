@@ -75,7 +75,7 @@ mobj_t *P_SpawnMobj (fixed_t x, fixed_t y, fixed_t z, mobjtype_t type) // 80018a
 	if((mobj->flags & MF_COUNTKILL) != 0)
         totalkills++;
 
-    if((mobj->flags & MF_COUNTITEM) != 0)
+        if((mobj->flags & MF_COUNTITEM) != 0)
         totalitems++;
 
 	return mobj;
@@ -210,7 +210,6 @@ void P_SpawnPlayer(/*mapthing_t *mthing*/) // 80018F94
 	player_t	*p;
 	fixed_t		x,y,z;
 	mobj_t		*mobj;
-	int	i;
 	int levelnum;
 	int skill;
 
@@ -407,7 +406,7 @@ void P_SpawnBlood (fixed_t x, fixed_t y, fixed_t z, int damage) // 800192B8
 mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yoffs, fixed_t heightoffs, mobjtype_t type) // 80019410
 {
 	mobj_t		*th;
-	angle_t		an;
+	angle_t		an = 0;
 	int			dist;
 	int			speed;
 	fixed_t     x, y, z;
@@ -424,17 +423,17 @@ mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yof
 		S_StartSound (source, th->info->seesound);
 	th->target = source;		/* where it came from */
 
-    if ((type == MT_PROJ_BABY) || (type == MT_PROJ_DART)) /* no aim projectile */
-        an = source->angle;
-    else if (dest)
-        an = R_PointToAngle2(x, y, dest->x, dest->y);
+        if ((type == MT_PROJ_BABY) || (type == MT_PROJ_DART)) /* no aim projectile */
+            an = source->angle;
+        else if (dest)
+            an = R_PointToAngle2(x, y, dest->x, dest->y);
 
 	if (dest && (dest->flags & MF_SHADOW))
-    {
+        {
         rnd1 = P_Random();
         rnd2 = P_Random();
 		an += ((rnd2 - rnd1) << 20);
-    }
+        }
 	
 	if (gameskill >= sk_nightmare && type != MT_PROJ_DART) { // [Immorpher] randomize projectiles a bit for merciless
 		
@@ -567,8 +566,8 @@ void P_SpawnPlayerMissile (mobj_t *source, mobjtype_t type) // 80019668
 
 void P_ExplodeMissile (mobj_t *mo) // 800198B8
 {
-    if(!P_SetMobjState(mo, mobjinfo[mo->type].deathstate))
-        return;
+        if(!P_SetMobjState(mo, mobjinfo[mo->type].deathstate))
+            return;
 
 	mo->momx = mo->momy = mo->momz = 0;
 

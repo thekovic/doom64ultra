@@ -473,7 +473,6 @@ void P_FireWeapon (player_t *player) // 8001B7CC
 
 void A_WeaponReady (player_t *player, pspdef_t *psp) // 8001B83C
 {
-	statenum_t	new;
 	int			angle;
 
 	/* */
@@ -652,7 +651,7 @@ void A_GunFlash (player_t *player, pspdef_t *psp) // 8001BAD8
     if(player->readyweapon == wp_missile)
         player->psprites[ps_flashalpha].alpha = 100;
 
-	P_SetPsprite (player,ps_flashalpha,weaponinfo[player->readyweapon].flashstate);
+    P_SetPsprite (player,ps_flashalpha,weaponinfo[player->readyweapon].flashstate);
 }
 
 
@@ -906,8 +905,6 @@ void A_FirePistol (player_t *player, pspdef_t *psp) // 8001C0B4
 
 void A_FireShotgun (player_t *player, pspdef_t *psp) // 8001C138
 {
-	angle_t		angle;
-	int			damage;
 	int			i;
 
 	S_StartSound (player->mo, sfx_shotgun);
@@ -1141,7 +1138,6 @@ void P_LaserCrossBSP(int bspnum, laserdata_t *laser) // 8001C710
     int frac;
     mobj_t *marker;
     laserdata_t *childlaser;
-    laser_t *next_cl, *next_l;
     fixed_t x, y, z;
     fixed_t x1, y1, z1;
     fixed_t x2, y2, z2;
@@ -1290,7 +1286,7 @@ extern fixed_t         aimfrac;        // 800A5720
 void A_FireLaser(player_t *player, pspdef_t *psp) // 8001CAC0
 {
     angle_t                 angleoffs;
-    angle_t                 spread;
+    angle_t                 spread = 0;
     mobj_t                  *mobj;
     int                     lasercount;
     int                     i;

@@ -908,8 +908,6 @@ void A_TroopMelee(mobj_t* actor) // 80011D78
 
 void A_TroopAttack (mobj_t *actor) // 80011DEC
 {
-	int		damage;
-
 	if (!actor->target)
 		return;
 
@@ -1186,7 +1184,6 @@ void A_FatAttack1(mobj_t *actor) // 80012320
 void A_FatAttack2(mobj_t *actor) // 800123B0
 {
     mobj_t  *mo;
-	mobj_t  *target;
 	int	    an;
 
 	A_FaceTarget(actor);
@@ -1212,7 +1209,6 @@ void A_FatAttack2(mobj_t *actor) // 800123B0
 void A_FatAttack3(mobj_t *actor) // 80012440
 {
     mobj_t  *mo;
-	mobj_t  *target;
 	int	    an;
 
 	A_FaceTarget(actor);
@@ -1454,7 +1450,7 @@ void A_RectGroundFire(mobj_t* actor) // 8001296C
 void A_RectMissile(mobj_t* actor) // 80012B1C
 {
     mobj_t* mo;
-    int count;
+    int count = 0;
     angle_t an;
     fixed_t x;
     fixed_t y;
@@ -1919,10 +1915,13 @@ P_MissileAttack
 mobj_t* P_MissileAttack(mobj_t *actor, dirproj_e direction) // 800134BC
 {
     angle_t angle;
-    fixed_t deltax, deltay, deltaz;
+    fixed_t deltax = 0, deltay = 0, deltaz = 0;
     fixed_t x, y;
     mobjtype_t type;
     mobj_t *mo;
+
+    // silence compiler
+    type = MT_PROJ_ROCKET;
 
     if(direction == DP_LEFT)
     {

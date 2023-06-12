@@ -260,7 +260,6 @@ void TriggerN64Voice(voice_status *voice_stat) // 80037A64
 
 	u32 volume;
 	s32 priority;
-	double fpitch;
 
 	pts = (ptsbase + voice_stat->track);
 
@@ -335,7 +334,7 @@ void TriggerN64Voice(voice_status *voice_stat) // 80037A64
 
 void N64_DriverInit (track_status *ptk_stat) // 80037DA8
 {
-    static int vt, mi; //800B699C
+	static int vt; //800B699C
 
 	char *pmem;
 	patchinfo_header *sample;

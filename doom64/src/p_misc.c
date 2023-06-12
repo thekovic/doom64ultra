@@ -203,8 +203,8 @@ void P_SecretExitLevel(int map) // 8000E25C
     else
         delaytics = 120;
 
-	nextmap = map;
-	P_SpawnDelayTimer(delaytics, G_CompleteLevel);
+    nextmap = map;
+    P_SpawnDelayTimer(delaytics, G_CompleteLevel);
 }
 
 /*
@@ -473,7 +473,6 @@ int EV_FadeOutMobj(int tag) // 8000ED08
 {
     fade_t *fade;
     mobj_t *mo;
-    mobj_t *pmVar1;
     int rtn;
 
     rtn = 0;
@@ -562,8 +561,6 @@ void T_MoveCamera(movecamera_t *camera) // 8000F014
     angle_t angle;
     int     dist;
     mobj_t  *mo;
-
-    int iVar1;
 
     /* adjust angle */
     newangle = R_PointToAngle2(cameratarget->x, cameratarget->y, camera->x, camera->y);
@@ -661,8 +658,9 @@ void P_SetMovingCamera(line_t *line) // 8000F2F8
 }
 void P_RefreshVideo(void) // [Immorpher] video refresh
 {
-	OSViMode *ViMode;
-	
+	// default to silence compiler
+	OSViMode *ViMode = OS_VI_NTSC_LPN1;
+
 	if(antialiasing==true && interlacing==true)
 	{
 		if(osTvType == OS_TV_PAL)
@@ -766,7 +764,6 @@ void P_SetLightFactor(int lightfactor) // 8000F458
     light_t *light;
     maplights_t *maplight;
     int base_r, base_g, base_b;
-    int r, g, b;
     int h, s, v;
     int factor;
     int i;

@@ -220,14 +220,13 @@ void AM_Control (player_t *player) // 800004F4
 
 void AM_Drawer (void) // 800009AC
 {
-    int			i;
 	player_t	*p;
 	mobj_t		*mo;
 	mobj_t		*next;
 	fixed_t		xpos, ypos;
 	fixed_t		ox, oy;
 	fixed_t     c;
-    fixed_t     s;
+	fixed_t     s;
 	angle_t     angle;
 	int			color;
 	int			scale;
