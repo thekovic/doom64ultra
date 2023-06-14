@@ -124,7 +124,7 @@ void P_MobjThinker(mobj_t *mobj) // 8000CE74
         if (mobj->tics <= 0)
 		{
 			state = mobj->state->nextstate;
-			if (state == S_000)
+			if (state == S_NULL)
 			{
 				mobj->latecall = P_RemoveMobj;
 			}

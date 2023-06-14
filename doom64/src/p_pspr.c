@@ -238,92 +238,92 @@ weaponinfo_t	weaponinfo[NUMWEAPONS] = // 8005AD80
 {
     {	/* saw */
 /* ammo 		*/	am_noammo,
-/* upstate 		*/	S_708,//S_SAWUP,
-/* downstate 	*/	S_707,//S_SAWDOWN,
-/* readystate 	*/	S_705,//S_SAW,
-/* atkstate 	*/	S_709,//S_SAW1,
-/* flashstate 	*/	S_000 //S_NULL
+/* upstate 		*/	S_SAWUP,
+/* downstate 	*/	S_SAWDOWN,
+/* readystate 	*/	S_SAW,
+/* atkstate 	*/	S_SAW1,
+/* flashstate 	*/	S_NULL
 	},
 
 	{	/* fist */
 /* ammo 		*/	am_noammo,
-/* upstate 		*/	S_714,//S_PUNCHUP,
-/* downstate 	*/	S_713,//S_PUNCHDOWN,
-/* readystate 	*/	S_712,//S_PUNCH,
-/* atkstate 	*/	S_715,//S_PUNCH1,
-/* flashstate 	*/	S_000 //S_NULL
+/* upstate 		*/	S_PUNCHUP,
+/* downstate 	*/	S_PUNCHDOWN,
+/* readystate 	*/	S_PUNCH,
+/* atkstate 	*/	S_PUNCH1,
+/* flashstate 	*/	S_NULL
 	},
 
 	{	/* pistol */
 /* ammo 		*/	am_clip,
-/* upstate 		*/	S_722,//S_PISTOLUP,
-/* downstate 	*/	S_721,//S_PISTOLDOWN,
-/* readystate 	*/	S_720,//S_PISTOL,
-/* atkstate 	*/	S_724,//S_PISTOL2,
-/* flashstate 	*/	S_728 //S_PISTOLFLASH
+/* upstate 		*/	S_PISTOLUP,
+/* downstate 	*/	S_PISTOLDOWN,
+/* readystate 	*/	S_PISTOL,
+/* atkstate 	*/	S_PISTOL2,
+/* flashstate 	*/	S_PISTOLFLASH
 	},
 
 	{	/* shotgun */
 /* ammo 		*/	am_shell,
-/* upstate 		*/	S_731,//S_SGUNUP,
-/* downstate 	*/	S_730,//S_SGUNDOWN,
-/* readystate 	*/	S_729,//S_SGUN,
-/* atkstate 	*/	S_733,//S_SGUN2,
-/* flashstate 	*/	S_738 //S_SGUNFLASH1
+/* upstate 		*/	S_SGUNUP,
+/* downstate 	*/	S_SGUNDOWN,
+/* readystate 	*/	S_SGUN,
+/* atkstate 	*/	S_SGUN2,
+/* flashstate 	*/	S_SGUNFLASH
 	},
 
     {	/* super shotgun */
 /* ammo 		*/	am_shell,
-/* upstate 		*/	S_741,//S_DSGUNUP,
-/* downstate 	*/	S_740,//S_DSGUNDOWN,
-/* readystate 	*/	S_739,//S_DSGUN,
-/* atkstate 	*/	S_742,//S_DSGUN1,
-/* flashstate 	*/	S_752 //S_DSGUNFLASH1
+/* upstate 		*/	S_DSGUNUP,
+/* downstate 	*/	S_DSGUNDOWN,
+/* readystate 	*/	S_DSGUN,
+/* atkstate 	*/	S_DSGUN1,
+/* flashstate 	*/	S_DSGUNFLASH
     },
 
 	{	/* chaingun */
 /* ammo 		*/	am_clip,
-/* upstate 		*/	S_755,//S_CHAINUP,
-/* downstate 	*/	S_754,//S_CHAINDOWN,
-/* readystate 	*/	S_753,//S_CHAIN,
-/* atkstate 	*/	S_756,//S_CHAIN1,
-/* flashstate 	*/	S_759 //S_CHAINFLASH1
+/* upstate 		*/	S_CHAINUP,
+/* downstate 	*/	S_CHAINDOWN,
+/* readystate 	*/	S_CHAIN,
+/* atkstate 	*/	S_CHAIN1,
+/* flashstate 	*/	S_CHAINFLASH1
 	},
 
 	{	/* missile */
 /* ammo 		*/	am_misl,
-/* upstate 		*/	S_763,//S_MISSILEUP,
-/* downstate 	*/	S_762,//S_MISSILEDOWN,
-/* readystate 	*/	S_761,//S_MISSILE,
-/* atkstate 	*/	S_764,//S_MISSILE1,
-/* flashstate 	*/	S_767 //S_MISSILEFLASH1
+/* upstate 		*/	S_MISSILEUP,
+/* downstate 	*/	S_MISSILEDOWN,
+/* readystate 	*/	S_MISSILE,
+/* atkstate 	*/	S_MISSILE1,
+/* flashstate 	*/	S_MISSILEFLASH1
 	},
 
 	{	/* plasma */
 /* ammo 		*/	am_cell,
-/* upstate 		*/	S_773,//S_PLASMAUP,
-/* downstate 	*/	S_772,//S_PLASMADOWN,
-/* readystate 	*/	S_771,//S_PLASMA,
-/* atkstate 	*/	S_775,//S_PLASMA1,
-/* flashstate 	*/	S_000 //S_NULL
+/* upstate 		*/	S_PLASMAUP,
+/* downstate 	*/	S_PLASMADOWN,
+/* readystate 	*/	S_PLASMA,
+/* atkstate 	*/	S_PLASMA1,
+/* flashstate 	*/	S_NULL
 	},
 
 	{	/* bfg */
 /* ammo 		*/	am_cell,
-/* upstate 		*/	S_783,//S_BFGUP,
-/* downstate 	*/	S_782,//S_BFGDOWN,
-/* readystate 	*/	S_781,//S_BFG,
-/* atkstate 	*/	S_784,//S_BFG1,
-/* flashstate 	*/	S_788 //S_BFGFLASH1
+/* upstate 		*/	S_BFGUP,
+/* downstate 	*/	S_BFGDOWN,
+/* readystate 	*/	S_BFG,
+/* atkstate 	*/	S_BFG1,
+/* flashstate 	*/	S_BFGFLASH1
 	},
 
     {	/* laser rifle */
 /* ammo 		*/	am_cell,
-/* upstate 		*/	S_793,//S_LASERUP,
-/* downstate 	*/	S_792,//S_LASERDOWN,
-/* readystate 	*/	S_791,//S_LASER,
-/* atkstate 	*/	S_794,//S_LASER1,
-/* flashstate 	*/	S_796 //S_LASERFLASH
+/* upstate 		*/	S_LASERUP,
+/* downstate 	*/	S_LASERDOWN,
+/* readystate 	*/	S_LASER,
+/* atkstate 	*/	S_LASER1,
+/* flashstate 	*/	S_LASERFLASH
 	}
 };
 
@@ -452,7 +452,7 @@ void P_FireWeapon (player_t *player) // 8001B7CC
 	if (!P_CheckAmmo (player))
 		return;
 
-	P_SetMobjState (player->mo, S_006/*S_PLAY_ATK1*/);
+	P_SetMobjState (player->mo, S_PLAY_ATK1);
 
 	player->psprites[ps_weapon].sx = WEAPONX;
 	player->psprites[ps_weapon].sy = WEAPONTOP;
@@ -578,7 +578,7 @@ void A_Lower (player_t *player, pspdef_t *psp) // 8001B9C0
     /* */
     /* [d64] clear flash graphic drawer */
     /* */
-    P_SetPsprite(player, ps_flash, S_000);
+    P_SetPsprite(player, ps_flash, S_NULL);
 
 	if (player->playerstate == PST_DEAD)
 	{
@@ -592,7 +592,7 @@ void A_Lower (player_t *player, pspdef_t *psp) // 8001B9C0
 	/* */
 	if (!player->health)
 	{	/* player is dead, so keep the weapon off screen */
-		P_SetPsprite (player,  ps_weapon, S_000);
+		P_SetPsprite (player,  ps_weapon, S_NULL);
 		return;
 	}
 
@@ -801,7 +801,7 @@ int pls_animpic = 0; // 8005AE70
 
 void A_PlasmaAnimate(player_t *player, pspdef_t *psp) // 8001BED8
 {
-    P_SetPsprite(player, ps_flash, pls_animpic + S_778);
+    P_SetPsprite(player, ps_flash, pls_animpic + S_PLASMATUBE1);
 
     if (++pls_animpic >= 3)
         pls_animpic = 0;
@@ -818,7 +818,7 @@ void A_PlasmaAnimate(player_t *player, pspdef_t *psp) // 8001BED8
 void A_FirePlasma (player_t *player, pspdef_t *psp) // 8001BF2C
 {
 	player->ammo[weaponinfo[player->readyweapon].ammo]--;
-	P_SetPsprite (player,ps_flash,S_000);
+	P_SetPsprite (player,ps_flash,S_NULL);
 	P_SpawnPlayerMissile (player->mo, MT_PROJ_PLASMA);
 }
 
@@ -935,7 +935,7 @@ void A_FireShotgun2(player_t *player, pspdef_t *psp) // 8001C210
 	int			i;
 
 	S_StartSound(player->mo, sfx_sht2fire);
-	P_SetMobjState(player->mo, S_007);
+	P_SetMobjState(player->mo, S_PLAY_ATK2);
 
 	player->ammo[weaponinfo[player->readyweapon].ammo] -= 2;
 	player->recoilpitch = RECOILPITCH;
@@ -1002,7 +1002,7 @@ void A_FireCGun (player_t *player, pspdef_t *psp) // 8001C3F8
 
     player->recoilpitch = RECOILPITCH;
 
-	P_SetPsprite (player,ps_flashalpha,weaponinfo[player->readyweapon].flashstate + psp->state - &states[S_756/*S_CHAIN1*/]);
+	P_SetPsprite (player,ps_flashalpha,weaponinfo[player->readyweapon].flashstate + psp->state - &states[S_CHAIN1]);
     P_BulletSlope(player->mo);
 
 	player->psprites[ps_flashalpha].alpha = 160;

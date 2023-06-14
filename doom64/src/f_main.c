@@ -648,7 +648,7 @@ int F_Ticker(void) // 80003258
                 if (--casttics > 0)
                     return ga_nothing;  /* not time to change state yet */
 
-				if (castdeath && caststate->nextstate == S_000) // S_NULL
+				if (castdeath && caststate->nextstate == S_NULL)
 				{
 					/* switch from deathstate to next monster */
 					castrotation = 0;
@@ -682,7 +682,7 @@ int F_Ticker(void) // 80003258
 
                         castonmelee ^= 1;
 
-                        if (caststate == &states[S_000]) // S_NULL
+                        if (caststate == &states[S_NULL])
                         {
                             if (castonmelee)
                                 caststate = &states[mobjinfo[castorder[castnum].type].meleestate];
@@ -692,7 +692,7 @@ int F_Ticker(void) // 80003258
                     }
 
                     if (((castframes == 20) && (castorder[castnum].type == MT_MANCUBUS)) ||
-                          castframes == 24 || caststate == &states[S_001])//S_PLAY
+                          castframes == 24 || caststate == &states[S_PLAY])
                     {
                         caststate = &states[mobjinfo[castorder[castnum].type].seestate];
                         castframes = 0;
@@ -707,54 +707,54 @@ int F_Ticker(void) // 80003258
                 st = ((int)caststate - (int)states) / sizeof(state_t);
                 switch (st)
                 {
-                    case S_007: // S_PLAY_ATK2
+                    case S_PLAY_ATK2:
                         sfx = sfx_sht2fire; // sfx_dshtgn
                         break;
 
-                    case S_055: // S_SARG_ATK2
+                    case S_SARG_ATK2:
                         sfx = sfx_sargatk; // sfx_sgtatk
                         break;
 
-                    case S_084: // S_FATT_ATK8
-                    case S_086: // S_FATT_ATK5
-                    case S_088: // S_FATT_ATK2
+                    case S_FATT_ATK2:
+                    case S_FATT_ATK4:
+                    case S_FATT_ATK6:
                         sfx = sfx_bdmissile; // sfx_firsht
                         break;
 
-                    case S_109: // S_POSS_ATK2
+                    case S_POSS_ATK2:
                         sfx = sfx_pistol;
                         break;
 
-                    case S_138: // S_SPOS_ATK2
+                    case S_SPOS_ATK2:
                         sfx = sfx_shotgun; // sfx_shotgn
                         break;
 
-                    case S_166:   // S_TROO_ATK3
+                    case S_TROO_MELEE1:
                         sfx = sfx_scratch; // sfx_claw
                         break;
 
-                    case S_169: // S_TROO_ATK
-                    case S_199: // S_HEAD_ATK2
-                    case S_222: // S_BOSS_ATK2
-                    case S_243: // S_BOS2_ATK2
+                    case S_TROO_ATK1:
+                    case S_HEAD_ATK1:
+                    case S_BOSS_ATK1:
+                    case S_BOS2_ATK1:
                         sfx = sfx_bdmissile; // sfx_firsht
                         break;
 
-                    case S_261: // S_SKULL_ATK2
+                    case S_SKULL_ATK2:
                         sfx = sfx_skullatk; // sfx_sklatk
                         break;
 
-                    case S_288: // S_BSPI_ATK2
+                    case S_BSPI_ATK2:
                         sfx = sfx_plasma; // sfx_plasma
                         break;
 
-                    case S_307: // S_CYBER_ATK2
-                    case S_309: // S_CYBER_ATK4
-                    case S_311: // S_CYBER_ATK6
+                    case S_CYBER_ATK1:
+                    case S_CYBER_ATK3:
+                    case S_CYBER_ATK5:
                         sfx = sfx_missile; // sfx_rlaunc
                         break;
 
-                    case S_328: // S_PAIN_ATK3
+                    case S_PAIN_ATK1:
                         sfx = sfx_skullatk; // sfx_sklatk
                         break;
 

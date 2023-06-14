@@ -178,11 +178,11 @@ void G_InitSkill (skill_t skill) // [Immorpher] initialize skill
 	if (skill >= sk_nightmare)
 	{
 		// Faster enemies
-		states[S_054].tics = 4; // S_SARG_ATK1
-		states[S_055].tics = 4; // S_SARG_ATK2
-		states[S_056].tics = 4; // S_SARG_ATK3
-		mobjinfo[MT_DEMON1].speed = 24; // MT_DEMON1
-		mobjinfo[MT_DEMON2].speed = 24; // MT_DEMON2
+		states[S_SARG_ATK1].tics = 4;
+		states[S_SARG_ATK2].tics = 4;
+		states[S_SARG_ATK3].tics = 4;
+		mobjinfo[MT_DEMON1].speed = 24;
+		mobjinfo[MT_DEMON2].speed = 24;
 		mobjinfo[MT_MANCUBUS].speed = 14;
 		mobjinfo[MT_POSSESSED1].speed = 14;
 		mobjinfo[MT_POSSESSED2].speed = 14;
@@ -256,11 +256,11 @@ void G_InitSkill (skill_t skill) // [Immorpher] initialize skill
 	else
 	{
 		// Restore enemy speeds
-		states[S_054].tics = 8; // S_SARG_ATK1
-		states[S_055].tics = 8; // S_SARG_ATK2
-		states[S_056].tics = 8; // S_SARG_ATK3
-		mobjinfo[MT_DEMON1].speed = 12; // MT_SERGEANT
-		mobjinfo[MT_DEMON2].speed = 12; // MT_SERGEANT2
+		states[S_SARG_ATK1].tics = 8;
+		states[S_SARG_ATK2].tics = 8;
+		states[S_SARG_ATK3].tics = 8;
+		mobjinfo[MT_DEMON1].speed = 12;
+		mobjinfo[MT_DEMON2].speed = 12;
 		mobjinfo[MT_MANCUBUS].speed = 8;
 		mobjinfo[MT_POSSESSED1].speed = 8;
 		mobjinfo[MT_POSSESSED2].speed = 8;

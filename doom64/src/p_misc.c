@@ -891,7 +891,7 @@ int P_AlertTaggedMobj(int tid, mobj_t *activator) // 8000F6C4
         if(mo->tid != tid)
             continue; /* not matching the tid */
 
-        if(mo->info->seestate == S_000)
+        if(mo->info->seestate == S_NULL)
             continue;
 
         mo->threshold = 0;
