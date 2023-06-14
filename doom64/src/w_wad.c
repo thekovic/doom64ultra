@@ -24,7 +24,7 @@ typedef struct
 
 static lumpcache_t	*lumpcache;				//800B2220
 static int			numlumps;				//800B2224
-static lumpinfo_t	*lumpinfo;				//800B2228 /* points directly to rom image */
+lumpinfo_t	*lumpinfo;				//800B2228 /* points directly to rom image */
 
 static int          mapnumlumps;			//800B2230 psxdoom/doom64
 static lumpinfo_t   *maplump;				//800B2234 psxdoom/doom64

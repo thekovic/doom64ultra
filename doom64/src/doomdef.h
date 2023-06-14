@@ -743,7 +743,7 @@ typedef struct {
     void       *cache;
 } lumpcache_t;
 
-//extern	lumpinfo_t	*lumpinfo;		/* points directly to rom image */
+extern	lumpinfo_t	*lumpinfo;		/* points directly to rom image */
 //extern	int			numlumps;
 //extern	lumpcache_t	*lumpcache;
 //extern	byte		*mapfileptr;	// psxdoom/d64

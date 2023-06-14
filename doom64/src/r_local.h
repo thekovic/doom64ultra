@@ -366,7 +366,7 @@ extern	int skytexture;
 //extern	int			firstflat, lastflat,  numflats;
 //extern	psxobj_t	*texflats;
 
-extern	int firstsprite, lastsprite, numsprites;
+extern	int firstspritelump, lastspritelump, numspritelumps;
 //extern	int *texsprites;
 
 //#define MAX_PALETTES 26 //Final Doom 20 to 26
