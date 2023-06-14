@@ -1337,6 +1337,13 @@ int M_MenuTicker(void) // 80007E0C
                             players[0].weaponowned[i] = true;
                         }
 
+			if (!players[0].backpack)
+			{
+			    for (i=0 ; i<NUMAMMO ; i++)
+				players[0].maxammo[i] *= 2;
+			    players[0].backpack = true;
+			}
+
                         for(i = 0; i < NUMAMMO; i++) {
                             players[0].ammo[i] = players[0].maxammo[i];
                         }
