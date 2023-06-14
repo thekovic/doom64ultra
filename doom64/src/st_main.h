@@ -46,4 +46,4 @@ void ST_DrawSymbol(int xpos, int ypos, int index, int color); // 8002ADEC
 
 // Debug
 void ST_DebugSetPrintPos(int x, int y);
-void ST_DebugPrint(const char *text, ...);
+void ST_DebugPrint(const char *text, ...) __attribute__ ((format (printf, 1, 2)));

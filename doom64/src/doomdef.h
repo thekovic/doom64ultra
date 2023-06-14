@@ -1096,7 +1096,7 @@ void I_Main(void *arg); // 80005710
 void I_SystemTicker(void *arg); // 80005730
 void I_Init(void); // 80005C50
 
-void I_Error(char *error, ...); // 80005F30
+void I_Error(char *error, ...) __attribute__ ((format (printf, 1, 2)));
 int I_GetControllerData(void); // 800060D0
 
 void I_CheckGFX(void); // 800060E8

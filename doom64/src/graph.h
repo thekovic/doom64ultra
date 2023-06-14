@@ -47,7 +47,7 @@ extern	void	putpattern(u32, int, int, char);
 extern	u16	*__cursor;
 extern	u32	__color;
 
-extern	void	PRINTF_D(u32 color_, char *c_, ...);
-extern	void	PRINTF_D2(u32 color_, int x, int y, char *c_, ...);
+extern	void	PRINTF_D(u32 color_, char *c_, ...) __attribute__ ((format (printf, 2, 3)));
+extern	void	PRINTF_D2(u32 color_, int x, int y, char *c_, ...) __attribute__ ((format (printf, 4, 5)));
 extern	void	WAIT(void);
 #endif
