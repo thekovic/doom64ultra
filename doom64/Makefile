@@ -31,12 +31,14 @@ BOOT_OBJ	:= $(BUILD_DIR)/boot.6102.o
 # Directories containing source files
 SRC_DIRS += src asm
 
-C_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c))
+C_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c)) audio_heap.c cfb.c mem_heap.c
 S_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.s))
 
 # Object files
 O_FILES := $(foreach file,$(C_FILES),$(BUILD_DIR)/$(file:.c=.o)) \
            $(foreach file,$(S_FILES),$(BUILD_DIR)/$(file:.s=.o)) \
+		   $(BUILD_DIR)/DOOM64.WAD.o $(BUILD_DIR)/DOOM64.WDD.o \
+			 $(BUILD_DIR)/DOOM64.WMD.o $(BUILD_DIR)/DOOM64.WSD.o \
 		   $(BOOT_OBJ)
 
 # Automatic dependency files
@@ -101,6 +103,9 @@ DUMMY != mkdir -p $(ALL_DIRS)
 #==============================================================================#
 # Compilation Recipes                                                          #
 #==============================================================================#
+
+$(BUILD_DIR)/DOOM64.%.o: Data/DOOM64.%
+	$(LD) -r -b binary $< -o $@
 
 # Compile C code
 $(BUILD_DIR)/%.o: %.c

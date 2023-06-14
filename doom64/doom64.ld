@@ -102,25 +102,25 @@ SECTIONS
    END_NOLOAD(mem_heap) 
 
    BEGIN_SEG(doom64_wad,_RomSize) {
-      "Data/DOOM64.WAD.o"
+      "build/DOOM64.WAD.o"
    }   
    END_SEG(doom64_wad)
    _RomSize += SIZEOF(.doom64_wad); 
 
    BEGIN_SEG(doom64_wmd,_RomSize) {
-      "Data/DOOM64.WMD.o"
+      "build/DOOM64.WMD.o"
    }   
    END_SEG(doom64_wmd)
    _RomSize += SIZEOF(.doom64_wmd); 
 
    BEGIN_SEG(doom64_wsd,_RomSize) {
-      "Data/DOOM64.WSD.o"
+      "build/DOOM64.WSD.o"
    }   
    END_SEG(doom64_wsd)
    _RomSize += SIZEOF(.doom64_wsd); 
 
    BEGIN_SEG(doom64_wdd,_RomSize) {
-      "Data/DOOM64.WDD.o"
+      "build/DOOM64.WDD.o"
    }   
    END_SEG(doom64_wdd)
 
