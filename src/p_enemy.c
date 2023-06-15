@@ -338,7 +338,7 @@ boolean P_LookForPlayers (mobj_t *actor, boolean allaround) // 8001115C
 	mo = actor->target;
 	if (!mo || mo->health <= 0 || !(actor->flags & MF_SEETARGET))
 	{
-		if(actor->type > MT_PLAYERBOT3)   /* for monsters with immorpher fun for intro at skill 6 */
+        if(actor->type > MT_PLAYERBOT3)   /* for monsters with immorpher fun for intro at skill 6 */
         {
             actor->target = players[0].mo;
         }
@@ -1307,7 +1307,7 @@ void A_PainShootSkull(mobj_t *actor, angle_t angle) // 8001267C
 	count = 0;
 	for (mo=mobjhead.next ; mo != &mobjhead ; mo=mo->next)
 	{
-		if ((mo->type == MT_SKULL))
+		if (mo->type == MT_SKULL)
         {
             count++;
 

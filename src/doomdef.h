@@ -648,10 +648,6 @@ fixed_t FixedDiv2(fixed_t a, fixed_t b);
 //extern fixed_t FixedDiv3 (fixed_t a, fixed_t b);// ASM MIPS CODE
 
 #ifdef __BIG_ENDIAN__
-#define __BIG_ENDIAN__
-#endif
-
-#ifdef __BIG_ENDIAN__
 
 #define	LONGSWAP(x)   (x)
 #define	LITTLESHORT(x)  (x)
