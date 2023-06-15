@@ -277,18 +277,18 @@ menuitem_t Menu_Features[MAXFEATURES] = // 8005AB64
     { 24, 40, 60},      // INVULNERABLE
     { 25, 40, 70},      // HEALTH BOOST
     { 27, 40, 80},      // WEAPONS
-    { 85, 40, 100},      // ARTIFACTS
-    { 37, 40, 90},      // MAP EVERYTHING
+    { 85, 40, 90},      // ARTIFACTS
+    { 37, 40, 100},      // MAP EVERYTHING
     //
-    { 26, 40, 100},      // SECURITY KEYS
-    { 31, 40, 110},      // WALL BLOCKING
-    { 35, 40, 120},      // LOCK MONSTERS
-    { 39, 40, 130},      // MUSIC TEST
+    { 26, 40, 110},      // SECURITY KEYS
+    { 31, 40, 120},      // WALL BLOCKING
+    { 35, 40, 130},      // LOCK MONSTERS
+    { 39, 40, 140},      // MUSIC TEST
     //
-    { 48, 40, 140},      // COLORS [GEC] NEW CHEAT CODE
-    { 49, 40, 150},      // FULL BRIGHT [GEC] NEW CHEAT CODE
-    { 68, 40, 160},      // Gamma correction [Immorpher] NEW CHEAT CODE
-	{ 69, 40, 180},      // [Immorpher] Merciless Edition Credits
+    { 48, 40, 150},      // COLORS [GEC] NEW CHEAT CODE
+    { 49, 40, 160},      // FULL BRIGHT [GEC] NEW CHEAT CODE
+    { 68, 40, 170},      // Gamma correction [Immorpher] NEW CHEAT CODE
+	{ 69, 40, 190},      // [Immorpher] Merciless Edition Credits
 };
 
 menuitem_t Merciless_Credits[15] = // 8005AB64
