@@ -1,5 +1,9 @@
 # Makefile to build doom64
 
+N64_SDK       ?= /opt/crashsdk
+N64_LIBGCCDIR ?= $(N64_SDK)/lib/gcc/mips64-elf/12.2.0
+N64_BINDIR    ?= $(N64_SDK)/bin
+
 TARGET_STRING := doom64
 TARGET := $(TARGET_STRING)
 
@@ -17,11 +21,16 @@ endif
 # Whether to colorize build messages
 COLOR ?= 1
 
+ #ifeq (, $(shell which lzop))
+     #$(error "No lzop in $(PATH), consider doing apt-get install lzop")
+      #endif
+
+
 #==============================================================================#
 # Target Executable and Sources                                                #
 #==============================================================================#
 # BUILD_DIR is the location where all build artifacts are placed
-BUILD_DIR := build
+BUILD_DIR ?= build
 ROM            := $(BUILD_DIR)/$(TARGET_STRING).z64
 ELF            := $(BUILD_DIR)/$(TARGET_STRING).elf
 LD_SCRIPT      := $(TARGET_STRING).ld
@@ -29,9 +38,9 @@ BOOT		:= /usr/lib/n64/PR/bootcode/boot.6102
 BOOT_OBJ	:= $(BUILD_DIR)/boot.6102.o
 
 # Directories containing source files
-SRC_DIRS += src asm
+SRC_DIRS += src src/buffers src/asm
 
-C_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c)) audio_heap.c cfb.c mem_heap.c
+C_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c))
 S_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.s))
 
 # Object files
@@ -48,15 +57,15 @@ DEP_FILES := $(O_FILES:.o=.d) $(ASM_O_FILES:.o=.d)  $(BUILD_DIR)/$(LD_SCRIPT).d
 # Compiler Options                                                             #
 #==============================================================================#
 
-AS        := mips-n64-as
-CC        := mips-n64-gcc
+AS        := $(N64_BINDIR)/mips-n64-as
+CC        := $(N64_BINDIR)/mips-n64-gcc
 CPP       := cpp
-LD        := mips-n64-ld
-AR        := mips-n64-ar
-OBJDUMP   := mips-n64-objdump
-OBJCOPY   := mips-n64-objcopy
+LD        := $(N64_BINDIR)/mips-n64-ld
+AR        := $(N64_BINDIR)/mips-n64-ar
+OBJDUMP   := $(N64_BINDIR)/mips-n64-objdump
+OBJCOPY   := $(N64_BINDIR)/mips-n64-objcopy
 
-INCLUDE_DIRS += /usr/include/n64 /usr/include/n64/PR include $(BUILD_DIR) $(BUILD_DIR)/include src
+INCLUDE_DIRS += /usr/include/n64 /usr/include/n64/PR $(BUILD_DIR) $(BUILD_DIR)/include src src/asm
 
 C_DEFINES := $(foreach d,$(DEFINES),-D$(d))
 DEF_INC_CFLAGS := $(foreach i,$(INCLUDE_DIRS),-I$(i)) $(C_DEFINES)
@@ -104,7 +113,7 @@ DUMMY != mkdir -p $(ALL_DIRS)
 # Compilation Recipes                                                          #
 #==============================================================================#
 
-$(BUILD_DIR)/DOOM64.%.o: Data/DOOM64.%
+$(BUILD_DIR)/DOOM64.%.o: data/DOOM64.%
 	$(LD) -r -b binary $< -o $@
 
 # Compile C code

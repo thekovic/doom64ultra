@@ -33,7 +33,7 @@ SECTIONS
 
    BEGIN_SEG(boot, 0x04000000)
    {
-      BUILD_DIR/asm/rom_header.o(.text); /* ROM Header */
+      BUILD_DIR/src/asm/rom_header.o(.text); /* ROM Header */
       BUILD_DIR/boot.6102.o(.data); /* CIC 6102 bootcode */
    }
    END_SEG(boot)
@@ -42,7 +42,7 @@ SECTIONS
 
    BEGIN_SEG(code, 0x80000400) SUBALIGN(16)
    {
-      BUILD_DIR/asm/entry.o(.start);
+      BUILD_DIR/src/asm/entry.o(.start);
       BUILD_DIR/src*.o(.text);
 
       */libultra_rom.a:*.o(.text);
@@ -85,19 +85,19 @@ SECTIONS
 
    BEGIN_NOLOAD(cfb) 
    { 
-      BUILD_DIR/cfb.o(.bss*);
+      BUILD_DIR/src/buffers/cfb.o(.bss*);
    } 
    END_NOLOAD(cfb) 
 
    BEGIN_NOLOAD(audio_heap) 
    { 
-      BUILD_DIR/audio_heap.o(.bss*);
+      BUILD_DIR/src/buffers/audio_heap.o(.bss*);
    } 
    END_NOLOAD(audio_heap) 
 
    BEGIN_NOLOAD(mem_heap) 
    { 
-      BUILD_DIR/mem_heap.o(.bss*);
+      BUILD_DIR/src/buffers/mem_heap.o(.bss*);
    } 
    END_NOLOAD(mem_heap) 
 

@@ -107,8 +107,8 @@ int EV_SpawnTrapMissile(line_t *line, mobj_t *target, mobjtype_t type) // 8000E0
 
         angle = mo->angle;
         angle >>= ANGLETOFINESHIFT;
-        x = finecosine[angle];
-        y = finesine[angle];
+        x = finecosine(angle);
+        y = finesine(angle);
 
         if(type == MT_PROJ_TRACER)
         {

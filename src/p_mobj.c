@@ -186,7 +186,7 @@ mobj_t *P_SpawnMapThing (mapthing_t *mthing) // 80018C24
 
 	if (mthing->options & MTF_NIGHTMARE) {
 		mobj->health *= 2;
-		mobj->flags |= MF_NIGHTMARE;
+		mobj->flags |= MTF_NIGHTMARE;
 	}
 
     if (mthing->options & MTF_SECRET)
@@ -452,9 +452,9 @@ mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yof
 		}
 	}
 
-	if (source && source->flags & MF_NIGHTMARE)
+	if (source && source->flags & MTF_NIGHTMARE)
 	{
-        th->flags |= MF_NIGHTMARE;
+        th->flags |= MTF_NIGHTMARE;
         speed *= 2;
     }
 

@@ -877,7 +877,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
             lump = vissprite_p->lump;
             flip = vissprite_p->flip;
 
-            if (thing->flags & MF_NIGHTMARE)
+            if (thing->flags & MTF_NIGHTMARE)
             {
                 color = PACKRGBA(64, 255, 0, 255);
                 gDPSetRenderMode(GFX1++, G_RM_XLU_SURF_CLAMP, G_RM_XLU_SURF2_ADD);
@@ -1076,7 +1076,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
 
             vissprite_p = vissprite_p->next;
 
-            if (thing->flags & MF_NIGHTMARE)
+            if (thing->flags & MTF_NIGHTMARE)
             {
                 gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_TEX_EDGE2);
             }
