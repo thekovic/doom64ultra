@@ -77,7 +77,7 @@ void T_VerticalDoor (vldoor_t *door) // 800104A0
 					case BlazeClose:
 						door->sector->specialdata = NULL;
 						P_RemoveThinker(&door->thinker);  /* unlink and free */
-						S_StartSound((mobj_t *)&door->sector->soundorg, 80/*sfx_bdcls*/);
+                        // [nova] fix door sound playing twice
 						break;
 					case Normal:
 					case DoorClose:
