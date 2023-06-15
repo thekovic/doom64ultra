@@ -123,7 +123,7 @@ void run_queue_wess_handle_noteon(void) // 80034708
 void queue_wess_handle_noteon(int handle, int track, char keynum, char velnum) // 80034768
 {
 	track_status *ptmp;
-	char *ppos;
+	u8 *ppos;
 
 	int _handle;
 	int _track;
@@ -146,7 +146,7 @@ void queue_wess_handle_noteon(int handle, int track, char keynum, char velnum) /
 			ppos = ptmp->ppos;
 
 			// set tmp buffer ppos
-			ptmp->ppos = scratch_area;
+			ptmp->ppos = (u8*)scratch_area;
 			ptmp->ppos[0] = NoteOn;
 			ptmp->ppos[1] = _keynum;
 			ptmp->ppos[2] = _velnum;
@@ -286,7 +286,7 @@ void run_queue_wess_handle_parm_mod(void) // 80034C48
 void queue_wess_handle_parm_mod(int handle, int track, int value, WessAction function) // 80034CA8
 {
 	track_status *ptmp;
-	char *ppos;
+	//char *ppos;
 
 	int _handle;
 	int _track;

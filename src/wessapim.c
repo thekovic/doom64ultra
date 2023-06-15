@@ -101,17 +101,17 @@ void queue_wess_master_sfx_vol_set(char volume) // 800311FC
 				lpdest = psq_stat->ptrk_indxs;
 				while (lj--)
 				{
-					if (*lpdest != 0xFF)
+					if (*lpdest != (char) 0xFF)
 					{
 						ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 
 						if (ptmp->sndclass == SNDFX_CLASS)
 						{
 							//save
-							ppos = ptmp->ppos;
+							ppos = (char*) ptmp->ppos;
 
 							// set tmp buffer ppos
-							ptmp->ppos = tmpppos;
+							ptmp->ppos = (u8 *) tmpppos;
 							ptmp->ppos[0] = VolumeMod;
 							ptmp->ppos[1] = ptmp->volume_cntrl;
 							ptmp->volume_cntrl = 0;
@@ -119,7 +119,7 @@ void queue_wess_master_sfx_vol_set(char volume) // 800311FC
 							CmdFuncArr[ptmp->patchtype][VolumeMod](ptmp);
 
 							//restore
-							ptmp->ppos = ppos;
+							ptmp->ppos = (u8 *) ppos;
 						}
 						if (!--li) break;
 					}
@@ -198,17 +198,17 @@ void queue_wess_master_mus_vol_set(char volume) // 80031448
 				lpdest = psq_stat->ptrk_indxs;
 				while (lj--)
 				{
-					if (*lpdest != 0xFF)
+					if (*lpdest != (char) 0xFF)
 					{
 						ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 
 						if (ptmp->sndclass == MUSIC_CLASS)
 						{
 							//save
-							ppos = ptmp->ppos;
+							ppos = (char*) ptmp->ppos;
 
 							// set tmp buffer ppos
-							ptmp->ppos = tmpppos;
+							ptmp->ppos = (u8 *) tmpppos;
 							ptmp->ppos[0] = VolumeMod;
 							ptmp->ppos[1] = ptmp->volume_cntrl;
 							ptmp->volume_cntrl = 0;
@@ -216,7 +216,7 @@ void queue_wess_master_mus_vol_set(char volume) // 80031448
 							CmdFuncArr[ptmp->patchtype][VolumeMod](ptmp);
 
 							//restore
-							ptmp->ppos = ppos;
+							ptmp->ppos = (u8 *) ppos;
 						}
 						if (!--li) break;
 					}

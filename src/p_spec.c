@@ -833,7 +833,7 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
                   (line->special & MLU_SHOOT && actionType == 2)))
                 return false;
         }
-	}
+    }
     else
     {
         if(line->special & MLU_BLUE) /* Blue Card Lock */
@@ -891,7 +891,7 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
         */
 // weird condition the << specifically
         if ((actionType == 90 || actionType == 91 || actionType == 92) &&
-           !((player->artifacts & 1) << ((actionType + 6) & 0x1f)))
+           ((player->artifacts & 1) << ((actionType + 6) & 0x1f)) == 0)
         {
             player->message = "You lack the ability to activate it.";
             player->messagetic = MSGTICS;

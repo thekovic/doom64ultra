@@ -49,8 +49,8 @@ void wess_seq_trigger_type_special(int seq_num, unsigned long seq_type, TriggerP
 void updatetrackstat(track_status *ptk_stat, TriggerPlayAttr *attr) // 800321FC
 {
 	int tempmask;
-	char *temp;
-	char tmpppos[4];
+	u8 *temp;
+	u8 tmpppos[4];
 
 	if ((attr == NULL) || (!attr->mask))
 		return;
@@ -200,7 +200,7 @@ void queue_wess_seq_update_type_special(unsigned long seq_type, TriggerPlayAttr 
 					lpdest = psq_stat->ptrk_indxs;
 					while (lj--)
 					{
-						if (*lpdest != 0xFF)
+						if (*lpdest != (char) 0xFF)
 						{
 							ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 							if (_attr != 0)
@@ -365,7 +365,7 @@ void queue_wess_seq_stoptype(unsigned long sequence_type, enum MuteRelease mrele
 	track_status *ptmp;
 	char *lpdest;
 	int li, lj;
-	int get_millisec;
+	int get_millisec = 0;
 
 	unsigned long _sequence_type;
 	enum MuteRelease _mrelease;
@@ -411,7 +411,7 @@ void queue_wess_seq_stoptype(unsigned long sequence_type, enum MuteRelease mrele
 						lpdest = psq_stat->ptrk_indxs;
 						while (lj--)
 						{
-							if (*lpdest != 0xFF)
+							if (*lpdest != (char) 0xFF)
 							{
 								ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 								CmdFuncArr[ptmp->patchtype][TrkOff](ptmp);

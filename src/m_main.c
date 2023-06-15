@@ -460,7 +460,7 @@ int M_RunTitle(void) // 80007630
     if (exit == ga_timeout)
         return ga_timeout;
 
-    G_InitNew(startskill, startmap, ga_nothing);
+    G_InitNew(startskill, startmap, gt_single);
     G_RunGame();
 
     return 0;
@@ -2955,20 +2955,19 @@ int M_SavePakTicker(void) // 8000A804
         if ((buttons != oldbuttons) && (buttons == (PAD_RIGHT_C|PAD_LEFT_C)))
         {
             // save the next level number and password data in text format
-			if (gameskill == sk_baby) {
-				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - bg", nextmap);
-			} else if (gameskill == sk_easy) {
-				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - bio", nextmap);
-			} else if (gameskill == sk_medium) {
-				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - iod", nextmap);
-			} else if (gameskill == sk_hard) {
-				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - wmd", nextmap);
-			} else if (gameskill == sk_nightmare) {
-				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d - bm", nextmap);
-			} else {
-				sprintf(&Pak_Data[cursorpos * 32], "level %2.2d", nextmap);
-			}
-			
+            if (gameskill == sk_baby) {
+                sprintf((char*) &Pak_Data[cursorpos * 32], "level %2.2d - bg", nextmap);
+            } else if (gameskill == sk_easy) {
+                sprintf((char*) &Pak_Data[cursorpos * 32], "level %2.2d - bio", nextmap);
+            } else if (gameskill == sk_medium) {
+                sprintf((char*) &Pak_Data[cursorpos * 32], "level %2.2d - iod", nextmap);
+            } else if (gameskill == sk_hard) {
+                sprintf((char*) &Pak_Data[cursorpos * 32], "level %2.2d - wmd", nextmap);
+            } else if (gameskill == sk_nightmare) {
+                sprintf((char*) &Pak_Data[cursorpos * 32], "level %2.2d - bm", nextmap);
+            } else {
+                sprintf((char*) &Pak_Data[cursorpos * 32], "level %2.2d", nextmap);
+            }
             D_memcpy(&Pak_Data[(cursorpos * 32) + 16], &Passwordbuff, 16);
 
             if (I_SavePakFile(File_Num, PFS_WRITE, Pak_Data, Pak_Size) == 0) {

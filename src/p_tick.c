@@ -106,7 +106,7 @@ void P_RunThinkers (void) // 800217C8
             {
                 if (currentthinker->function)
                 {
-                    currentthinker->function (currentthinker);
+                    ((void (*)(void *)) currentthinker->function) (currentthinker);
                 }
                 //activethinkers++;
             }
@@ -280,11 +280,15 @@ void P_Drawer (void) // 80021AC8
 	gMoveWd(GFX1++, G_MW_CLIP, G_MWO_CLIP_RPY, 65535);
 	gMoveWd(GFX1++, G_MW_PERSPNORM, G_MWO_MATRIX_XX_XY_I, 68);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
 	// create a projection matrix
     gSPMatrix(GFX1++, OS_K0_TO_PHYSICAL(&R_ProjectionMatrix), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
 
     // create a model matrix
     gSPMatrix(GFX1++, OS_K0_TO_PHYSICAL(&R_ModelMatrix), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+
+#pragma GCC diagnostic pop
 
 	if (players[0].automapflags & (AF_LINES|AF_SUBSEC))
     {

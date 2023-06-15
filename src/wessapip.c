@@ -46,9 +46,9 @@ void wess_seq_pause(int sequence_number, enum MuteFlag mflag) // 800316F0
 {
 	char nt, na;
 	sequence_status *psq_stat;
-	track_status *ptmp;
-	char *lpdest;
-	int li, lj;
+	//track_status *ptmp;
+	//char *lpdest;
+	//int li, lj;
 
 	int _sequence_number;
 	enum MuteFlag _mflag;
@@ -147,7 +147,7 @@ void queue_wess_seq_pause(int sequence_number, enum MuteFlag mflag) // 800317F8
 						lpdest = psq_stat->ptrk_indxs;
 						while (lj--)
 						{
-							if (*lpdest != 0xFF)
+							if (*lpdest != (char) 0xFF)
 							{
 								ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 								trackstop(ptmp, psq_stat);
@@ -174,9 +174,9 @@ void wess_seq_restart(int sequence_number) // 800319C4
 {
 	char nt, na;
 	sequence_status *psq_stat;
-	track_status *ptmp;
-	char *lpdest;
-	int li, lj;
+	//track_status *ptmp;
+	//char *lpdest;
+	//int li, lj;
 
 	int _sequence_number;
 
@@ -267,7 +267,7 @@ void queue_wess_seq_restart(int sequence_number) // 80031AAC
 						lpdest = psq_stat->ptrk_indxs;
 						while (lj--)
 						{
-							if (*lpdest != 0xFF)
+							if (*lpdest != (char) 0xFF)
 							{
 								ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 								trackstart(ptmp, psq_stat);
@@ -290,9 +290,9 @@ void wess_seq_pauseall(enum MuteFlag mflag, int remember) // 80031C14
 {
 	char nt, na;
 	sequence_status *psq_stat;
-	track_status *ptmp;
-	char *lpdest;
-	int li, lj;
+	//track_status *ptmp;
+	//char *lpdest;
+	//int li, lj;
 
 	enum MuteFlag _mflag;
 	int _remember;
@@ -391,7 +391,7 @@ void queue_wess_seq_pauseall(enum MuteFlag mflag, int remember) // 80031D0C
 					lpdest = psq_stat->ptrk_indxs;
 					while (lj--)
 					{
-						if (*lpdest != 0xFF)
+						if (*lpdest != (char) 0xFF)
 						{
 							ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 							trackstop(ptmp, psq_stat);
@@ -423,9 +423,9 @@ void wess_seq_restartall(enum VoiceRestartFlag restart_remembered_voices) // 800
 {
 	char nt, na;
 	sequence_status *psq_stat;
-	track_status *ptmp;
-	char *lpdest;
-	int li, lj, ncnt, nc;
+	//track_status *ptmp;
+	//char *lpdest;
+	//int li, lj, ncnt, nc;
 
 	enum VoiceRestartFlag _restart_remembered_voices;
 
@@ -480,7 +480,7 @@ void queue_wess_seq_restartall(enum VoiceRestartFlag restart_remembered_voices) 
 	sequence_status *psq_stat;
 	track_status *ptmp;
 	char *lpdest;
-	int li, lj, ncnt, nc;
+	int li, lj; /*, ncnt, nc; */
 
 	enum VoiceRestartFlag _restart_remembered_voices;
 
@@ -514,7 +514,7 @@ void queue_wess_seq_restartall(enum VoiceRestartFlag restart_remembered_voices) 
 					lpdest = psq_stat->ptrk_indxs;
 					while (lj--)
 					{
-						if (*lpdest != 0xFF)
+						if (*lpdest != (char) 0xFF)
 						{
 							ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 							trackstart(ptmp, psq_stat);

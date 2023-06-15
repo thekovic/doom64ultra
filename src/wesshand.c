@@ -69,7 +69,7 @@ track_status *gethandletrk(int handle, int track) // 80032EE0
 		hindx = handle - 1;
 		if ((psq = (pm_stat->pseqstattbl + hindx))->flags & SEQ_HANDLE)
 		{
-			if (*(psq->ptrk_indxs + track) != 0xFF)
+			if (*(psq->ptrk_indxs + track) != (char) 0xFF)
 			{
 				if ((ptrk = pm_stat->ptrkstattbl + *(psq->ptrk_indxs + track))->flags & TRK_HANDLED)
 				{
@@ -145,7 +145,7 @@ void wess_handle_return(int handle) // 80033048
 		lpdest = psq_stat->ptrk_indxs;
 		while (lj--)
 		{
-			if (*lpdest != 0xFF)
+			if (*lpdest != (char) 0xFF)
 			{
 				ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 				ptmp->flags &= ~TRK_HANDLED;
@@ -193,7 +193,7 @@ void wess_handle_play_special(int handle, TriggerPlayAttr *attr) // 80033180
 		lpdest = psq_stat->ptrk_indxs;
 		while (lj--)
 		{
-			if (*lpdest != 0xFF)
+			if (*lpdest != (char) 0xFF)
 			{
 				ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 				trackstart(ptmp, psq_stat);
@@ -288,7 +288,7 @@ void wess_handle_get_special(int handle, TriggerPlayAttr *attr) // 80033364
 		lpdest = psq_stat->ptrk_indxs;
 		while (lj--)
 		{
-			if (*lpdest != 0xFF)
+			if (*lpdest != (char) 0xFF)
 			{
 				ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 				trackgetspecial(ptmp, _attr);
@@ -333,7 +333,7 @@ void wess_handle_set_special(int handle, TriggerPlayAttr *attr) // 80033454
 		lpdest = psq_stat->ptrk_indxs;
 		while (lj--)
 		{
-			if (*lpdest != 0xFF)
+			if (*lpdest != (char) 0xFF)
 			{
 				ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 				tracksetspecial(ptmp, _attr);
@@ -376,7 +376,7 @@ void wess_handle_stop(int handle) // 80033544
 		lpdest = psq_stat->ptrk_indxs;
 		while (lj--)
 		{
-			if (*lpdest != 0xFF)
+			if (*lpdest != (char) 0xFF)
 			{
 				ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 				CmdFuncArr[ptmp->patchtype][TrkOff](ptmp);
@@ -423,7 +423,7 @@ void wess_handle_fastsettempo(int handle, short tempo) // 80033658
 		lpdest = psq_stat->ptrk_indxs;
 		while (lj--)
 		{
-			if (*lpdest != 0xFF)
+			if (*lpdest != (char) 0xFF)
 			{
 				ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 				ptmp->qpm = _tempo;
@@ -475,14 +475,14 @@ void wess_handle_resetposition(int handle) // 800337B0
 		lpdest = psq_stat->ptrk_indxs;
 		while (lj--)
 		{
-			if (*lpdest != 0xFF)
+			if (*lpdest != (char) 0xFF)
 			{
 				ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 				CmdFuncArr[ptmp->patchtype][TrkMute](ptmp);
 
 				ptmp->starppi = 0;
 				ptmp->totppi = 0;
-				ptmp->ppos = Read_Vlq(ptmp->pstart, &ptmp->deltatime);
+				ptmp->ppos = (u8*) Read_Vlq((char*)ptmp->pstart, &ptmp->deltatime);
 
 				if (!--li) break;
 			}
@@ -523,7 +523,7 @@ int wess_track_gotoposition(track_status *ptmp, int position, char *ppos) // 800
 		if (*ptmp->ppos == NoteOn || *ptmp->ppos == NoteOff)
 		{
 			ptmp->ppos += CmdLength[*ptmp->ppos];
-			ptmp->ppos = Read_Vlq(ptmp->ppos, &deltatime);
+			ptmp->ppos = (u8*) Read_Vlq((char*)ptmp->ppos, &deltatime);
 			continue;
 		}
 		else
@@ -545,7 +545,7 @@ int wess_track_gotoposition(track_status *ptmp, int position, char *ppos) // 800
 					else
 					{
 						ptmp->ppos += CmdLength[*ptmp->ppos];
-						ptmp->ppos = Read_Vlq(ptmp->ppos, &deltatime);
+						ptmp->ppos = (u8*) Read_Vlq((char*)ptmp->ppos, &deltatime);
 					}
 				}
 			}
@@ -553,7 +553,7 @@ int wess_track_gotoposition(track_status *ptmp, int position, char *ppos) // 800
 			{
 				CmdFuncArr[ptmp->patchtype][*ptmp->ppos](ptmp);
 				ptmp->ppos += CmdLength[*ptmp->ppos];
-				ptmp->ppos = Read_Vlq(ptmp->ppos, &deltatime);
+				ptmp->ppos = (u8*) Read_Vlq((char*) ptmp->ppos, &deltatime);
 			}
 		}
 	}
@@ -571,7 +571,7 @@ int wess_track_gotoposition(track_status *ptmp, int position, char *ppos) // 800
 		ptmp->totppi = accppi;
 	}
 
-	ppos = ptmp->ppos;
+	ppos = (char*) ptmp->ppos;
 
 	return ptmp->totppi;
 }
@@ -579,14 +579,14 @@ int wess_track_gotoposition(track_status *ptmp, int position, char *ppos) // 800
 int wess_track_setposition(track_status *ptmp, int position, char *ppos) // 80033B24
 {
 	int deltatime;
-	int val;
+	//int val;
 	int accppi;
 	int status;
 
 	deltatime = 0;
 	accppi = 0;
 	ptmp->ppos = ptmp->pstart;
-	ptmp->ppos = Read_Vlq(ptmp->ppos, &deltatime);
+	ptmp->ppos = (u8*) Read_Vlq((char*) ptmp->ppos, &deltatime);
 
 	while (1)
 	{
@@ -607,7 +607,7 @@ int wess_track_setposition(track_status *ptmp, int position, char *ppos) // 8003
 		if (*ptmp->ppos == NoteOn || *ptmp->ppos == NoteOff)
 		{
 			ptmp->ppos += CmdLength[*ptmp->ppos];
-			ptmp->ppos = Read_Vlq(ptmp->ppos, &deltatime);
+			ptmp->ppos = (u8*) Read_Vlq((char*) ptmp->ppos, &deltatime);
 			continue;
 		}
 		else
@@ -629,7 +629,7 @@ int wess_track_setposition(track_status *ptmp, int position, char *ppos) // 8003
 					else
 					{
 						ptmp->ppos += CmdLength[*ptmp->ppos];
-						ptmp->ppos = Read_Vlq(ptmp->ppos, &deltatime);
+						ptmp->ppos = (u8*) Read_Vlq((char*) ptmp->ppos, &deltatime);
 					}
 				}
 			}
@@ -637,7 +637,7 @@ int wess_track_setposition(track_status *ptmp, int position, char *ppos) // 8003
 			{
 				CmdFuncArr[ptmp->patchtype][*ptmp->ppos](ptmp);
 				ptmp->ppos += CmdLength[*ptmp->ppos];
-				ptmp->ppos = Read_Vlq(ptmp->ppos, &deltatime);
+				ptmp->ppos = (u8*) Read_Vlq((char*) ptmp->ppos, &deltatime);
 			}
 		}
 	}
@@ -655,7 +655,7 @@ int wess_track_setposition(track_status *ptmp, int position, char *ppos) // 8003
 		ptmp->totppi = accppi;
 	}
 
-	ppos = ptmp->ppos;
+	ppos = (char*) ptmp->ppos;
 
 	return ptmp->totppi;
 }
@@ -690,7 +690,7 @@ int wess_handle_advposition(int handle, int position) // 80033D58
 		lpdest = psq_stat->ptrk_indxs;
 		while (lj--)
 		{
-			if (*lpdest != 0xFF)
+			if (*lpdest != (char) 0xFF)
 			{
 				ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 				CmdFuncArr[ptmp->patchtype][TrkMute](ptmp);
@@ -735,7 +735,7 @@ int wess_handle_setposition(int handle, int position) // 80033EB8
 		lpdest = psq_stat->ptrk_indxs;
 		while (lj--)
 		{
-			if (*lpdest != 0xFF)
+			if (*lpdest != (char) 0xFF)
 			{
 				ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 				CmdFuncArr[ptmp->patchtype][TrkMute](ptmp);
@@ -781,7 +781,7 @@ int wess_handle_getposition(int handle) // 80034010
 		lpdest = psq_stat->ptrk_indxs;
 		while (lj--)
 		{
-			if (*lpdest != 0xFF)
+			if (*lpdest != (char) 0xFF)
 			{
 				ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 				if(position < ptmp->totppi)
@@ -830,11 +830,11 @@ void pan_mod_action(track_status *ptmp, int pan_cntr) // 80034200
 
 void wess_track_parm_mod(track_status *ptmp, int value, WessAction funcion) // 80034258
 {
-	char *ppos;
+	u8 *ppos;
 
 	//save
 	ppos = ptmp->ppos;
-	ptmp->ppos = scratch_area;
+	ptmp->ppos = (u8*) scratch_area;
 	funcion(ptmp, value);
 	//restore
 	ptmp->ppos = ppos;

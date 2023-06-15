@@ -73,7 +73,7 @@ u64 gfx_yield_buff[SYS_YIELD_SIZE];     // 800919E0
 
 OSTask vid_rsptask[2] = // 8005A590
 {
-    {
+    { .t = {
         M_GFXTASK,                          /* task type */
         NULL,                               /* task flags */
         (u64*) rspbootTextStart,            /* boot ucode pointer (fill in later) */
@@ -90,8 +90,8 @@ OSTask vid_rsptask[2] = // 8005A590
         0,                                  /* task data size (fill in later) */
         &gfx_yield_buff[0],                 /* task yield buffer ptr (not used here) */
         SYS_YIELD_SIZE                      /* task yield buffer size (not used here) */
-    },
-    {
+    } },
+    { .t = {
         M_GFXTASK,                          /* task type */
         NULL,                               /* task flags */
         (u64*) rspbootTextStart,            /* boot ucode pointer (fill in later) */
@@ -108,14 +108,14 @@ OSTask vid_rsptask[2] = // 8005A590
         0,                                  /* task data size (fill in later) */
         &gfx_yield_buff[0],                 /* task yield buffer ptr (not used here) */
         SYS_YIELD_SIZE                      /* task yield buffer size (not used here) */
-    }
+    } }
 };
 
 Vp vid_viewport = // 8005A610
-{
-    SCREEN_WD*2, SCREEN_HT*2, G_MAXZ,   0,		/* scale */
-    SCREEN_WD*2, SCREEN_HT*2,      0,   0,		/* translate */
-};
+{ .vp = {
+    {SCREEN_WD*2, SCREEN_HT*2, G_MAXZ,   0},		/* scale */
+    {SCREEN_WD*2, SCREEN_HT*2,      0,   0},		/* translate */
+} };
 
 OSMesgQueue romcopy_msgque; // 800A4F70
 OSMesg		romcopy_msgbuf; // 800A51D0

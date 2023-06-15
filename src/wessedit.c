@@ -183,12 +183,12 @@ int wess_handle_create_edit_space(char *memory_pointer, int data_size, int memor
 
 			//----------------------
 			pmem = (edt_mem + (max_edit_labels << 2) + (ptrk_indxs_pos * _data_size));
-			ptk_stat->pstart = (char *)pmem;
+			ptk_stat->pstart = (u8 *) pmem;
 			pmem[0] = 0;
 			pmem[1] = TrkEnd;
 
 			ptk_stat->flags = (ptk_stat->flags|TRK_ACTIVE|TRK_STOPPED|TRK_HANDLED|TRK_OFF) & ~(TRK_MUTE|TRK_TIMED|TRK_LOOPED|TRK_SKIP);
-			ptk_stat->ppos = Read_Vlq(ptk_stat->pstart, &ptk_stat->deltatime);
+			ptk_stat->ppos = (u8 *) Read_Vlq((char *)ptk_stat->pstart, &ptk_stat->deltatime);
 			ptk_stat->mutemask = 0;
 
 			psq_stat->tracks_active++;

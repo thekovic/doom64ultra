@@ -280,7 +280,7 @@ char *get_sequence_table(void) // 80035600
 						sequence_table[i] = '0';
 
 					i++;
-				} while (sequences & 3 != i);
+				} while ((sequences & 3) != i);
 			}
 		}
 
@@ -347,7 +347,7 @@ char *get_tracks_table(void) // 800357A0
 						tracks_table[i] = '0';
 
 					i++;
-				} while (tracks & 3 != i);
+				} while ((tracks & 3) != i);
 			}
 		}
 
@@ -429,7 +429,7 @@ char *get_voices_active_table(void) // L80035988
 						voices_active_table[i] = '0';
 
 					i++;
-				} while (voices & 3 != i);
+				} while ((voices & 3) != i);
 			}
 		}
 
@@ -497,7 +497,7 @@ char *get_voices_handle_table(void) // 80035B24
 						voices_handle_table[i] = '0';
 
 					i++;
-				} while (voices & 3 != i);
+				} while ((voices & 3) != i);
 			}
 		}
 

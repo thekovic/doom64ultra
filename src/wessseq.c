@@ -409,7 +409,7 @@ void Eng_StatusMark (track_status *ptk_stat) // 80036364
 void Eng_GateJump (track_status *ptk_stat) // 80036488
 {
 	static short lindex;	//800B6650
-	static char *laboff;	//800B6654
+	static u8 *laboff;	//800B6654
 	static char *pgate;		//800B6658
 
 	//PRINTF_D2(WHITE,0,10,"Eng_GateJump");
@@ -417,7 +417,7 @@ void Eng_GateJump (track_status *ptk_stat) // 80036488
 
 	if (*pgate != 0)
 	{
-		if (*pgate == 0xff)
+		if (*pgate == (char) 0xff)
 		{
 			*pgate = *(ptk_stat->ppos + 2);
 		}
@@ -440,7 +440,7 @@ void Eng_GateJump (track_status *ptk_stat) // 80036488
 void Eng_IterJump (track_status *ptk_stat) // 80036568
 {
 	static short lindex;	//800B665C
-	static char	*laboff;	//800B6660
+	static u8	*laboff;	//800B6660
 	static char	*piter;		//800B6664
 
 	//PRINTF_D2(WHITE,0,10,"Eng_IterJump");
@@ -448,7 +448,7 @@ void Eng_IterJump (track_status *ptk_stat) // 80036568
 
 	if (*piter != 0)
 	{
-		if (*piter == 0xFF)
+		if (*piter == (char) 0xFF)
 		{
 			*piter = *(ptk_stat->ppos + 2);
 		}
@@ -560,7 +560,7 @@ void Eng_SeqGosub (track_status *ptk_stat) // 800369C8
 {
 	static short			lindex;			//800B668C
 	static unsigned short	ntracks;		//800B668E
-	static char				*laboff;		//800B6690
+	static u8				*laboff;		//800B6690
 	static unsigned char	nactive;		//800B6694
 	static unsigned char	*ptindxs;		//800B6698
 	static track_status		*ptstemp;		//800B669C
@@ -601,7 +601,7 @@ void Eng_SeqJump (track_status *ptk_stat) // 80036B80
 {
 	static short			lindex;			//800B66A4
 	static unsigned short	ntracks;		//800B66A6
-	static char				*laboff;		//800B66A8
+	static u8				*laboff;		//800B66A8
 	static unsigned char	nactive;		//800B66AC
 	static unsigned char	*ptindxs;		//800B66B0
 	static track_status		*ptstemp;		//800B66B4
@@ -764,7 +764,7 @@ void Eng_TrkRet (track_status *ptk_stat) // 80037230
     //PRINTF_D2(WHITE,0,10,"Eng_TrkRet");
 	ptk_stat->psp--;
 	ptk_stat->ppos = (unsigned char*)ptk_stat->psp;
-	ptk_stat->ppos = Read_Vlq(ptk_stat->ppos, &ptk_stat->deltatime);
+	ptk_stat->ppos = (u8*) Read_Vlq((char*) ptk_stat->ppos, &ptk_stat->deltatime);
 	ptk_stat->deltatime = 0;
 	ptk_stat->flags |= TRK_SKIP;
 }
@@ -779,7 +779,7 @@ void Eng_TrkEnd (track_status *ptk_stat) // 8003728C
 		{
 			ptk_stat->flags |= TRK_SKIP;
 			ptk_stat->ppos = ptk_stat->pstart;
-			ptk_stat->ppos = Read_Vlq(ptk_stat->pstart, &ptk_stat->deltatime);
+			ptk_stat->ppos = (u8*) Read_Vlq((char*) ptk_stat->pstart, &ptk_stat->deltatime);
 		}
 		else
 		{
@@ -793,7 +793,7 @@ void Eng_TrkEnd (track_status *ptk_stat) // 8003728C
 		{
 			ptk_stat->flags |= TRK_SKIP;
 			ptk_stat->ppos = ptk_stat->pstart;
-			ptk_stat->ppos = Read_Vlq(ptk_stat->pstart, &ptk_stat->deltatime);
+			ptk_stat->ppos = (u8*) Read_Vlq((char*) ptk_stat->pstart, &ptk_stat->deltatime);
 		}
 		else
 		{
@@ -812,9 +812,9 @@ void SeqEngine(void) // 800373AC
 	static track_status		*pts;	//800B66E0
 	static unsigned char	na;		//800B66E4
 	static unsigned int		ni;		//800B66E8
-	static char				*nn;	//800B66EC
+	static u8				*nn;	//800B66EC
 
-	track_status *ptrkstattbl;
+	//track_status *ptrkstattbl;
 	//PRINTF_D2(WHITE,0,9,"SeqEngine %d\n",SeqOn);
 
 	na = pmsbase->trks_active;
@@ -859,7 +859,7 @@ void SeqEngine(void) // 800373AC
 								CmdFuncArr[pts->patchtype][*nn]((track_status *)pts);
 
 								pts->ppos += CmdLength[*nn];
-								pts->ppos = Read_Vlq(pts->ppos, &pts->deltatime);
+								pts->ppos = (u8*) Read_Vlq((char*) pts->ppos, &pts->deltatime);
 							}
 							else if (!(*nn < 19) && (*nn < 36))
 							{
@@ -868,7 +868,7 @@ void SeqEngine(void) // 800373AC
 								if ((pts->flags & (TRK_ACTIVE | TRK_SKIP)) == TRK_ACTIVE)
 								{
 									pts->ppos += CmdLength[*nn];
-									pts->ppos = Read_Vlq(pts->ppos, &pts->deltatime);
+									pts->ppos = (u8*) Read_Vlq((char*) pts->ppos, &pts->deltatime);
 								}
 								else
 								{

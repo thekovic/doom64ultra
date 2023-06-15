@@ -316,15 +316,15 @@ int wess_load_module(char *wmd_filename,
 	int   memory_allowance/*,
 	int **settings_tag_lists*/) // 8002FA3C
 {
-	int i, j, k, n, z, types, num, indx, loadit;
-	int tracks_toload;
+	int i, j; /*, k, n, z, types, num, indx, loadit;*/
+	//int tracks_toload;
 	int readrequest, readresult;
-	char max_tracks_inseq, max_voices_intrk, max_substack_intrk;
+	//char max_tracks_inseq, max_voices_intrk, max_substack_intrk;
 	char *pdest;
 	char *pmem;
-	unsigned long patfpos, trkinfosize;
-	char *tempwmd;
-	int setting, flag, flag2;
+	//unsigned long patfpos, trkinfosize;
+	//char *tempwmd;
+	//int setting, flag, flag2;
 	int decomp_type;
 
 	//PRINTF_D(WHITE, "WMD::module_loaded %d", module_loaded);
@@ -778,8 +778,8 @@ void assigntrackstat(track_status *ptk_stat, track_data *ptk_info) // 800302F8
 {
 	ptk_stat->data_space = ptk_info->trk_hdr->data_size;
 	ptk_stat->labellist_max = ptk_info->trk_hdr->labellist_count;
-	ptk_stat->pstart = ptk_info->ptrk_data;
-	ptk_stat->ppos = Read_Vlq(ptk_stat->pstart, &ptk_stat->deltatime);
+	ptk_stat->pstart = (u8 *) ptk_info->ptrk_data;
+	ptk_stat->ppos = (u8 *) Read_Vlq((char *)ptk_stat->pstart, &ptk_stat->deltatime);
 	ptk_stat->plabellist = ptk_info->plabellist;
 }
 
@@ -1011,8 +1011,8 @@ void __wess_seq_stop(int sequence_number, enum MuteRelease mrelease, int millise
 
 	char nt, na;
 	sequence_status *psq_stat;
-	track_status *ptmp;
-	int li, lj;
+	//track_status *ptmp;
+	//int li, lj;
 
 	int _sequence_number;
 	enum MuteRelease _mrelease;
@@ -1147,7 +1147,7 @@ void queue_wess_seq_stop(int sequence_number, enum MuteRelease mrelease, int mil
 						lpdest = psq_stat->ptrk_indxs;
 						while (lj--)
 						{
-							if (*lpdest != 0xFF)
+							if (*lpdest != (char) 0xFF)
 							{
 								ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 								CmdFuncArr[ptmp->patchtype][TrkOff](ptmp);
@@ -1177,8 +1177,8 @@ void __wess_seq_stopall(enum MuteRelease mrelease, int millisec) // 80030B78
 
 	char nt, na;
 	sequence_status *psq_stat;
-	track_status *ptmp;
-	int li, lj;
+	//track_status *ptmp;
+	//int li, lj;
 
 	enum MuteRelease _mrelease;
 	int _millisec;
@@ -1297,7 +1297,7 @@ void queue_wess_seq_stopall(enum MuteRelease mrelease, int millisec) // 80030D04
 					lpdest = psq_stat->ptrk_indxs;
 					while (lj--)
 					{
-						if (*lpdest != 0xFF)
+						if (*lpdest != (char) 0xFF)
 						{
 							ptmp = (pm_stat->ptrkstattbl + (*lpdest));
 							CmdFuncArr[ptmp->patchtype][TrkOff](ptmp);
