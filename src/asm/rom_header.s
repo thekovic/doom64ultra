@@ -14,10 +14,10 @@
 .word  0x00000000               /* Checksum 2 (OVERWRITTEN BY MAKEMASK)*/
 .word  0x00000000               /* Unknown */
 .word  0x00000000               /* Unknown */
-.ascii "DOOM 64             "   /* Internal ROM name (Max 20 characters) */
-.word  0x00000000               /* Unknown */
-/* Game ID (EXAMPLE: NSME) Begins here */
-.word  0x0000004E                /* Cartridge Type (N)*/
-.ascii "PL"                     /* Cartridge ID (SM)*/
-.ascii "E"			/* Region (E)*/
-.byte  0x00			/* Version */
+.ascii "DOOM 64 ULTRA       "   /* Internal ROM name (Max 20 characters) */
+/* Homebrew header */
+.byte  0x01, 0x01, 0x01, 0x01   /* Controller info */
+.word  0x00000000               /* Empty */
+.byte  0x00	                    /* Empty */
+.ascii "ED"                     /* Game ID */
+.byte  0x21                     /* Savetype */
