@@ -40,9 +40,13 @@ void Z_Init (void) // 8002C8F0
 {
 	byte	*mem;
 	int		size;
+    size_t  heapsize = MEM_HEAP_SIZE;
 
-	mem = (byte *)(u32)(((u32)mem_heap + 15) & ~15);
-	size = (u32)(mem_heap+(MEM_HEAP_SIZE / sizeof(u64))) - (u32)mem;
+    if (osMemSize < 0x800000)
+        heapsize = 0x26B510;
+
+    mem = (byte *)(u32)(((u32)mem_heap + 15) & ~15);
+    size = (u32)(mem_heap+(heapsize / sizeof(u64))) - (u32)mem;
 
 	/* mars doesn't have a refzone */
 	mainzone = Z_InitZone(mem, size);
