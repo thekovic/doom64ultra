@@ -124,10 +124,12 @@ SECTIONS
    }   
    END_SEG(doom64_wdd)
 
+#ifdef NDEBUG
    /* Discard everything not specifically mentioned above. */
    /DISCARD/ :
    {
       *(*);
    }
+#endif
 }
 

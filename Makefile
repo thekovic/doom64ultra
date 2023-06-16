@@ -7,13 +7,17 @@ N64_BINDIR    ?= $(N64_SDK)/bin
 TARGET_STRING := doom64
 TARGET := $(TARGET_STRING)
 
-# Preprocessor definitions
-DEFINES := _FINALROM=1 NDEBUG=1 F3DEX_GBI_2=1
+DEBUG ?= 0
+
+DEFINES := _FINALROM=1 F3DEX_GBI_2=1
+ifeq ($(DEBUG),0)
+  DEFINES += NDEBUG=1
+endif
 
 SRC_DIRS :=
 
 # Whether to hide commands or not
-VERBOSE ?= 1
+VERBOSE ?= 0
 ifeq ($(VERBOSE),0)
   V := @
 endif
@@ -70,9 +74,16 @@ INCLUDE_DIRS += /usr/include/n64 /usr/include/n64/PR $(BUILD_DIR) $(BUILD_DIR)/i
 C_DEFINES := $(foreach d,$(DEFINES),-D$(d))
 DEF_INC_CFLAGS := $(foreach i,$(INCLUDE_DIRS),-I$(i)) $(C_DEFINES)
 
-CFLAGS = -Wall -mno-check-zero-division -march=vr4300 -mtune=vr4300 -D_LANGUAGE_C -D_ULTRA64 -D__EXTENSIONS__ -fno-common -G0 -O2 -D_MIPS_SZLONG=32 -D_MIPS_SZINT=32 -g -mabi=32 -ffreestanding -mfix4300 $(DEF_INC_CFLAGS)
+CFLAGS = -Wall -mno-check-zero-division -march=vr4300 -mtune=vr4300 \
+         -D_LANGUAGE_C -DREQUIRE_EXPANSION_PAK -D_ULTRA64 -D__EXTENSIONS__ \
+         -fno-common -G0 -D_MIPS_SZLONG=32 -D_MIPS_SZINT=32 -g -mabi=32 \
+         -ffreestanding -mfix4300 $(DEF_INC_CFLAGS)
 ASFLAGS     := -mno-check-zero-division -march=vr4300 -mabi=32 $(foreach i,$(INCLUDE_DIRS),-I$(i))
 # $(foreach d,$(DEFINES),--defsym $(d))
+#
+ifeq ($(DEBUG),0)
+  CFLAGS += -O2
+endif
 
 # C preprocessor flags
 CPPFLAGS := -P -Wno-trigraphs $(DEF_INC_CFLAGS)
@@ -114,7 +125,8 @@ DUMMY != mkdir -p $(ALL_DIRS)
 #==============================================================================#
 
 $(BUILD_DIR)/DOOM64.%.o: data/DOOM64.%
-	$(LD) -r -b binary $< -o $@
+	$(call print,Packing data:,$<,$@)
+	$(V)$(LD) -r -b binary $< -o $@
 
 # Compile C code
 $(BUILD_DIR)/%.o: %.c
@@ -130,16 +142,16 @@ $(BUILD_DIR)/%.o: %.s
 	$(V)$(CC) -c $(ASFLAGS) $(foreach i,$(INCLUDE_DIRS),-Wa,-I$(i)) -x assembler-with-cpp -MMD -MF $(BUILD_DIR)/$*.d  -o $@ $<
 
 # Run linker script through the C preprocessor
-$(BUILD_DIR)/$(LD_SCRIPT): $(LD_SCRIPT)
+$(BUILD_DIR)/$(LD_SCRIPT): src/$(LD_SCRIPT)
 	$(call print,Preprocessing linker script:,$<,$@)
-	$(V)$(CPP) $(CPPFLAGS) -DBUILD_DIR=$(BUILD_DIR) -MMD -MP -MT $@ -MF $@.d -o $@ $<
+	$(V)$(CPP) $(CPPFLAGS) -DBUILD_DIR=$(BUILD_DIR) $(C_DEFINES) -MMD -MP -MT $@ -MF $@.d -o $@ $<
 
 $(BOOT_OBJ): $(BOOT)
 	$(V)$(OBJCOPY) -I binary -B mips -O elf32-bigmips $< $@
 
 # Link final ELF file
 $(ELF): $(O_FILES) $(BUILD_DIR)/$(LD_SCRIPT)
-	@$(PRINT) "$(GREEN)Linking ELF file:  $(BLUE)$@ $(NO_COL)\n"
+	@$(PRINT) "$(GREEN)Linking ELF file: $(BLUE)$@ $(NO_COL)\n"
 	$(V)$(LD) -L $(BUILD_DIR) -T $(BUILD_DIR)/$(LD_SCRIPT) -Map $(BUILD_DIR)/$(TARGET).map -o $@ $(O_FILES) --no-check-sections -L/usr/lib/n64 -lultra_rom -L$(N64_LIBGCCDIR) -lgcc
 
 # Build ROM
