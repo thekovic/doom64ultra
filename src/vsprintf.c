@@ -1,4 +1,5 @@
 
+#include <stdarg.h>
 
 int mystrlen(char *string) // 80001CE8
 {
@@ -8,7 +9,7 @@ int mystrlen(char *string) // 80001CE8
   return rc;
 }
 
-int D_vsprintf(char *string, const char *format, int *argptr) // 80001D24
+int D_vsprintf(char *string, const char *format, va_list args) // 80001D24
 {
   int len, i, div, uselong;
   int fieldsize;
@@ -48,12 +49,12 @@ int D_vsprintf(char *string, const char *format, int *argptr) // 80001D24
       div = 10;
       if (*format == 'c')
       {
-	*(string++) = *argptr++;
+	*(string++) = va_arg(args, int);
 	format++;
       }
       else if (*format == 's')
       {
-	str = (char *)*argptr++;
+	str = va_arg(args, char *);
 	len = mystrlen(str);
 	while (fieldsize-- > len) *(string++) = padchar; /* do field pad */
 	while (*str) *(string++) = *(str++); /* copy string */
@@ -65,27 +66,27 @@ int D_vsprintf(char *string, const char *format, int *argptr) // 80001D24
         {
           div = 8;
           if (uselong)
-	    num = *argptr++;
+	    num = va_arg(args, unsigned long);
 	  else
-	    num = *argptr++;
+	    num = va_arg(args, unsigned);
 /*	  printf("o=0%o\n", num); */
         }
         else if (*format == 'x' || *format == 'X')  /* hex */
         {
           div = 16;
           if (uselong)
-	    num = *argptr++;
+	    num = va_arg(args, unsigned long);
 	  else
-	    num = *argptr++;
+	    num = va_arg(args, unsigned);
 /*	  printf("x=%x\n", num); */
 	}
         else if (*format == 'i' || *format == 'd' || *format == 'u') /* decimal */
         {
           div = 10;
           if (uselong)
-	    snum = *argptr++;
+	    snum = va_arg(args, long);
 	  else
-	    snum = *argptr++;
+	    snum = va_arg(args, int);
 	  if (snum < 0 && *format != 'u') /* handle negative %i or %d */
 	  {
 	    *(string++) = '-';

@@ -8,6 +8,7 @@
 #include <PR/ramrom.h>	/* needed for argument passing into the app */
 #include <assert.h>
 #include <libaudio.h>
+#include <stdarg.h>
 
 #include "i_main.h"
 
@@ -60,7 +61,7 @@ extern u16 cfb[2][SCREEN_WD*SCREEN_HT]; // 8036A000
 
 extern void R_RenderFilter(void);
 
-extern int D_vsprintf(char *string, const char *format, int *argptr);
+extern int D_vsprintf(char *string, const char *format, va_list args);
 
 /* c_convert.c  */
 extern int LightGetHSV(int r,int g,int b); // 800020BC

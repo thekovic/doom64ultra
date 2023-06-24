@@ -215,9 +215,10 @@ void ST_Ticker (void) // 80029C88
 ====================
 */
 
-static char buffer[16][256];
-static int debugX, debugY;//80077E5C|uGp00000a4c, 80077E68|uGp00000a58
+static char debugbuf[16][256];
+static int debugX = 8, debugY = 8;//80077E5C|uGp00000a4c, 80077E68|uGp00000a58
 static int debugcnt = 0;
+static int debugstart = 0;
 static int debug = 0;
 
 extern memzone_t	*mainzone;
@@ -290,8 +291,6 @@ void ST_Drawer (void) // 80029DC0
 
     if (HUDopacity){
         I_CheckGFX();
-
-        debug = 1;//
 
         if (globallump != (int)sfontlump)
         {
@@ -428,9 +427,10 @@ void ST_Drawer (void) // 80029DC0
 
     if(debug)
     {
-        for(ammo = 0; ammo < debugcnt; ammo++)
+        for(int i = 0; i < debugcnt; i++)
         {
-            ST_Message(8, (ammo*8)+8, buffer[ammo],0x00ff00ff);
+            int index = (i+debugstart)%ARRAYLEN(debugbuf);
+            ST_Message(debugX, (i*8) + debugY, debugbuf[index],0x00ff00ff);
         }
     }
 }
@@ -870,6 +870,15 @@ void ST_DrawSymbol(int xpos, int ypos, int index, int color) // 8002ADEC
 
 #include "stdarg.h"
 
+void ST_EnableDebug(void)
+{
+    debug = true;
+}
+
+void ST_DisableDebug(void)
+{
+    debug = false;
+}
 
 void ST_DebugSetPrintPos(int x, int y)
 {
@@ -881,14 +890,31 @@ void ST_DebugPrint(const char *text, ...)
 {
     if(debug)
     {
+        int index;
         va_list args;
+
+        if (debugcnt < ARRAYLEN(debugbuf))
+            index = debugcnt;
+        else
+            index = debugstart;
+
         va_start (args, text);
-        D_vsprintf (buffer[debugcnt], text, args);
+        D_vsprintf (debugbuf[index], text, args);
         va_end (args);
 
-        debugcnt += 1;
-        debugcnt &= 15;
+        if (debugcnt < ARRAYLEN(debugbuf))
+            debugcnt += 1;
+        else
+            debugstart = debugstart < ARRAYLEN(debugbuf) - 1 ?  debugstart + 1 : 0;
     }
 
 	//debugY += 8;
+}
+
+void ST_DebugClear(void)
+{
+    debugcnt = 0;
+    debugstart = 0;
+    for (int i = 0; i < ARRAYLEN(debugbuf); i++)
+        debugbuf[i][0] = '\0';
 }
