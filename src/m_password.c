@@ -523,7 +523,7 @@ int M_PasswordTicker(void) // 8000C774
     buttons = M_ButtonResponder(ticbuttons[0]);
     oldbuttons = oldticbuttons[0] & 0xffff0000;
 
-    if (!(buttons & (ALL_TRIG|PAD_A|PAD_B|ALL_JPAD)))
+    if (!(buttons & (PAD_A|ALL_JPAD)))
     {
         m_vframe1 = 0;
     }
@@ -537,7 +537,7 @@ int M_PasswordTicker(void) // 8000C774
 
             playsound = false;
 
-            if (buttons & PAD_UP)
+            if ((buttons & PAD_UP) && !(oldbuttons & PAD_UP))
             {
                 if (PassCodePos > 7)
                 {
@@ -545,13 +545,13 @@ int M_PasswordTicker(void) // 8000C774
                     PassCodePos -= 8;
                 }
             }
-            if ((buttons & PAD_DOWN) && (PassCodePos < 24))
+            if ((buttons & PAD_DOWN) && !(oldbuttons & PAD_DOWN) && (PassCodePos < 24))
             {
                 playsound = true;
                 PassCodePos += 8;
             }
 
-            if (buttons & PAD_LEFT)
+            if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
             {
                 if (PassCodePos > 0)
                 {
@@ -559,7 +559,7 @@ int M_PasswordTicker(void) // 8000C774
                     PassCodePos -= 1;
                 }
             }
-            else if ((buttons & PAD_RIGHT) && (PassCodePos < 31))
+            else if ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT) && (PassCodePos < 31))
             {
                 playsound = true;
                 PassCodePos += 1;
@@ -578,26 +578,23 @@ int M_PasswordTicker(void) // 8000C774
     }
     else
     {
-        if (buttons & PAD_START)
+        if ((buttons & PAD_START) && !(oldbuttons & PAD_START))
         {
             exit = ga_exit;
         }
         else
         {
-            if (!(buttons & PAD_A))
+            if ((buttons & PAD_B) && !(oldbuttons & PAD_B))
             {
-                if (buttons & PAD_B)
-                {
-                    S_StartSound(0, sfx_switch2);
+                S_StartSound(0, sfx_switch2);
 
-                    CurPasswordSlot -= 1;
-                    if (CurPasswordSlot < 0)
-                        CurPasswordSlot = 0;
+                CurPasswordSlot -= 1;
+                if (CurPasswordSlot < 0)
+                    CurPasswordSlot = 0;
 
-                    Passwordbuff[CurPasswordSlot] = 0;
-                }
+                Passwordbuff[CurPasswordSlot] = 0;
             }
-            else
+            else if ((buttons & PAD_A) && !(oldbuttons & PAD_A))
             {
                 S_StartSound(0, sfx_switch2);
 
