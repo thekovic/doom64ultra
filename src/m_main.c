@@ -145,14 +145,14 @@ char *MenuText[] =   // 8005ABA0
     M_TXT85
 };
 
-menuitem_t Menu_Title[3] = // 8005A978
+menuitem_t Menu_Title[] = // 8005A978
 {
     { 14, 115, 170 },   // New Game
     { 3, 115, 190 },   // Password
 	{ 11, 115, 210 },   // Options
 };
 
-menuitem_t Menu_Skill[6] = // 8005A990
+menuitem_t Menu_Skill[] = // 8005A990
 {
     { 15, 102, 70 },    // Be Gentle!
     { 16, 102, 90},    // Bring it on!
@@ -162,7 +162,7 @@ menuitem_t Menu_Skill[6] = // 8005A990
     { 6, 102, 180},    	// Return
 };
 
-menuitem_t Menu_Options[8] = // 8005A9C0
+menuitem_t Menu_Options[] = // 8005A9C0
 {
     {  0, 112, 60 },    // Gamepad
     { 41, 112, 80 },    // Movement
@@ -174,14 +174,14 @@ menuitem_t Menu_Options[8] = // 8005A9C0
     {  6, 112, 200},    // Return
 };
 
-menuitem_t Menu_Volume[3] = // 8005AA08
+menuitem_t Menu_Volume[] = // 8005AA08
 {
     {  7, 82, 60 },    // Music Volume
     {  8, 82, 100},    // Sound Volume
     {  6, 82, 140},    // Return
 };
 
-menuitem_t Menu_Movement[4] = // [Immorpher] Movement
+menuitem_t Menu_Movement[] = // [Immorpher] Movement
 {
     { 52, 82, 60 },    // Motion Bob
     { 43, 82, 100 },   // Sensitivity
@@ -189,7 +189,7 @@ menuitem_t Menu_Movement[4] = // [Immorpher] Movement
     {  6, 82, 160},    // Return
 };
 
-menuitem_t Menu_Video[7] = // 8005AA5C
+menuitem_t Menu_Video[] = // 8005AA5C
 {
     {  9, 82, 60 },    // Brightness
     { 50, 82, 100},    // Video Filter
@@ -200,7 +200,7 @@ menuitem_t Menu_Video[7] = // 8005AA5C
     {  6, 82, 200},    // Return
 };
 
-menuitem_t Menu_Display[5] = // [Immorpher] Display menu
+menuitem_t Menu_Display[] = // [Immorpher] Display menu
 {
     { 57, 82, 60},    	// Flash Brightness
     { 32, 82, 100},    // Center Display
@@ -209,7 +209,7 @@ menuitem_t Menu_Display[5] = // [Immorpher] Display menu
     {  6, 82, 160},    // Return
 };
 
-menuitem_t Menu_StatusHUD[5] = // [Immorpher] Status HUD
+menuitem_t Menu_StatusHUD[] = // [Immorpher] Status HUD
 {
     { 64, 82, 60},   	// Margin
     { 34, 82, 100},    // Opacity
@@ -218,7 +218,7 @@ menuitem_t Menu_StatusHUD[5] = // [Immorpher] Status HUD
     {  6, 82, 180},    // Return
 };
 
-menuitem_t Menu_Defaults[5] = // [Immorpher] Defaults menu
+menuitem_t Menu_Defaults[] = // [Immorpher] Defaults menu
 {
     { 42, 102, 60},    	// Original doom 64 defaults
     { 58, 102, 80},    	// Merciless edition defaults
@@ -227,7 +227,7 @@ menuitem_t Menu_Defaults[5] = // [Immorpher] Defaults menu
     {  6, 102, 140},    	// Return
 };
 
-menuitem_t Menu_Game[5] = // 8005AAA4
+menuitem_t Menu_Game[] = // 8005AAA4
 {
     { 3, 122, 60 },    // Password
     { 11, 122, 80 },    // Options
@@ -236,32 +236,32 @@ menuitem_t Menu_Game[5] = // 8005AAA4
     { 22, 122, 140},    // Cheats
 };
 
-menuitem_t Menu_Quit[2] = // 8005AAD4
+menuitem_t Menu_Quit[] = // 8005AAD4
 {
     { 20, 142, 100},    // Yes
     { 21, 142, 120},    // No
 };
 
-menuitem_t Menu_DeleteNote[2] = // 8005AAEC
+menuitem_t Menu_DeleteNote[] = // 8005AAEC
 {
     { 20, 142, 100},    // Yes
     { 21, 142, 120},    // No
 };
 
-menuitem_t Menu_ControllerPakBad[2] = // 8005AB04
+menuitem_t Menu_ControllerPakBad[] = // 8005AB04
 {
     { 46, 120, 100},    // Try again
     { 45, 120, 120},    // Do not use Pak
 };
 
-menuitem_t Menu_ControllerPakFull[3] = // 8005AB1C
+menuitem_t Menu_ControllerPakFull[] = // 8005AB1C
 {
     { 44, 110, 90 },    // Manage Pak
     { 47, 110, 110},    // Create game note
     { 45, 110, 130},    // Do not use Pak
 };
 
-menuitem_t Menu_CreateNote[3] = // 8005AB40
+menuitem_t Menu_CreateNote[] = // 8005AB40
 {
     { 20, 110, 90 },    // Yes
     { 45, 110, 110},    // Do not use Pak
@@ -291,7 +291,7 @@ menuitem_t Menu_Features[MAXFEATURES] = // 8005AB64
 	{ 69, 40, 190},      // [Immorpher] Merciless Edition Credits
 };
 
-menuitem_t Merciless_Credits[15] = // 8005AB64
+menuitem_t Merciless_Credits[] = // 8005AB64
 {
 	{70, 20, 48},      // Credits
 	
@@ -433,6 +433,8 @@ int __attribute__((aligned(16))) DefaultConfiguration[6][13] = // 8005A840
     }
 };
 
+#define SET_MENU(_m) do { MenuItem = (_m); itemlines = ARRAYLEN(_m); } while(0)
+
 //-----------------------------------------
 
 int M_RunTitle(void) // 80007630
@@ -443,10 +445,9 @@ int M_RunTitle(void) // 80007630
     startskill = sk_easy;
     startmap = 1;
     MenuIdx = 0;
-    MenuItem = Menu_Title;
+    SET_MENU(Menu_Title);
     MenuCall = M_MenuTitleDrawer;
     text_alpha = 0;
-    itemlines = 3;
     cursorpos = 0;
     last_ticon = 0;
 
@@ -498,8 +499,7 @@ int M_ControllerPak(void) // 80007724
             }
 
             // Create Controller Pak Note
-            MenuItem = Menu_CreateNote;
-            itemlines = 3;
+            SET_MENU(Menu_CreateNote);
             MenuCall = M_MenuTitleDrawer;
             cursorpos = 0;
 
@@ -523,8 +523,7 @@ int M_ControllerPak(void) // 80007724
             }
 
             // Show Controller Pak Full
-            MenuItem = Menu_ControllerPakFull;
-            itemlines = 3;
+            SET_MENU(Menu_ControllerPakFull);
             MenuCall = M_MenuTitleDrawer;
             cursorpos = 0;
 
@@ -547,8 +546,7 @@ int M_ControllerPak(void) // 80007724
 
             // Show Controller Pak Bad
         ControllerPakBad:
-            MenuItem = Menu_ControllerPakBad;
-            itemlines = 2;
+            SET_MENU(Menu_ControllerPakBad);
             MenuCall = M_MenuTitleDrawer;
             cursorpos = 0;
 
@@ -826,8 +824,7 @@ int M_MenuTicker(void) // 80007E0C
                         S_StartSound(NULL, sfx_pistol);
                         M_SaveMenuData();
 
-                        MenuItem = Menu_Volume;
-                        itemlines = 3;
+                        SET_MENU(Menu_Volume);
                         MenuCall = M_VolumeDrawer;
                         cursorpos = 0;
 
@@ -843,8 +840,7 @@ int M_MenuTicker(void) // 80007E0C
                         S_StartSound(NULL, sfx_pistol);
                         M_SaveMenuData();
 
-                        MenuItem = Menu_Video;
-                        itemlines = 7;
+                        SET_MENU(Menu_Video);
                         MenuCall = M_VideoDrawer;
                         cursorpos = 0;
 
@@ -903,8 +899,7 @@ int M_MenuTicker(void) // 80007E0C
                         S_StartSound(NULL, sfx_pistol);
                         M_SaveMenuData();
 
-                        MenuItem = Menu_Quit;
-                        itemlines = 3;
+                        SET_MENU(Menu_Quit);
                         MenuCall = M_MenuTitleDrawer;
                         cursorpos = 1;
 
@@ -925,8 +920,7 @@ int M_MenuTicker(void) // 80007E0C
                         S_StartSound(NULL, sfx_pistol);
                         M_SaveMenuData();
 
-                        MenuItem = Menu_Skill;
-                        itemlines = 6;
+                        SET_MENU(Menu_Skill);
                         MenuCall = M_MenuTitleDrawer;
                         cursorpos = gameskill;  // Set default to current difficulty
 
@@ -1072,8 +1066,7 @@ int M_MenuTicker(void) // 80007E0C
                         S_StartSound(NULL, sfx_pistol);
                         M_SaveMenuData();
 
-                        MenuItem = Menu_Options;
-                        itemlines = 8;
+                        SET_MENU(Menu_Options);
                         MenuCall = M_MenuTitleDrawer;
                         cursorpos = 0;
 
@@ -1102,8 +1095,7 @@ int M_MenuTicker(void) // 80007E0C
                         S_StartSound(NULL, sfx_pistol);
                         M_SaveMenuData();
 
-                        MenuItem = Menu_Defaults;
-                        itemlines = 5;
+                        SET_MENU(Menu_Defaults);
                         MenuCall = M_DefaultsDrawer;
                         cursorpos = 0;
 
@@ -1120,8 +1112,7 @@ int M_MenuTicker(void) // 80007E0C
 						
                         M_SaveMenuData();
 
-                        MenuItem = Menu_Skill;
-                        itemlines = 6;
+                        SET_MENU(Menu_Skill);
                         MenuCall = M_MenuTitleDrawer;
                         cursorpos = 1;  // Set Default Bring it on!
 						
@@ -1185,8 +1176,7 @@ int M_MenuTicker(void) // 80007E0C
 
                         players[0].cheats &= 0xffff1fff;
 
-                        MenuItem = Menu_Features;
-                        itemlines = MAXFEATURES;
+                        SET_MENU(Menu_Features);
                         MenuCall = M_FeaturesDrawer;
                         cursorpos = 0;
                         m_actualmap = gamemap;
@@ -1533,8 +1523,7 @@ int M_MenuTicker(void) // 80007E0C
                         S_StartSound(NULL, sfx_pistol);
                         M_SaveMenuData();
 
-                        MenuItem = Menu_Movement;
-                        itemlines = 4;
+                        SET_MENU(Menu_Movement);
                         MenuCall = M_MovementDrawer;
                         cursorpos = 0;
 
@@ -1687,8 +1676,7 @@ int M_MenuTicker(void) // 80007E0C
                         S_StartSound(NULL, sfx_pistol);
                         M_SaveMenuData();
 
-                        MenuItem = Menu_Display;
-                        itemlines = 5;
+                        SET_MENU(Menu_Display);
                         MenuCall = M_DisplayDrawer;
                         cursorpos = 0;
 
@@ -1973,8 +1961,7 @@ int M_MenuTicker(void) // 80007E0C
                         S_StartSound(NULL, sfx_pistol);
                         M_SaveMenuData();
 
-                        MenuItem = Menu_StatusHUD;
-                        itemlines = 5;
+                        SET_MENU(Menu_StatusHUD);
                         MenuCall = M_StatusHUDDrawer;
                         cursorpos = 0;
 
@@ -2045,8 +2032,7 @@ int M_MenuTicker(void) // 80007E0C
                         S_StartSound(NULL, sfx_pistol);
                         M_SaveMenuData();
 
-                        MenuItem = Merciless_Credits;
-                        itemlines = 15;
+                        SET_MENU(Merciless_Credits);
                         MenuCall = M_CreditsDrawer;
                         cursorpos = 0;
 
@@ -2717,8 +2703,7 @@ int M_ScreenTicker(void) // 8000A0F8
                     S_StartSound(NULL, sfx_pistol);
                     M_SaveMenuData();
 
-                    MenuItem = Menu_DeleteNote;
-                    itemlines = 2;
+                    SET_MENU(Menu_DeleteNote);
                     MenuCall = M_MenuTitleDrawer;
                     cursorpos = 1;
                     MiniLoop(M_FadeInStart, NULL, M_MenuTicker, M_MenuGameDrawer);

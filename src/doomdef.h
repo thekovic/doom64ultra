@@ -1,5 +1,7 @@
 /* DoomDef.h */
 
+#pragma once
+
 #define	VINT	int
 
 /* ULTRA64 LIBRARIES */
@@ -94,6 +96,8 @@ typedef unsigned angle_t;
 #define	FINEANGLES			8192
 #define	FINEMASK			(FINEANGLES-1)
 #define	ANGLETOFINESHIFT	19	/* 0x100000000 to 0x2000 */
+
+#define ARRAYLEN(a) (sizeof(a) / sizeof(a[0]))
 
 //extern	fixed_t		finesine(5*FINEANGLES/4);
 //extern	fixed_t		*finecosine;
