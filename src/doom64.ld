@@ -95,11 +95,7 @@ SECTIONS
    } 
    END_NOLOAD(audio_heap) 
 
-   BEGIN_NOLOAD(mem_heap) 
-   { 
-      BUILD_DIR/src/buffers/mem_heap.o(.bss*);
-   } 
-   END_NOLOAD(mem_heap) 
+   _bss_end = .;
 
    BEGIN_SEG(doom64_wad,_RomSize) {
       "build/DOOM64.WAD.o"

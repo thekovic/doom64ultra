@@ -24,7 +24,7 @@ extern u32 NextFrameIdx;
 
 memzone_t	*mainzone;
 
-extern u64 mem_heap[MEM_HEAP_SIZE / sizeof(u64)]; // 800BA2F0
+extern u8 _bss_end;
 
 /*
 ========================
@@ -40,13 +40,9 @@ void Z_Init (void) // 8002C8F0
 {
 	byte	*mem;
 	int		size;
-    size_t  heapsize = MEM_HEAP_SIZE;
 
-    if (osMemSize < 0x800000)
-        heapsize = 0x26B510;
-
-    mem = (byte *)(u32)(((u32)mem_heap + 15) & ~15);
-    size = (u32)(mem_heap+(heapsize / sizeof(u64))) - (u32)mem;
+    mem = (void*) ALIGN(&_bss_end, 16);
+    size = (byte*)0x80000000 + osMemSize - mem;
 
 	/* mars doesn't have a refzone */
 	mainzone = Z_InitZone(mem, size);
