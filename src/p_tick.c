@@ -168,11 +168,7 @@ void P_CheckCheats (void) // 8002187C
             MenuCall = M_MenuTitleDrawer;
             MenuItem = Menu_Game;
             cursorpos = 0;
-
-            if (FeaturesUnlocked == false)
-                itemlines = 4;
-            else
-                itemlines = 5;  // Enable cheat menu
+            itemlines = 5;
 
             MenuIdx = 0;
             text_alpha = 255;

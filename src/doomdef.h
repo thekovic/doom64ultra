@@ -875,7 +875,6 @@ extern int SfxVolume;               // 8005A7C0
 extern int MusVolume;               // 8005A7C4
 extern int brightness;              // 8005A7C8
 extern int M_SENSITIVITY;           // 8005A7CC
-extern boolean FeaturesUnlocked;    // 8005A7D0
 extern int MotionBob;				// [Immorpher] Motion Bob
 extern int VideoFilter;				// [GEC & Immorpher] VideoFilter
 extern boolean antialiasing;     	// [Immorpher] Anti-aliasing

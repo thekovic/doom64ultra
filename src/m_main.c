@@ -54,7 +54,7 @@ char *ControlText[] =   //8007517C
 #define M_TXT19 "Be Merciless!"
 #define M_TXT20 "Yes"
 #define M_TXT21 "No"
-#define M_TXT22 "Features"
+#define M_TXT22 "Cheats"
 #define M_TXT23 "WARP TO LEVEL"
 #define M_TXT24 "INVULNERABLE"
 #define M_TXT25 "HEALTH BOOST"
@@ -233,7 +233,7 @@ menuitem_t Menu_Game[5] = // 8005AAA4
     { 11, 122, 80 },    // Options
     {  4, 122, 100},    // Main Menu
     {  5, 122, 120},    // Restart Level
-    { 22, 122, 140},    // Features
+    { 22, 122, 140},    // Cheats
 };
 
 menuitem_t Menu_Quit[2] = // 8005AAD4
@@ -345,7 +345,6 @@ int SfxVolume = 100;             // 8005A7C0
 int MusVolume = 80;             // 8005A7C4
 int brightness = 125;             // 8005A7C8
 int M_SENSITIVITY = 0;          // 8005A7CC
-boolean FeaturesUnlocked = true; // 8005A7D0
 int MotionBob = 0x100000; // [Immorpher] Motion Bob works in hexadecimal
 int VideoFilter = 0; // [GEC & Immorpher] Set 3 point filtering on or off
 boolean antialiasing = false; // [Immorpher] Anti-Aliasing
@@ -1177,7 +1176,7 @@ int M_MenuTicker(void) // 80007E0C
                     }
                     break;
 
-                case 22: // Features
+                case 22: // Cheats
                     if (truebuttons)
                     {
                         S_StartSound(NULL, sfx_pistol);
@@ -2140,7 +2139,7 @@ void M_FeaturesDrawer(void) // 800091C0
     menuitem_t *item;
     int i;
 
-    ST_DrawString(-1, 20, "Features", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Cheats", text_alpha | 0xc0000000);
     item = MenuItem;
 
     for(i = 0; i < itemlines; i++)

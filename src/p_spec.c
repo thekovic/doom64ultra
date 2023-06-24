@@ -1208,9 +1208,6 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
             ok = EV_DoCeiling(line, customCeilingToHeight, CEILSPEED);
             break;
         case 253:       /* Unlock Cheat Menu */
-            if(!demoplayback) {
-                FeaturesUnlocked = true;
-            }
             ok = true;
             break;
         case 254:       /* D64 Map33 Logo */

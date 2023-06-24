@@ -18,13 +18,6 @@ int PassInvalidTic;     // 800A55C4
 boolean doPassword = false; // 8005A7A0
 int CurPasswordSlot = 0;    // 8005ACBC
 
-char *passFeatures[3] = 
-{
-    "3n4bl3f34tvr3s??", // New Pass Code By [GEC]
-    "???03?15?1983???",
-    "k41s3r?w4s?h3r3?"
-};
-
 // [GEC] NEW FLAGS
 #define PW_MAPUP     0x20
 #define PW_NIGHTMARE 0x40
@@ -476,14 +469,6 @@ int M_DecodePassword(byte *inbuff, int *levelnum, int *skill, player_t *player) 
         // Apply Health on mobj_t
         //
         player->mo->health = player->health;
-
-        //
-        // Set Cheat Menu If Password Leads To Map 01
-        //
-        if((decode[0] >> 2) == 1)
-        {
-            FeaturesUnlocked = true;
-        }
     }
 
     return true;
@@ -507,14 +492,12 @@ int M_PasswordTicker(void) // 8000C774
 {
     byte *passbuf;
     char *hpassbuf;
-    char *fpassbuf;
     unsigned int buttons;
     unsigned int oldbuttons;
     boolean playsound;
     int exit;
     int skill;
     int levelnum;
-    int i;
 
     if (last_ticon)
     {
@@ -639,25 +622,6 @@ int M_PasswordTicker(void) // 8000C774
                     {
                         run_hectic_demo = true;
                         return ga_exit;
-                    }
-
-                    // [GEC] New Password Code Enable Features Menu.
-                    for (i = 0; i < 3; i++)
-                    {
-                        fpassbuf = passFeatures[i];
-                        passbuf = Passwordbuff;
-                        do
-                        {
-                            if (passwordChar[*passbuf++] != *fpassbuf++)
-                                break;
-
-                        } while (fpassbuf != (passFeatures[i] + 16));
-
-                        if ((passFeatures[i] + 15) < fpassbuf)
-                        {
-                            FeaturesUnlocked = true;
-                            return ga_exit;
-                        }
                     }
 
                     if (M_DecodePassword(Passwordbuff, &levelnum, &skill, NULL) == 0)
