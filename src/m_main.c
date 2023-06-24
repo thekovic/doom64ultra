@@ -463,7 +463,7 @@ int M_RunTitle(void) // 80007630
     G_InitNew(startskill, startmap, gt_single);
     G_RunGame();
 
-    return 0;
+    return ga_nothing;
 }
 
 int M_ControllerPak(void) // 80007724
@@ -505,7 +505,7 @@ int M_ControllerPak(void) // 80007724
             cursorpos = 0;
 
             MiniLoop(M_FadeInStart, NULL, M_MenuTicker, M_MenuGameDrawer);
-            M_FadeOutStart(8);
+            M_FadeOutStart(ga_exit);
 
             if (cursorpos != 0)
             {
@@ -530,7 +530,7 @@ int M_ControllerPak(void) // 80007724
             cursorpos = 0;
 
             MiniLoop(M_FadeInStart, NULL, M_MenuTicker, M_MenuGameDrawer);
-            M_FadeOutStart(8);
+            M_FadeOutStart(ga_exit);
 
             if (cursorpos != 1)
             {
@@ -554,7 +554,7 @@ int M_ControllerPak(void) // 80007724
             cursorpos = 0;
 
             MiniLoop(M_FadeInStart, NULL, M_MenuTicker, M_MenuGameDrawer);
-            M_FadeOutStart(8);
+            M_FadeOutStart(ga_exit);
 
             if (cursorpos != 0)
             {
@@ -620,7 +620,7 @@ int M_AlphaInOutTicker(void) // 80007A14
         if (text_alpha < 0)
         {
             text_alpha = 0;
-            return 8;
+            return ga_exit;
         }
     }
     else
@@ -628,11 +628,11 @@ int M_AlphaInOutTicker(void) // 80007A14
         if ((text_alpha_change_value > 0) && (text_alpha >= 256))
         {
             text_alpha = 255;
-            return 8;
+            return ga_exit;
         }
     }
 
-    return 0;
+    return ga_nothing;
 }
 
 void M_FadeInStart(void) // 80007AB4
@@ -642,7 +642,7 @@ void M_FadeInStart(void) // 80007AB4
 
 void M_FadeOutStart(int exitmode) // 80007AEC
 {
-    if (exitmode == 8)
+    if (exitmode == ga_exit)
         MiniLoop(M_AlphaOutStart, NULL, M_AlphaInOutTicker, M_MenuGameDrawer);
 }
 
@@ -914,7 +914,7 @@ int M_MenuTicker(void) // 80007E0C
                             return ga_nothing;
                         }
 
-                        return 5;//ga_exitdemo;
+                        return ga_exitdemo;
                     }
                     break;
 
@@ -1164,7 +1164,7 @@ int M_MenuTicker(void) // 80007E0C
                     if (truebuttons)
                     {
                         S_StartSound(NULL, sfx_pistol);
-                        return 5; //ga_exitdemo;
+                        return ga_exitdemo;
                     }
                     break;
 
@@ -1192,9 +1192,9 @@ int M_MenuTicker(void) // 80007E0C
                         m_actualmap = gamemap;
 
                         exit = MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
-                        M_RestoreMenuData((exit == 8));
+                        M_RestoreMenuData((exit == ga_exit));
 
-                        if (exit == 8)
+                        if (exit == ga_exit)
                             return ga_nothing;
 
                         return exit;
@@ -1637,9 +1637,9 @@ int M_MenuTicker(void) // 80007E0C
                         cursorpos = 0;
 
                         exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_ScreenTicker, M_MenuGameDrawer);
-                        M_RestoreMenuData((exit == 8));
+                        M_RestoreMenuData((exit == ga_exit));
 
-                        if (exit == 8)
+                        if (exit == ga_exit)
                             return ga_nothing;
 
                         return exit;
@@ -2051,9 +2051,9 @@ int M_MenuTicker(void) // 80007E0C
                         cursorpos = 0;
 
                         exit = MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
-                        M_RestoreMenuData((exit == 8));
+                        M_RestoreMenuData((exit == ga_exit));
 
-                        if (exit == 8)
+                        if (exit == ga_exit)
                             return ga_nothing;
 
                         return exit;
@@ -2717,7 +2717,7 @@ int M_ScreenTicker(void) // 8000A0F8
                     cursorpos = 1;
                     MiniLoop(M_FadeInStart, NULL, M_MenuTicker, M_MenuGameDrawer);
 
-                    M_FadeOutStart(8);
+                    M_FadeOutStart(ga_exit);
                     if (cursorpos == 0)
                     {
                         if (I_DeletePakFile(cursorpos) == 0)
@@ -2738,7 +2738,7 @@ int M_ScreenTicker(void) // 8000A0F8
     else
     {
         S_StartSound(NULL, sfx_pistol);
-        exit = 8;
+        exit = ga_nothing;
     }
     return exit;
 }
@@ -3275,7 +3275,7 @@ int M_CenterDisplayTicker(void) // 8000B4C4
     else
     {
         S_StartSound(NULL, sfx_pistol);
-        exit = 8;
+        exit = ga_nothing;
     }
 
     return exit;
@@ -3344,12 +3344,12 @@ int M_ControlPadTicker(void) // 8000B694
     if (buttons & PAD_START)
     {
         S_StartSound(NULL, sfx_pistol);
-        exit = 8;
+        exit = ga_exit;
     }
     else
     {
         if (buttons == oldbuttons)
-            exit = 0;
+            exit = ga_nothing;
         else
         {
             if (cursorpos == 0) // Set Default Configuration
@@ -3395,7 +3395,7 @@ int M_ControlPadTicker(void) // 8000B694
 
                 D_memcpy(ActualConfiguration, CustomConfiguration, (13*sizeof(int)));
             }
-            exit = 0;
+            exit = ga_nothing;
         }
     }
     return exit;

@@ -76,10 +76,10 @@ int D_LegalTicker(void) // 8002B5F8
         if (text_alpha < 0)
         {
             text_alpha = 0;
-            return 8;
+            return ga_exit;
         }
     }
-    return 0;
+    return ga_nothing;
 }
 
 void D_DrawLegal(void) // 8002B644
@@ -105,9 +105,9 @@ void D_DrawLegal(void) // 8002B644
 int D_NoPakTicker(void) // 8002B7A0
 {
     if ((ticon - last_ticon) >= 240) // 8 * TICRATE
-        return 8;
+        return ga_exit;
 
-    return 0;
+    return ga_nothing;
 }
 
 void D_DrawNoPak(void) // 8002B7F4
