@@ -42,7 +42,7 @@ extern int globalcm;   // 800A68fC r_local.h
 #define SYS_THREAD_ID_MAIN 2
 #define SYS_THREAD_ID_TICKER 3
 
-#define SYS_IDLE_STACKSIZE 0x2020
+#define SYS_IDLE_STACKSIZE 0x400
 OSThread	idle_thread;                        // 800A4A18
 u64	idle_stack[SYS_IDLE_STACKSIZE/sizeof(u64)]; // 800979E0
 
@@ -50,7 +50,7 @@ u64	idle_stack[SYS_IDLE_STACKSIZE/sizeof(u64)]; // 800979E0
 OSThread	main_thread;                        // 800A4BC8
 u64	main_stack[SYS_MAIN_STACKSIZE/sizeof(u64)]; // 80099A00
 
-#define SYS_TICKER_STACKSIZE 0x1000
+#define SYS_TICKER_STACKSIZE 0x800
 OSThread	sys_ticker_thread;                          // 800A4D78
 u64	sys_ticker_stack[SYS_TICKER_STACKSIZE/sizeof(u64)]; // 800A3A00
 
