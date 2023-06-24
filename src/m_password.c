@@ -584,9 +584,9 @@ int M_PasswordTicker(void) // 8000C774
         }
         else
         {
-            if (!(buttons & (ALL_TRIG|PAD_A|PAD_B|PAD_UP_C|PAD_DOWN_C|PAD_RIGHT_C)))
+            if (!(buttons & PAD_A))
             {
-                if (buttons & PAD_LEFT_C)
+                if (buttons & PAD_B)
                 {
                     S_StartSound(0, sfx_switch2);
 
@@ -737,5 +737,5 @@ void M_PasswordDrawer(void) // 8000CAF0
     }
 
     ST_DrawString(-1,195, "press \x8d to exit", text_alpha | 0xffffff00);
-    ST_DrawString(-1,210, "press \x84 to change", text_alpha | 0xffffff00);
+    ST_DrawString(-1,210, "press \x8b to erase", text_alpha | 0xffffff00);
 }

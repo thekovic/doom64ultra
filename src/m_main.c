@@ -776,7 +776,8 @@ int M_MenuTicker(void) // 80007E0C
             }
         }
 
-        if ((buttons & PAD_START) && !(oldticbuttons[0] & PAD_START))
+        if (((buttons & PAD_START) && !(oldticbuttons[0] & PAD_START))
+                || ((buttons & PAD_B) && !(oldticbuttons[0] & PAD_B)))
         {
             if ((MenuItem == Menu_Title) ||
                 (MenuItem == Menu_ControllerPakBad) ||
@@ -798,7 +799,7 @@ int M_MenuTicker(void) // 80007E0C
                 truebuttons = (0 < (buttons ^ oldbuttons));
 
                 if (truebuttons)
-                    truebuttons = (0 < (buttons & ALL_BUTTONS));
+                    truebuttons = (0 < (buttons & PAD_A));
 
                 switch(MenuItem[cursorpos].casepos)
                 {
@@ -931,8 +932,8 @@ int M_MenuTicker(void) // 80007E0C
 
                         exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
 
-                        if (exit == ga_exit && cursorpos == 5) { // [Immorpher] 5th to exit menu
-							M_RestoreMenuData((exit == ga_exit));
+                        if (exit == ga_exit) {
+							M_RestoreMenuData(true);
                             return ga_nothing;
 						}
 						
@@ -1126,8 +1127,8 @@ int M_MenuTicker(void) // 80007E0C
 						
                         exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
 						
-						if (exit == ga_exit && cursorpos == 5) { // [Immorpher] 5th to exit menu
-							M_RestoreMenuData((exit == ga_exit));
+						if (exit == ga_exit) {
+							M_RestoreMenuData(true);
                             return ga_nothing;
 						}
 						
@@ -1153,7 +1154,7 @@ int M_MenuTicker(void) // 80007E0C
                     if (truebuttons)
                     {
                         S_StartSound(NULL, sfx_pistol);
-                        return ga_exit;
+                        return ga_warped;
                     }
                     break;
 
@@ -2092,7 +2093,7 @@ void M_MenuTitleDrawer(void) // 80008E7C
     if (MenuItem == Menu_Game)
     {
         ST_DrawString(-1, 20, "Pause", text_alpha | 0xc0000000);
-        ST_DrawString(-1, 200, "press \x8d to resume", text_alpha | 0xffffff00);
+        ST_DrawString(-1, 210, "press \x8b to resume", text_alpha | 0xffffff00);
     }
     else if (MenuItem == Menu_Skill)
     {
@@ -2307,7 +2308,7 @@ void M_MovementDrawer(void) // 80009738
         {
             text = NULL;
         }
-		
+
 		if (text)
 			ST_DrawString(item->x + 100, item->y, text, text_alpha | 0xc0000000);
 		
@@ -2697,7 +2698,13 @@ int M_ScreenTicker(void) // 8000A0F8
         }
     }
 
-    if (!(buttons ^ oldbuttons) || !(buttons & PAD_START))
+    if (((buttons & PAD_START) && !(oldbuttons & PAD_START))
+            || ((buttons & PAD_B) && !(oldbuttons & PAD_B)))
+    {
+        S_StartSound(NULL, sfx_pistol);
+        exit = ga_exit;
+    }
+    else
     {
         if (buttons ^ oldbuttons)
         {
@@ -2732,11 +2739,6 @@ int M_ScreenTicker(void) // 8000A0F8
                 }
             }
         }
-        exit = 0;
-    }
-    else
-    {
-        S_StartSound(NULL, sfx_pistol);
         exit = ga_nothing;
     }
     return exit;
@@ -2757,7 +2759,7 @@ void M_ControllerPakDrawer(void) // 8000A3E4
         if ((MenuAnimationTic & 2) != 0)
             ST_DrawString(-1, 114, "Controller Pak removed!", text_alpha | 0xc0000000);
 
-        ST_DrawString(-1, 210, "press \x8d to exit", text_alpha | 0xffffff00);
+        ST_DrawString(-1, 210, "press \x8b to exit", text_alpha | 0xffffff00);
     }
     else
     {
@@ -2814,7 +2816,7 @@ void M_ControllerPakDrawer(void) // 8000A3E4
         ST_DrawString(-1, 170, buffer, text_alpha | 0xc0000000);
         ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 51, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
-        ST_DrawString(-1, 200, "press \x8d to exit", text_alpha | 0xffffff00);
+        ST_DrawString(-1, 200, "press \x8b to exit", text_alpha | 0xffffff00);
         ST_DrawString(-1, 215, "press \x84\x85 to delete", text_alpha | 0xffffff00);
     }
 }
@@ -2889,7 +2891,9 @@ int M_SavePakTicker(void) // 8000A804
     buttons = M_ButtonResponder(ticbuttons[0]);
     oldbuttons = oldticbuttons[0] & 0xffff0000;
 
-    if ((buttons != oldbuttons) && (buttons & PAD_START)) {
+    if (((buttons & PAD_START) && !(oldbuttons & PAD_START))
+            || ((buttons & PAD_B) && !(oldbuttons & PAD_B)))
+    {
         return ga_exit;
     }
 
@@ -3018,7 +3022,7 @@ void M_SavePakDrawer(void) // 8000AB44
             ST_DrawString(-1, 120, "Game cannot be saved.", 0xc00000ff);
         }
 
-        ST_DrawString(-1, 210, "press \x8d to exit", text_alpha | 0xffffff00);
+        ST_DrawString(-1, 210, "press \x8b to exit", text_alpha | 0xffffff00);
     }
     else
     {
@@ -3044,7 +3048,7 @@ void M_SavePakDrawer(void) // 8000AB44
 
         ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 56, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
-        ST_DrawString(-1, 195, "press \x8d to exit", text_alpha | 0xffffff00);
+        ST_DrawString(-1, 195, "press \x8b to exit", text_alpha | 0xffffff00);
         ST_DrawString(-1, 210, "press \x84\x85 to save", text_alpha | 0xffffff00);
     }
 
@@ -3156,7 +3160,12 @@ int M_LoadPakTicker(void) // 8000AFE4
         }
     }
 
-    if (!(buttons ^ oldbuttons) || !(buttons & PAD_START))
+    if (((buttons & PAD_START) && !(oldbuttons & PAD_START))
+            || ((buttons & PAD_B) && !(oldbuttons & PAD_B)))
+    {
+        exit = ga_exit;
+    }
+    else
     {
         if (!(buttons ^ oldbuttons) || buttons != (PAD_RIGHT_C|PAD_LEFT_C) ||
             (Pak_Data[cursorpos * 32] == 0))
@@ -3185,10 +3194,6 @@ int M_LoadPakTicker(void) // 8000AFE4
                 exit = ga_warped;
             }
         }
-    }
-    else
-    {
-        exit = ga_exit;
     }
 
     return exit;
@@ -3226,7 +3231,7 @@ void M_LoadPakDrawer(void) // 8000B270
 
     ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 56, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
-    ST_DrawString(-1, 195, "press \x8D to exit", text_alpha | 0xffffff00);
+    ST_DrawString(-1, 195, "press \x8b to exit", text_alpha | 0xffffff00);
     ST_DrawString(-1, 210, "press \x84\x85 to load", text_alpha | 0xffffff00);
 }
 
@@ -3238,7 +3243,13 @@ int M_CenterDisplayTicker(void) // 8000B4C4
     buttons = M_ButtonResponder(ticbuttons[0]);
     oldbuttons = oldticbuttons[0] & 0xffff0000;
 
-    if ((buttons == oldbuttons) || !(buttons & PAD_START))
+    if (((buttons & PAD_START) && !(oldbuttons & PAD_START))
+            || ((buttons & PAD_B) && !(oldbuttons & PAD_B)))
+    {
+        S_StartSound(NULL, sfx_pistol);
+        exit = ga_exit;
+    }
+    else
     {
         if (buttons & PAD_LEFT)
         {
@@ -3269,11 +3280,6 @@ int M_CenterDisplayTicker(void) // 8000B4C4
         if (buttons & ALL_JPAD)
             I_MoveDisplay(Display_X, Display_Y);
 
-        exit = 0;
-    }
-    else
-    {
-        S_StartSound(NULL, sfx_pistol);
         exit = ga_nothing;
     }
 
@@ -3284,7 +3290,7 @@ void M_CenterDisplayDrawer(void) // 8000B604
 {
     ST_DrawString(-1, 20, "Center Display", text_alpha | 0xc0000000);
     ST_DrawString(-1, 114, "use gamepad to adjust", text_alpha | 0xffffff00);
-    ST_DrawString(-1, 210, "press \x8d to exit", text_alpha | 0xffffff00);
+    ST_DrawString(-1, 210, "press \x8b to exit", text_alpha | 0xffffff00);
 }
 
 int M_ControlPadTicker(void) // 8000B694
@@ -3340,7 +3346,7 @@ int M_ControlPadTicker(void) // 8000B694
     buttons = ticbuttons[0] & 0xffff0000;
     oldbuttons = oldticbuttons[0] & 0xffff0000;
 
-    if (buttons & PAD_START)
+    if ((buttons & PAD_START) && !(oldbuttons & PAD_START))
     {
         S_StartSound(NULL, sfx_pistol);
         exit = ga_exit;
