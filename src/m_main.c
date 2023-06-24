@@ -3277,7 +3277,13 @@ int M_CenterDisplayTicker(void) // 8000B4C4
                 Display_Y = 12;
         }
 
-        if (buttons & ALL_JPAD)
+        if ((buttons & PAD_A) && !(oldbuttons & PAD_A) && (Display_X || Display_Y))
+        {
+            Display_X = 0;
+            Display_Y = 0;
+        }
+
+        if (buttons & (ALL_JPAD|PAD_A))
             I_MoveDisplay(Display_X, Display_Y);
 
         exit = ga_nothing;
@@ -3290,6 +3296,7 @@ void M_CenterDisplayDrawer(void) // 8000B604
 {
     ST_DrawString(-1, 20, "Center Display", text_alpha | 0xc0000000);
     ST_DrawString(-1, 114, "use gamepad to adjust", text_alpha | 0xffffff00);
+    ST_DrawString(-1, 190, "press \x8a to reset", text_alpha | 0xffffff00);
     ST_DrawString(-1, 210, "press \x8b to exit", text_alpha | 0xffffff00);
 }
 
