@@ -10,26 +10,40 @@ extern void P_RefreshVideo(void);
 //intermission
 int DrawerStatus;
 
-#define CT_TXT00	"default: %d"
-#define CT_TXT01	"right"
-#define CT_TXT02	"left"
-#define CT_TXT03	"forward"
-#define CT_TXT04	"backward"
-#define CT_TXT05	"attack"
-#define CT_TXT06	"use"
-#define CT_TXT07	"map"
-#define CT_TXT08	"speed"
-#define CT_TXT09	"strafe on"
-#define CT_TXT10	"strafe left"
-#define CT_TXT11	"strafe right"
-#define CT_TXT12	"weapon backward"
-#define CT_TXT13	"weapon forward"
+#define CT_TXT00	"default: %s"
+#define CT_TXT01	"  stick:"
+
+#define CT_TXT02	"move forward"
+#define CT_TXT03	"move backward"
+#define CT_TXT04	"strafe left"
+#define CT_TXT05	"strafe right"
+#define CT_TXT06	"strafe on"
+#define CT_TXT07	"attack"
+#define CT_TXT08	"run"
+#define CT_TXT09	"jump"
+#define CT_TXT10	"crouch"
+
+#define CT_TXT11	"turn left"
+#define CT_TXT12	"turn right"
+#define CT_TXT13	"look up"
+#define CT_TXT14	"look down"
+#define CT_TXT15	"look on"
+#define CT_TXT16	"use"
+#define CT_TXT17	"weapon up"
+#define CT_TXT18	"weapon down"
+#define CT_TXT19	"map"
 
 char *ControlText[] =   //8007517C
 {
     CT_TXT00, CT_TXT01, CT_TXT02, CT_TXT03, CT_TXT04,
 	CT_TXT05, CT_TXT06, CT_TXT07, CT_TXT08, CT_TXT09,
-	CT_TXT10, CT_TXT11, CT_TXT12, CT_TXT13
+	CT_TXT10, CT_TXT11, CT_TXT12, CT_TXT13, CT_TXT14,
+    CT_TXT15, CT_TXT16, CT_TXT17, CT_TXT18, CT_TXT19
+};
+
+u8 ControlMappings[] = {
+    2,  3,  9, 10,  8,  4,  7, 16, 17,
+    1,  0, 14, 15,  13, 5, 12, 11, 6
 };
 
 #define M_TXT00	"Gamepad"
@@ -77,6 +91,8 @@ char *ControlText[] =   //8007517C
 #define M_TXT41 "Movement"
 #define M_TXT42 "Original" // Original default for Doom 64
 #define M_TXT43 "Sensitivity"
+#define M_TXT87 "Vert Look:"
+#define M_TXT88 "Autoaim:"
 #define M_TXT44 "Manage Pak"
 #define M_TXT45 "Do not use Pak"
 #define M_TXT46 "Try again"
@@ -103,6 +119,7 @@ char *ControlText[] =   //8007517C
 #define M_TXT65 "WARP TO MOTHER" // [Immorpher] New features menu warps
 #define M_TXT66 "WARP TO SECRET" // [Immorpher] New features menu warps
 #define M_TXT67 "Colored:" // [Immorpher] Colored hud
+#define M_TXT86 "Crosshair:" // [Immorpher] Crosshair
 #define M_TXT68 "GAMMA CORRECT"   // [Immorpher] NEW CHEAT CODE
 
 // Merciless Edition Credits
@@ -142,7 +159,7 @@ char *MenuText[] =   // 8005ABA0
     M_TXT70, M_TXT71, M_TXT72, M_TXT73, M_TXT74,
     M_TXT75, M_TXT76, M_TXT77, M_TXT78, M_TXT79,
     M_TXT80, M_TXT81, M_TXT82, M_TXT83, M_TXT84,
-    M_TXT85
+    M_TXT85, M_TXT86, M_TXT87, M_TXT88
 };
 
 menuitem_t Menu_Title[] = // 8005A978
@@ -186,7 +203,9 @@ menuitem_t Menu_Movement[] = // [Immorpher] Movement
     { 52, 82, 60 },    // Motion Bob
     { 43, 82, 100 },   // Sensitivity
     { 12, 82, 140},    // Autorun
-    {  6, 82, 160},    // Return
+    { 87, 82, 160},    // Vertical Look
+    { 88, 82, 180},    // Autoaim
+    {  6, 82, 200},    // Return
 };
 
 menuitem_t Menu_Video[] = // 8005AA5C
@@ -214,8 +233,9 @@ menuitem_t Menu_StatusHUD[] = // [Immorpher] Status HUD
     { 64, 82, 60},   	// Margin
     { 34, 82, 100},    // Opacity
     { 67, 82, 140},    // Colored HUD
-    { 33, 82, 160},    // Messages
-    {  6, 82, 180},    // Return
+    { 86, 82, 160},    // Crosshair
+    { 33, 82, 180},    // Messages
+    {  6, 82, 200},    // Return
 };
 
 menuitem_t Menu_Defaults[] = // [Immorpher] Defaults menu
@@ -336,7 +356,7 @@ int EnableExpPak;       // 800A55A8
 
 int MenuIdx = 0;                // 8005A7A4
 int text_alpha = 255;           // 8005A7A8
-int ConfgNumb = 0;              // 8005A7AC
+int ConfgNumb[MAXPLAYERS] = {0}; // 8005A7AC
 int Display_X = 0;              // 8005A7B0
 int Display_Y = 0;              // 8005A7B4
 boolean enable_messages = true; // 8005A7B8
@@ -344,92 +364,133 @@ int HUDopacity = 255;			// [Immorpher] HUD opacity
 int SfxVolume = 100;             // 8005A7C0
 int MusVolume = 80;             // 8005A7C4
 int brightness = 125;             // 8005A7C8
-int M_SENSITIVITY = 0;          // 8005A7CC
-int MotionBob = 0x100000; // [Immorpher] Motion Bob works in hexadecimal
+fixed_t MotionBob = 0x100000; // [Immorpher] Motion Bob works in hexadecimal
 int VideoFilter = 0; // [GEC & Immorpher] Set 3 point filtering on or off
 boolean antialiasing = false; // [Immorpher] Anti-Aliasing
 boolean interlacing = false; // [Immorpher] Interlacing
 boolean DitherFilter = false; // [Immorpher] Dither filter
 int ColorDither = 0; // [Immorpher] Color dithering options (Off, Square, Bayer, Noise)
 int FlashBrightness = 32; // [Immorpher] Strobe brightness adjustment, will need to change to float
-boolean Autorun = true; // [Immorpher] New autorun option!
 boolean runintroduction = false; // [Immorpher] New introduction sequence!
 boolean StoryText = false; // [Immorpher] Skip story cut scenes?
 boolean MapStats = false; // [Immorpher] Enable map statistics for automap?
 int HUDmargin = 20; // [Immorpher] HUD margin options (default 20)
-boolean ColoredHUD = false; // [Immorpher] Colored hud
+boolean ColoredHUD = true; // [Immorpher] Colored hud
 
-int __attribute__((aligned(16))) TempConfiguration[13] = // 8005A80C
-{
-    PAD_LEFT, PAD_RIGHT, PAD_UP, PAD_DOWN,
-    PAD_LEFT_C, PAD_RIGHT_C, PAD_UP_C, PAD_DOWN_C,
-    PAD_L_TRIG, PAD_R_TRIG, PAD_A, PAD_B, PAD_Z_TRIG
-};
+boolean ConfigChanged = false;
 
-int __attribute__((aligned(16))) ActualConfiguration[13] = // 8005A840
+controls_t CurrentControls[MAXPLAYERS] __attribute__((aligned(16))) = {
 {
+    {{
     PAD_RIGHT, PAD_LEFT, PAD_UP, PAD_DOWN,
     PAD_Z_TRIG,
     PAD_RIGHT_C, PAD_UP_C, PAD_LEFT_C, PAD_DOWN_C,
-    PAD_L_TRIG, PAD_R_TRIG, PAD_A, PAD_B
+    PAD_L_TRIG, PAD_R_TRIG, PAD_A, PAD_B,
+    }},
+    STICK_MOVE | STICK_TURN
+}
 };
 
-int __attribute__((aligned(16))) CustomConfiguration[13] =
+char *ControlSetupNames[MAXCONTROLSETUPS] =
 {
-    PAD_RIGHT, PAD_LEFT, PAD_UP, PAD_DOWN,
-    PAD_Z_TRIG,
-    PAD_RIGHT_C, PAD_UP_C, PAD_LEFT_C, PAD_DOWN_C,
-    PAD_L_TRIG, PAD_R_TRIG, PAD_A, PAD_B
+    "Classic", "Modern", "Arcade", "Dark", "Hunter", "Action", "Nuke", "Fighter",
 };
 
-int __attribute__((aligned(16))) DefaultConfiguration[6][13] = // 8005A840
-{
-    // Default 1
+controls_t DefaultControlSetups[MAXCONTROLSETUPS] __attribute__((aligned(16))) = {
+    // Classic
     {
+        {{
         PAD_RIGHT, PAD_LEFT, PAD_UP, PAD_DOWN,
         PAD_Z_TRIG,
         PAD_RIGHT_C, PAD_UP_C, PAD_LEFT_C, PAD_DOWN_C,
-        PAD_L_TRIG, PAD_R_TRIG, PAD_A, PAD_B
+        PAD_L_TRIG, PAD_R_TRIG, PAD_A, PAD_B,
+        0, 0, 0, 0, 0,
+        }},
+        STICK_MOVE | STICK_TURN
     },
 
-    // Default 2
+    // Modern
     {
-        PAD_RIGHT, PAD_LEFT, PAD_UP, PAD_DOWN,
+        {{
+        PAD_RIGHT_C, PAD_LEFT_C, 0, 0,
         PAD_Z_TRIG,
-        PAD_RIGHT_C, PAD_UP_C, PAD_R_TRIG, PAD_L_TRIG,
-        PAD_A, PAD_DOWN_C, PAD_B, PAD_LEFT_C
+        PAD_B, PAD_L_TRIG, 0, 0,
+        0, 0, PAD_LEFT, PAD_RIGHT,
+        0, PAD_UP_C, PAD_DOWN_C, PAD_A, PAD_R_TRIG,
+        }},
+        STICK_MOVE | STICK_STRAFE
     },
 
-    // Default 3
+    // Arcade
     {
-        PAD_RIGHT, PAD_LEFT, PAD_UP, PAD_DOWN,
+        {{
+        0, 0, PAD_UP_C, PAD_DOWN_C,
         PAD_Z_TRIG,
-        PAD_UP_C, PAD_UP, PAD_R_TRIG, PAD_DOWN, 
-        PAD_LEFT_C, PAD_RIGHT_C, PAD_A, PAD_B
+        PAD_R_TRIG, PAD_L_TRIG, 0, 0,
+        PAD_LEFT_C, PAD_RIGHT_C, PAD_A, PAD_B,
+        0, 0, 0, PAD_UP, PAD_DOWN,
+        }},
+        STICK_VLOOK | STICK_TURN
     },
 
-    // Default 4
+    // Dark
     {
-        PAD_RIGHT_C, PAD_LEFT_C, PAD_UP, PAD_DOWN,
+        {{
+        0, 0, 0, 0,
         PAD_Z_TRIG,
-        PAD_UP, PAD_UP_C, PAD_L_TRIG, PAD_DOWN_C,
-        PAD_LEFT, PAD_RIGHT, PAD_A, PAD_B
+        PAD_B, PAD_L_TRIG, 0, 0,
+        PAD_LEFT_C, PAD_RIGHT_C, 0, PAD_A,
+        PAD_R_TRIG, PAD_UP_C, PAD_DOWN_C, PAD_UP, PAD_DOWN,
+        }},
+        STICK_MOVE | STICK_TURN
     },
 
-    // Default 5
+    // Hunter
     {
-        PAD_RIGHT, PAD_LEFT, PAD_UP, PAD_DOWN,
-        PAD_A,
-        PAD_RIGHT_C, PAD_UP_C, PAD_DOWN_C, PAD_Z_TRIG,
-        PAD_L_TRIG, PAD_R_TRIG, PAD_B, PAD_LEFT_C
+        {{
+        0, 0, PAD_UP_C, PAD_DOWN_C,
+        PAD_Z_TRIG,
+        PAD_RIGHT, PAD_L_TRIG, 0, 0,
+        PAD_LEFT_C, PAD_RIGHT_C, PAD_B, PAD_A,
+        PAD_R_TRIG, 0, 0, PAD_R_TRIG, PAD_DOWN,
+        }},
+        STICK_VLOOK | STICK_TURN
     },
-	
-	// Default 6 - New Immorpher's Retro Fighter Controller
+
+    // Action
     {
+        {{
+        0, 0, 0, 0,
+        PAD_Z_TRIG,
+        PAD_R_TRIG, PAD_L_TRIG, 0, 0,
+        PAD_LEFT_C, PAD_RIGHT_C, PAD_B, PAD_A,
+        0, PAD_UP, PAD_DOWN, PAD_UP_C, PAD_DOWN_C,
+        }},
+        STICK_MOVE | STICK_TURN
+    },
+
+    // Nuke
+    {
+        {{
+        0, 0, PAD_UP_C, PAD_DOWN_C,
+        PAD_Z_TRIG,
+        PAD_A, PAD_L_TRIG, 0, 0,
+        PAD_LEFT_C, PAD_RIGHT_C, PAD_LEFT, PAD_RIGHT,
+        0, 0, 0, PAD_R_TRIG, PAD_B,
+        }},
+        STICK_VLOOK | STICK_TURN
+    },
+
+    // Fighter
+    {
+        {{
         PAD_RIGHT, PAD_LEFT, PAD_UP_C, PAD_DOWN_C,
         PAD_Z_TRIG,
-        PAD_B, PAD_A, PAD_UP, PAD_DOWN,
-        PAD_LEFT_C, PAD_RIGHT_C, PAD_L_TRIG, PAD_R_TRIG
+        PAD_B, PAD_A, 0, 0,
+        PAD_LEFT_C, PAD_RIGHT_C, PAD_L_TRIG, PAD_R_TRIG,
+        0, 0, 0, PAD_UP, PAD_DOWN,
+        }},
+        STICK_TURN | STICK_VLOOK
     }
 };
 
@@ -640,7 +701,14 @@ void M_FadeInStart(void) // 80007AB4
 void M_FadeOutStart(int exitmode) // 80007AEC
 {
     if (exitmode == ga_exit)
+    {
+        if (ConfigChanged)
+        {
+            ConfigChanged = false;
+        }
+
         MiniLoop(M_AlphaOutStart, NULL, M_AlphaInOutTicker, M_MenuGameDrawer);
+    }
 }
 
 void M_SaveMenuData(void) // 80007B2C
@@ -961,6 +1029,7 @@ int M_MenuTicker(void) // 80007E0C
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
                             }
+                            ConfigChanged = true;
                         }
                         else
                         {
@@ -982,6 +1051,7 @@ int M_MenuTicker(void) // 80007E0C
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
                             }
+                            ConfigChanged = true;
                         }
                     }
                     break;
@@ -998,6 +1068,7 @@ int M_MenuTicker(void) // 80007E0C
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
                             }
+                            ConfigChanged = true;
                         }
                         else
                         {
@@ -1019,6 +1090,7 @@ int M_MenuTicker(void) // 80007E0C
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
                             }
+                            ConfigChanged = true;
                         }
                     }
                     break;
@@ -1035,6 +1107,7 @@ int M_MenuTicker(void) // 80007E0C
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
                             }
+                            ConfigChanged = true;
                         }
                         else
                         {
@@ -1056,6 +1129,7 @@ int M_MenuTicker(void) // 80007E0C
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
                             }
+                            ConfigChanged = true;
                         }
                     }
                     break;
@@ -1084,7 +1158,7 @@ int M_MenuTicker(void) // 80007E0C
                     if (truebuttons)
                     {
                         S_StartSound(NULL, sfx_switch2);
-                        Autorun ^= true;
+                        playerconfigs[0].autorun ^= true;
                         return ga_nothing;
                     }
                     break;
@@ -1327,12 +1401,12 @@ int M_MenuTicker(void) // 80007E0C
                             players[0].weaponowned[i] = true;
                         }
 
-			if (!players[0].backpack)
-			{
-			    for (i=0 ; i<NUMAMMO ; i++)
-				players[0].maxammo[i] *= 2;
-			    players[0].backpack = true;
-			}
+                        if (!players[0].backpack)
+                        {
+                            for (i=0 ; i<NUMAMMO ; i++)
+                                players[0].maxammo[i] *= 2;
+                            players[0].backpack = true;
+                        }
 
                         for(i = 0; i < NUMAMMO; i++) {
                             players[0].ammo[i] = players[0].maxammo[i];
@@ -1400,6 +1474,7 @@ int M_MenuTicker(void) // 80007E0C
                     {
                         S_StartSound(NULL, sfx_switch2);
                         enable_messages ^= true;
+                        ConfigChanged = true;
                         return ga_nothing;
                     }
                     break;
@@ -1415,6 +1490,7 @@ int M_MenuTicker(void) // 80007E0C
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
                             }
+                            ConfigChanged = true;
                         }
                         else
                         {
@@ -1435,6 +1511,7 @@ int M_MenuTicker(void) // 80007E0C
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
                             }
+                            ConfigChanged = true;
                         }
                     }
                     break;
@@ -1541,9 +1618,6 @@ int M_MenuTicker(void) // 80007E0C
 						
 						// Set movement/controller options
 						MotionBob = 0x100000;
-                        M_SENSITIVITY = 0; // stick sensitivity
-						ConfgNumb = 0;    // gamepad configuration
-						Autorun = false;
 
 						// Set video options
                         brightness = 0;
@@ -1569,13 +1643,23 @@ int M_MenuTicker(void) // 80007E0C
                         MusVolume = 0x50;
 						
 						// Reset functions
-						D_memcpy(ActualConfiguration, DefaultConfiguration[ConfgNumb], (13 * sizeof(int)));
+                        for (int i = 0; i < MAXPLAYERS; i++)
+                        {
+                            ConfgNumb[i] = 0;    // gamepad configuration
+                            D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
+                            playerconfigs[i].crosshair = 0;
+                            playerconfigs[i].sensitivity = 0;
+                            playerconfigs[i].verticallook = 1;
+                            playerconfigs[i].autorun = false;
+                            playerconfigs[i].autoaim = true;
+                        }
                         I_MoveDisplay(0,0);
                         P_RefreshBrightness();
 						P_RefreshVideo();
                         S_SetMusicVolume(MusVolume);
                         S_SetSoundVolume(SfxVolume);
 						
+                        ConfigChanged = true;
                         return ga_nothing;
                     }
                     break;
@@ -1583,34 +1667,36 @@ int M_MenuTicker(void) // 80007E0C
                 case 43: // Sensitivity
                     if (buttons & PAD_RIGHT)
                     {
-                        M_SENSITIVITY += 1;
-                        if (M_SENSITIVITY <= 100)
+                        playerconfigs[0].sensitivity += 1;
+                        if (playerconfigs[0].sensitivity <= 100)
                         {
-                            if (M_SENSITIVITY & 1)
+                            if (playerconfigs[0].sensitivity & 1)
                             {
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
                             }
+                            ConfigChanged = true;
                         }
                         else
                         {
-                            M_SENSITIVITY = 100;
+                            playerconfigs[0].sensitivity = 100;
                         }
                     }
                     else if (buttons & PAD_LEFT)
                     {
-                        M_SENSITIVITY -= 1;
-                        if (M_SENSITIVITY < 0)
+                        playerconfigs[0].sensitivity -= 1;
+                        if (playerconfigs[0].sensitivity < 0)
                         {
-                            M_SENSITIVITY = 0;
+                            playerconfigs[0].sensitivity = 0;
                         }
                         else
                         {
-                            if (M_SENSITIVITY & 1)
+                            if (playerconfigs[0].sensitivity & 1)
                             {
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
                             }
+                            ConfigChanged = true;
                         }
                     }
                     break;
@@ -1666,6 +1752,7 @@ int M_MenuTicker(void) // 80007E0C
 						{
 							VideoFilter = 0;
 						}
+                        ConfigChanged = true;
                         return ga_nothing;
                     }
                     break;
@@ -1697,6 +1784,7 @@ int M_MenuTicker(void) // 80007E0C
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
                             }
+                            ConfigChanged = true;
                         }
                         else
                         {
@@ -1717,6 +1805,7 @@ int M_MenuTicker(void) // 80007E0C
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
                             }
+                            ConfigChanged = true;
                         }
                     }
                     break;		
@@ -1727,6 +1816,7 @@ int M_MenuTicker(void) // 80007E0C
                         S_StartSound(NULL, sfx_switch2);
                         DitherFilter ^= true;
 						P_RefreshVideo();
+                        ConfigChanged = true;
                         return ga_nothing;
                     }
                     break;
@@ -1737,6 +1827,7 @@ int M_MenuTicker(void) // 80007E0C
                         S_StartSound(NULL, sfx_switch2);
                         antialiasing ^= true;
 						P_RefreshVideo();
+                        ConfigChanged = true;
                         return ga_nothing;
                     }
                     break;
@@ -1747,6 +1838,7 @@ int M_MenuTicker(void) // 80007E0C
                         S_StartSound(NULL, sfx_switch2);
                         interlacing ^= true;
 						P_RefreshVideo();
+                        ConfigChanged = true;
                         return ga_nothing;
                     }
                     break;	
@@ -1760,6 +1852,7 @@ int M_MenuTicker(void) // 80007E0C
 						{
 							ColorDither = 0;
 						}
+                        ConfigChanged = true;
                         return ga_nothing;
                     }
                     break;
@@ -1775,6 +1868,7 @@ int M_MenuTicker(void) // 80007E0C
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
                             }
+                            ConfigChanged = true;
                         }
                         else
                         {
@@ -1795,6 +1889,7 @@ int M_MenuTicker(void) // 80007E0C
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
                             }
+                            ConfigChanged = true;
                         }
                     }
                     break;	
@@ -1806,9 +1901,6 @@ int M_MenuTicker(void) // 80007E0C
 						
 						// Set movement/controller options
 						MotionBob = 0x100000;
-                        M_SENSITIVITY = 0; // stick sensitivity
-						ConfgNumb = 0;    // gamepad configuration
-						Autorun = false;
 
 						// Set video options
                         brightness = 100;
@@ -1834,12 +1926,22 @@ int M_MenuTicker(void) // 80007E0C
                         MusVolume = 0x50;
 						
 						// Reset functions
-						D_memcpy(ActualConfiguration, DefaultConfiguration[ConfgNumb], (13 * sizeof(int)));
+                        for (int i = 0; i < MAXPLAYERS; i++)
+                        {
+                            ConfgNumb[i] = 0;    // gamepad configuration
+                            D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
+                            playerconfigs[i].crosshair = 0;
+                            playerconfigs[i].sensitivity = 0;
+                            playerconfigs[i].verticallook = 1;
+                            playerconfigs[i].autorun = false;
+                            playerconfigs[i].autoaim = true;
+                        }
                         I_MoveDisplay(0,0);
                         P_RefreshBrightness();
 						P_RefreshVideo();
                         S_SetMusicVolume(MusVolume);
                         S_SetSoundVolume(SfxVolume);
+                        ConfigChanged = true;
 						
                         return ga_nothing;
                     }
@@ -1852,9 +1954,6 @@ int M_MenuTicker(void) // 80007E0C
 						
 						// Set movement/controller options
 						MotionBob = 0x100000;
-                        M_SENSITIVITY = 0; // stick sensitivity
-						ConfgNumb = 5;    // gamepad configuration
-						Autorun = true;
 
 						// Set video options
                         brightness = 200;
@@ -1880,12 +1979,22 @@ int M_MenuTicker(void) // 80007E0C
                         MusVolume = 0x50;
 						
 						// Reset functions
-						D_memcpy(ActualConfiguration, DefaultConfiguration[ConfgNumb], (13 * sizeof(int)));
+                        for (int i = 0; i < MAXPLAYERS; i++)
+                        {
+                            ConfgNumb[i] = 6;    // gamepad configuration
+                            D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
+                            playerconfigs[i].crosshair = 2;
+                            playerconfigs[i].sensitivity = 0;
+                            playerconfigs[i].verticallook = 1;
+                            playerconfigs[i].autorun = true;
+                            playerconfigs[i].autoaim = false;
+                        }
                         I_MoveDisplay(0,0);
                         P_RefreshBrightness();
 						P_RefreshVideo();
                         S_SetMusicVolume(MusVolume);
                         S_SetSoundVolume(SfxVolume);
+                        ConfigChanged = true;
 						
                         return ga_nothing;
                     }
@@ -1898,9 +2007,6 @@ int M_MenuTicker(void) // 80007E0C
 						
 						// Set movement/controller options
 						MotionBob = 0x0;
-                        M_SENSITIVITY = 0; // stick sensitivity
-						ConfgNumb = 0;    // gamepad configuration
-						Autorun = true;
 
 						// Set video options
                         brightness = 200;
@@ -1926,12 +2032,22 @@ int M_MenuTicker(void) // 80007E0C
                         MusVolume = 0x50;
 						
 						// Reset functions
-						D_memcpy(ActualConfiguration, DefaultConfiguration[ConfgNumb], (13 * sizeof(int)));
+                        for (int i = 0; i < MAXPLAYERS; i++)
+                        {
+                            ConfgNumb[i] = 0;    // gamepad configuration
+                            D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
+                            playerconfigs[i].crosshair = 2;
+                            playerconfigs[i].sensitivity = 0;
+                            playerconfigs[i].verticallook = 1;
+                            playerconfigs[i].autorun = true;
+                            playerconfigs[i].autoaim = true;
+                        }
                         I_MoveDisplay(0,0);
                         P_RefreshBrightness();
 						P_RefreshVideo();
                         S_SetMusicVolume(MusVolume);
                         S_SetSoundVolume(SfxVolume);
+                        ConfigChanged = true;
 						
                         return ga_nothing;
                     }
@@ -1982,6 +2098,7 @@ int M_MenuTicker(void) // 80007E0C
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
                             }
+                            ConfigChanged = true;
                         }
                         else
                         {
@@ -2002,6 +2119,7 @@ int M_MenuTicker(void) // 80007E0C
                                 S_StartSound(NULL, sfx_secmove);
                                 return ga_nothing;
                             }
+                            ConfigChanged = true;
                         }
                     }
                     break;	
@@ -2011,6 +2129,7 @@ int M_MenuTicker(void) // 80007E0C
                     {
                         S_StartSound(NULL, sfx_switch2);
                         ColoredHUD ^= true;
+                        ConfigChanged = true;
                         return ga_nothing;
                     }
                     break;	
@@ -2057,7 +2176,36 @@ int M_MenuTicker(void) // 80007E0C
                         return ga_nothing;
                     }
                     break;
-					
+                case 86: // [Immorpher] Crosshair
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+                        playerconfigs[0].crosshair += 1;
+                        if (playerconfigs[0].crosshair > 3)
+                            playerconfigs[0].crosshair = 0;
+                        ConfigChanged = true;
+                        return ga_nothing;
+                    }
+                    break;
+                case 87: // [nova] Vertical Look
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+                        playerconfigs[0].verticallook
+                            = playerconfigs[0].verticallook == 1 ? -1 : 1;
+                        ConfigChanged = true;
+                        return ga_nothing;
+                    }
+                    break;
+                case 88: // [nova] Auto aim
+                    if (truebuttons)
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+                        playerconfigs[0].autoaim ^= true;
+                        ConfigChanged = true;
+                        return ga_nothing;
+                    }
+                    break;
 			}
             exit = ga_nothing;
         }
@@ -2282,10 +2430,24 @@ void M_MovementDrawer(void) // 80009738
     for(i = 0; i < itemlines; i++)
     {
         casepos = item->casepos;
-		
-		if (casepos == 12) // [Immorpher] Autorun
+
+        if (casepos == 12) // [Immorpher] Autorun
         {
-            if (Autorun)
+            if (playerconfigs[0].autorun)
+                text = "On";
+            else
+                text = "Off";
+        }
+        else if (casepos == 87) // [nova] Vertical Look
+        {
+            if (playerconfigs[0].verticallook == 1)
+                text = "Normal";
+            else
+                text = "Inverted";
+        }
+        else if (casepos == 88) // [nova] Autoaim
+        {
+            if (playerconfigs[0].autoaim)
                 text = "On";
             else
                 text = "Off";
@@ -2296,7 +2458,7 @@ void M_MovementDrawer(void) // 80009738
         }
 
 		if (text)
-			ST_DrawString(item->x + 100, item->y, text, text_alpha | 0xc0000000);
+			ST_DrawString(item->x + 120, item->y, text, text_alpha | 0xc0000000);
 		
         ST_DrawString(item->x, item->y, MenuText[item->casepos], text_alpha | 0xc0000000);
         item++;
@@ -2306,7 +2468,7 @@ void M_MovementDrawer(void) // 80009738
 
 	// Sensitivity
     ST_DrawSymbol(82,120,68,text_alpha | 0xffffff00);
-    ST_DrawSymbol(M_SENSITIVITY + 83, 120, 69, text_alpha | 0xffffff00);
+    ST_DrawSymbol(playerconfigs[0].sensitivity + 83, 120, 69, text_alpha | 0xffffff00);
 	
 	// Motion bob
     ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
@@ -2463,7 +2625,18 @@ void M_StatusHUDDrawer(void) // 80009884
                 text = "On";
             else
                 text = "Off";
-        }
+        }	
+        else if (casepos == 86) // [Immorpher] Crosshair
+        {
+            if (playerconfigs[0].crosshair == 0)
+                text = "None";
+            else if (playerconfigs[0].crosshair == 1)
+                text = "Dot";
+            else if (playerconfigs[0].crosshair == 2)
+                text = "Cross";
+            else
+                text = "Vertical";
+        }	
         else
         {
             text = NULL;
@@ -3241,12 +3414,16 @@ int M_CenterDisplayTicker(void) // 8000B4C4
             Display_X -= 1;
             if (Display_X < -16)
                 Display_X = -16;
+            else
+                ConfigChanged = true;
         }
         else if (buttons & PAD_RIGHT)
         {
             Display_X += 1;
             if (Display_X > 24)
                 Display_X = 24;
+            else
+                ConfigChanged = true;
         }
 
         if (buttons & PAD_UP)
@@ -3254,18 +3431,23 @@ int M_CenterDisplayTicker(void) // 8000B4C4
             Display_Y -= 1;
             if (Display_Y < -20)
                 Display_Y = -20;
+            else
+                ConfigChanged = true;
         }
         else if (buttons & PAD_DOWN)
         {
             Display_Y += 1;
             if (Display_Y > 12)
                 Display_Y = 12;
+            else
+                ConfigChanged = true;
         }
 
         if ((buttons & PAD_A) && !(oldbuttons & PAD_A) && (Display_X || Display_Y))
         {
             Display_X = 0;
             Display_Y = 0;
+            ConfigChanged = true;
         }
 
         if (buttons & (ALL_JPAD|PAD_A))
@@ -3285,21 +3467,25 @@ void M_CenterDisplayDrawer(void) // 8000B604
     ST_DrawString(-1, 210, "press \x8b to exit", text_alpha | 0xffffff00);
 }
 
+#define CONTROLCOLSIZE ((ARRAYLEN(ControlText) - 2) / 2)
+
 int M_ControlPadTicker(void) // 8000B694
 {
     unsigned int buttons;
+    unsigned int stickbuttons;
     unsigned int oldbuttons;
     int exit;
-    int *tmpcfg;
-    int code;
+    int code = 0;
 
     if ((gamevbls < gametic) && ((gametic & 3U) == 0)) {
         MenuAnimationTic = (MenuAnimationTic + 1) & 7;
     }
 
-    buttons = M_ButtonResponder(ticbuttons[0] & 0xffff);
+    stickbuttons = M_ButtonResponder(ticbuttons[0] & 0xffff);
+    buttons = ticbuttons[0] & 0xffff0000;
+    oldbuttons = oldticbuttons[0] & 0xffff0000;
 
-    if (!(buttons & ALL_JPAD))
+    if (!(stickbuttons & ALL_JPAD))
     {
         m_vframe1 = 0;
     }
@@ -3310,33 +3496,48 @@ int M_ControlPadTicker(void) // 8000B694
         {
             m_vframe1 = 0xf; // TICRATE / 2
 
-            if (buttons & PAD_DOWN)
+            if (stickbuttons & PAD_DOWN)
             {
                 cursorpos += 1;
-                if (cursorpos < 14)
-                    S_StartSound(NULL, sfx_switch1);
+                if (cursorpos >= ARRAYLEN(ControlText))
+                    cursorpos = ARRAYLEN(ControlText) - 1;
                 else
-                    cursorpos = 13;
-
-                if (cursorpos > (linepos + 5))
-                    linepos += 1;
+                    S_StartSound(NULL, sfx_switch1);
             }
-            else if (buttons & PAD_UP)
+            else if (stickbuttons & PAD_UP)
             {
                 cursorpos -= 1;
                 if (cursorpos < 0)
                     cursorpos = 0;
                 else
                     S_StartSound(NULL, sfx_switch1);
-
-                if (cursorpos < linepos)
-                    linepos -= 1;
+            }
+            else if (stickbuttons & PAD_RIGHT)
+            {
+                if (cursorpos < 2)
+                {
+                    buttons |= PAD_RIGHT;
+                }
+                else if (cursorpos < 2 + CONTROLCOLSIZE)
+                {
+                    S_StartSound(NULL, sfx_switch1);
+                    cursorpos += CONTROLCOLSIZE;
+                }
+            }
+            else if (stickbuttons & PAD_LEFT)
+            {
+                if (cursorpos < 2)
+                {
+                    buttons |= PAD_LEFT;
+                }
+                else if (cursorpos >= 2 + CONTROLCOLSIZE)
+                {
+                    S_StartSound(NULL, sfx_switch1);
+                    cursorpos -= CONTROLCOLSIZE;
+                }
             }
         }
     }
-
-    buttons = ticbuttons[0] & 0xffff0000;
-    oldbuttons = oldticbuttons[0] & 0xffff0000;
 
     if ((buttons & PAD_START) && !(oldbuttons & PAD_START))
     {
@@ -3351,46 +3552,109 @@ int M_ControlPadTicker(void) // 8000B694
         {
             if (cursorpos == 0) // Set Default Configuration
             {
-                if (buttons & (PAD_DOWN|PAD_RIGHT))
+                if (buttons & (PAD_RIGHT|PAD_A))
                 {
-                    ConfgNumb += 1;
-                    if(ConfgNumb > 5)
-                        ConfgNumb = 0;
+                    ConfgNumb[0] += 1;
+                    if(ConfgNumb[0] >= ARRAYLEN(DefaultControlSetups))
+                        ConfgNumb[0] = 0;
+                    ConfigChanged = true;
                 }
-                else if (buttons & (PAD_UP|PAD_LEFT))
+                else if (buttons & PAD_LEFT)
                 {
-                    ConfgNumb -= 1;
-                    if (ConfgNumb < 0)
-                        ConfgNumb = 5;
+                    ConfgNumb[0] -= 1;
+                    if (ConfgNumb[0] < 0)
+                        ConfgNumb[0] = ARRAYLEN(DefaultControlSetups) - 1;
+                    ConfigChanged = true;
+                }
+                else if ((buttons & PAD_B) && !(oldbuttons & PAD_B))
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    return ga_exit;
+                }
+                else
+                {
+                    return ga_nothing;
                 }
 
-                D_memcpy(ActualConfiguration, DefaultConfiguration[ConfgNumb], (13 * sizeof(int)));
-                D_memcpy(CustomConfiguration, DefaultConfiguration[ConfgNumb], (13 * sizeof(int)));
-                if ((buttons & (ALL_BUTTONS|ALL_JPAD)) != 0)
+                D_memcpy(&CurrentControls[0], &DefaultControlSetups[ConfgNumb[0]], sizeof CurrentControls);
+                S_StartSound(NULL, sfx_switch2);
+            }
+            else if (cursorpos == 1)
+            {
+                const int modes[] = {
+                    STICK_TURN,
+                    STICK_MOVE | STICK_TURN,
+                    STICK_MOVE | STICK_STRAFE,
+                    STICK_TURN | STICK_VLOOK,
+                    STICK_STRAFE | STICK_VLOOK
+                };
+
+                int mode = CurrentControls[0].STICK_MODE;
+                int modeindex = 0;
+
+                for (int i = 0; i < ARRAYLEN(modes); i++)
                 {
-                    S_StartSound(NULL, sfx_switch2);
-                    return 0;
+                    if (modes[i] == mode)
+                    {
+                        modeindex = i;
+                        break;
+                    }
                 }
+                if (buttons & (PAD_RIGHT|PAD_A))
+                {
+                    modeindex += 1;
+                    if(modeindex >= ARRAYLEN(modes))
+                        modeindex = 0;
+                    ConfigChanged = true;
+                }
+                else if (buttons & PAD_LEFT)
+                {
+                    modeindex -= 1;
+                    if (modeindex < 0)
+                        modeindex = ARRAYLEN(modes) - 1;
+                    ConfigChanged = true;
+                }
+                else if ((buttons & PAD_B) && !(oldbuttons & PAD_B))
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    return ga_exit;
+                }
+                else
+                {
+                    return ga_nothing;
+                }
+
+                ConfgNumb[0] = -1;
+                CurrentControls[0].STICK_MODE = modes[modeindex];
+                S_StartSound(NULL,sfx_switch2);
             }
             else // Set Custom Configuration
             {
-                ConfgNumb = 6;
-
-                tmpcfg = TempConfiguration;
-
-                do
+                for (int i = 16; i < 32; i++)
                 {
-                    code = *tmpcfg++;
-                    if ((code & buttons) != 0)
+                    if (buttons & (1 << i))
                     {
-                        CustomConfiguration[(cursorpos - 1)] = code;
-                        S_StartSound(NULL,sfx_switch2);
-                        return 0;
+                        code = (1 << i);
+                        break;
                     }
                 }
-                while (tmpcfg != (int*)(TempConfiguration+13));
+                if (!code)
+                    return ga_nothing;
 
-                D_memcpy(ActualConfiguration, CustomConfiguration, (13*sizeof(int)));
+                int m = ControlMappings[cursorpos - 2];
+
+                ConfgNumb[0] = -1;
+                CurrentControls[0].BUTTONS[m]
+                    = CurrentControls[0].BUTTONS[m] == code ? 0 : code;
+                /* if setting, unset anything previously bound to this button */
+                if (CurrentControls[0].BUTTONS[m])
+                {
+                    for (int i = 0; i < ARRAYLEN(CurrentControls[0].BUTTONS); i++)
+                        if (i != m && CurrentControls[0].BUTTONS[i] == buttons)
+                            CurrentControls[0].BUTTONS[i] = 0;
+                }
+                S_StartSound(NULL,sfx_switch2);
+                ConfigChanged = true;
             }
             exit = ga_nothing;
         }
@@ -3438,58 +3702,50 @@ static int button_code_to_symbol_index(u32 code)
 
 void M_ControlPadDrawer(void) // 8000B988
 {
-    int lpos;
-    char **text;
     char buffer [44];
+    int c, stick;
 
     ST_DrawString(-1, 20, "Gamepad", text_alpha | 0xc0000000);
 
-    if (linepos < (linepos + 6))
+    if (ConfgNumb[0] == -1)
+        sprintf(buffer, ControlText[0], "Custom");
+    else
+        sprintf(buffer, ControlText[0], ControlSetupNames[ConfgNumb[0]]);
+    ST_Message(20, 40, buffer, text_alpha | 0xffffff00);
+
+    c = sprintf(buffer, ControlText[1]);
+    stick = CurrentControls[0].STICK_MODE;
+    if (stick & STICK_MOVE)
+        c += sprintf(&buffer[c], " move");
+    else if (stick & STICK_VLOOK)
+        c += sprintf(&buffer[c], " look");
+    if (stick & STICK_STRAFE)
+        sprintf(&buffer[c], " strafe");
+    else if (stick & STICK_TURN)
+        sprintf(&buffer[c], " turn");
+    ST_Message(20, 50, buffer, text_alpha | 0xffffff00);
+
+    for(int i = 2; i < ARRAYLEN(ControlText); i++)
     {
-        text = &ControlText[linepos];
-        lpos = linepos;
-        do
+        int code = CurrentControls[0].BUTTONS[ControlMappings[i - 2]];
+        int x = (i < (2 + CONTROLCOLSIZE)) ? 10 : 170;
+        int y = ((i - 2) % CONTROLCOLSIZE) * 16 + 68;
+        int len = D_strlen(ControlText[i]);
+
+        ST_Message(x + 98 - len * 8, y + 3, ControlText[i], text_alpha | 0xffffff00);
+        if (code)
         {
-            if (lpos != 0)
-            {
-                if(lpos != cursorpos || ((ticon & 8U) == 0))
-                {
-                    ST_DrawSymbol(60, ((lpos - linepos) * 18) + 68, button_code_to_symbol_index(ActualConfiguration[lpos - 1]), text_alpha | 0xffffff00);
-                }
-            }
-            if (ConfgNumb==6 && lpos == 0) // jnmartin84 If statement for custom controller config
-            {
-                sprintf(buffer, "Custom Config");
-            }
-            else if (ConfgNumb==5 && lpos == 0) // [Immorpher] If statement for new retro fighters
-            {
-                sprintf(buffer, "Retro Fighters");
-            }
-            else if (lpos == 0)
-            {
-                sprintf(buffer, *text, ConfgNumb + 1);
-            }
-            else
-            {
-                sprintf(buffer, *text);
-            }
-
-            ST_DrawString(80, ((lpos - linepos) * 18) + 68, buffer, text_alpha | 0xc0000000);
-
-            lpos += 1;
-            text += 1;
-        } while (lpos < (linepos + 6));
+            int symbol = button_code_to_symbol_index(code);
+            ST_DrawSymbol(x + 120, y, symbol, text_alpha | 0xffffff00);
+        }
     }
 
-    if (linepos != 0) {
-        ST_DrawString(80, 50, "\x8f more...", text_alpha | 0xffffff00);
-    }
+    if (cursorpos < 2)
+        ST_DrawSymbol(10, cursorpos * 10 + 39, 78, text_alpha | 0xffffff00);
+    else if (cursorpos < 2 + CONTROLCOLSIZE)
+        ST_DrawSymbol(116, ((cursorpos - 2) * 16) + 69, 78, text_alpha | 0xffffff00);
+    else
+        ST_DrawSymbol(276, (cursorpos - 2) % CONTROLCOLSIZE * 16 + 69, 78, text_alpha | 0xffffff00);
 
-    if ((linepos + 6) < 14) {
-        ST_DrawString(80, 176, "\x8e more...", text_alpha | 0xffffff00);
-    }
-
-    ST_DrawSymbol(23,(cursorpos - linepos) * 0x12 + 0x3b, MenuAnimationTic + 0x46, text_alpha | 0xffffff00);
-
-    ST_DrawString(-1, 210, "press \x8d to exit", text_alpha | 0xffffff00);
+    ST_DrawString(-1, 220, "press \x8d to exit", text_alpha | 0xffffff00);
 }

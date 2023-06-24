@@ -1,4 +1,8 @@
 
+#pragma once
+
+#include "doomdef.h"
+
 #define	FLASHDELAY	8		/* # of tics delay (1/30 sec) */
 #define FLASHTIMES	6		/* # of times to flash new frag amount (EVEN!) */
 

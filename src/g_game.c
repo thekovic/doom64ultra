@@ -2,6 +2,7 @@
 
 #include "doomdef.h"
 #include "p_local.h"
+#include "p_saveg.h"
 
 void G_PlayerReborn (int player);
 
@@ -22,6 +23,9 @@ int             consoleplayer;          /* player taking events and displaying  
 int             displayplayer;          /* view being displayed  */
 int             totalkills, totalitems, totalsecret;    /* for intermission  */
 
+playerconfig_t  playerconfigs[MAXPLAYERS] = {
+    { .autoaim = 1, .autorun = 1 }
+};
 //char            demoname[32];
 boolean         demorecording;          // 800633A4
 boolean         demoplayback;           // 800633A8
@@ -143,7 +147,6 @@ void G_CompleteLevel (void) // 800046E4
 ====================
 */
 
-extern int ActualConfiguration[13];
 mobj_t emptymobj; // 80063158
 
 void G_InitNew (skill_t skill, int map, gametype_t gametype) // 800046F4
@@ -168,9 +171,7 @@ void G_InitNew (skill_t skill, int map, gametype_t gametype) // 800046F4
 	demorecording = false;
 	demoplayback = false;
 
-	BT_DATA[0] = (buttons_t *)ActualConfiguration;
-
-	G_InitSkill (skill);
+    G_InitSkill (skill);
 }
 
 void G_InitSkill (skill_t skill) // [Immorpher] initialize skill
@@ -420,38 +421,76 @@ void G_RunGame (void) // 80004794
 int G_PlayDemoPtr (int skill, int map) // 800049D0
 {
 	int		exit;
-	int		config[13];
-	int     sensitivity;
+    controls_t controls[MAXPLAYERS];
+    playerconfig_t configs[MAXPLAYERS];
+    gametype_t gametype;
 
 	demobuffer = demo_p;
 
-	/* copy key configuration */
-	D_memcpy(config, ActualConfiguration, sizeof(config));
+    for (int i = 0; i < MAXPLAYERS; i++)
+    {
+        /* copy key configuration */
+        D_memcpy(&controls[i], &CurrentControls[i], sizeof(controls_t));
+        /* copy additional player settings */
+        D_memcpy(&configs[i], &players[i].config, sizeof(playerconfig_t));
+    }
 
-	/* set new key configuration */
-	D_memcpy(ActualConfiguration, demobuffer, sizeof(config));
+    // [nova] new demo format
+    if (*((int *)demobuffer) == DEMO_MAGIC)
+    {
+        const demoheader_t *header = (void*)demobuffer;
 
-	/* copy analog m_sensitivity */
-	sensitivity = M_SENSITIVITY;
+        demobuffer += (sizeof(demoheader_t) >> 2);
+        skill = header->skill;
+        map = header->map;
+        gametype = header->gametype;
+        //playersingame[0] = header->player1;
+        //playersingame[1] = header->player2;
+        //playersingame[2] = header->player3;
+        //playersingame[3] = header->player4;
+        for (int i = 0; i < MAXPLAYERS; i++)
+        {
+            const savedplayerconfig_t *config;
 
-	/* set new analog m_sensitivity */
-	M_SENSITIVITY = demobuffer[13];
+            //if (!playersingame[i])
+                //continue;
 
-	/* skip analog and key configuration */
-	demobuffer += 14;
+            config = (void*)demobuffer;
+            P_UnArchivePlayerConfig(i, config);
+            demobuffer += (sizeof(savedplayerconfig_t) >> 2);
+        }
+    }
+    else
+    {
+        // old demo format
+        /* set new key configuration */
+        bzero(&CurrentControls[0].BUTTONS, sizeof CurrentControls[0].BUTTONS);
+        D_memcpy(&CurrentControls[0].BUTTONS, demobuffer, sizeof(int)*13);
+        CurrentControls[0].STICK_MODE = STICK_TURN & STICK_MOVE;
+        /* set new player settings  */
+        playerconfigs[0].sensitivity = demobuffer[13];
+        playerconfigs[0].autorun = false;
+        playerconfigs[0].verticallook = 1;
+        playerconfigs[0].crosshair = 0;
+        /* skip analog and key configuration */
+        demobuffer += 14;
+        gametype = gt_single;
+    }
 
 	/* play demo game */
-	G_InitNew (skill, map, gt_single);
+	G_InitNew (skill, map, gametype);
 	G_DoLoadLevel ();
 	demoplayback = true;
 	exit = MiniLoop (P_Start, P_Stop, P_Ticker, P_Drawer);
 	demoplayback = false;
 
-	/* restore key configuration */
-	D_memcpy(ActualConfiguration, config, sizeof(config));
-
-	/* restore analog m_sensitivity */
-	M_SENSITIVITY = sensitivity;
+    for (int i = 0; i < MAXPLAYERS; i++)
+    {
+        /* restore key configuration */
+        D_memcpy(&CurrentControls[i], &controls[i], sizeof(controls_t));
+        /* restore player settings */
+        D_memcpy(&players[i].config, &configs[i], sizeof(playerconfig_t));
+    }
 
 	/* free all tags except the PU_STATIC tag */
 	Z_FreeTags(mainzone, ~PU_STATIC); // (PU_LEVEL | PU_LEVSPEC | PU_CACHE)

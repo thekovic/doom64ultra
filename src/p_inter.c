@@ -668,8 +668,12 @@ void P_KillMobj (mobj_t *source, mobj_t *target) // 80015080
 	if (target->type != MT_SKULL)
 		target->flags |= MF_GRAVITY;
 
-	target->flags |= MF_CORPSE|MF_DROPOFF;
-	target->height >>= 2;
+    // [nova] force height to uncrouch
+    if (target->player)
+        target->height = target->info->height;
+
+    target->flags |= MF_CORPSE|MF_DROPOFF;
+    target->height >>= 2;
 
 	forceXdeath = false;    //New PsxDoom / Doom64
 

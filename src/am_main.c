@@ -52,7 +52,7 @@ void AM_Control (player_t *player) // 800004F4
 {
 	int buttons, oldbuttons;
 
-	buttons_t   *cbuttons;
+	controls_t   *cbuttons;
 	fixed_t     block[8];
 	angle_t     angle;
 	fixed_t     fs, fc;
@@ -63,7 +63,7 @@ void AM_Control (player_t *player) // 800004F4
 	if (gamepaused)
         return;
 
-    cbuttons = BT_DATA[0];
+    cbuttons = player->controls;
     buttons = ticbuttons[0];
     oldbuttons = oldticbuttons[0];
 

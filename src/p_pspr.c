@@ -209,7 +209,7 @@ void P_SetPsprite (player_t *player, int position, statenum_t stnum) // 8001B3FC
 		/* call action routine */
 		if (state->action)
 		{
-			state->action (player, psp);
+			((void (*)(void *, void *)) state->action) (player, psp);
 			if (!psp->state)
 				break;
 		}
@@ -490,7 +490,7 @@ void A_WeaponReady (player_t *player, pspdef_t *psp) // 8001B83C
 	/* check for fire */
 	/* */
 	/* the missile launcher and bfg do not auto fire */
-	if (ticbuttons[0] & BT_DATA[0]->BT_ATTACK)
+	if (ticbuttons[0] & players[0].controls->BT_ATTACK)
 	{
 		P_FireWeapon (player);
 		return;
@@ -522,7 +522,7 @@ void A_ReFire (player_t *player, pspdef_t *psp) // 8001B91C
 	/* */
 	/* check for fire (if a weaponchange is pending, let it go through instead) */
 	/* */
-	if ((ticbuttons[0] & BT_DATA[0]->BT_ATTACK)
+	if ((ticbuttons[0] & players[0].controls->BT_ATTACK)
 	&& player->pendingweapon == wp_nochange && player->health)
 	{
 		player->refire++;

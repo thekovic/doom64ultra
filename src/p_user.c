@@ -77,14 +77,15 @@ char *mockstrings1[] =   // 8005A290
 	MK_TXT49t1, MK_TXT50t1, MK_TXT51t1,
 };
 
-fixed_t 		forwardmove[2] = {0xE000, 0x16000}; // 8005B060
-fixed_t 		sidemove[2] = {0xE000, 0x16000};    // 8005B068
+fixed_t 		forwardmove[3] = {0xE000, 0x16000, 0x8000}; // 8005B060
+fixed_t 		sidemove[3] = {0xE000, 0x16000, 0x8000};    // 8005B068
 
 #define SLOWTURNTICS    10
 fixed_t			angleturn[] =       // 8005B070
 	{50,50,83,83,100,116,133,150,150,166,
 	133,133,150,166,166,200,200,216,216,233}; // fastangleturn
 
+fixed_t			crouchease[] = {65536, 61440, 53951, 32768};
 /*============================================================================= */
 
 mobj_t          *slidething;    //80077D04, pmGp000008f4
@@ -210,14 +211,16 @@ void P_PlayerXYMovement (mobj_t *mo) // 80021E20
 
 void P_PlayerZMovement (mobj_t *mo) // 80021f38
 {
-	/* */
-	/* check for smooth step up */
-	/* */
-	if (mo->z < mo->floorz)
-	{
-		mo->player->viewheight -= (mo->floorz - mo->z);
-		mo->player->deltaviewheight = (VIEWHEIGHT - mo->player->viewheight) >> 2;
-	}
+    /* */
+    /* check for smooth step up */
+    /* */
+    if (mo->z < mo->floorz)
+    {
+        int viewheight = FixedMul (VIEWHEIGHT, crouchease[mo->player->crouchtimer]);
+
+        mo->player->viewheight -= (mo->floorz - mo->z);
+        mo->player->deltaviewheight = (viewheight - mo->player->viewheight) >> 2;
+    }
 
 	/* */
 	/* adjust height */
@@ -267,39 +270,56 @@ void P_PlayerZMovement (mobj_t *mo) // 80021f38
 
 void P_PlayerMobjThink (mobj_t *mobj) // 80022060
 {
-	state_t	*st;
-	int		state;
+    state_t	*st;
+    int		state;
 
-	/* */
-	/* momentum movement */
-	/* */
-	if (mobj->momx || mobj->momy)
-		P_PlayerXYMovement (mobj);
+    /* */
+    /* momentum movement */
+    /* */
+    if (mobj->momx || mobj->momy)
+        P_PlayerXYMovement (mobj);
+
+    if ( (mobj->z != mobj->floorz) || mobj->momz)
+        P_PlayerZMovement (mobj);
 
     mobj->player->onground = (mobj->z <= mobj->floorz);
 
-	if ( (mobj->z != mobj->floorz) || mobj->momz)
-		P_PlayerZMovement (mobj);
+    // [nova] - timer for jump grace period
+    if (mobj->player->onground)
+        mobj->player->falltimer = 0;
+    else if (mobj->player->falltimer < 30)
+        mobj->player->falltimer += 1;
 
-	/* */
-	/* cycle through states, calling action functions at transitions */
-	/* */
-	if (mobj->tics == -1)
-		return;				/* never cycle */
+    /* */
+    /* cycle through states, calling action functions at transitions */
+    /* */
+    if (mobj->tics == -1)
+        return;				/* never cycle */
 
-	mobj->tics--;
+    mobj->tics--;
 
-	if (mobj->tics > 0)
-		return;				/* not time to cycle yet */
+    if (mobj->tics > 0)
+        return;				/* not time to cycle yet */
 
-	state = mobj->state->nextstate;
-	st = &states[state];
+    state = mobj->state->nextstate;
+    st = &states[state];
 
-	mobj->state = st;
-	mobj->tics = st->tics;
-	mobj->sprite = st->sprite;
-	mobj->frame = st->frame;
+    mobj->state = st;
+    mobj->tics = st->tics;
+    mobj->sprite = st->sprite;
+    mobj->frame = st->frame;
 }
+
+/*
+ * Returns true if a button was pressed, or if (shift | shiftbutton) is
+ * pressed when button is unbound */
+inline boolean P_ButtonOrShift(int button, int shift, int shiftbutton, int buttons, int oldbuttons)
+{
+    return button
+        ? (buttons & button) && !(oldbuttons & button)
+        : (buttons & shift) && (buttons & shiftbutton) && !(oldbuttons & shiftbutton);
+}
+
 
 /*============================================================================= */
 
@@ -313,136 +333,197 @@ void P_PlayerMobjThink (mobj_t *mobj) // 80022060
 */
 
 #define MAXSENSIVITY    10
+#define JUMPTHRUST      0x90000
+#define JUMPGRACE       5
 
 void P_BuildMove (player_t *player) // 80022154
 {
-	int         speed, sensitivity;
-	int			buttons, oldbuttons;
-	mobj_t		*mo;
-	buttons_t	*cbutton;
+    int             speed, movespeed, sensitivity;
+    int             buttons, oldbuttons;
+    mobj_t         *mo;
+    controls_t     *cbutton;
+    playerconfig_t *config;
 
-	cbutton = BT_DATA[0];
-	buttons = ticbuttons[0];
-	oldbuttons = oldticbuttons[0];
+    cbutton = player->controls;
+    config = player->config;
+    buttons = ticbuttons[0];
+    oldbuttons = oldticbuttons[0];
+
+    int xstick = 0, ystick = 0, crouch;
 
     player->forwardmove = player->sidemove = player->angleturn = 0;
-	
-	if(Autorun == true && demoplayback == false) { // [Immorpher] New autorun option
-		speed = (buttons & cbutton->BT_SPEED) < 1;	
-	}
-	else {
-		speed = (buttons & cbutton->BT_SPEED) > 0;
-	}
-	sensitivity = 0;
 
-	/*  */
-	/* forward and backward movement  */
-	/*  */
-	if (cbutton->BT_FORWARD & buttons)
+    // check for button held by passing oldbuttons = 0
+    crouch = P_ButtonOrShift(cbutton->BT_CROUCH, cbutton->BT_LOOK, cbutton->BT_LOOKDOWN, buttons, 0);
+
+    if(config->autorun) // [Immorpher] New autorun option
+        speed = (buttons & cbutton->BT_SPEED) < 1;
+    else
+        speed = (buttons & cbutton->BT_SPEED) > 0;
+
+    movespeed = crouch ? 2 : speed;
+    sensitivity = 0;
+
+    player->crouch =  crouch && !P_ButtonOrShift(cbutton->BT_JUMP, cbutton->BT_LOOK, cbutton->BT_LOOKUP, buttons, 0);
+    player->jump =   !crouch &&  P_ButtonOrShift(cbutton->BT_JUMP, cbutton->BT_LOOK, cbutton->BT_LOOKUP, buttons, oldbuttons);
+
+    // [nova] control stick configurations
+    if (buttons & cbutton->BT_LOOK)
     {
-        player->forwardmove = forwardmove[speed];
-    }
-    else if (cbutton->BT_BACK & buttons)
-    {
-        player->forwardmove = -forwardmove[speed];
+        xstick = STICK_TURN;
+        ystick = STICK_VLOOK;
     }
     else
     {
+        if ((cbutton->STICK_MODE & STICK_STRAFE) || (buttons & cbutton->BT_STRAFE))
+            xstick = STICK_STRAFE;
+        else if (cbutton->STICK_MODE & STICK_TURN)
+            xstick = STICK_TURN;
+
+        if (cbutton->STICK_MODE & STICK_VLOOK)
+            ystick = STICK_VLOOK;
+        else if (cbutton->STICK_MODE & STICK_MOVE)
+            ystick = STICK_MOVE;
+    }
+
+
+    if (buttons & cbutton->BT_STRAFE)
+    {
+        if (buttons & cbutton->BT_LEFT)
+            buttons = (buttons & cbutton->BT_LEFT) | cbutton->BT_STRAFELEFT;
+        if (buttons & cbutton->BT_RIGHT)
+            buttons = (buttons & cbutton->BT_RIGHT) | cbutton->BT_STRAFERIGHT;
+    }
+    if (buttons & cbutton->BT_LOOK)
+    {
+        if (buttons & cbutton->BT_STRAFELEFT)
+            buttons = (buttons & cbutton->BT_STRAFELEFT) | cbutton->BT_LEFT;
+        if (buttons & cbutton->BT_STRAFERIGHT)
+            buttons = (buttons & cbutton->BT_STRAFERIGHT) | cbutton->BT_RIGHT;
+        if (buttons & cbutton->BT_FORWARD)
+            buttons = (buttons & cbutton->BT_FORWARD) | cbutton->BT_LOOKUP;
+        if (buttons & cbutton->BT_BACK)
+            buttons = (buttons & cbutton->BT_BACK) | cbutton->BT_LOOKDOWN;
+    }
+
+    /*  */
+    /* use two stage accelerative vlook */
+    /*  */
+    if (((buttons & cbutton->BT_LOOKUP) && (oldbuttons & cbutton->BT_LOOKUP)))
+        player->pitchheld++;
+    else if (((buttons & cbutton->BT_LOOKDOWN) && (oldbuttons & cbutton->BT_LOOKDOWN)))
+        player->pitchheld++;
+    else
+        player->pitchheld = 0;
+
+    if (player->pitchheld >= SLOWTURNTICS)
+        player->pitchheld = SLOWTURNTICS-1;
+
+    if (cbutton->BT_LOOKUP & buttons)
+    {
+        player->pitch += config->verticallook
+            * angleturn[player->pitchheld + (speed * SLOWTURNTICS)] << 17;
+    }
+    if (cbutton->BT_LOOKDOWN & buttons)
+    {
+        player->pitch += config->verticallook
+            * -angleturn[player->pitchheld + (speed * SLOWTURNTICS)] << 17;
+    }
+    if (ystick == STICK_VLOOK && !(buttons & (cbutton->BT_LOOKUP | cbutton->BT_LOOKDOWN)))
+    {
         /* Analyze analog stick movement (up / down) */
         sensitivity = (int)((buttons) << 24) >> 24;
+        sensitivity = (((config->sensitivity * 800) / 100) + 233) * sensitivity;
+        // store vertical analogstick info in player pitch +/- 80 13421772*sensitivity
+        player->pitch = (1-0.9)*(13421772*config->verticallook*sensitivity)+0.9*player->pitch;
+    }
 
+    if (cbutton->BT_FORWARD & buttons)
+    {
+        player->forwardmove = forwardmove[movespeed];
+    }
+    if (cbutton->BT_BACK & buttons)
+    {
+        player->forwardmove = -forwardmove[movespeed];
+    }
+    if (ystick == STICK_MOVE && !(buttons & (cbutton->BT_FORWARD | cbutton->BT_BACK)))
+    {
+        sensitivity = (int)((buttons) << 24) >> 24;
         if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
         {
-            player->forwardmove += (forwardmove[1] * sensitivity) / 80;
+            player->forwardmove = (forwardmove[movespeed] * sensitivity) / 80;
         }
     }
 
-	/*  */
-	/* use two stage accelerative turning on the joypad  */
-	/*  */
-	if (((buttons & cbutton->BT_LEFT) && (oldbuttons & cbutton->BT_LEFT)))
-		player->turnheld++;
+    /*  */
+    /* use two stage accelerative turning on the joypad  */
+    /*  */
+    if (((buttons & cbutton->BT_LEFT) && (oldbuttons & cbutton->BT_LEFT)))
+        player->turnheld++;
     else if (((buttons & cbutton->BT_RIGHT) && (oldbuttons & cbutton->BT_RIGHT)))
-		player->turnheld++;
-	else
-		player->turnheld = 0;
+        player->turnheld++;
+    else
+        player->turnheld = 0;
 
-	if (player->turnheld >= SLOWTURNTICS)
-		player->turnheld = SLOWTURNTICS-1;
+    if (player->turnheld >= SLOWTURNTICS)
+        player->turnheld = SLOWTURNTICS-1;
 
     /*  */
-	/* strafe movement  */
-	/*  */
-	if (buttons & cbutton->BT_STRAFELEFT)
-	{
-	    player->sidemove -= sidemove[speed];
-	}
-	if (buttons & cbutton->BT_STRAFERIGHT)
-	{
-		player->sidemove += sidemove[speed];
-	}
+    /* strafe movement  */
+    /*  */
+    if (buttons & cbutton->BT_STRAFELEFT)
+    {
+        player->sidemove -= sidemove[movespeed];
+    }
+    if (buttons & cbutton->BT_STRAFERIGHT)
+    {
+        player->sidemove += sidemove[movespeed];
+    }
+    if (xstick == STICK_STRAFE && !(buttons & (cbutton->BT_STRAFELEFT | cbutton->BT_STRAFERIGHT)))
+    {
+        /* Analyze analog stick movement (left / right) */
+        sensitivity = (int)(((buttons & 0xff00) >> 8) << 24) >> 24;
 
-    if (buttons & cbutton->BT_STRAFE)
-	{
-		if (buttons & cbutton->BT_LEFT)
-		{
-            player->sidemove = -sidemove[speed];
-		}
-		else if (buttons & cbutton->BT_RIGHT)
-		{
-            player->sidemove = sidemove[speed];
-		}
-		else
+        if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
         {
-            /* Analyze analog stick movement (left / right) */
-            sensitivity = (int)(((buttons & 0xff00) >> 8) << 24) >> 24;
-
-            if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
-            {
-                player->sidemove += (sidemove[1] * sensitivity) / 80;
-            }
+            player->sidemove += (sidemove[movespeed] * sensitivity) / 80;
         }
-	}
-	else
-	{
-        if (sensitivity == 0)
-            speed = 0;
+    }
 
-        if (cbutton->BT_LEFT & buttons)
+    if (buttons & cbutton->BT_LEFT)
+    {
+        player->angleturn =  angleturn[player->turnheld + (speed * SLOWTURNTICS)] << 17;
+    }
+    if (buttons & cbutton->BT_RIGHT)
+    {
+        player->angleturn = -angleturn[player->turnheld + (speed * SLOWTURNTICS)] << 17;
+    }
+    if (xstick == STICK_TURN && !(buttons & (cbutton->BT_LEFT | cbutton->BT_RIGHT)))
+    {
+        /* Analyze analog stick movement (left / right) */
+        sensitivity = (int)(((buttons & 0xff00) >> 8) << 24) >> 24;
+        sensitivity = -sensitivity;
+
+        if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
         {
-            player->angleturn =  angleturn[player->turnheld + (speed * SLOWTURNTICS)] << 17;
+            sensitivity = (((config->sensitivity * 800) / 100) + 233) * sensitivity;
+            player->angleturn = (sensitivity / 80) << 17;
         }
-        else if (cbutton->BT_RIGHT & buttons)
-        {
-            player->angleturn = -angleturn[player->turnheld + (speed * SLOWTURNTICS)] << 17;
-        }
-        else
-        {
-            /* Analyze analog stick movement (left / right) */
-            sensitivity = (int)(((buttons & 0xff00) >> 8) << 24) >> 24;
-            sensitivity = -sensitivity;
+    }
 
-            if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
-            {
-                sensitivity = (((M_SENSITIVITY * 800) / 100) + 233) * sensitivity;
-                player->angleturn += (sensitivity / 80) << 17;
-            }
-        }
-	}
+    mo = player->mo;
 
-	/* */
-	/* if slowed down to a stop, change to a standing frame */
-	/* */
-	mo = player->mo;
-
-	if (!mo->momx && !mo->momy && player->forwardmove == 0 && player->sidemove == 0 )
-	{	/* if in a walking frame, stop moving */
-		if (mo->state == &states[S_PLAY_RUN1]
-		|| mo->state == &states[S_PLAY_RUN2]
-		|| mo->state == &states[S_PLAY_RUN3]
-		|| mo->state == &states[S_PLAY_RUN4])
-			P_SetMobjState (mo, S_PLAY);
-	}
+    /* */
+    /* if slowed down to a stop, change to a standing frame */
+    /* */
+    if (!mo->momx && !mo->momy && player->forwardmove == 0 && player->sidemove == 0 )
+    {	/* if in a walking frame, stop moving */
+        if (mo->state == &states[S_PLAY_RUN1]
+                || mo->state == &states[S_PLAY_RUN2]
+                || mo->state == &states[S_PLAY_RUN3]
+                || mo->state == &states[S_PLAY_RUN4])
+            P_SetMobjState (mo, S_PLAY);
+    }
 }
 
 /*
@@ -487,6 +568,7 @@ void P_CalcHeight (player_t *player) // 80022670
 	int			angle;
 	fixed_t		bob;
 	fixed_t		val;
+	fixed_t		viewheight;
 
 	/* */
 	/* regular movement bobbing (needs to be calculated for gun swing even */
@@ -504,13 +586,15 @@ void P_CalcHeight (player_t *player) // 80022670
 		player->bob = MotionBob;
 	}
 
-	if (!player->onground)
-	{
-		player->viewz = player->mo->z + VIEWHEIGHT;
-		if (player->viewz > player->mo->ceilingz-4*FRACUNIT)
-			player->viewz = player->mo->ceilingz-4*FRACUNIT;
-		return;
-	}
+    viewheight = FixedMul (VIEWHEIGHT, crouchease[player->crouchtimer]);
+
+    if (!player->onground)
+    {
+        player->viewz = player->mo->z + viewheight;
+        if (player->viewz > player->mo->ceilingz-4*FRACUNIT)
+            player->viewz = player->mo->ceilingz-4*FRACUNIT;
+        return;
+    }
 
 	angle = (FINEANGLES/40*ticon)&(FINEANGLES-1);
 	bob = FixedMul((player->bob / 2), finesine(angle));
@@ -527,14 +611,14 @@ void P_CalcHeight (player_t *player) // 80022670
 	if (player->playerstate == PST_LIVE)
 	{
 		player->viewheight += player->deltaviewheight;
-		if (player->viewheight > VIEWHEIGHT)
+		if (player->viewheight > viewheight)
 		{
-			player->viewheight = VIEWHEIGHT;
+			player->viewheight = viewheight;
 			player->deltaviewheight = 0;
 		}
-		if (player->viewheight < VIEWHEIGHT/2)
+		if (player->viewheight < viewheight/2)
 		{
-			player->viewheight = VIEWHEIGHT/2;
+			player->viewheight = viewheight/2;
 			if (player->deltaviewheight <= 0)
 				player->deltaviewheight = 1;
 		}
@@ -561,9 +645,9 @@ void P_CalcHeight (player_t *player) // 80022670
 
 void P_MovePlayer (player_t *player) // 8002282C
 {
-	player->mo->angle += vblsinframe[0] * player->angleturn;
+    player->mo->angle += vblsinframe[0] * player->angleturn;
 
-	if(player->onground)
+    if(player->onground)
     {
         if (player->forwardmove)
             P_Thrust (player, player->mo->angle, player->forwardmove);
@@ -571,8 +655,39 @@ void P_MovePlayer (player_t *player) // 8002282C
             P_Thrust (player, player->mo->angle-ANG90, player->sidemove);
     }
 
-	if ((player->forwardmove || player->sidemove) && player->mo->state == &states[S_PLAY])
-		P_SetMobjState (player->mo, S_PLAY_RUN1);
+    if ((player->forwardmove || player->sidemove) && player->mo->state == &states[S_PLAY])
+        P_SetMobjState (player->mo, S_PLAY_RUN1);
+
+    if (player->crouch)
+    {
+        if (player->crouchtimer < ARRAYLEN(crouchease) - 1)
+        {
+            player->crouchtimer++;
+            player->deltaviewheight -= 1;
+        }
+    }
+    else
+    {
+        if (player->crouchtimer > 0)
+        {
+            int origviewheight, viewheight;
+
+            origviewheight = FixedMul (VIEWHEIGHT, crouchease[player->crouchtimer]);
+            player->crouchtimer--;
+            viewheight = FixedMul (VIEWHEIGHT, crouchease[player->crouchtimer]);
+            player->deltaviewheight += viewheight - origviewheight;
+        }
+    }
+
+    player->mo->height = FixedMul (player->mo->info->height, crouchease[player->crouchtimer]);
+
+    if (player->jump
+            && (player->onground || player->falltimer < JUMPGRACE)
+            && player->mo->momz < JUMPTHRUST)
+    {
+        player->mo->momz = JUMPTHRUST;
+        player->falltimer = 30;
+    }
 }
 
 
@@ -596,6 +711,8 @@ void P_DeathThink (player_t *player) // 80022914
 		player->viewheight -= FRACUNIT;
 
 	player->onground = (player->mo->z <= player->mo->floorz);
+    player->falltimer = 0;
+    player->crouchtimer = 0;
 
 	P_CalcHeight (player);
 
@@ -743,13 +860,13 @@ void P_PlayerInSpecialSector (player_t *player, sector_t *sec) // 80022B1C
 void P_PlayerThink (player_t *player) // 80022D60
 {
 	int		     buttons, oldbuttons;
-	buttons_t    *cbutton;
+	controls_t    *cbutton;
 	weapontype_t weapon;
 	sector_t     *sec;
 
 	buttons = ticbuttons[0];
 	oldbuttons = oldticbuttons[0];
-	cbutton = BT_DATA[0];
+	cbutton = player->controls;
 
 	/* */
 	/* check for weapon change */
@@ -760,27 +877,48 @@ void P_PlayerThink (player_t *player) // 80022D60
 		if (weapon == wp_nochange)
 			weapon = player->readyweapon;
 
-		if ((buttons & cbutton->BT_WEAPONBACKWARD) && !(oldbuttons & cbutton->BT_WEAPONBACKWARD)) // [Immorpher] Change weapon decriment for easier chainsaw access
-		{
-			if((int)(weapon) >= wp_chainsaw)
-			{
-				while(--weapon >= wp_chainsaw && !player->weaponowned[weapon]);
-			}
-			
-			if((int)weapon >= wp_chainsaw)
-				player->pendingweapon = weapon;
-		}
-		else if ((buttons & cbutton->BT_WEAPONFORWARD) && !(oldbuttons & cbutton->BT_WEAPONFORWARD))
-		{
-		    if((int)(weapon) < NUMWEAPONS)
+        // [nova] use goldeneye/pd style weapon back if the button is not bound
+        if (P_ButtonOrShift(cbutton->BT_WEAPONBACKWARD,
+                    cbutton->BT_WEAPONFORWARD, cbutton->BT_ATTACK,
+                    buttons, oldbuttons))
+        {
+            if((int)(weapon) >= wp_chainsaw)
+            {
+                while(--weapon >= wp_chainsaw && !player->weaponowned[weapon]);
+            }
+
+            if((int)weapon >= wp_chainsaw)
+                player->pendingweapon = weapon;
+            else if (!cbutton->BT_WEAPONBACKWARD)
+            {
+                // [nova] cycle when back button unbound
+                weapon = NUMWEAPONS - 1;
+                while(!player->weaponowned[weapon] && weapon >= wp_chainsaw)
+                    weapon--;
+                if((int)weapon >= wp_chainsaw)
+                    player->pendingweapon = weapon;
+            }
+        }
+        else if ((buttons & cbutton->BT_WEAPONFORWARD) && !(oldbuttons & cbutton->BT_WEAPONFORWARD))
+        {
+            if((int)(weapon) < NUMWEAPONS)
             {
                 while(++weapon < NUMWEAPONS && !player->weaponowned[weapon]);
             }
 
             if((int)weapon < NUMWEAPONS)
                 player->pendingweapon = weapon;
-		}
-	}
+            else if (!cbutton->BT_WEAPONBACKWARD)
+            {
+                // [nova] cycle when back button unbound
+                weapon = 0;
+                while(!player->weaponowned[weapon] && weapon < NUMWEAPONS)
+                    weapon++;
+                if((int)weapon < NUMWEAPONS)
+                    player->pendingweapon = weapon;
+            }
+        }
+    }
 
 	if (!gamepaused)
 	{

@@ -115,7 +115,7 @@ symboldata_t symboldata[] = // 8005B260
     {156, 96,  13, 13}, // Down arrow
     {143, 96,  13, 13}, // Up arrow
     {169, 96,   7, 13}, // Left arrow
-    //{134, 96,   7, 13}, // Right arrow Missing On Doom 64
+    {134, 96,   7, 13}, // Right arrow
 };
 
 int card_x[6] = {(78 << 2), (89 << 2), (100 << 2), (78 << 2), (89 << 2), (100 << 2)};      // 8005b870
@@ -228,65 +228,67 @@ extern u32 last_bsp_count;
 extern u32 last_phase3_count;
 extern u32 last_iter_count;
 
+struct color_t {
+    int r, g, b;
+};
 
 void ST_Drawer (void) // 80029DC0
 {
     byte        *src;
     player_t    *player;
     weapontype_t weapon;
-	int ammo, ind, ms_alpha;
-	
+    int ammo, ind, ms_alpha;
+    struct color_t hc;
 
     player = &players[0];
 
     /* */
-	/* Draw Text Message */
-	/* */
-	
-	if ((enable_messages) && players[0].messagetic > 0) // [Immorpher] only display messages and calculate if global tic is active
-	{
-		if (players[0].messagetic != players[0].messagetic1) // [Immorpher] new global tic indicates new message to add
-		{	// Sequentially shift messages to lower states
-			players[0].message3 = players[0].message2;
-			players[0].messagetic3 = players[0].messagetic2;
-			players[0].messagecolor3 = players[0].messagecolor2;
+    /* Draw Text Message */
+    /* */
+    if ((enable_messages) && player->messagetic > 0) // [Immorpher] only display messages and calculate if global tic is active
+    {
+        if (player->messagetic != player->messagetic1) // [Immorpher] new global tic indicates new message to add
+        {	// Sequentially shift messages to lower states
+            player->message3 = player->message2;
+            player->messagetic3 = player->messagetic2;
+            player->messagecolor3 = player->messagecolor2;
 
-			players[0].message2 = players[0].message1;
-			players[0].messagetic2 = players[0].messagetic1;
-			players[0].messagecolor2 = players[0].messagecolor1;
+            player->message2 = player->message1;
+            player->messagetic2 = player->messagetic1;
+            player->messagecolor2 = player->messagecolor1;
 
-			players[0].message1 = players[0].message;
-			players[0].messagetic1 = players[0].messagetic;
-			players[0].messagecolor1 = players[0].messagecolor;
-		}
-		
-		if (players[0].messagetic1 > 0) // display message 1
-		{
-			ms_alpha = players[0].messagetic1 << 3; // set message alpha
-			if (ms_alpha >= 196)
-				ms_alpha = 196;
-			
-			ST_Message(2+HUDmargin, HUDmargin, players[0].message1, ms_alpha | players[0].messagecolor1); // display message
-		}
-		
-		if (players[0].messagetic2 > 0) // display message 2
-		{
-			ms_alpha = players[0].messagetic2 << 3; // set message alpha
-			if (ms_alpha >= 196)
-				ms_alpha = 196;
-			
-			ST_Message(2+HUDmargin, 10+HUDmargin, players[0].message2, ms_alpha | players[0].messagecolor2); // display message
-		}
-		
-		if (players[0].messagetic3 > 0) // display message 3
-		{
-			ms_alpha = players[0].messagetic3 << 3; // set message alpha
-			if (ms_alpha >= 196)
-				ms_alpha = 196;
-			
-			ST_Message(2+HUDmargin, 20+HUDmargin, players[0].message3, ms_alpha | players[0].messagecolor3); // display message
-		}
-	}
+            player->message1 = player->message;
+            player->messagetic1 = player->messagetic;
+            player->messagecolor1 = player->messagecolor;
+        }
+
+        if (player->messagetic1 > 0) // display message 1
+        {
+            ms_alpha = player->messagetic1 << 3; // set message alpha
+            if (ms_alpha >= 196)
+                ms_alpha = 196;
+
+            ST_Message(2+HUDmargin, HUDmargin, player->message1, ms_alpha | player->messagecolor1); // display message
+        }
+
+        if (player->messagetic2 > 0) // display message 2
+        {
+            ms_alpha = player->messagetic2 << 3; // set message alpha
+            if (ms_alpha >= 196)
+                ms_alpha = 196;
+
+            ST_Message(2+HUDmargin, 10+HUDmargin, player->message2, ms_alpha | player->messagecolor2); // display message
+        }
+
+        if (player->messagetic3 > 0) // display message 3
+        {
+            ms_alpha = player->messagetic3 << 3; // set message alpha
+            if (ms_alpha >= 196)
+                ms_alpha = 196;
+
+            ST_Message(2+HUDmargin, 20+HUDmargin, player->message3, ms_alpha | player->messagecolor3); // display message
+        }
+    }
 
 
     if (HUDopacity){
@@ -349,6 +351,47 @@ void ST_Drawer (void) // 80029DC0
                                     (40 << 5), (0 << 5),
                                     (1 << 10), (1 << 10));
 
+        if (!ColoredHUD) { // skip the hud coloring
+            hc = (struct color_t) {224,0,0};
+        } else if (player->health <= 67) { // [Immorpher] colored hud
+            hc = (struct color_t) {224-96*player->health/67,128*player->health/67,0};
+        } else if (player->health <= 133) { // [Immorpher] colored hud
+            hc = (struct color_t) {256-256*player->health/133,128,64*player->health/133-32};
+        } else { // [Immorpher] colored hud
+            hc = (struct color_t) {256-192*player->health/200,288*player->health/200-160};
+        }
+
+        // Crosshair (use health to draw it)
+        gDPSetPrimColor(GFX1++, 0, 0, hc.r, hc.g, hc.b, HUDopacity);
+        if (player->config->crosshair == 1) { // Dot
+            gSPTextureRectangle(GFX1++, 159 << 2, 120 << 2, 160 << 2, 121 << 2,
+                    G_TX_RENDERTILE,
+                    (39 << 5), (5 << 5),
+                    (1 << 10), (1 << 10));
+            gSPTextureRectangle(GFX1++, 159 << 2, 120 << 2, 160 << 2, 121 << 2,
+                    G_TX_RENDERTILE,
+                    (39 << 5), (5 << 5),
+                    (1 << 10), (1 << 10));
+        } else if (player->config->crosshair == 2) { // Cross
+            gSPTextureRectangle(GFX1++, 159 << 2, 119 << 2, 160 << 2, 122 << 2,
+                    G_TX_RENDERTILE,
+                    (40 << 5), (3 << 5),
+                    (1 << 10), (1 << 10)); // vertical
+            gSPTextureRectangle(GFX1++, 158 << 2, 120 << 2, 161 << 2, 121 << 2,
+                    G_TX_RENDERTILE,
+                    (23 << 5), (5 << 5),
+                    (1 << 10), (1 << 10)); // horizontal
+        } else if (player->config->crosshair == 3) { // Vertical
+            gSPTextureRectangle(GFX1++, 157 << 2, 120 << 2, 162 << 2, 121 << 2,
+                    G_TX_RENDERTILE,
+                    (55 << 5), (4 << 5),
+                    (1 << 10), (1 << 10)); // horizontal
+            gSPTextureRectangle(GFX1++, 159 << 2, 119 << 2, 160 << 2, 122 << 2,
+                    G_TX_RENDERTILE,
+                    (40 << 5), (3 << 5),
+                    (1 << 10), (1 << 10)); // vertical
+        }
+
         /* */
         /* White color */
         /* */
@@ -385,44 +428,35 @@ void ST_Drawer (void) // 80029DC0
             ammo = player->ammo[weaponinfo[weapon].ammo];
             if (ammo < 0)
                 ammo = 0;
-			
-			if (!ColoredHUD) { // skip the hud coloring
-				ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(224,0,0,HUDopacity)); // 0xe0000080
-			} else if (weaponinfo[weapon].ammo == am_clip) { // [Immorpher] clip ammo
-				ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(96,96,128,HUDopacity)); // [Immorpher] colored hud
-			} else if (weaponinfo[weapon].ammo == am_shell) { // [Immorpher] shell ammo
-				ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(196,32,0,HUDopacity)); // [Immorpher] colored hud
-			} else if (weaponinfo[weapon].ammo == am_cell) { // [Immorpher] cell ammo
-				ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(0,96,128,HUDopacity)); // [Immorpher] colored hud
-			} else { // [Immorpher] it must be rockets
-				ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(164,96,0,HUDopacity)); // [Immorpher] colored hud
-			}
+
+            if (!ColoredHUD) { // skip the hud coloring
+                ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(224,0,0,HUDopacity)); // 0xe0000080
+            } else if (weaponinfo[weapon].ammo == am_clip) { // [Immorpher] clip ammo
+                ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(96,96,128,HUDopacity)); // [Immorpher] colored hud
+            } else if (weaponinfo[weapon].ammo == am_shell) { // [Immorpher] shell ammo
+                ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(196,32,0,HUDopacity)); // [Immorpher] colored hud
+            } else if (weaponinfo[weapon].ammo == am_cell) { // [Immorpher] cell ammo
+                ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(0,96,128,HUDopacity)); // [Immorpher] colored hud
+            } else { // [Immorpher] it must be rockets
+                ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(164,96,0,HUDopacity)); // [Immorpher] colored hud
+            }
         }
 
         /* */
         /* Health */
         /* */
-        
-		if (!ColoredHUD) { // skip the hud coloring
-			ST_DrawNumber(22+HUDmargin, 227-HUDmargin, player->health, 0, PACKRGBA(224,0,0,HUDopacity));
-		} else if (player->health <= 67) { // [Immorpher] colored hud
-			ST_DrawNumber(22+HUDmargin, 227-HUDmargin, player->health, 0, PACKRGBA(224-96*player->health/67,128*player->health/67,0,HUDopacity));
-		} else if (player->health <= 133) { // [Immorpher] colored hud
-			ST_DrawNumber(22+HUDmargin, 227-HUDmargin, player->health, 0, PACKRGBA(256-256*player->health/133,128,64*player->health/133-32,HUDopacity));
-		} else { // [Immorpher] colored hud
-			ST_DrawNumber(22+HUDmargin, 227-HUDmargin, player->health, 0, PACKRGBA(0,256-192*player->health/200,288*player->health/200-160,HUDopacity));
-		}
+        ST_DrawNumber(22+HUDmargin, 227-HUDmargin, player->health, 0, PACKRGBA(hc.r,hc.g,hc.b,HUDopacity));
 
         /* */
         /* Armor */
         /* */
-		if (!ColoredHUD || player->armorpoints == 0) { // [Immorpher] No armor
-			ST_DrawNumber(298-HUDmargin, 227-HUDmargin, player->armorpoints, 0, PACKRGBA(224,0,0,HUDopacity)); // 0xe0000080
-		} else if (player->armortype == 1) { // [Immorpher] Green armor
-			ST_DrawNumber(298-HUDmargin, 227-HUDmargin, player->armorpoints, 0, PACKRGBA(0,128,64,HUDopacity)); 
-		} else { // [Immorpher] Blue armor
-			ST_DrawNumber(298-HUDmargin, 227-HUDmargin, player->armorpoints, 0, PACKRGBA(0,64,128,HUDopacity)); 
-		}
+        if (!ColoredHUD || player->armorpoints == 0) { // [Immorpher] No armor
+            ST_DrawNumber(298-HUDmargin, 227-HUDmargin, player->armorpoints, 0, PACKRGBA(224,0,0,HUDopacity)); // 0xe0000080
+        } else if (player->armortype == 1) { // [Immorpher] Green armor
+            ST_DrawNumber(298-HUDmargin, 227-HUDmargin, player->armorpoints, 0, PACKRGBA(0,128,64,HUDopacity));
+        } else { // [Immorpher] Blue armor
+            ST_DrawNumber(298-HUDmargin, 227-HUDmargin, player->armorpoints, 0, PACKRGBA(0,64,128,HUDopacity));
+        }
     }
 
     if(debug)

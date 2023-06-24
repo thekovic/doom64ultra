@@ -488,6 +488,51 @@ typedef enum
 
 #define	MSGTICS		    (5*30)
 
+#define STICK_MOVE   0x1
+#define STICK_TURN   0x2
+#define STICK_STRAFE 0x4
+#define STICK_VLOOK  0x8
+
+typedef struct
+{
+    union
+    {
+        struct
+        {
+            unsigned int BT_RIGHT;          // 0
+            unsigned int BT_LEFT;           // 1
+            unsigned int BT_FORWARD;        // 2
+            unsigned int BT_BACK;           // 3
+            unsigned int BT_ATTACK;         // 4
+            unsigned int BT_USE;            // 5
+            unsigned int BT_MAP;            // 6
+            unsigned int BT_SPEED;          // 7
+            unsigned int BT_STRAFE;         // 8
+            unsigned int BT_STRAFELEFT;     // 9
+            unsigned int BT_STRAFERIGHT;    // 10
+            unsigned int BT_WEAPONBACKWARD; // 11
+            unsigned int BT_WEAPONFORWARD;  // 12
+            unsigned int BT_LOOK;           // 13
+            unsigned int BT_LOOKUP;         // 14
+            unsigned int BT_LOOKDOWN;       // 15
+            unsigned int BT_JUMP;           // 16
+            unsigned int BT_CROUCH;         // 17
+        };
+        int BUTTONS[18];
+    };
+    int STICK_MODE;
+} controls_t;
+
+typedef struct
+{
+    int         crosshair;
+    int         sensitivity;
+    int         verticallook;
+    boolean     autorun;
+    boolean     autoaim;
+}
+playerconfig_t;
+
 /*
 ================
 =
@@ -554,6 +599,16 @@ typedef struct player_s
 
 	int			turnheld;				/* for accelerative turning */
 	int         onground;               /* [d64] */
+    int         pitch;			// [Immorpher] Player vertical look information
+	int			pitchheld;				/* for accelerative vlook */
+
+    boolean     crouch;
+    boolean     jump;
+	int			falltimer;				/* for jump grace period */
+	int			crouchtimer;				/* for crouch easing */
+
+    controls_t *controls;
+    playerconfig_t *config;
 } player_t;
 
 #define CF_NOCLIP       1       // no use
@@ -577,6 +632,22 @@ typedef struct player_s
 #define	AF_SUBSEC		2               /* automap active on subsector mode */
 #define	AF_FOLLOW		4
 
+#define MAXCONTROLSETUPS 8
+extern controls_t CurrentControls[MAXPLAYERS];
+extern controls_t DefaultControlSetups[MAXCONTROLSETUPS];
+
+typedef struct __attribute__((aligned (4))){
+    u32 magic;
+    u32 size;
+    u32 version: 8;
+    u32 map: 15;
+    u32 skill: 3;
+    u32 gametype: 2;
+    u32 player1: 1;
+    u32 player2: 1;
+    u32 player3: 1;
+    u32 player4: 1;
+} demoheader_t;
 /*
 ===============================================================================
 
@@ -629,6 +700,8 @@ typedef enum
 //extern	int			consoleplayer;		/* player taking events and displaying */
 //extern	int			displayplayer;
 extern	player_t	players[MAXPLAYERS];
+
+extern	playerconfig_t	playerconfigs[MAXPLAYERS];
 
 extern	skill_t		gameskill;
 extern	int			gamemap;
@@ -798,6 +871,8 @@ void D_DoomMain (void);
 extern	boolean	demoplayback, demorecording;
 extern	int		*demo_p, *demobuffer;
 
+#define DEMO_MAGIC 0xFF443634 // '\xffD64'
+
 void G_InitNew (skill_t skill, int map, gametype_t gametype);
 void G_InitSkill(skill_t skill); // [Immorpher] skill initialize
 void G_CompleteLevel (void);
@@ -870,7 +945,7 @@ extern int EnableExpPak;            // 800A55A8
 
 extern int MenuIdx;                 // 8005A7A4
 extern int text_alpha;              // 8005A7A8
-extern int ConfgNumb;               // 8005A7AC
+extern int ConfgNumb[MAXPLAYERS];  // 8005A7AC
 extern int Display_X;               // 8005A7B0
 extern int Display_Y;               // 8005A7B4
 extern boolean enable_messages;     // 8005A7B8
@@ -878,15 +953,13 @@ extern int HUDopacity;    			// [Immorpher] HUD 0pacity options
 extern int SfxVolume;               // 8005A7C0
 extern int MusVolume;               // 8005A7C4
 extern int brightness;              // 8005A7C8
-extern int M_SENSITIVITY;           // 8005A7CC
-extern int MotionBob;				// [Immorpher] Motion Bob
+extern fixed_t MotionBob;				// [Immorpher] Motion Bob
 extern int VideoFilter;				// [GEC & Immorpher] VideoFilter
 extern boolean antialiasing;     	// [Immorpher] Anti-aliasing
 extern boolean interlacing;     	// [Immorpher] Interlacing
 extern boolean DitherFilter;     	// [Immorpher] Dither Filter
 extern int ColorDither;     		// [Immorpher] Color Dither
 extern int FlashBrightness;     	// [Immorpher] Strobe brightness adjustment
-extern boolean Autorun;     		// [Immorpher] Autorun
 extern boolean runintroduction; 	// [Immorpher] New introduction text
 extern boolean StoryText; 			// [Immorpher] Enable story text
 extern boolean MapStats; 			// [Immorpher] Enable automap statistics
@@ -1352,25 +1425,6 @@ Swap Values
 #define ALL_CBUTTONS    (PAD_UP_C|PAD_DOWN_C|PAD_LEFT_C|PAD_RIGHT_C)
 #define ALL_BUTTONS     (PAD_L_TRIG|PAD_R_TRIG|PAD_UP_C|PAD_DOWN_C|PAD_LEFT_C|PAD_RIGHT_C|PAD_A|PAD_B|PAD_Z_TRIG)
 #define ALL_TRIG        (PAD_L_TRIG|PAD_R_TRIG|PAD_Z_TRIG)
-
-typedef struct
-{
-	unsigned int BT_RIGHT;
-	unsigned int BT_LEFT;
-	unsigned int BT_FORWARD;
-	unsigned int BT_BACK;
-	unsigned int BT_ATTACK;
-	unsigned int BT_USE;
-	unsigned int BT_MAP;
-	unsigned int BT_SPEED;
-	unsigned int BT_STRAFE;
-	unsigned int BT_STRAFELEFT;
-	unsigned int BT_STRAFERIGHT;
-	unsigned int BT_WEAPONBACKWARD;
-	unsigned int BT_WEAPONFORWARD;
-} buttons_t;
-
-extern buttons_t *BT_DATA[MAXPLAYERS]; // 800A559C
 
 typedef struct
 {

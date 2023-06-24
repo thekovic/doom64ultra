@@ -20,7 +20,6 @@ int D_RunDemo(char *name, skill_t skill, int map) // 8002B2D0
   return exit;
 }
 
-extern int DefaultConfiguration[5][13];
 int D_TitleMap(void) // 8002B358
 {
   int exit;
@@ -29,7 +28,7 @@ int D_TitleMap(void) // 8002B358
 
   demo_p = Z_Alloc(16000, PU_STATIC, NULL);
   D_memset(demo_p, 0, 16000);
-  D_memcpy(demo_p, DefaultConfiguration[0], 13*sizeof(int));
+  D_memcpy(demo_p, DefaultControlSetups[0].BUTTONS, sizeof(int)*13);
   exit = G_PlayDemoPtr(sk_medium, 33);
   Z_Free(demo_p);
 

@@ -14,8 +14,6 @@ int vblsinframe[MAXPLAYERS];	// 80063144 /* range from 4 to 8 */
 int ticbuttons[MAXPLAYERS];		// 80063148
 int oldticbuttons[MAXPLAYERS];	// 8006314C
 
-buttons_t   *BT_DATA[MAXPLAYERS];// 800A559C
-
 extern boolean run_hectic_demo;
 
 extern void ST_Init(void);

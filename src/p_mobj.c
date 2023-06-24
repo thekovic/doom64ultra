@@ -262,6 +262,9 @@ void P_SpawnPlayer(/*mapthing_t *mthing*/) // 80018F94
 	p->viewheight = VIEWHEIGHT;
 	p->automapscale = 850;
 	p->viewz = mobj->z + VIEWHEIGHT;
+    p->falltimer = 0;
+    p->controls = &CurrentControls[0];
+    p->config = &playerconfigs[0];
 	cameratarget = p->mo;
 
 	P_SetupPsprites (0);		/* setup gun psprite	 */
