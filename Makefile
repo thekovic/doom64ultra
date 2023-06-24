@@ -14,6 +14,19 @@ ifeq ($(DEBUG),0)
   DEFINES += NDEBUG=1
 endif
 
+ifneq ($(REQUIRE_EXPANSION_PAK),0)
+  DEFINES += REQUIRE_EXPANSION_PAK
+endif
+ifdef SKIP_INTRO
+  DEFINES += SKIP_INTRO
+endif
+ifdef DEVWARP
+  DEFINES += DEVWARP=$(DEVWARP)
+endif
+ifdef DEVSKILL
+  DEFINES += DEVSKILL=$(DEVSKILL)
+endif
+
 SRC_DIRS :=
 
 # Whether to hide commands or not
@@ -75,7 +88,7 @@ C_DEFINES := $(foreach d,$(DEFINES),-D$(d))
 DEF_INC_CFLAGS := $(foreach i,$(INCLUDE_DIRS),-I$(i)) $(C_DEFINES)
 
 CFLAGS = -Wall -mno-check-zero-division -march=vr4300 -mtune=vr4300 \
-         -D_LANGUAGE_C -DREQUIRE_EXPANSION_PAK -D_ULTRA64 -D__EXTENSIONS__ \
+         -D_LANGUAGE_C -D_ULTRA64 -D__EXTENSIONS__ \
          -fno-common -G0 -D_MIPS_SZLONG=32 -D_MIPS_SZINT=32 -g -mabi=32 \
          -ffreestanding -mfix4300 $(DEF_INC_CFLAGS)
 ASFLAGS     := -mno-check-zero-division -march=vr4300 -mabi=32 $(foreach i,$(INCLUDE_DIRS),-I$(i))
@@ -152,7 +165,8 @@ $(BOOT_OBJ): $(BOOT)
 # Link final ELF file
 $(ELF): $(O_FILES) $(BUILD_DIR)/$(LD_SCRIPT)
 	@$(PRINT) "$(GREEN)Linking ELF file: $(BLUE)$@ $(NO_COL)\n"
-	$(V)$(LD) -L $(BUILD_DIR) -T $(BUILD_DIR)/$(LD_SCRIPT) -Map $(BUILD_DIR)/$(TARGET).map -o $@ $(O_FILES) --no-check-sections -L/usr/lib/n64 -lultra_rom -L$(N64_LIBGCCDIR) -lgcc
+	$(V)$(LD) -L $(BUILD_DIR) -T $(BUILD_DIR)/$(LD_SCRIPT) -Map $(BUILD_DIR)/$(TARGET).map -o $@ $(O_FILES) \
+        --no-check-sections -L/usr/lib/n64 -lultra_rom -L$(N64_LIBGCCDIR) -lgcc
 
 # Build ROM
 $(ROM): $(ELF)

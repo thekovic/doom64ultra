@@ -350,12 +350,12 @@ void G_RunGame (void) // 80004794
 	{
         /* load a level */
         G_DoLoadLevel ();
-		
-		if(runintroduction && StoryText == true) { // [Immorpher] run introduction text screen
-			MiniLoop(F_StartIntermission, F_StopIntermission, F_TickerIntermission, F_DrawerIntermission);
-			runintroduction = false; // [Immorpher] only run it once!
-		}
-			
+
+        if(!DEVWARP_ENABLED && runintroduction && StoryText == true) { // [Immorpher] run introduction text screen
+            MiniLoop(F_StartIntermission, F_StopIntermission, F_TickerIntermission, F_DrawerIntermission);
+            runintroduction = false; // [Immorpher] only run it once!
+        }
+
         //printf("RUN P_Start\n");
         //PRINTF_D2(WHITE, 0, 28, "RUN P_Start\n");
 		/* run a level until death or completion */

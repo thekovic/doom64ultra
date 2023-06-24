@@ -37,7 +37,27 @@ void D_DoomMain(void) // 800027C0
     ticbuttons[0] = 0;
     oldticbuttons[0] = 0;
 
+#ifdef DEVWARP
+#define _STRINGIFY(x) (#x)
+#define STRINGIFY(x) _STRINGIFY(x)
+    {
+        const char map[6] = STRINGIFY(DEVWARP);
+        startmap = ((u32) map[4]) - '0' + (((u32) map[3]) - '0') * 10;
+#ifdef DEVSKILL
+        startskill = DEVSKILL;
+#else
+        startskill = sk_medium;
+#endif
+        G_InitNew(startskill, startmap, gt_single);
+        G_RunGame();
+    }
+#endif
+
+#if defined(DEVWARP) || defined(SKIP_INTRO)
+    M_RunTitle();
+#else
     D_SplashScreen();
+#endif
 
     while(true)
     {

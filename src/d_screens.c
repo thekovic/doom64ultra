@@ -36,6 +36,7 @@ int D_TitleMap(void) // 8002B358
   return exit;
 }
 
+#if !defined(DEVWARP) && !defined(SKIP_INTRO)
 int D_WarningTicker(void) // 8002B3E8
 {
     if ((gamevbls < gametic) && !(gametic & 7))
@@ -184,7 +185,7 @@ void D_SplashScreen(void) // 8002B988
     /* */
     /* Check if expansion pak is connected if >8MB memory */
     /* */
-    if (osGetMemSize() < 0x800000)
+    if (osMemSize < 0x800000)
     {
         MiniLoop(NULL, NULL, D_NoPakTicker, D_DrawNoMemory);
     }
@@ -198,6 +199,7 @@ void D_SplashScreen(void) // 8002B988
     last_ticon = 0;
     MiniLoop(NULL, NULL, D_LegalTicker, D_DrawLegal);
 }
+#endif
 
 static int cred_step;   // 800B2210
 static int cred1_alpha; // 800B2214

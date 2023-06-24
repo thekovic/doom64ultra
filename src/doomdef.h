@@ -191,6 +191,11 @@ typedef enum
 #define LASTLEVEL 34
 #define TOTALMAPS 33
 
+#ifdef DEVWARP
+#define DEVWARP_ENABLED 1
+#else
+#define DEVWARP_ENABLED 0
+#endif
 
 /* */
 /* library replacements */
