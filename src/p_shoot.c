@@ -4,24 +4,14 @@
 //
 // P_LineAttack
 //
-mobj_t*         linetarget;     // 800A56F8 // who got hit (or NULL)
-mobj_t*         shootthing;     // 800A5700
-line_t*         shotline;       // 800A56FC
-fixed_t         aimfrac;        // 800A5720
-
-fixed_t         shootdirx;
-fixed_t         shootdiry;
-fixed_t         shootdirz;
-
 // Height if not aiming up or down
 // ???: use slope for monsters?
+mobj_t*         shootthing;     // 800A5700
 fixed_t         shootz;         // 800A571C
 
-int             la_damage;      // 800A5724
 fixed_t         attackrange;    // 800A5704
 
 fixed_t         aimslope;       // 800A5710
-fixed_t         aimpitch;
 
 // For P_PathTraverse
 fixed_t         tx2;             // 800A5714
@@ -56,8 +46,9 @@ boolean PTR_AimTraverse(intercept_t* in) // 80017508
 
         if(!(li->flags & ML_TWOSIDED))
         {
-            aimfrac = in->frac;
-            shotline = li;
+            hittarget.frac = in->frac;
+            hittarget.type = ht_line;
+            hittarget.line = li;
             return false;    // stop
         }
 
@@ -68,8 +59,9 @@ boolean PTR_AimTraverse(intercept_t* in) // 80017508
 
         if(openbottom >= opentop)
         {
-            aimfrac = in->frac;
-            shotline = li;
+            hittarget.frac = in->frac;
+            hittarget.type = ht_line;
+            hittarget.line = li;
             return false;    // stop
         }
 
@@ -95,8 +87,9 @@ boolean PTR_AimTraverse(intercept_t* in) // 80017508
 
         if(topslope <= bottomslope)
         {
-            shotline = li;
-            aimfrac = in->frac;
+            hittarget.frac = in->frac;
+            hittarget.type = ht_line;
+            hittarget.line = li;
             return false;    // stop
         }
 
@@ -143,8 +136,9 @@ boolean PTR_AimTraverse(intercept_t* in) // 80017508
     }
 
     aimslope = (thingtopslope+thingbottomslope) >> 1;
-    linetarget = th;
-    aimfrac = in->frac;
+    hittarget.frac = in->frac;
+    hittarget.type = ht_thing;
+    hittarget.thing = th;
 
     return false;                       // don't go any farther
 }
@@ -158,15 +152,20 @@ boolean PTR_AimTraverse(intercept_t* in) // 80017508
 ==============
 */
 
+boolean spawnpuff = true;
+hit_t hittarget;
+
 boolean PTR_ShootTraverse(intercept_t* in) // 800177A8
 {
-    fixed_t     x, y, z;
+    fixed_t     x, y, z, sx, sy, sdz = 0;
     fixed_t     frac;
     line_t*     li;
     mobj_t*     th;
-    fixed_t     slope, dist;
+    fixed_t     bslope, tslope, dist;
     fixed_t     thingtopslope, thingbottomslope;
-    sector_t    *front, *back;
+    sector_t    *front, *back, *check;
+    int         side;
+    subsector_t *ss;
 
     if(in->isaline)
     {
@@ -180,6 +179,38 @@ boolean PTR_ShootTraverse(intercept_t* in) // 800177A8
         front = li->frontsector;
         back = li->backsector;
 
+        // [nova] - spawn puffs on correct floor/ceiling position
+        side = P_PointOnLineSide(trace.x, trace.y, li);
+        check = side ? back : front;
+        if (check)
+        {
+            if (aimslope < 0 && check->floorheight < shootz)
+                sdz = check->floorheight - shootz;
+            else if (aimslope > 0 && check->ceilingheight > shootz)
+                sdz = check->ceilingheight - shootz;
+
+            if (sdz)
+            {
+                frac = FixedDiv(FixedDiv(sdz, aimslope), attackrange);
+                sx = trace.x + FixedMul(trace.dx, frac);
+                sy = trace.y + FixedMul(trace.dy, frac);
+                ss = R_PointInSubsector (sx, sy);
+                if (ss->sector == check && P_PointOnLineSide(sx, sy, li) == side)
+                {
+                    hittarget.x = sx;
+                    hittarget.y = sy;
+                    hittarget.z = shootz + sdz;
+                    hittarget.type = aimslope > 0 ? ht_ceiling : ht_floor;
+                    hittarget.sector = check;
+                    hittarget.frac = frac;
+                    if (aimslope > 0 ? check->ceilingpic == -1 : check->floorpic == -1)
+                        hittarget.hitsky = true;
+
+                    return false;
+                }
+            }
+        }
+
         if(back)
         {
             // crosses a two sided line
@@ -187,27 +218,18 @@ boolean PTR_ShootTraverse(intercept_t* in) // 800177A8
 
             dist = FixedMul(attackrange, in->frac);
 
-            if(front->floorheight != back->floorheight)
-            {
-                slope = FixedDiv(openbottom - shootz, dist);
-                if(slope > bottomslope)
-                {
-                    bottomslope = slope;
-                }
-            }
             if(front->ceilingheight != back->ceilingheight)
-            {
-                slope = FixedDiv(opentop - shootz, dist);
-                if(slope < topslope)
-                {
-                    topslope = slope;
-                }
-            }
+                tslope = FixedDiv(opentop - shootz, dist);
+            else
+                tslope = aimslope+1;
 
-            if(bottomslope < topslope)
-            {
-                return true;    // shot continues
-            }
+            if(front->floorheight != back->floorheight)
+                bslope = FixedDiv(openbottom - shootz, dist);
+            else
+                bslope = aimslope-1;
+
+            if(aimslope > bslope && aimslope < tslope)
+                return true;
         }
 
         // hit line
@@ -218,27 +240,43 @@ boolean PTR_ShootTraverse(intercept_t* in) // 800177A8
         y = trace.y + FixedMul(trace.dy, frac);
         z = shootz + FixedMul(aimslope, FixedMul(frac, attackrange));
 
-        if (front->ceilingpic == -1)
+        if (!back)
         {
-            // don't shoot the sky!
-            if(z > front->ceilingheight)
-                return false;
-
-            // it's a sky hack wall
-            // [nova] fix lower walls eating projectiles
-            if(back && (back->ceilingpic == -1) && back->ceilingheight < z)
-               return false;
-
-            // don't shoot blank mid texture
-            if((back == NULL) && (sides[li->sidenum[0]].midtexture == 1))
-               return false;
+            if (z < front->floorheight)
+                z = front->floorheight;
+            else if (z > front->ceilingheight)
+                z = front->ceilingheight;
         }
 
-        // Spawn bullet puffs.
-        //ST_DebugPrint("P_SpawnPuff line");
-        P_SpawnPuff(x, y, z);
+        hittarget.x = x;
+        hittarget.y = y;
+        hittarget.z = z;
+        hittarget.type = ht_line;
+        hittarget.line = li;
+        hittarget.frac = frac;
 
-        shotline = li;
+        if (back)
+        {
+            // don't shoot blank top or bottom textures
+            side = front->ceilingheight > back->ceilingheight ? 0 : 1;
+            check = side ? front : back;
+            if (z > check->ceilingheight && sides[li->sidenum[side]].toptexture <= 1)
+            {
+                hittarget.hitsky = true;
+            }
+            else
+            {
+                side = front->floorheight < back->floorheight ? 0 : 1;
+                check = side ? front : back;
+                if (z < check->floorheight && sides[li->sidenum[side]].bottomtexture <= 1)
+                    hittarget.hitsky = true;
+            }
+        }
+        else if (sides[li->sidenum[0]].midtexture <= 1)
+        {
+            // don't shoot blank mid texture
+            hittarget.hitsky = true;
+        }
 
         // don't go any farther
         return false;
@@ -260,28 +298,13 @@ boolean PTR_ShootTraverse(intercept_t* in) // 800177A8
     dist = FixedMul(attackrange, in->frac);
     thingtopslope = FixedDiv((th->z + th->height) - shootz, dist);
 
-    if(thingtopslope < bottomslope)
-    {
+    if(thingtopslope < aimslope)
         return true;    // shot over the thing
-    }
 
     thingbottomslope = FixedDiv(th->z - shootz, dist);
 
-    if(thingbottomslope > topslope)
-    {
+    if(thingbottomslope > aimslope)
         return true;    // shot under the thing
-    }
-
-    // this thing can be hit!
-    if(thingtopslope > topslope)
-    {
-        thingtopslope = topslope;
-    }
-
-    if(thingbottomslope < bottomslope)
-    {
-        thingbottomslope = bottomslope;
-    }
 
     // hit thing
     // position a bit closer
@@ -289,28 +312,30 @@ boolean PTR_ShootTraverse(intercept_t* in) // 800177A8
 
     x = trace.x + FixedMul(trace.dx, frac);
     y = trace.y + FixedMul(trace.dy, frac);
-    z = shootz + FixedMul((thingtopslope+thingbottomslope)>>1, FixedMul(frac, attackrange));
+    z = shootz + FixedMul(aimslope, FixedMul(frac, attackrange));
 
-    // Spawn bullet puffs or blod spots,
-    // depending on target type.
-    if((in->d.thing->flags & MF_NOBLOOD) != 0)
-    {
-        //ST_DebugPrint("P_SpawnPuff thing");
-        P_SpawnPuff(x, y, z);
-    }
-    else
-    {
-        P_SpawnBlood(x, y, z, la_damage);
-    }
-
-    if(la_damage)
-    {
-        P_DamageMobj(th, shootthing, shootthing, la_damage);
-    }
-
-    linetarget = th;
+    hittarget.x = x;
+    hittarget.y = y;
+    hittarget.z = z;
+    hittarget.type = ht_thing;
+    hittarget.thing = th;
+    hittarget.frac = frac;
     // don't go any farther
     return false;
+}
+
+fixed_t P_AimSlope(player_t *player)
+{
+    int p = player->pitch;
+
+    if (p == 0)
+        return 0;
+    if (p > 0)  // [Immorpher] if player is looking up
+        return ((finesine(p >> ANGLETOFINESHIFT) << 15)/finecosine(p >> ANGLETOFINESHIFT)) << 1;
+
+    p = -p;
+    p = ((finesine(p >> ANGLETOFINESHIFT) << 15)/finecosine(p >> ANGLETOFINESHIFT)) << 1;
+    return -p;
 }
 
 /*
@@ -342,10 +367,9 @@ fixed_t P_AimLineAttack (mobj_t *t1, angle_t angle, fixed_t zheight, fixed_t dis
     bottomslope     = -120*FRACUNIT/160;
 
     attackrange     = distance;
-    linetarget      = NULL;
-    shotline        = NULL;
-    aimfrac         = 0;
-    flags           = PT_ADDLINES|PT_ADDTHINGS|PT_EARLYOUT;
+    flags           = PT_ADDLINES|PT_ADDTHINGS;
+
+    hittarget.type   = ht_none;
 
     // [d64] new argument for shoot height
     if(!zheight)
@@ -359,12 +383,42 @@ fixed_t P_AimLineAttack (mobj_t *t1, angle_t angle, fixed_t zheight, fixed_t dis
 
     P_PathTraverse(t1->x, t1->y, tx2, ty2, flags, PTR_AimTraverse);
 
-    if(linetarget)
+    if (hittarget.thing)
     {
+        hittarget.x = trace.x + FixedMul(trace.dx, hittarget.frac);
+        hittarget.y = trace.y + FixedMul(trace.dy, hittarget.frac);
+        hittarget.z = shootz + FixedMul(aimslope, hittarget.frac);
+
+    }
+
+    if(hittarget.type == ht_thing)
+    {
+        return aimslope;
+    }
+    else if (t1->player)
+    {
+        aimslope = P_AimSlope(t1->player);
         return aimslope;
     }
 
     return 0;
+}
+
+static void P_SpawnHitParticle(int damage)
+{
+    if (!spawnpuff || hittarget.type == ht_none || hittarget.hitsky)
+        return;
+
+    // Spawn bullet puffs or blood spots,
+    // depending on target type.
+    if (hittarget.type != ht_thing || (hittarget.thing->flags & MF_NOBLOOD))
+    {
+        P_SpawnPuff(hittarget.x, hittarget.y, hittarget.z);
+    }
+    else
+    {
+        P_SpawnBlood(hittarget.x, hittarget.y, hittarget.z, damage);
+    }
 }
 
 /*
@@ -386,50 +440,28 @@ void P_LineAttack (mobj_t *t1, angle_t angle, fixed_t zheight, fixed_t distance,
     dist = distance>>FRACBITS;
 
     shootthing      = t1;
-    la_damage       = damage;
 
     tx2             = t1->x + dist*finecosine(angle);
     ty2             = t1->y + dist*finesine(angle);
-    linetarget      = NULL;
-    shotline        = NULL;
+
+    hittarget.hitsky = false;
+    hittarget.type   = ht_none;
 
     if(!zheight)
-    {
         shootz = t1->z + (t1->height>>1) + 12*FRACUNIT;
-    }
     else
-    {
         shootz = t1->z + zheight;
-    }
 
-    if(slope == MAXINT)
-    {
-        topslope    = 120*FRACUNIT/160;
-        bottomslope = -120*FRACUNIT/160;
-    }
-    else
-    {
-        topslope = slope+1;
-        bottomslope = slope-1;
-    }
-
-    aimslope = topslope+bottomslope;    // addu    $t3, $t8, $t9
-    if(aimslope < 0)
-    {                                   // addiu   $at, $t3, 1
-        aimslope = (aimslope+1)>>1;     // sra     $t5, $at, 1
-        //          ^^ that's really weird....
-    }
-    else                                // bgez    $t3, loc_80017EC0
-    {
-        aimslope >>= 1;                 // sra     $t5, $t3, 1
-    }
-
-    attackrange     = distance;
-    flags           = PT_ADDLINES|PT_ADDTHINGS|PT_EARLYOUT;
+    aimslope    = slope;
+    attackrange = distance;
+    flags       = PT_ADDLINES|PT_ADDTHINGS;
 
     P_PathTraverse(t1->x, t1->y, tx2, ty2, flags, PTR_ShootTraverse);
-}
 
+    P_SpawnHitParticle(damage);
+    if(hittarget.type == ht_thing && damage)
+        P_DamageMobj(hittarget.thing, shootthing, shootthing, damage);
+}
 
 #if 0
 //===================

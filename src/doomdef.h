@@ -85,12 +85,13 @@ extern int LightGetRGB(int h,int s,int v); // 8000248C
 
 typedef int fixed_t;
 
+#define	ANGMAX	0xffffffff
 #define	ANG45	0x20000000
 #define	ANG90	0x40000000
 #define	ANG180	0x80000000
 #define	ANG270	0xc0000000
-#define ANG5	0x38e0000   // (ANG90/18)
-#define ANG1	0xb60000    // (ANG45/45)
+#define ANG5	0x38e38e3   // (ANG90/18)
+#define ANG1	0xb60b60    // (ANG45/45)
 typedef unsigned angle_t;
 
 #define	FINEANGLES			8192
@@ -98,6 +99,12 @@ typedef unsigned angle_t;
 #define	ANGLETOFINESHIFT	19	/* 0x100000000 to 0x2000 */
 
 #define ARRAYLEN(a) (sizeof(a) / sizeof(a[0]))
+#define INLINE_ALWAYS __attribute__((always_inline)) inline
+
+#undef MIN
+#undef MAX
+#define MAX(a, b) ({ typeof(a) _a = (a); typeof(b) _b = (b); _a > _b ? _a : _b; })
+#define MIN(a, b) ({ typeof(a) _a = (a); typeof(b) _b = (b); _a < _b ? _a : _b; })
 
 //extern	fixed_t		finesine(5*FINEANGLES/4);
 //extern	fixed_t		*finecosine;
@@ -149,6 +156,26 @@ static inline fixed_t D_abs(fixed_t x)
 {
     fixed_t _s = x >> 31;
     return (x ^ _s) - _s;
+}
+
+static INLINE_ALWAYS f64 fabs(f64 x) {
+    asm volatile(
+    "abs.d %0,%1"
+    : "=f" (x)
+    : "f" (x)
+    );
+    return x;
+}
+
+static INLINE_ALWAYS fixed_t fround(f64 x) {
+    fixed_t f;
+    asm volatile(
+    "round.w.d %1,%1\n\t"
+    "mfc1 %0,%1"
+    : "=r" (f)
+    : "f" (x)
+    );
+    return f;
 }
 
 static inline fixed_t finesine(int x)
@@ -600,7 +627,9 @@ typedef struct player_s
 	int			turnheld;				/* for accelerative turning */
 	int         onground;               /* [d64] */
     int         pitch;			// [Immorpher] Player vertical look information
+    int         pitchmove;
 	int			pitchheld;				/* for accelerative vlook */
+    fixed_t     lookspring;
 
     boolean     crouch;
     boolean     jump;
@@ -1079,8 +1108,10 @@ void D_OpenControllerPak(void); // 8002BE28
 /* REFRESH */
 /*--------*/
 
+void R_RotateCameraMatrix (void);
 void R_RenderPlayerView (void);
 void R_Init (void);
+angle_t R_PointToPseudoAngle (fixed_t x, fixed_t y);
 angle_t R_PointToAngle2 (fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2);
 struct subsector_s *R_PointInSubsector (fixed_t x, fixed_t y);
 
@@ -1160,7 +1191,7 @@ extern s32 FilesUsed;          // 8005A740
 
 #define MAX_GFX 5120
 #define MAX_VTX 3072
-#define MAX_MTX 4
+#define MAX_MTX 6
 
 extern Gfx *GFX1;	// 800A4A00
 extern Gfx *GFX2;	// 800A4A04

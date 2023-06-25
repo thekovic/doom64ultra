@@ -313,7 +313,7 @@ void P_PlayerMobjThink (mobj_t *mobj) // 80022060
 /*
  * Returns true if a button was pressed, or if (shift | shiftbutton) is
  * pressed when button is unbound */
-inline boolean P_ButtonOrShift(int button, int shift, int shiftbutton, int buttons, int oldbuttons)
+boolean P_ButtonOrShift(int button, int shift, int shiftbutton, int buttons, int oldbuttons)
 {
     return button
         ? (buttons & button) && !(oldbuttons & button)
@@ -351,7 +351,7 @@ void P_BuildMove (player_t *player) // 80022154
 
     int xstick = 0, ystick = 0, crouch;
 
-    player->forwardmove = player->sidemove = player->angleturn = 0;
+    player->forwardmove = player->sidemove = player->pitchmove = player->angleturn = 0;
 
     // check for button held by passing oldbuttons = 0
     crouch = P_ButtonOrShift(cbutton->BT_CROUCH, cbutton->BT_LOOK, cbutton->BT_LOOKDOWN, buttons, 0);
@@ -421,21 +421,22 @@ void P_BuildMove (player_t *player) // 80022154
 
     if (cbutton->BT_LOOKUP & buttons)
     {
-        player->pitch += config->verticallook
-            * angleturn[player->pitchheld + (speed * SLOWTURNTICS)] << 17;
+        player->pitchmove = config->verticallook * (angleturn[player->pitchheld + (speed * SLOWTURNTICS)] << 18);
     }
     if (cbutton->BT_LOOKDOWN & buttons)
     {
-        player->pitch += config->verticallook
-            * -angleturn[player->pitchheld + (speed * SLOWTURNTICS)] << 17;
+        player->pitchmove = config->verticallook * -(angleturn[player->pitchheld + (speed * SLOWTURNTICS)] << 18);
     }
     if (ystick == STICK_VLOOK && !(buttons & (cbutton->BT_LOOKUP | cbutton->BT_LOOKDOWN)))
     {
         /* Analyze analog stick movement (up / down) */
-        sensitivity = (int)((buttons) << 24) >> 24;
-        sensitivity = (((config->sensitivity * 800) / 100) + 233) * sensitivity;
-        // store vertical analogstick info in player pitch +/- 80 13421772*sensitivity
-        player->pitch = (1-0.9)*(13421772*config->verticallook*sensitivity)+0.9*player->pitch;
+        sensitivity = ((int)((buttons) << 24) >> 24) * config->verticallook;
+
+        if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
+        {
+            sensitivity = (((config->sensitivity * 800) / 100) + 233) * sensitivity;
+            player->pitchmove = (sensitivity / 40) << 17;
+        }
     }
 
     if (cbutton->BT_FORWARD & buttons)
@@ -635,6 +636,9 @@ void P_CalcHeight (player_t *player) // 80022670
 		player->viewz = player->mo->ceilingz-4*FRACUNIT;
 }
 
+#define MAXLOOKANGLE 0x30000000
+#define LOOKSPRINGRESET (0x4000 << FRACBITS)
+
 /*
 =================
 =
@@ -688,6 +692,52 @@ void P_MovePlayer (player_t *player) // 8002282C
         player->mo->momz = JUMPTHRUST;
         player->falltimer = 30;
     }
+
+    // [nova] change pitch along with angleturn
+    if (player->pitchmove)
+    {
+        player->lookspring = 0;
+        player->pitch += player->pitchmove;
+        if (player->pitch >= ANG180 && player->pitch <= -MAXLOOKANGLE)
+            player->pitch = -MAXLOOKANGLE + FINEANGLES;
+        else if (player->pitch >= MAXLOOKANGLE)
+            player->pitch = MAXLOOKANGLE - FINEANGLES;
+    }
+
+    // [nova] handle lookspring
+    if (player->config->autoaim && !(player->controls->STICK_MODE & STICK_VLOOK) && !(ticbuttons[0] & player->controls->BT_LOOK))
+    {
+        if (player->pitch == 0)
+            player->lookspring = 0;
+
+        if (player->lookspring >= LOOKSPRINGRESET)
+        {
+            int angle = angleturn[(player->lookspring - LOOKSPRINGRESET) >> FRACBITS] << 19;
+            angle = player->pitch > 0 ? -angle : angle;
+
+            if ((player->pitch > 0) != (player->pitch + angle > 0))
+                player->pitch = 0;
+            else
+                player->pitch += angle;
+
+            if (player->lookspring < LOOKSPRINGRESET + 10 * FRACUNIT)
+                player->lookspring += FRACUNIT;
+        }
+        else
+        {
+            if (player->forwardmove || player->sidemove)
+                player->lookspring += D_abs(player->forwardmove) + D_abs(player->sidemove);
+            else if (player->lookspring >= (16 << FRACBITS))
+                player->lookspring += FRACUNIT;
+
+            if (player->lookspring >= (64 << FRACBITS) || player->lookspring < 0)
+                player->lookspring = LOOKSPRINGRESET;
+        }
+    }
+    else
+    {
+        player->lookspring = 0;
+    }
 }
 
 
@@ -702,6 +752,8 @@ void P_MovePlayer (player_t *player) // 8002282C
 void P_DeathThink (player_t *player) // 80022914
 {
 	angle_t		angle, delta;
+    fixed_t zdist, xydist;
+    int damagefade = 0;
 	int mockrandom; // [Immorpher] store mock text randomizer
 
 	P_MovePsprites (player);
@@ -716,23 +768,46 @@ void P_DeathThink (player_t *player) // 80022914
 
 	P_CalcHeight (player);
 
-	if (player->attacker && player->attacker != player->mo)
-	{
-		angle = R_PointToAngle2 (player->mo->x, player->mo->y, player->attacker->x, player->attacker->y);
-		delta = angle - player->mo->angle;
-		if (delta < ANG5 || delta > (unsigned)-ANG5)
-		{	/* looking at killer, so fade damage flash down */
-			player->mo->angle = angle;
-			if (player->damagecount)
-				player->damagecount--;
-		}
-		else if (delta < ANG180)
-			player->mo->angle += ANG5;
-		else
-			player->mo->angle -= ANG5;
-	}
-	else if (player->damagecount)
-		player->damagecount--;
+    if (player->attacker && player->attacker != player->mo)
+    {
+        angle = R_PointToAngle2 (player->mo->x, player->mo->y, player->attacker->x, player->attacker->y);
+        delta = angle - player->mo->angle;
+        if (delta < ANG5 || delta > (unsigned)-ANG5)
+        {
+            player->mo->angle = angle;
+            damagefade++;
+        }
+        else if (delta < ANG180)
+            player->mo->angle += ANG5;
+        else
+            player->mo->angle -= ANG5;
+
+        // [nova] change pitch to look at killer too
+        zdist = (player->attacker->z + (player->attacker->height >> 1)) - (player->mo->z + player->viewheight);
+        xydist = P_AproxDistance(player->attacker->x - player->mo->x, player->attacker->y - player->mo->y);
+        angle = R_PointToAngle2 (0, 0, xydist, zdist);
+        delta = angle - player->pitch;
+        if (delta < ANG5 || delta > (unsigned)-ANG5)
+        {
+            player->pitch = angle;
+            damagefade++;
+        }
+        else if (delta < ANG180)
+            player->pitch += ANG5;
+        else
+            player->pitch -= ANG5;
+
+        if (player->pitch >= ANG180 && player->pitch <= 0xd0000000)
+            player->pitch = 0xd0000000 + FINEANGLES;
+        else if (player->pitch >= 0x30000000)
+            player->pitch = 0x30000000 - FINEANGLES;
+
+        /* looking at killer, so fade damage flash down */
+        if (damagefade == 2 && player->damagecount)
+            player->damagecount--;
+    }
+    else if (player->damagecount)
+        player->damagecount--;
 
 	/* mocking text */
     if ((ticon - deathmocktics) > MAXMOCKTIME)
@@ -943,6 +1018,7 @@ void P_PlayerThink (player_t *player) // 80022D60
 			player->angleturn = 0;
 			player->forwardmove = 0xc800;
 			player->sidemove = 0;
+			player->pitchmove = 0;
 			player->mo->flags &= ~MF_JUSTATTACKED;
 		}
 

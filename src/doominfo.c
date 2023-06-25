@@ -1671,7 +1671,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         sfx_None,	/* deathsound */
         0,		/* speed */
         8*FRACUNIT,	/* radius */
-        8*FRACUNIT,	/* height */
+        0*FRACUNIT,	/* height */
         100,		/* mass */
         0,		/* damage */
         sfx_None,	/* activesound */
@@ -2049,7 +2049,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = // 80051238
         sfx_None,	/* deathsound */
         0,		/* speed */
         20*FRACUNIT,	/* radius */
-        16*FRACUNIT,	/* height */
+        0*FRACUNIT,	/* height */
         100,		/* mass */
         0,		/* damage */
         sfx_None,	/* activesound */

@@ -224,11 +224,36 @@ void 	P_UseLines (player_t *player);
 
 boolean P_ChangeSector (sector_t *sector, boolean crunch);
 
-extern	mobj_t		*linetarget;			/* who got hit (or NULL) */
+fixed_t P_AimSlope (player_t *player);
+
+typedef enum
+{
+    ht_none,
+    ht_line,
+    ht_thing,
+    ht_floor,
+    ht_ceiling,
+} hittype_e;
+
+typedef struct
+{
+    fixed_t x, y, z;
+    hittype_e type;
+    boolean   hitsky;
+    union {
+        line_t   *line;
+        mobj_t   *thing;
+        sector_t *sector;
+    };
+    int frac;
+} hit_t;
+
+extern boolean spawnpuff;
+extern hit_t hittarget;
+
 fixed_t P_AimLineAttack (mobj_t *t1, angle_t angle, fixed_t zheight, fixed_t distance);
 
 void P_LineAttack (mobj_t *t1, angle_t angle, fixed_t zheight, fixed_t distance, fixed_t slope, int damage);
-
 void P_RadiusAttack (mobj_t *spot, mobj_t *source, int damage);
 
 /*

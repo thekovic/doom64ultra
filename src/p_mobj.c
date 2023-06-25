@@ -2,7 +2,6 @@
 
 #include "doomdef.h"
 #include "p_local.h"
-#include "sounds.h"
 
 void G_PlayerReborn (int player);
 
@@ -262,9 +261,10 @@ void P_SpawnPlayer(/*mapthing_t *mthing*/) // 80018F94
 	p->viewheight = VIEWHEIGHT;
 	p->automapscale = 850;
 	p->viewz = mobj->z + VIEWHEIGHT;
-    p->falltimer = 0;
-    p->controls = &CurrentControls[0];
-    p->config = &playerconfigs[0];
+	p->falltimer = 0;
+	p->controls = &CurrentControls[0];
+	p->config = &playerconfigs[0];
+	p->pitch = 0;
 	cameratarget = p->mo;
 
 	P_SetupPsprites (0);		/* setup gun psprite	 */
@@ -475,9 +475,13 @@ mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yof
 		if (P_Random() <= 96) { // [Immorpher] Randomize horizontal
 			rnd1 = I_Random();
 			rnd2 = P_Random();
-			an += (3*(rnd2 - rnd1)/2 << 20);
+			an += (5*(rnd2 - rnd1)/4 << 20);
 		}
 	}
+
+    th->angle = an;
+    an >>= ANGLETOFINESHIFT;
+    speed = th->info->speed;
 
 	if (source && source->flags & MTF_NIGHTMARE)
 	{
@@ -485,12 +489,8 @@ mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yof
         speed *= 2;
     }
 
-    th->angle = an;
-    an >>= ANGLETOFINESHIFT;
-    speed = th->info->speed;
     th->momx = speed * finecosine(an);
     th->momy = speed * finesine(an);
-
     if (dest)
     {
         dist = P_AproxDistance (dest->x - x, dest->y - y);
@@ -515,82 +515,94 @@ mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yof
 = Tries to aim at a nearby monster
 ================
 */
-extern line_t*         shotline;       // 800A56FC
-extern fixed_t         aimfrac;        // 800A5720
 
 void P_SpawnPlayerMissile (mobj_t *source, mobjtype_t type) // 80019668
 {
 	mobj_t      *th;
 	angle_t     an;
-	fixed_t     x,y,z, slope;
-	int         speed;
-	fixed_t     missileheight;
+    fixed_t     x,y,z, slope = 0;
+    int         speed;
+    fixed_t     missileheight;
     int         offset;
+    int         pitch = source->player->pitch;
+    int         autoaim = source->player->config->autoaim;
 
     // [d64] adjust offset and height based on missile
-    if(type == MT_PROJ_ROCKET)
+    if(type == MT_PROJ_ROCKET)  // [Immorpher] Removed frac unit from here for calculations
     {
-        missileheight = (42*FRACUNIT);
+        missileheight = 42;
         offset = 30;
     }
     else if(type == MT_PROJ_PLASMA)
     {
-        missileheight = (32*FRACUNIT);
+        missileheight = 32;
         offset = 40;
     }
     else if(type == MT_PROJ_BFG)
     {
-        missileheight = (32*FRACUNIT);
+        missileheight = 32;
         offset = 30;
     }
     else
     {
-        missileheight = (32*FRACUNIT);
+        missileheight = 32;
         offset = 0;
     }
 
-	/* */
-	/* see which target is to be aimed at */
-	/* */
-	an = source->angle;
-	slope = P_AimLineAttack (source, an, missileheight, 16*64*FRACUNIT);
-	if (!linetarget)
-	{
-		an += 1<<26;
-		slope = P_AimLineAttack (source, an, missileheight, 16*64*FRACUNIT);
-		if (!linetarget)
-		{
-			an -= 2<<26;
-			slope = P_AimLineAttack (source, an, missileheight, 16*64*FRACUNIT);
-		}
-		if (!linetarget)
-		{
-			an = source->angle;
-			slope = 0;
-		}
-	}
+    if (source->player->crouch)
+        missileheight >>= 1;
+    missileheight = (missileheight + (((missileheight >> 1) * finesine(pitch >> ANGLETOFINESHIFT)) >> FRACBITS)) << FRACBITS;
+    offset = (offset*finecosine(pitch >> ANGLETOFINESHIFT)) >> FRACBITS;
 
-	x = source->x;
-	y = source->y;
-	z = source->z;
+    /* */
+    /* see which target is to be aimed at */
+    /* */
+    hittarget.type = ht_none;
+    an = source->angle;
+    if (autoaim)
+    {
+        slope = P_AimLineAttack (source, an, missileheight, 16*64*FRACUNIT);
+        if (hittarget.type != ht_thing)
+        {
+            an += 1<<26;
+            slope = P_AimLineAttack (source, an, missileheight, 16*64*FRACUNIT);
+            if (hittarget.type != ht_thing)
+            {
+                an -= 2<<26;
+                slope = P_AimLineAttack (source, an, missileheight, 16*64*FRACUNIT);
+            }
+            if (hittarget.type != ht_thing)
+            {
+                an = source->angle;
+                slope = 0;
+            }
+        }
+    }
 
-	th = P_SpawnMobj (x,y,z+missileheight, type);
-	if (th->info->seesound)
-		S_StartSound (source, th->info->seesound);
-	th->target = source;
-	th->angle = an;
+    if (!autoaim || hittarget.type != ht_thing)
+        slope = P_AimSlope(source->player);
 
-	speed = th->info->speed;
+    x = source->x;
+    y = source->y;
+    z = source->z;
 
-	th->momx = speed * finecosine(an>>ANGLETOFINESHIFT);
-	th->momy = speed * finesine(an>>ANGLETOFINESHIFT);
-	th->momz = speed * slope;
+    th = P_SpawnMobj (x,y,z+missileheight, type);
+    if (th->info->seesound)
+        S_StartSound (source, th->info->seesound);
+    th->target = source;
+    th->angle = an;
 
-	x = source->x + (offset * finecosine(an>>ANGLETOFINESHIFT));
+    speed = th->info->speed;
+
+    th->momx = speed * finecosine(an>>ANGLETOFINESHIFT);
+    th->momy = speed * finesine(an>>ANGLETOFINESHIFT);
+    th->momz = speed * slope;
+
+    x = source->x + (offset * finecosine(an>>ANGLETOFINESHIFT));
     y = source->y + (offset * finesine(an>>ANGLETOFINESHIFT));
 
-	// [d64]: checking against very close lines?
-    if((shotline && aimfrac <= 0xC80) || !P_TryMove(th, x, y))
+    // [d64]: checking against very close lines?
+    if((hittarget.type == ht_line && hittarget.frac <= 0xC80) || !P_TryMove(th, x, y))
         P_ExplodeMissile(th);
 }
 

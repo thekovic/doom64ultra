@@ -24,7 +24,7 @@ int             displayplayer;          /* view being displayed  */
 int             totalkills, totalitems, totalsecret;    /* for intermission  */
 
 playerconfig_t  playerconfigs[MAXPLAYERS] = {
-    { .autoaim = 1, .autorun = 1 }
+    { .autoaim = 1, .autorun = 1, .verticallook = -1 }
 };
 //char            demoname[32];
 boolean         demorecording;          // 800633A4

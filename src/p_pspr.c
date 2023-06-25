@@ -683,12 +683,12 @@ void A_Punch (player_t *player, pspdef_t *psp) // 8001BB2C
 		damage *= 10;
 	angle = player->mo->angle;
 	angle += (angle_t)(P_Random()-P_Random())<<18;
-	P_LineAttack (player->mo, angle, 0, MELEERANGE, MAXINT, damage);
+	P_LineAttack (player->mo, angle, 0, MELEERANGE, P_AimSlope(player), damage);
     /* turn to face target */
-	if (linetarget)
+	if (hittarget.type == ht_thing)
 	{
 	    S_StartSound(player->mo, sfx_punch);
-		player->mo->angle = R_PointToAngle2 (player->mo->x, player->mo->y, linetarget->x, linetarget->y);
+		player->mo->angle = R_PointToAngle2 (player->mo->x, player->mo->y, hittarget.thing->x, hittarget.thing->y);
 	}
 }
 
@@ -713,8 +713,8 @@ void A_Saw (player_t *player, pspdef_t *psp) // 8001BC1C
 	rnd2 = P_Random();
 	angle += (angle_t)(rnd2-rnd1)<<18;
 	/* use meleerange + 1 se the puff doesn't skip the flash */
-	P_LineAttack (player->mo, angle, 0, MELEERANGE+1, MAXINT, damage);
-	if (!linetarget)
+	P_LineAttack (player->mo, angle, 0, MELEERANGE+1, P_AimSlope(player), damage);
+	if (hittarget.type != ht_thing)
 	{
 		S_StartSound (player->mo, sfx_saw1);
 		return;
@@ -722,7 +722,7 @@ void A_Saw (player_t *player, pspdef_t *psp) // 8001BC1C
 	S_StartSound (player->mo, sfx_saw2);
 
 	/* turn to face target */
-	angle = R_PointToAngle2 (player->mo->x, player->mo->y, linetarget->x, linetarget->y);
+	angle = R_PointToAngle2 (player->mo->x, player->mo->y, hittarget.thing->x, hittarget.thing->y);
 	if (angle - player->mo->angle > ANG180)
 	{
 		if (angle - player->mo->angle < -ANG90/20)
@@ -830,26 +830,35 @@ void A_FirePlasma (player_t *player, pspdef_t *psp) // 8001BF2C
 ===============
 */
 
-fixed_t bulletslope; // 800A5E78
-
-void P_BulletSlope(mobj_t*	mo) // 8001BF88
+fixed_t P_BulletSlope(player_t *player) // 8001BF88
 {
 	angle_t	an;
+    mobj_t *mo;
+    fixed_t bulletslope;
 
-	// see which target is to be aimed at
-	an = mo->angle;
-	bulletslope = P_AimLineAttack(mo, an, 0, 16 * 64 * FRACUNIT);
+    if (!player->config->autoaim)
+        goto done;
 
-	if (!linetarget)
-	{
-		an += 1 << 26;
-		bulletslope = P_AimLineAttack(mo, an, 0, 16 * 64 * FRACUNIT);
-		if (!linetarget)
-		{
-			an -= 2 << 26;
-			bulletslope = P_AimLineAttack(mo, an, 0, 16 * 64 * FRACUNIT);
-		}
-	}
+    // see which target is to be aimed at
+    mo = player->mo;
+    an = mo->angle;
+    bulletslope = P_AimLineAttack(mo, an, 0, 16 * 64 * FRACUNIT);
+
+    if (hittarget.type == ht_thing)
+        return bulletslope;
+
+    an += 1 << 26;
+    bulletslope = P_AimLineAttack(mo, an, 0, 16 * 64 * FRACUNIT);
+    if (hittarget.type == ht_thing)
+        return bulletslope;
+
+    an -= 2 << 26;
+    bulletslope = P_AimLineAttack(mo, an, 0, 16 * 64 * FRACUNIT);
+
+    if (hittarget.type == ht_thing)
+        return bulletslope;
+done:
+    return P_AimSlope(player);
 }
 
 /*
@@ -860,7 +869,7 @@ void P_BulletSlope(mobj_t*	mo) // 8001BF88
 ===============
 */
 
-void P_GunShot (mobj_t *mo, boolean accurate) // 8001C024
+void P_GunShot (mobj_t *mo, boolean accurate, fixed_t bulletslope) // 8001C024
 {
 	angle_t		angle;
 	int			damage;
@@ -874,7 +883,8 @@ void P_GunShot (mobj_t *mo, boolean accurate) // 8001C024
         rnd2 = P_Random();
 		angle += (rnd2-rnd1)<<18;
     }
-	P_LineAttack (mo, angle, 0, MISSILERANGE, bulletslope, damage);
+
+    P_LineAttack (mo, angle, 0, MISSILERANGE, bulletslope, damage);
 }
 
 /*
@@ -890,9 +900,8 @@ void A_FirePistol (player_t *player, pspdef_t *psp) // 8001C0B4
 	S_StartSound (player->mo, sfx_pistol);
 	player->ammo[weaponinfo[player->readyweapon].ammo]--;
 	P_SetPsprite (player,ps_flashalpha,weaponinfo[player->readyweapon].flashstate);
-	P_BulletSlope(player->mo);
 
-	P_GunShot (player->mo, !player->refire);
+	P_GunShot (player->mo, !player->refire, P_BulletSlope(player));
 }
 
 /*
@@ -905,18 +914,18 @@ void A_FirePistol (player_t *player, pspdef_t *psp) // 8001C0B4
 
 void A_FireShotgun (player_t *player, pspdef_t *psp) // 8001C138
 {
-	int			i;
+	int			i, bulletslope;
 
 	S_StartSound (player->mo, sfx_shotgun);
 	player->ammo[weaponinfo[player->readyweapon].ammo]--;
 	player->recoilpitch = RECOILPITCH;
 
 	P_SetPsprite (player,ps_flashalpha,weaponinfo[player->readyweapon].flashstate);
-	P_BulletSlope(player->mo);
+	bulletslope = P_BulletSlope(player);
 
 	for (i=0 ; i<7 ; i++)
 	{
-	    P_GunShot(player->mo, false);
+	    P_GunShot(player->mo, false, bulletslope);
 	}
 }
 
@@ -933,6 +942,7 @@ void A_FireShotgun2(player_t *player, pspdef_t *psp) // 8001C210
     angle_t		angle;
 	int			damage;
 	int			i;
+	int			bulletslope;
 
 	S_StartSound(player->mo, sfx_sht2fire);
 	P_SetMobjState(player->mo, S_PLAY_ATK2);
@@ -944,16 +954,16 @@ void A_FireShotgun2(player_t *player, pspdef_t *psp) // 8001C210
         P_Thrust(player, player->mo->angle + ANG180, FRACUNIT);
 
 	P_SetPsprite(player, ps_flashalpha, weaponinfo[player->readyweapon].flashstate);
-	P_BulletSlope(player->mo);
+	bulletslope = P_BulletSlope(player); // [Immorpher] find auto aim slope and other things for shooting, required for damage
 
-	for (i = 0; i<20; i++)
-	{
-		//damage = ((P_Random() % 3) * 5) + 5;
-		damage = 5 * (P_Random() % 3 + 1);
-		angle = player->mo->angle;
-		angle += (P_Random() - P_Random()) << 19;
-		P_LineAttack(player->mo, angle, 0, MISSILERANGE, bulletslope + ((P_Random() - P_Random()) << 5), damage);
-	}
+    for (i = 0; i<20; i++)
+    {
+        //damage = ((P_Random() % 3) * 5) + 5;
+        damage = 5 * (P_Random() % 3 + 1);
+        angle = player->mo->angle;
+        angle += (P_Random() - P_Random()) << 19;
+        P_LineAttack(player->mo, angle, 0, MISSILERANGE, bulletslope + ((P_Random() - P_Random()) << 5), damage);
+    }
 }
 
 /*
@@ -1003,11 +1013,10 @@ void A_FireCGun (player_t *player, pspdef_t *psp) // 8001C3F8
     player->recoilpitch = RECOILPITCH;
 
 	P_SetPsprite (player,ps_flashalpha,weaponinfo[player->readyweapon].flashstate + psp->state - &states[S_CHAIN1]);
-    P_BulletSlope(player->mo);
 
 	player->psprites[ps_flashalpha].alpha = 160;
 
-	P_GunShot (player->mo, !player->refire);
+	P_GunShot (player->mo, !player->refire, P_BulletSlope(player));
 }
 
 /*
@@ -1048,15 +1057,15 @@ void A_BFGSpray (mobj_t *mo) // 8001C560
 		an = mo->angle - ANG90/2 + ANG90/40*i;
 		/* mo->target is the originator (player) of the missile */
 		P_AimLineAttack (mo->target, an, 0, 16*64*FRACUNIT);
-		if (!linetarget)
+		if (hittarget.type != ht_thing)
 			continue;
-		P_SpawnMobj (linetarget->x, linetarget->y, linetarget->z + (linetarget->height>>1), MT_BFGSPREAD);
+		P_SpawnMobj (hittarget.thing->x, hittarget.thing->y, hittarget.thing->z + (hittarget.thing->height>>1), MT_BFGSPREAD);
 		damage = 0;
 		for (j=0;j<15;j++)
         {
 			damage += (P_Random()&7) + 1;
         }
-		P_DamageMobj (linetarget, mo->target,mo->target, damage);
+		P_DamageMobj (hittarget.thing, mo->target,mo->target, damage);
 	}
 
     alpha = mo->alpha * 3;
@@ -1220,7 +1229,7 @@ void P_LaserCrossBSP(int bspnum, laserdata_t *laser) // 8001C710
     marker = P_SpawnMobj(x, y, z, MT_LASERMARKER);
 
     /* have marker point to which laser it belongs to */
-    marker->extradata = (laser_t*)laser;
+    marker->extradata = laser;
     laser->marker = marker;
 }
 
@@ -1248,14 +1257,21 @@ void T_LaserThinker(laser_t *laser) // 8001C9B8
         {
             P_RemoveThinker(&laser->thinker);
 
-            /* fade out the laser puff */
-            fade = Z_Malloc (sizeof(*fade), PU_LEVSPEC, 0);
-            P_AddThinker (&fade->thinker);
-            fade->thinker.function = T_FadeThinker;
-            fade->amount = -24;
-            fade->destAlpha = 0;
-            fade->flagReserve = 0;
-            fade->mobj = laser->marker;
+            if (laser->marker->alpha == 0)
+            {
+                P_RemoveMobj(laser->marker);
+            }
+            else
+            {
+                /* fade out the laser puff */
+                fade = Z_Malloc (sizeof(*fade), PU_LEVSPEC, 0);
+                P_AddThinker (&fade->thinker);
+                fade->thinker.function = T_FadeThinker;
+                fade->amount = -24;
+                fade->destAlpha = 0;
+                fade->flagReserve = 0;
+                fade->mobj = laser->marker;
+            }
         }
         else
         {
@@ -1281,24 +1297,26 @@ void T_LaserThinker(laser_t *laser) // 8001C9B8
 =
 =================
 */
-extern fixed_t         aimfrac;        // 800A5720
-
 void A_FireLaser(player_t *player, pspdef_t *psp) // 8001CAC0
 {
-    angle_t                 angleoffs;
-    angle_t                 spread = 0;
-    mobj_t                  *mobj;
-    int                     lasercount;
-    int                     i;
-    fixed_t                 slopex, slopey, slopez;
-    fixed_t                 x, y, z;
-    fixed_t                 x1, y1, z1;
-    fixed_t                 x2, y2, z2;
-    byte                    type;
-    laserdata_t             *laser_data;
-    laser_t                 *laser;
-    fixed_t                 laserfrac;
-    int                     damage;
+    angle_t     angleoffs;
+    angle_t     spread = 0;
+    mobj_t      *mobj;
+    int         lasercount;
+    int         i;
+    fixed_t     slopex, slopey, slopez;
+    fixed_t     x, y, z;
+    fixed_t     x1, y1, z1;
+    fixed_t     x2, y2, z2;
+    byte        type;
+    laserdata_t *laser_data;
+    laser_t     *laser;
+    fixed_t     laserfrac;
+    int         damage;
+    int         autoaim;
+    int         shootheight;
+    int         laserheight; // [Immorpher] Adjust laser shoot height based on player view
+    int         laserspacing; // [Immorpher] Adjust laser shoot distance based on player view
 
     mobj = player->mo;
 
@@ -1330,26 +1348,54 @@ void A_FireLaser(player_t *player, pspdef_t *psp) // 8001CAC0
         break;
     }
 
-    x1 = mobj->x + (finecosine(mobj->angle >> ANGLETOFINESHIFT) * LASERDISTANCE);
-    y1 = mobj->y + (finesine(mobj->angle >> ANGLETOFINESHIFT) * LASERDISTANCE);
-    z1 = mobj->z + LASERAIMHEIGHT;
+
+    shootheight = LASERAIMHEIGHT >> FRACBITS;
+    if (player->crouch)
+        shootheight /= 2;
+    laserheight = (shootheight + (((shootheight >> 1) * finesine(player->pitch >> ANGLETOFINESHIFT)) >> FRACBITS)) << FRACBITS;
+    laserspacing = (LASERDISTANCE*finecosine(player->pitch >> ANGLETOFINESHIFT)) >> FRACBITS;
+
+    x1 = mobj->x + (finecosine(mobj->angle >> ANGLETOFINESHIFT) * laserspacing);
+    y1 = mobj->y + (finesine(mobj->angle >> ANGLETOFINESHIFT) * laserspacing);
+    z1 = mobj->z + laserheight;
+
+    autoaim = player->config->autoaim;
+    spawnpuff = false;
+    if (autoaim)
+    {
+        slopez = P_AimLineAttack(mobj, mobj->angle, laserheight, LASERRANGE);
+        autoaim = hittarget.type == ht_thing;
+    }
+    else
+    {
+        slopez = P_AimSlope(player);
+    }
 
     /* setup laser beams */
     for(i = 0; i < lasercount; i++)
     {
-        slopez = P_AimLineAttack(mobj, angleoffs, LASERAIMHEIGHT, LASERRANGE);
-
-        if(aimfrac)
-            laserfrac = (aimfrac << (FRACBITS - 4)) - (4 << FRACBITS);
-        else
-            laserfrac = (2048*FRACUNIT);
-
         slopex = finecosine(angleoffs >> ANGLETOFINESHIFT);
         slopey = finesine(angleoffs >> ANGLETOFINESHIFT);
 
-        x2 = mobj->x + FixedMul(slopex, laserfrac);
-        y2 = mobj->y + FixedMul(slopey, laserfrac);
-        z2 = z1 + FixedMul(slopez, laserfrac);
+        damage = ((P_Random() & 7) * 10) + 10;
+        angleoffs += spread;
+
+        P_LineAttack(mobj, angleoffs, laserheight, LASERRANGE, slopez, damage);
+
+        if (hittarget.type != ht_none)
+        {
+            laserfrac = (hittarget.frac << (FRACBITS - 4)) - (4 << FRACBITS);
+            x2 = hittarget.x;
+            y2 = hittarget.y;
+            z2 = hittarget.z;
+        }
+        else
+        {
+            laserfrac = (2048*FRACUNIT);
+            x2 = mobj->x + FixedMul(slopex, laserfrac);
+            y2 = mobj->y + FixedMul(slopey, laserfrac);
+            z2 = z1 + FixedMul(slopez, laserfrac);
+        }
 
         z = (z2 - z1) >> FRACBITS;
         x = (x2 - x1) >> FRACBITS;
@@ -1388,18 +1434,14 @@ void A_FireLaser(player_t *player, pspdef_t *psp) // 8001CAC0
         laser->laserdata = laser_data;
         laser->marker = P_SpawnMobj(x2, y2, z2, MT_PROJ_LASER);
 
-        player->ammo[weaponinfo[player->readyweapon].ammo]--;
+        // [nova] hide puff when hitting nothing
+        if (hittarget.type == ht_none || hittarget.hitsky)
+            laser->marker->alpha = 0;
 
-        if(!linetarget)
-        {
-            angleoffs += spread;
-        }
-        else
-        {
-            damage = ((P_Random() & 7) * 10) + 10;
-            P_DamageMobj(linetarget, mobj, mobj, damage);
-        }
+        player->ammo[weaponinfo[player->readyweapon].ammo]--;
     }
+
+    spawnpuff = true;
 
     P_SetPsprite(player, ps_flashalpha, weaponinfo[player->readyweapon].flashstate);
     S_StartSound(player->mo, sfx_laser);

@@ -9,7 +9,7 @@ mobj_t *checkthing;		/* Used for PB_CheckThing */    // 800A55D0
 fixed_t testx, testy;                                    // 800A55D8, 800A55DC
 static fixed_t testfloorz, testceilingz, testdropoffz;          // 800A5604, 800A5608, 800A560C
 static subsector_t *testsubsec;                                 // 800A55F8
-static line_t *ceilingline;                                     // 800A5600
+static line_t *hitline;                                     // 800A5600
 static mobj_t *hitthing;                                        // 800A55fC
 static fixed_t testbbox[4];		/* Bounding box for tests */    // 800A55E8
 int testflags;                                           // 800A55D4
@@ -155,8 +155,10 @@ void P_MobjThinker(mobj_t *mobj) // 8000CE74
 
 void P_XYMovement(mobj_t *mo) // 8000CF98
 {
-	fixed_t xleft, yleft;
-	fixed_t xuse, yuse;
+    fixed_t xleft, yleft;
+    fixed_t xuse, yuse;
+    int side;
+    sector_t *check, *front, *back;
 
 	//
 	// cut the move into chunks if too large
@@ -188,11 +190,35 @@ void P_XYMovement(mobj_t *mo) // 8000CF98
 			// explode a missile
 			if (mo->flags & MF_MISSILE)
 			{
-			    if(hitthing == NULL && ceilingline)
+			    if(hitthing == NULL && hitline)
                 {
-                    if ((ceilingline->backsector && (ceilingline->backsector->ceilingpic == -1)) ||
-                       ((ceilingline->backsector == NULL) && (sides[ceilingline->sidenum[0]].midtexture == 1))) // hack to prevent missiles exploding against the sky
+                    back = hitline->backsector;
+                    if (back)
                     {
+                        front = hitline->frontsector;
+
+                        // don't shoot blank top or bottom textures
+                        side = front->ceilingheight > back->ceilingheight ? 0 : 1;
+                        check = side ? front : back;
+                        if (mo->z > check->ceilingheight && sides[hitline->sidenum[side]].toptexture <= 1)
+                        {
+                            mo->latecall = P_RemoveMobj;
+                            return;
+                        }
+                        else
+                        {
+                            side = front->floorheight < back->floorheight ? 0 : 1;
+                            check = side ? front : back;
+                            if (mo->z < check->floorheight && sides[hitline->sidenum[side]].bottomtexture <= 1)
+                            {
+                                mo->latecall = P_RemoveMobj;
+                                return;
+                            }
+                        }
+                    }
+                    else if (sides[hitline->sidenum[0]].midtexture <= 1)
+                    {
+                        // don't shoot blank mid texture
                         mo->latecall = P_RemoveMobj;
                         return;
                     }
@@ -284,46 +310,54 @@ void P_FloatChange(mobj_t *mo) // inline function
 void P_ZMovement(mobj_t *mo) // 8000D228
 {
 
-	mo->z += mo->momz;		/* Basic z motion */
+    mo->z += mo->momz;		/* Basic z motion */
 
-	if ((mo->flags & MF_FLOAT) && mo->target)   /* float down towards target if too close */
+    if ((mo->flags & MF_FLOAT) && mo->target)   /* float down towards target if too close */
     {
-		P_FloatChange(mo);
-	}
+        P_FloatChange(mo);
+    }
 
-	//
-	// clip movement
-	//
-	if (mo->z <= mo->floorz)	// hit the floor
-	{
-		if (mo->momz < 0)
-			mo->momz = 0;
+    //
+    // clip movement
+    //
+    if (mo->z <= mo->floorz)	// hit the floor
+    {
+        if (mo->momz < 0)
+            mo->momz = 0;
 
-		mo->z = mo->floorz;
-		if ((mo->flags & MF_MISSILE) && (mo->type != MT_PROJ_RECTFIRE))
-		{
-			mo->latecall = P_ExplodeMissile;
-			return;
-		}
-	}
-	else if (mo->flags & MF_GRAVITY)
-	{
-		// apply gravity
-		if (mo->momz == 0)
-			mo->momz = -(GRAVITY/2);
-		else
-			mo->momz -= ((GRAVITY/FRACBITS)*3); // [d64]: non-players fall slightly slower
-	}
+        mo->z = mo->floorz;
+        if ((mo->flags & MF_MISSILE) && (mo->type != MT_PROJ_RECTFIRE))
+        {
+            if (mo->subsector->sector->floorpic == -1)
+                mo->latecall = P_RemoveMobj;
+            else
+                mo->latecall = P_ExplodeMissile;
+            return;
+        }
+    }
+    else if (mo->flags & MF_GRAVITY)
+    {
+        // apply gravity
+        if (mo->momz == 0)
+            mo->momz = -(GRAVITY/2);
+        else
+            mo->momz -= ((GRAVITY/FRACBITS)*3); // [d64]: non-players fall slightly slower
+    }
 
-	if (mo->z + mo->height > mo->ceilingz) // hit the ceiling
-	{
-		if (mo->momz > 0)
-			mo->momz = 0;
+    if (mo->z + mo->height > mo->ceilingz) // hit the ceiling
+    {
+        if (mo->momz > 0)
+            mo->momz = 0;
 
-		mo->z = mo->ceilingz - mo->height;
-		if (mo->flags & MF_MISSILE)
-			mo->latecall = P_ExplodeMissile;
-	}
+        mo->z = mo->ceilingz - mo->height;
+        if (mo->flags & MF_MISSILE)
+        {
+            if (mo->subsector->sector->ceilingpic == -1)
+                mo->latecall = P_RemoveMobj;
+            else
+                mo->latecall = P_ExplodeMissile;
+        }
+    }
 }
 
 /*
@@ -513,7 +547,7 @@ boolean PB_CheckPosition(void) // 8000D750
 
 	++validcount;
 
-	ceilingline = NULL;
+	hitline = NULL;
 	hitthing = NULL;
 
 	//
@@ -634,20 +668,20 @@ boolean PB_CheckLine(line_t *ld) // 8000DA44
 	*/
 	if (!ld->backsector)
     {
-        ceilingline  = ld;
+        hitline  = ld;
 		return false;		// one sided line
     }
 
 	if (!(testflags & MF_MISSILE) && (ld->flags & (ML_BLOCKING | ML_BLOCKMONSTERS)))
     {
-        ceilingline  = ld;
+        hitline  = ld;
 		return false;		// explicitly blocking
     }
 
     // [d64] don't cross projectile blockers
 	if ((ld->flags & ML_BLOCKPROJECTILES)) //psx doom / doom 64 new
     {
-        ceilingline  = ld;
+        hitline  = ld;
 		return false;
     }
 
@@ -674,10 +708,13 @@ boolean PB_CheckLine(line_t *ld) // 8000DA44
 	if (opentop < testceilingz)
 	{
 		testceilingz = opentop;
-		ceilingline = ld;
+		hitline = ld;
 	}
 	if (openbottom > testfloorz)
+    {
 		testfloorz = openbottom;
+		hitline = ld;
+    }
 	if (lowfloor < testdropoffz)
 		testdropoffz = lowfloor;
 

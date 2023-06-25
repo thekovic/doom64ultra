@@ -36,6 +36,9 @@
 fixed_t		viewx, viewy, viewz;    // 800A6890, 800A6894, 800A6898
 angle_t		viewangle;              // 800A689C
 fixed_t		viewcos, viewsin;       // 800A68A0,
+angle_t		viewpitch;
+fixed_t		viewpitchsin, viewpitchcos;
+angle_t		viewmaxhalffov;
 player_t	*viewplayer;            // 800A688C, 800a68a4
 
 int			validcount;		/* increment every time a check is made */ // 800A6900
@@ -46,7 +49,6 @@ int			validcount;		/* increment every time a check is made */ // 800A6900
 /* */
 boolean     rendersky; // 800A68A8
 
-byte        solidcols[320];                     // 800A6348
 subsector_t *solidsubsectors[MAXSUBSECTORS];	// 800A6488  /* List of valid ranges to scan through */
 subsector_t **endsubsector;				        // 800A6888    /* Pointer to the first free entry */
 int numdrawsubsectors;                          // 800A68AC
@@ -132,79 +134,12 @@ void R_Init(void) // 800233E0
     while(1){}*/
 }
 
-
-/*
-==============
-=
-= R_RenderView
-=
-==============
-*/
-
-void R_RenderPlayerView(void) // 80023448
+void R_RotateCameraMatrix(void)
 {
-	fixed_t pitch;
-	fixed_t Fnear, FnearA, FnearB;
 	fixed_t sin, cos;
 
-	viewplayer = &players[0];
-
-    if (cameratarget == players[0].mo)
-    {
-        viewz = players[0].viewz;
-        pitch = players[0].recoilpitch >> ANGLETOFINESHIFT;
-    }
-    else
-    {
-        viewz = cameratarget->z;
-        pitch = camviewpitch >> ANGLETOFINESHIFT;
-    }
-
-    viewx = cameratarget->x;
-    viewy = cameratarget->y;
-    viewz += quakeviewy;
-
-	viewangle = cameratarget->angle + quakeviewx;
-	viewcos = finecosine(viewangle >> ANGLETOFINESHIFT);
-	viewsin = finesine(viewangle >> ANGLETOFINESHIFT);
-
-	// Phase 1
-	R_BSP();
-
-	gDPSetEnvColorD64(GFX1++, FlashEnvColor);
-
-	// Phase 2
-	if (rendersky)
-    {
-		if (VideoFilter == 1) { // [Immorpher] Set linear texture filtering for skies only if wanted
-			gDPSetTextureFilter(GFX1++, G_TF_BILERP);
-		}
-        R_RenderSKY();
-        R_RenderFilter();
-        gDPPipeSync(GFX1++);
-    }
-
-    gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
-    gDPSetTextureLOD(GFX1++, G_TL_TILE);
-    gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
-    gDPSetTexturePersp(GFX1++, G_TP_PERSP);
-    gDPSetAlphaCompare(GFX1++, G_AC_THRESHOLD);
-    gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
-
-    gDPSetCombineMode(GFX1++, G_CC_D64COMB07, G_CC_D64COMB08);
-
-    gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_TEX_EDGE2);
-
-    FnearA = (1000 - FogNear);
-    FnearB = ((0-FogNear) << 8) + 128000;
-    Fnear  = (((128000 / FnearA) << 16) | ((FnearB / FnearA) & 0xffff));
-    gMoveWd(GFX1++, G_MW_FOG, G_MWO_FOG, Fnear);
-
-    // Apply Fog Color
-    gDPSetFogColorD64(GFX1++, FogColor);
-
-    sin = finesine(pitch);
-    cos = finecosine(pitch);
+    sin = viewpitchsin;
+    cos = viewpitchcos;
 
     gSPMatrix(GFX1++, OS_K0_TO_PHYSICAL(MTX1), G_MTX_MODELVIEW| G_MTX_LOAD | G_MTX_NOPUSH);
     MTX1->m[0][0] = 0x10000;
@@ -246,6 +181,128 @@ void R_RenderPlayerView(void) // 80023448
     MTX1->m[3][2] = 0;
     MTX1->m[3][3] = 0;
     MTX1++;
+
+}
+
+/*
+==============
+=
+= R_RenderView
+=
+==============
+*/
+
+void R_RenderPlayerView(void) // 80023448
+{
+    fixed_t Fnear, FnearA, FnearB;
+    int finepitch, fineangle;
+
+    viewplayer = &players[0];
+
+    if (cameratarget == players[0].mo)
+    {
+        viewz = players[0].viewz;
+        viewpitch = players[0].recoilpitch + players[0].pitch;
+        finepitch = viewpitch >> ANGLETOFINESHIFT;
+    }
+    else
+    {
+        viewz = cameratarget->z;
+        viewpitch = camviewpitch;
+        finepitch = camviewpitch >> ANGLETOFINESHIFT;
+    }
+
+    viewx = cameratarget->x;
+    viewy = cameratarget->y;
+    viewz += quakeviewy;
+
+    viewangle = cameratarget->angle + quakeviewx;
+    fineangle = viewangle >> ANGLETOFINESHIFT;
+    viewsin = finesine(fineangle);
+    viewcos = finecosine(fineangle);
+    viewpitchsin = finesine(finepitch);
+    viewpitchcos = finecosine(finepitch);
+
+    /*
+    fov = aspectfovs[ScreenAspect];
+    if (players[0].addfov)
+    {
+        fov += players[0].addfov;
+        hcot = FixedDiv2(aspectratios[0], fov);
+        vcot = FixedMul(hcot, aspectratios[ScreenAspect]);
+    }
+    else
+    {
+        hcot = FRACUNIT;
+        vcot = aspectratios[ScreenAspect];
+    }
+    R_ProjectionMatrix.m[0][0] = hcot & 0xffff0000;
+    R_ProjectionMatrix.m[2][0] = (hcot<<16) & 0xffff0000;
+    R_ProjectionMatrix.m[0][2] = (vcot >> 16) & 0xffff;
+    R_ProjectionMatrix.m[2][2] = vcot & 0xffff;
+    if (viewpitch == 0)
+    {
+        viewmaxhalffov = fov >> 1;
+    }
+    else
+    {
+        viewmaxhalffov = R_PointToPseudoAngle(FRACUNIT,
+                FixedMul(D_abs(viewpitchsin), invaspectratios[ScreenAspect]) - viewpitchcos) + ANG180;
+        if (viewmaxhalffov >= ANG90)
+                viewmaxhalffov = 0;
+    }
+    */
+
+    if (viewpitch == 0)
+    {
+        viewmaxhalffov = ANG90 >> 1;
+    }
+    else
+    {
+        /* rotate the closest corner of the frustum into into world space and get its angle */
+        viewmaxhalffov = R_PointToPseudoAngle(FRACUNIT,
+                FixedMul(D_abs(viewpitchsin), 0xc000) // 1/aspect == 3/4
+                - viewpitchcos) + ANG180;
+        if (viewmaxhalffov >= ANG90)
+                viewmaxhalffov = 0;
+    }
+
+    // Phase 1
+    R_BSP();
+
+    gDPSetEnvColorD64(GFX1++, FlashEnvColor);
+
+	// Phase 2
+	if (rendersky)
+    {
+		if (VideoFilter == 1) { // [Immorpher] Set linear texture filtering for skies only if wanted
+			gDPSetTextureFilter(GFX1++, G_TF_BILERP);
+		}
+        R_RenderSKY();
+        R_RenderFilter();
+        gDPPipeSync(GFX1++);
+    }
+
+    gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
+    gDPSetTextureLOD(GFX1++, G_TL_TILE);
+    gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
+    gDPSetTexturePersp(GFX1++, G_TP_PERSP);
+    gDPSetAlphaCompare(GFX1++, G_AC_THRESHOLD);
+    gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
+
+    gDPSetCombineMode(GFX1++, G_CC_D64COMB07, G_CC_D64COMB08);
+
+    gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_TEX_EDGE2);
+
+    FnearA = (1000 - FogNear);
+    FnearB = ((0-FogNear) << 8) + 128000;
+    Fnear  = (((128000 / FnearA) << 16) | ((FnearB / FnearA) & 0xffff));
+    gMoveWd(GFX1++, G_MW_FOG, G_MWO_FOG, Fnear);
+
+    // Apply Fog Color
+    gDPSetFogColorD64(GFX1++, FogColor);
+
+    R_RotateCameraMatrix();
 
     gSPMatrix(GFX1++, OS_K0_TO_PHYSICAL(MTX1), G_MTX_MODELVIEW| G_MTX_MUL | G_MTX_NOPUSH);
     MTX1->m[0][0] = 0x10000;

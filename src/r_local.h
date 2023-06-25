@@ -3,6 +3,8 @@
 #ifndef __R_LOCAL__
 #define __R_LOCAL__
 
+#include "doomdef.h"
+
 /* proper screen size would be 160*100, stretched to 224 is 2.2 scale */
 #define	STRETCH				(22*FRACUNIT/10)
 
@@ -325,6 +327,9 @@ void R_RenderPSprites(void);
 extern	fixed_t		viewx, viewy, viewz;    //80077D0C, 80077D10, 80077D18
 extern	angle_t		viewangle;              //800780B8
 extern	fixed_t		viewcos, viewsin;       //80077EC8, 80077EE0
+extern	angle_t		viewpitch;
+extern	fixed_t		viewpitchsin, viewpitchcos;
+extern	angle_t		viewmaxhalffov;
 
 extern	player_t	*viewplayer;            //80077D60
 
@@ -340,7 +345,6 @@ extern	int			validcount; //800779F4
 /* R_data.c */
 /* */
 extern boolean rendersky;                           // 800A68A8
-extern byte solidcols[320];				            // 800A6348
 
 #define	MAXSUBSECTORS	512		/* Maximum number of subsectors to scan */
 extern subsector_t *solidsubsectors[MAXSUBSECTORS];	// 800A6488 /* List of valid ranges to scan through */
