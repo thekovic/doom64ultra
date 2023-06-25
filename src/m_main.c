@@ -293,18 +293,19 @@ menuitem_t Menu_CreateNote[] = // 8005AB40
 #define MAXFEATURES 14
 menuitem_t Menu_Features[MAXFEATURES] = // 8005AB64
 {
-    { 23, 40, 50},      // WARP TO LEVEL
-    { 24, 40, 60},      // INVULNERABLE
-    { 25, 40, 70},      // HEALTH BOOST
-    { 27, 40, 80},      // WEAPONS
-    { 85, 40, 90},      // ARTIFACTS
-    { 37, 40, 100},      // MAP EVERYTHING
-    //
-    { 26, 40, 110},      // SECURITY KEYS
-    { 31, 40, 120},      // WALL BLOCKING
-    { 35, 40, 130},      // LOCK MONSTERS
+    { 24, 40, 50},      // INVULNERABLE
+    { 25, 40, 60},      // HEALTH BOOST
+    { 27, 40, 70},      // WEAPONS
+    { 85, 40, 80},      // ARTIFACTS
+    { 37, 40, 90},      // MAP EVERYTHING
+
+    { 26, 40, 100},      // SECURITY KEYS
+    { 31, 40, 110},      // WALL BLOCKING
+    { 35, 40, 120},      // LOCK MONSTERS
+
+    { 23, 40, 130},      // WARP TO LEVEL
     { 39, 40, 140},      // MUSIC TEST
-    //
+
     { 48, 40, 150},      // COLORS [GEC] NEW CHEAT CODE
     { 49, 40, 160},      // FULL BRIGHT [GEC] NEW CHEAT CODE
     { 68, 40, 170},      // Gamma correction [Immorpher] NEW CHEAT CODE
@@ -791,6 +792,7 @@ int M_MenuTicker(void) // 80007E0C
     int truebuttons;
     int ret;
     int i;
+    boolean padrepeat = false;
     mobj_t *m;
 
     /* animate skull */
@@ -798,7 +800,7 @@ int M_MenuTicker(void) // 80007E0C
         MenuAnimationTic = (MenuAnimationTic + 1) & 7;
 
     buttons = M_ButtonResponder(ticbuttons[0]);
-    oldbuttons = oldticbuttons[0] & 0xffff0000;
+    oldbuttons = M_ButtonResponder(oldticbuttons[0]);
 
     /* exit menu if button press */
     if (buttons != 0)
@@ -820,6 +822,7 @@ int M_MenuTicker(void) // 80007E0C
             if (m_vframe1 <= 0)
             {
                 m_vframe1 = 0xf; // TICRATE / 2
+                padrepeat = true;
 
                 if (buttons & PAD_DOWN)
                 {
@@ -862,10 +865,7 @@ int M_MenuTicker(void) // 80007E0C
         }
         else
         {
-                truebuttons = (0 < (buttons ^ oldbuttons));
-
-                if (truebuttons)
-                    truebuttons = (0 < (buttons & PAD_A));
+                truebuttons = (buttons & PAD_A) && !(oldbuttons & PAD_A);
 
                 switch(MenuItem[cursorpos].casepos)
                 {
@@ -1155,7 +1155,8 @@ int M_MenuTicker(void) // 80007E0C
                     break;
 
                 case 12: // Autorun
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         playerconfigs[0].autorun ^= true;
@@ -1266,45 +1267,46 @@ int M_MenuTicker(void) // 80007E0C
                     break;
 
                 case 23: // WARP TO LEVEL
-                    if(buttons ^ oldbuttons)
+                    if (padrepeat)
                     {
-                    if (buttons & PAD_LEFT)
-                    {
-                        m_actualmap -= 1;
-                        if (m_actualmap < 1)
+                        if (buttons & PAD_LEFT)
                         {
-                            m_actualmap = 1;
+                            m_actualmap -= 1;
+                            if (m_actualmap < 1)
+                            {
+                                m_actualmap = 1;
+                            }
+                            else
+                            {
+                                S_StartSound(NULL, sfx_switch2);
+                            }
+                            return ga_nothing;
                         }
-                        else
+                        else if (buttons & PAD_RIGHT)
                         {
-                            S_StartSound(NULL, sfx_switch2);
+                            m_actualmap += 1;
+                            if (m_actualmap > 32)
+                            {
+                                m_actualmap = 32;
+                            }
+                            else
+                            {
+                                S_StartSound(NULL, sfx_switch2);
+                            }
+                            return ga_nothing;
                         }
-                        return ga_nothing;
                     }
-                    else if (buttons & PAD_RIGHT)
-                    {
-                        m_actualmap += 1;
-                        if (m_actualmap > 32)
-                        {
-                            m_actualmap = 32;
-                        }
-                        else
-                        {
-                            S_StartSound(NULL, sfx_switch2);
-                        }
-                        return ga_nothing;
-                    }
-                    else if (buttons & ALL_CBUTTONS)
+                    if (truebuttons)
                     {
                         gamemap = m_actualmap;
                         startmap = m_actualmap;
                         return ga_warped;
                     }
-                    }
                     break;
                     
                 case 24: // INVULNERABLE
-                    if (((gamemap != 32) & truebuttons))
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         players[0].cheats ^= CF_GODMODE;
@@ -1313,7 +1315,8 @@ int M_MenuTicker(void) // 80007E0C
                     break;
 
                 case 25: // HEALTH BOOST
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         players[0].cheats |= CF_HEALTH;
@@ -1328,7 +1331,8 @@ int M_MenuTicker(void) // 80007E0C
                     /*
                     Reconstructed code based on Psx Doom
                     */
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         players[0].cheats |= CF_ALLKEYS;
@@ -1392,7 +1396,8 @@ int M_MenuTicker(void) // 80007E0C
                     break;
 
                 case 27: // WEAPONS
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         players[0].cheats |= CF_WEAPONS;
@@ -1422,7 +1427,8 @@ int M_MenuTicker(void) // 80007E0C
 
                 case 29: // DEBUG
                     /* Not available in the release code */
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         players[0].cheats ^= CF_DEBUG;
@@ -1432,7 +1438,8 @@ int M_MenuTicker(void) // 80007E0C
 
                 case 30: // TEXTURE TEST
                     /* Not available in the release code */
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         players[0].cheats ^= CF_TEX_TEST;
@@ -1445,7 +1452,8 @@ int M_MenuTicker(void) // 80007E0C
                     /*
                     In my opinion it must have been the NOCLIP cheat code
                     */
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         players[0].cheats ^= CF_WALLBLOCKING;
@@ -1470,7 +1478,8 @@ int M_MenuTicker(void) // 80007E0C
                     break;
 
                 case 33: // Messages
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         enable_messages ^= true;
@@ -1521,7 +1530,8 @@ int M_MenuTicker(void) // 80007E0C
                     /*
                     Reconstructed code based on Doom 64 Ex
                     */
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         players[0].cheats ^= CF_LOCKMOSTERS;
@@ -1531,7 +1541,8 @@ int M_MenuTicker(void) // 80007E0C
 
                 case 36: // SCREENSHOT
                     /* Not available in the release code */
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         players[0].cheats ^= CF_SCREENSHOT;
@@ -1540,7 +1551,8 @@ int M_MenuTicker(void) // 80007E0C
                     break;
 
                 case 37: // MAP EVERYTHING
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         players[0].cheats ^= CF_ALLMAP;
@@ -1550,7 +1562,8 @@ int M_MenuTicker(void) // 80007E0C
 
                 case 38: // MACRO PEEK
                     /* Not available in the release code */
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         players[0].cheats ^= CF_MACROPEEK;
@@ -1563,7 +1576,7 @@ int M_MenuTicker(void) // 80007E0C
                     /*
                     Reconstructed code in my interpretation
                     */
-                    if (buttons ^ oldbuttons)
+                    if (padrepeat)
                     {
                         if (buttons & PAD_LEFT)
                         {
@@ -1585,12 +1598,12 @@ int M_MenuTicker(void) // 80007E0C
                             }
                             MusicID = 24;
                         }
-                        else if (buttons & ALL_CBUTTONS)
-                        {
-                            S_StopMusic();
-                            S_StartMusic(MusicID+92);
-                            return ga_nothing;
-                        }
+                    }
+                    if (truebuttons)
+                    {
+                        S_StopMusic();
+                        S_StartMusic(MusicID+92);
+                        return ga_nothing;
                     }
                     break;
 
@@ -1722,18 +1735,20 @@ int M_MenuTicker(void) // 80007E0C
                     break;
 
                 case 48: // COLORS [GEC] NEW CHEAT CODE
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
-                    S_StartSound(NULL, sfx_switch2);
-                    players[0].cheats ^= CF_NOCOLORS;
-                    gobalcheats ^= CF_NOCOLORS;
-                    P_RefreshBrightness();
-                    return ga_nothing;
+                        S_StartSound(NULL, sfx_switch2);
+                        players[0].cheats ^= CF_NOCOLORS;
+                        gobalcheats ^= CF_NOCOLORS;
+                        P_RefreshBrightness();
+                        return ga_nothing;
                     }
                     break;
 
                 case 49: // FULL BRIGHT [GEC] NEW CHEAT CODE
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         players[0].cheats ^= CF_FULLBRIGHT;
@@ -1744,13 +1759,24 @@ int M_MenuTicker(void) // 80007E0C
                     break;
 					
                 case 50: // [GEC and Immorpher] Video filtering mode
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         VideoFilter += 1;
 						if (VideoFilter > 2)
 						{
 							VideoFilter = 0;
+						}
+                        ConfigChanged = true;
+                        return ga_nothing;
+                    }
+                    else if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+                        VideoFilter -= 1;
+						if (VideoFilter < 0)
+						{
+							VideoFilter = 2;
 						}
                         ConfigChanged = true;
                         return ga_nothing;
@@ -1811,7 +1837,8 @@ int M_MenuTicker(void) // 80007E0C
                     break;		
 
                 case 53: // [Immorpher] Dither Filter
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         DitherFilter ^= true;
@@ -1822,7 +1849,8 @@ int M_MenuTicker(void) // 80007E0C
                     break;
 					
                 case 54: // [Immorpher] Anti-Aliasing
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         antialiasing ^= true;
@@ -1833,30 +1861,38 @@ int M_MenuTicker(void) // 80007E0C
                     break;
 					
                 case 55: // [Immorpher] Interlacing
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         interlacing ^= true;
-						P_RefreshVideo();
-                        ConfigChanged = true;
-                        return ga_nothing;
-                    }
-                    break;	
-					
-                case 56: // [Immorpher] Color Dither
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        ColorDither += 1;
-						if (ColorDither > 3)
-						{
-							ColorDither = 0;
-						}
+                        P_RefreshVideo();
                         ConfigChanged = true;
                         return ga_nothing;
                     }
                     break;
-					
+
+                case 56: // [Immorpher] Color Dither
+                    if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+                        ColorDither += 1;
+                        if (ColorDither > 3)
+                            ColorDither = 0;
+                        ConfigChanged = true;
+                        return ga_nothing;
+                    }
+                    if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+                        ColorDither -= 1;
+                        if (ColorDither < 0)
+                            ColorDither = 3;
+                        ConfigChanged = true;
+                        return ga_nothing;
+                    }
+                    break;
+
                 case 57: // Flash Brightness
                     if (buttons & PAD_RIGHT)
                     {
@@ -2054,7 +2090,8 @@ int M_MenuTicker(void) // 80007E0C
                     break;	
 					
                 case 61: // [Immorpher] Story Text
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         StoryText ^= true;
@@ -2063,7 +2100,8 @@ int M_MenuTicker(void) // 80007E0C
                     break;	
 					
                 case 62: // [Immorpher] Map stats
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         MapStats ^= true;
@@ -2125,7 +2163,8 @@ int M_MenuTicker(void) // 80007E0C
                     break;	
 					
                 case 67: // [Immorpher] Colored HUD
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         ColoredHUD ^= true;
@@ -2135,7 +2174,8 @@ int M_MenuTicker(void) // 80007E0C
                     break;	
 
 				case 68: // Gamma Correction [Immorpher] NEW CHEAT CODE
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         players[0].cheats ^= CF_GAMMA;
@@ -2166,7 +2206,8 @@ int M_MenuTicker(void) // 80007E0C
                     break;
 
                 case 85: // ARTIFACTS
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         players[0].artifacts |= 4;
                         players[0].artifacts |= 2;
@@ -2177,7 +2218,7 @@ int M_MenuTicker(void) // 80007E0C
                     }
                     break;
                 case 86: // [Immorpher] Crosshair
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         playerconfigs[0].crosshair += 1;
@@ -2186,9 +2227,19 @@ int M_MenuTicker(void) // 80007E0C
                         ConfigChanged = true;
                         return ga_nothing;
                     }
+                    else if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                    {
+                        S_StartSound(NULL, sfx_switch2);
+                        playerconfigs[0].crosshair -= 1;
+                        if (playerconfigs[0].crosshair < 0)
+                            playerconfigs[0].crosshair = 3;
+                        ConfigChanged = true;
+                        return ga_nothing;
+                    }
                     break;
                 case 87: // [nova] Vertical Look
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         playerconfigs[0].verticallook
@@ -2198,7 +2249,8 @@ int M_MenuTicker(void) // 80007E0C
                     }
                     break;
                 case 88: // [nova] Auto aim
-                    if (truebuttons)
+                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                     {
                         S_StartSound(NULL, sfx_switch2);
                         playerconfigs[0].autoaim ^= true;
