@@ -7,6 +7,10 @@
 extern void P_RefreshBrightness(void);
 extern void P_RefreshVideo(void);
 
+static int M_MenuCreditsTicker(void);
+static void M_IdCreditsDrawer(void);
+static void M_WmsCreditsDrawer(void);
+
 //intermission
 int DrawerStatus;
 
@@ -69,6 +73,7 @@ u8 ControlMappings[] = {
 #define M_TXT20 "Yes"
 #define M_TXT21 "No"
 #define M_TXT22 "Cheats"
+#define M_TXT69 "Show Credits"   // [Immorpher] Credits
 #define M_TXT23 "WARP TO LEVEL"
 #define M_TXT24 "INVULNERABLE"
 #define M_TXT25 "HEALTH BOOST"
@@ -123,22 +128,21 @@ u8 ControlMappings[] = {
 #define M_TXT68 "GAMMA CORRECT"   // [Immorpher] NEW CHEAT CODE
 
 // Merciless Edition Credits
-#define M_TXT69 "MERCILESS EDITION CREDITS"   // [Immorpher] Credits
-#define M_TXT70 "MERCILESS PROGRAMMING: IMMORPHER"   // [Immorpher] Credits
-#define M_TXT71 "REVERSE ENGINEERING: ERICK194"   // [Immorpher] Credits
-#define M_TXT72 "KAISER"   // [Immorpher] Credits
-#define M_TXT73 "BODB DEARG"   // [Immorpher] Credits
-#define M_TXT74 "QUASAR"   // [Immorpher] Credits
-#define M_TXT75 "COMPILER ASSETS: CRASHOVERIDE"   // [Immorpher] Credits
-#define M_TXT76 "ALPHATANGO"   // [Immorpher] Credits
-#define M_TXT77 "PLAY TESTING: SCD, BUU342"   // [Immorpher] Credits
-#define M_TXT78 "IRL RANDOM HAJILE"   // [Immorpher] Credits
-#define M_TXT79 "TAUFAN99"   // [Immorpher] Credits
-#define M_TXT80 "SPECIAL THANKS: GEC TEAM, DOOMWORLD"   // [Immorpher] Credits
-#define M_TXT81 "DOOM 64 DISCORD"   // [Immorpher] Credits
-#define M_TXT82 "NEIGH WINNY"   // [Immorpher] Credits
-#define M_TXT83 "ISANN KEKET"   // [Immorpher] Credits
-#define M_TXT84 "NEVANDER"   // [Immorpher] Credits
+#define M_TXT70 "PROGRAMMING          IMMORPHER"   // [Immorpher] Credits
+#define M_TXT71 "JNMARTIN84"   // [Immorpher] Credits
+#define M_TXT72 "NOVA"   // [Immorpher] Credits
+#define M_TXT73 "REVERSE ENGINEERING  ERICK194"   // [Immorpher] Credits
+#define M_TXT74 "KAISER"   // [Immorpher] Credits
+#define M_TXT75 "BODB DEARG"   // [Immorpher] Credits
+#define M_TXT76 "QUASAR"   // [Immorpher] Credits
+#define M_TXT77 "COMPILER ASSETS      CRASHOVERIDE"   // [Immorpher] Credits
+#define M_TXT78 "ALPHATANGO"   // [Immorpher] Credits
+#define M_TXT79 "PLAY TESTING"   // [Immorpher] Credits
+#define M_TXT80 "BUU342, IRL RANDOM HAJILE"   // [Immorpher] Credits
+#define M_TXT81 "SCD, TAUFAN99"   // [Immorpher] Credits
+#define M_TXT82 "SPECIAL THANKS"   // [Immorpher] Credits
+#define M_TXT83 "GEC TEAM, DOOMWORLD, DOOM 64 DISCORD"   // [Immorpher] Credits
+#define M_TXT84 "NEIGH WINNY, ISANN KEKET, NEVANDER"   // [Immorpher] Credits
 
 char *MenuText[] =   // 8005ABA0
 {
@@ -309,30 +313,34 @@ menuitem_t Menu_Features[MAXFEATURES] = // 8005AB64
     { 48, 40, 150},      // COLORS [GEC] NEW CHEAT CODE
     { 49, 40, 160},      // FULL BRIGHT [GEC] NEW CHEAT CODE
     { 68, 40, 170},      // Gamma correction [Immorpher] NEW CHEAT CODE
-	{ 69, 40, 190},      // [Immorpher] Merciless Edition Credits
+    { 69, 40, 190},      // Credits
 };
 
-menuitem_t Merciless_Credits[] = // 8005AB64
+menuitem_t Ultra_Credits[] = {
+    {70, 20, 48},       // Credits
+    {71, 188, 58},       // Credits
+    {72, 188, 68}       // Credits
+};
+
+menuitem_t Merciless_Credits[] =
 {
-	{70, 20, 48},      // Credits
-	
-    {71, 20, 65},      // Credits
-    {72, 188, 75},      // Credits
-    {73, 188, 85},      // Credits
-    {74, 188, 95},      // Credits
-	
-    {75, 20, 112},      // Credits
-    {76, 156, 122},      // Credits
-	
-    {77, 20, 139},      // Credits
-    {78, 133, 149},      // Credits
-    {79, 133, 159},      // Credits
-	
-    {80, 20, 176},      // Credits
-    {81, 148, 186},      // Credits
-    {82, 148, 196},      // Credits
-    {83, 148, 206},      // Credits
-    {84, 148, 216},      // Credits
+    {70, 20, 48},       // Credits
+
+    {73, 20, 65},       // Credits
+    {74, 188, 75},      // Credits
+    {75, 188, 85},      // Credits
+    {76, 188, 95},     // Credits
+
+    {77, 20, 112},      // Credits
+    {78, 188, 122},     // Credits
+
+    {79, -1, 139},      // Credits
+    {80, -1, 151},      // Credits
+    {81, -1, 161},      // Credits
+
+    {82, -1, 178},      // Credits
+    {83, -1, 190},      // Credits
+    {84, -1, 200},      // Credits
 };
 
 menudata_t MenuData[8]; // 800A54F0
@@ -2180,23 +2188,29 @@ int M_MenuTicker(void) // 80007E0C
                         S_StartSound(NULL, sfx_switch2);
                         players[0].cheats ^= CF_GAMMA;
                         gobalcheats ^= CF_GAMMA;
-						P_RefreshVideo();
+                        P_RefreshVideo();
                         return ga_nothing;
                     }
                     break;
-					
-				case 69: // Credits
+
+                case 69: // Credits
                     if (truebuttons)
                     {
+                        static const menufunc_t cred_drawers[] = {
+                            M_ModCredits1Drawer,
+                            M_ModCredits2Drawer,
+                            M_IdCreditsDrawer,
+                            M_WmsCreditsDrawer,
+                        };
+
                         S_StartSound(NULL, sfx_pistol);
                         M_SaveMenuData();
-
-                        SET_MENU(Merciless_Credits);
-                        MenuCall = M_CreditsDrawer;
-                        cursorpos = 0;
-
-                        exit = MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
-                        M_RestoreMenuData((exit == ga_exit));
+                        for (int i = 0; i < ARRAYLEN(cred_drawers); i++)
+                        {
+                            MenuCall = cred_drawers[i];
+                            exit = MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuCreditsTicker,M_MenuGameDrawer);
+                        }
+                        M_RestoreMenuData(true);
 
                         if (exit == ga_exit)
                             return ga_nothing;
@@ -2424,26 +2438,63 @@ void M_FeaturesDrawer(void) // 800091C0
     ST_DrawSymbol(MenuItem->x -10, MenuItem[cursorpos].y -1, 78, text_alpha | 0xffffff00);
 }
 
-void M_CreditsDrawer(void) // 800091C0
+static int M_MenuCreditsTicker(void)
 {
-    char *text, textbuff[16];
-    menuitem_t *item;
-    int i;
+    int buttons = ticbuttons[0];
+    int oldbuttons = oldticbuttons[0];
 
-    ST_DrawString(-1, 20, "Merciless Credits", text_alpha | 0xc0000000);
-    item = MenuItem;
-
-    for(i = 0; i < itemlines; i++)
+    if (((buttons & PAD_A) && !(oldbuttons & PAD_A))
+            || ((buttons & PAD_B) && !(oldbuttons & PAD_B))
+            || ((buttons & PAD_START) && !(oldbuttons & PAD_START)))
     {
-        
-		/* Show "WARP TO LEVEL" text */
-		ST_Message(item->x, item->y, MenuText[item->casepos], text_alpha | 0xffffff00);
-
-        text = textbuff;
-
-        ST_Message(item->x + 130, item->y, text, text_alpha | 0xffffff00);
-        item++;
+        S_StartSound(NULL, sfx_pistol);
+        return ga_exit;
     }
+
+    return ga_nothing;
+}
+
+static void M_IdCreditsDrawer(void)
+{
+    M_DrawBackground(68, 21, text_alpha, "IDCRED1");
+    M_DrawBackground(32, 41, text_alpha, "IDCRED2");
+}
+
+static void M_WmsCreditsDrawer(void)
+{
+    M_DrawBackground(22, 82, text_alpha, "WMSCRED1");
+    M_DrawBackground(29, 28, text_alpha, "WMSCRED2");
+}
+
+static void M_ModCreditsDrawer(menuitem_t *menu, int items)
+{
+    char *text;
+    int i;
+    int x;
+
+    for(i = 0; i < items; i++)
+    {
+        x = menu->x;
+        text = MenuText[menu->casepos];
+
+        if (x < 0)
+            x = (320 - D_strlen(text) * 8) / 2;
+
+        ST_Message(x, menu->y, text, text_alpha | 0xffffff00);
+        menu++;
+    }
+}
+
+void M_ModCredits1Drawer(void)
+{
+    ST_DrawString(-1, 20, "Doom 64 Ultra", text_alpha | 0xc080c000);
+    M_ModCreditsDrawer(Ultra_Credits, ARRAYLEN(Ultra_Credits));
+}
+
+void M_ModCredits2Drawer(void)
+{
+    ST_DrawString(-1, 20, "Merciless Edition", text_alpha | 0x8080ff00);
+    M_ModCreditsDrawer(Merciless_Credits, ARRAYLEN(Merciless_Credits));
 }
 
 void M_VolumeDrawer(void) // 800095B4

@@ -168,7 +168,7 @@ void P_CheckCheats (void) // 8002187C
             MenuCall = M_MenuTitleDrawer;
             MenuItem = Menu_Game;
             cursorpos = 0;
-            itemlines = 5;
+            itemlines = ARRAYLEN(Menu_Game);
 
             MenuIdx = 0;
             text_alpha = 255;

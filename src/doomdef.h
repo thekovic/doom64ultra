@@ -991,7 +991,8 @@ void M_VideoDrawer(void); // 80009884
 void M_DisplayDrawer(void); // [Immorpher] new menu
 void M_StatusHUDDrawer(void); // [Immorpher] new menu
 void M_DefaultsDrawer(void); // [Immorpher] new menu
-void M_CreditsDrawer(void); // [Immorpher] new menu
+void M_ModCredits1Drawer(void); // [Immorpher] new menu
+void M_ModCredits2Drawer(void); // [nova] new menu
 
 void M_DrawBackground(int x, int y, int color, char *name); // 80009A68
 void M_DrawOverlay(int x, int y, int w, int h, int color); // 80009F58

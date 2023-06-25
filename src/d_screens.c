@@ -223,7 +223,7 @@ int D_CreditTicker(void) // 8002BA88
     if (((u32)ticbuttons[0] >> 16) != 0)
         return ga_exit;
 
-    if ((cred_next == 0) || (cred_next == 1))
+    if (cred_next < 4)
     {
         if (cred_step == 0)
         {
@@ -262,7 +262,7 @@ int D_CreditTicker(void) // 8002BA88
             }
         }
     }
-    else if (cred_next == 2)
+    else if (cred_next == 4)
         return ga_exitdemo;
 
     return ga_nothing;
@@ -270,7 +270,7 @@ int D_CreditTicker(void) // 8002BA88
 
 void D_CreditDrawer(void) // 8002BBE4
 {
-    int color;
+    int color = 0;
 
     I_ClearFrame();
 
@@ -279,28 +279,33 @@ void D_CreditDrawer(void) // 8002BBE4
     gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
     gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
 
+    if (cred_next == 2)
+        color = (cred1_alpha * 16) / 255;
+    else if ((cred_next == 3) || (cred_next == 4))
+        color = (cred1_alpha * 30) / 255;
+
+    gDPSetFillColor(GFX1++, GPACK_RGBA5551(color,0,0,255) << 16 | GPACK_RGBA5551(color,0,0,255));
+    gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+
     if (cred_next == 0)
     {
-        // Set Background Color (Dark Blue)
-        color = (cred1_alpha * 16) / 255;
-        gDPSetFillColor(GFX1++, GPACK_RGBA5551(color,0,0,255) << 16 | GPACK_RGBA5551(color,0,0,255));
-        gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
-
+        text_alpha = cred1_alpha;
+        M_ModCredits1Drawer();
+    }
+    else if (cred_next == 1)
+    {
+        text_alpha = cred1_alpha;
+        M_ModCredits2Drawer();
+    }
+    else if (cred_next == 2)
+    {
         M_DrawBackground(68, 21, cred1_alpha, "IDCRED1");
         M_DrawBackground(32, 41, cred2_alpha, "IDCRED2");
     }
-    else
+    else if ((cred_next == 3) || (cred_next == 4))
     {
-        if ((cred_next == 1) || (cred_next == 2))
-        {
-            // Set Background Color (Dark Grey)
-            color = (cred1_alpha * 30) / 255;
-            gDPSetFillColor(GFX1++, GPACK_RGBA5551(color,color,color,255) << 16 | GPACK_RGBA5551(color,color,color,255));
-            gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
-
-            M_DrawBackground(22, 82, cred1_alpha, "WMSCRED1");
-            M_DrawBackground(29, 28, cred2_alpha, "WMSCRED2");
-        }
+        M_DrawBackground(22, 82, cred1_alpha, "WMSCRED1");
+        M_DrawBackground(29, 28, cred2_alpha, "WMSCRED2");
     }
 
     I_DrawFrame();
