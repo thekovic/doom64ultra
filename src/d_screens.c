@@ -30,7 +30,7 @@ int D_TitleMap(void) // 8002B358
   demo_p = Z_Alloc(16000, PU_STATIC, NULL);
   D_memset(demo_p, 0, 16000);
   D_memcpy(demo_p, DefaultConfiguration[0], 13*sizeof(int));
-  exit = G_PlayDemoPtr(2*(I_Random()%3), 33); // [Immorpher] Randomize the intro fun a bit!
+  exit = G_PlayDemoPtr(sk_medium, 33);
   Z_Free(demo_p);
 
   return exit;
