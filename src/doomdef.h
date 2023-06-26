@@ -645,6 +645,8 @@ fixed_t	FixedMul (fixed_t a, fixed_t b);
 fixed_t FixedDiv (fixed_t a, fixed_t b);
 fixed_t FixedDiv2(fixed_t a, fixed_t b);
 
+char *PrintFixed(char *buf, fixed_t d);
+
 //extern fixed_t FixedMul2 (fixed_t a, fixed_t b);// ASM MIPS CODE
 //extern fixed_t FixedDiv3 (fixed_t a, fixed_t b);// ASM MIPS CODE
 

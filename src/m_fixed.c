@@ -45,3 +45,15 @@ fixed_t FixedDiv(fixed_t a, fixed_t b) // 80002BF8
 
     return c;
 }
+
+char *PrintFixed(char *buf, fixed_t d)
+{
+    int whole, part;
+    char *s = d < 0 ? "-" : "";
+
+    d = D_abs(d);
+    whole = d >> FRACBITS;
+    part = (d & 0xffff)*10000/FRACUNIT;
+    sprintf(buf, "%s%d.%04d", s, whole, part);
+    return buf;
+}
