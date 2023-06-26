@@ -391,33 +391,22 @@ boolean ConfigChanged = false;
 controls_t CurrentControls[MAXPLAYERS] __attribute__((aligned(16))) = {
 {
     {{
-    PAD_RIGHT, PAD_LEFT, PAD_UP, PAD_DOWN,
+    PAD_RIGHT_C, PAD_LEFT_C, 0, 0,
     PAD_Z_TRIG,
-    PAD_RIGHT_C, PAD_UP_C, PAD_LEFT_C, PAD_DOWN_C,
-    PAD_L_TRIG, PAD_R_TRIG, PAD_A, PAD_B,
+    PAD_B, PAD_L_TRIG, 0, 0,
+    0, 0, PAD_LEFT, PAD_RIGHT,
+    0, PAD_UP_C, PAD_DOWN_C, PAD_A, PAD_R_TRIG,
     }},
-    STICK_MOVE | STICK_TURN
+    STICK_MOVE | STICK_STRAFE
 }
 };
 
 char *ControlSetupNames[MAXCONTROLSETUPS] =
 {
-    "Classic", "Modern", "Arcade", "Dark", "Hunter", "Action", "Nuke", "Fighter",
+    "Modern", "Classic", "Arcade", "Dark", "Hunter", "Action", "Nuke", "Fighter",
 };
 
 controls_t DefaultControlSetups[MAXCONTROLSETUPS] __attribute__((aligned(16))) = {
-    // Classic
-    {
-        {{
-        PAD_RIGHT, PAD_LEFT, PAD_UP, PAD_DOWN,
-        PAD_Z_TRIG,
-        PAD_RIGHT_C, PAD_UP_C, PAD_LEFT_C, PAD_DOWN_C,
-        PAD_L_TRIG, PAD_R_TRIG, PAD_A, PAD_B,
-        0, 0, 0, 0, 0,
-        }},
-        STICK_MOVE | STICK_TURN
-    },
-
     // Modern
     {
         {{
@@ -428,6 +417,18 @@ controls_t DefaultControlSetups[MAXCONTROLSETUPS] __attribute__((aligned(16))) =
         0, PAD_UP_C, PAD_DOWN_C, PAD_A, PAD_R_TRIG,
         }},
         STICK_MOVE | STICK_STRAFE
+    },
+
+    // Classic
+    {
+        {{
+        PAD_RIGHT, PAD_LEFT, PAD_UP, PAD_DOWN,
+        PAD_Z_TRIG,
+        PAD_RIGHT_C, PAD_UP_C, PAD_LEFT_C, PAD_DOWN_C,
+        PAD_L_TRIG, PAD_R_TRIG, PAD_A, PAD_B,
+        0, 0, 0, 0, 0,
+        }},
+        STICK_MOVE | STICK_TURN
     },
 
     // Arcade

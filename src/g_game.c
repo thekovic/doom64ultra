@@ -24,7 +24,7 @@ int             displayplayer;          /* view being displayed  */
 int             totalkills, totalitems, totalsecret;    /* for intermission  */
 
 playerconfig_t  playerconfigs[MAXPLAYERS] = {
-    { .autoaim = 1, .autorun = 1, .verticallook = -1 }
+    { .autoaim = 0, .autorun = 1, .verticallook = -1, .crosshair = 2 }
 };
 //char            demoname[32];
 boolean         demorecording;          // 800633A4
@@ -432,7 +432,7 @@ int G_PlayDemoPtr (int skill, int map) // 800049D0
         /* copy key configuration */
         D_memcpy(&controls[i], &CurrentControls[i], sizeof(controls_t));
         /* copy additional player settings */
-        D_memcpy(&configs[i], &players[i].config, sizeof(playerconfig_t));
+        D_memcpy(&configs[i], &playerconfigs[i], sizeof(playerconfig_t));
     }
 
     // [nova] new demo format
@@ -489,7 +489,7 @@ int G_PlayDemoPtr (int skill, int map) // 800049D0
         /* restore key configuration */
         D_memcpy(&CurrentControls[i], &controls[i], sizeof(controls_t));
         /* restore player settings */
-        D_memcpy(&players[i].config, &configs[i], sizeof(playerconfig_t));
+        D_memcpy(&playerconfigs[i], &configs[i], sizeof(playerconfig_t));
     }
 
 	/* free all tags except the PU_STATIC tag */
