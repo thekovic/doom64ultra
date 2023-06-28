@@ -12,6 +12,12 @@
 #include <libaudio.h>
 #include <stdarg.h>
 
+// silence gcc warnings
+#undef OS_K0_TO_PHYSICAL
+#undef OS_K1_TO_PHYSICAL
+#define	OS_K0_TO_PHYSICAL(x) ((u32)(x)-0x80000000)
+#define	OS_K1_TO_PHYSICAL(x) ((u32)(x)-0xa0000000)
+
 #include "i_main.h"
 
 /* TEST DEBUG */

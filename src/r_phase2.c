@@ -368,10 +368,7 @@ void R_RenderClouds(void) // 80025878
 
     VTX1 += 4;
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Warray-bounds"
     gSPMatrix(GFX1++, OS_K0_TO_PHYSICAL(&R_ModelMatrix), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-#pragma GCC diagnostic pop
 }
 
 void R_RenderSkyPic(int lump, int yoffset, boolean repeat) // 80025BDC
