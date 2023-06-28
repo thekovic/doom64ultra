@@ -18,6 +18,6 @@
 /* Homebrew header */
 .byte  0x01, 0x01, 0x01, 0x01   /* Controller info */
 .word  0x00000000               /* Empty */
-.byte  0x00	                    /* Empty */
 .ascii "ED"                     /* Game ID */
-.byte  0x21                     /* Savetype */
+.byte  'A'                      /* Country code */
+.byte  0x61                     /* Savetype */
