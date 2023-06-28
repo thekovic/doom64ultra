@@ -25,33 +25,7 @@ boolean R_CheckBBox(fixed_t bspcoord[4]);
 void    R_Subsector(int num);
 void    R_AddLine(seg_t *line);
 void    R_AddSprite(subsector_t *sub);
-void	R_RenderFilter(void); // [Immorpher] Rendering function to set filter
-
-// [GEC and Immorpher] Set texture render options
-void R_RenderFilter(void)
-{
-	// Texture Filtering
-    if (VideoFilter == 0) {
-        gDPSetTextureFilter(GFX1++, G_TF_BILERP); // <- Linear Texture Filtering
-    }
-    else {
-        gDPSetTextureFilter(GFX1++, G_TF_POINT); // <- Nearest Texture Filtering
-    }
-	
-	// Color Dithering
-	if (ColorDither == 0) {
-		gDPSetColorDither(GFX1++, G_CD_DISABLE);
-	}
-	else if (ColorDither == 1) {
-		gDPSetColorDither(GFX1++, G_CD_MAGICSQ);
-	}
-	else if (ColorDither == 2) {
-		gDPSetColorDither(GFX1++, G_CD_BAYER);
-	}
-	else {
-		gDPSetColorDither(GFX1++, G_CD_NOISE);
-	}
-}
+void	R_RenderFilter(filtertype_t type); // [Immorpher] Rendering function to set filter
 
 angle_t R_PointToPseudoAngle(fixed_t x, fixed_t y);
 boolean R_CheckClipRange(angle_t startAngle, angle_t endAngle);

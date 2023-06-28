@@ -247,6 +247,8 @@ void AM_Drawer (void) // 800009AC
     gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
     gDPSetRenderMode(GFX1++, G_RM_OPA_CI, G_RM_AA_OPA_SURF2);
 
+    R_RenderFilter(filt_textures);    // [GEC and Immorpher] New filter options
+
     p = &players[0];
 
     scale = (p->automapscale << 16);
@@ -513,8 +515,6 @@ void AM_DrawLine(player_t *player) // 800014C8
 
     gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
     gDPSetTexturePersp(GFX1++, G_TP_PERSP);
-
-    R_RenderFilter();    // [GEC and Immorpher] New filter options
 
     gDPSetRenderMode(GFX1++,G_RM_AA_XLU_LINE,G_RM_AA_XLU_LINE2);
     gDPSetCombineMode(GFX1++, G_CC_D64COMB02, G_CC_D64COMB02);

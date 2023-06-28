@@ -272,27 +272,20 @@ void R_RenderPlayerView(void) // 80023448
 
     gDPSetEnvColorD64(GFX1++, FlashEnvColor);
 
-	// Phase 2
-	if (rendersky)
+    R_RenderModes(rm_reset);
+
+    // Phase 2
+    if (rendersky)
     {
-		if (VideoFilter == 1) { // [Immorpher] Set linear texture filtering for skies only if wanted
-			gDPSetTextureFilter(GFX1++, G_TF_BILERP);
-		}
+        R_RenderFilter(filt_skies);
         R_RenderSKY();
-        R_RenderFilter();
-        gDPPipeSync(GFX1++);
     }
 
-    gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
     gDPSetTextureLOD(GFX1++, G_TL_TILE);
     gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
     gDPSetTexturePersp(GFX1++, G_TP_PERSP);
     gDPSetAlphaCompare(GFX1++, G_AC_THRESHOLD);
     gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
-
-    gDPSetCombineMode(GFX1++, G_CC_D64COMB07, G_CC_D64COMB08);
-
-    gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_TEX_EDGE2);
 
     FnearA = (1000 - FogNear);
     FnearB = ((0-FogNear) << 8) + 128000;
@@ -464,4 +457,106 @@ angle_t R_PointToAngle2(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2) // 80023
 				return ANG270 - 1 - tantoangle(SlopeDiv(x, y));  /* octant 5 */
 		}
 	}
+}
+
+static int cur_filter = -1;
+// [GEC and Immorpher] Set texture render options
+void R_RenderFilter(filtertype_t type)
+{
+    int filter;
+
+    if (VideoFilters[type] == 0) {
+        filter = G_TF_BILERP;
+    } else {
+        filter = G_TF_POINT;
+    }
+
+    if (filter == cur_filter)
+        return;
+
+    cur_filter = filter;
+    gDPSetTextureFilter(GFX1++, filter);
+}
+
+static rendermode_t lastrender = -1;
+
+void R_RenderModes(rendermode_t mode)
+{
+    if (lastrender == mode)
+        return;
+
+    gDPPipeSync(GFX1++);
+
+    if (mode == rm_reset)
+    {
+        cur_filter = -1;
+        if (ColorDither == 1) {
+            gDPSetColorDither(GFX1++, G_CD_MAGICSQ);
+        } else if (ColorDither == 2) {
+            gDPSetColorDither(GFX1++, G_CD_BAYER);
+        } else {
+            gDPSetColorDither(GFX1++, G_CD_DISABLE);
+        }
+        gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
+    }
+    else if (mode == rm_texture)
+    {
+        if (lastrender != rm_liquid) {
+            gSPTexture(GFX1++, (1024 << 6)-1, (1024 << 6)-1, 0, G_TX_RENDERTILE, G_ON);
+            if (lastrender != rm_switch) {
+                gDPSetCombineMode(GFX1++, G_CC_D64COMB07, G_CC_D64COMB08);
+            }
+        }
+        gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_TEX_EDGE2);
+        R_RenderFilter(filt_textures);
+    }
+    else if (mode == rm_switch)
+    {
+        gSPTexture(GFX1++, (512 << 6), (512 << 6), 0, G_TX_RENDERTILE, G_ON);
+        if (lastrender != rm_texture && lastrender != rm_liquid) {
+            gDPSetCombineMode(GFX1++, G_CC_D64COMB07, G_CC_D64COMB08);
+        }
+        gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_TEX_EDGE2);
+        R_RenderFilter(filt_textures);
+    }
+    else if (mode == rm_liquid)
+    {
+        if (lastrender != rm_texture) {
+            gSPTexture(GFX1++, (1024 << 6)-1, (1024 << 6)-1, 0, G_TX_RENDERTILE, G_ON);
+            if (lastrender != rm_switch) {
+                gDPSetCombineMode(GFX1++, G_CC_D64COMB07, G_CC_D64COMB08);
+            }
+        }
+        gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_XLU_SURF2);
+        R_RenderFilter(filt_textures);
+    }
+    else if (mode == rm_laser)
+    {
+        gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_RA_OPA_SURF2);
+        gDPSetCombineMode(GFX1++, G_CC_D64COMB15, G_CC_D64COMB16);
+    }
+    else if (mode == rm_sprite)
+    {
+        if (lastrender != rm_nightmaresprite) {
+            gDPSetCombineMode(GFX1++, G_CC_D64COMB07, G_CC_D64COMB08);
+            if (lastrender != rm_switch) {
+                gSPTexture(GFX1++, (512 << 6), (512 << 6), 0, G_TX_RENDERTILE, G_ON);
+            }
+        }
+        gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_XLU_SURF2_CLAMP);
+        R_RenderFilter(filt_sprites);
+    }
+    else if (mode == rm_nightmaresprite)
+    {
+        if (lastrender != rm_sprite) {
+            gDPSetCombineMode(GFX1++, G_CC_D64COMB07, G_CC_D64COMB08);
+            if (lastrender != rm_switch) {
+                gSPTexture(GFX1++, (512 << 6), (512 << 6), 0, G_TX_RENDERTILE, G_ON);
+            }
+        }
+        gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_XLU_SURF2_ADD);
+        R_RenderFilter(filt_sprites);
+    }
+
+    lastrender = mode;
 }

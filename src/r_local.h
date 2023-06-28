@@ -271,6 +271,27 @@ extern int      FlashEnvColor;  // 800A8110
 extern fixed_t  quakeviewx;     // 800A8118
 extern fixed_t  quakeviewy;     // 800A8114
 
+typedef enum {
+    rm_reset,
+    rm_texture,
+    rm_liquid,
+    rm_switch,
+    rm_laser,
+    rm_sprite,
+    rm_nightmaresprite,
+} rendermode_t;
+
+extern void R_RenderModes(rendermode_t mode);
+
+typedef enum
+{
+    filt_textures = 0,
+    filt_sprites = 1,
+    filt_skies = 2,
+} filtertype_t;
+
+extern void R_RenderFilter(filtertype_t type);
+
 /*------*/
 /*R_data*/
 /*------*/

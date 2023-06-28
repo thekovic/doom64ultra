@@ -100,7 +100,7 @@ void G_PlayerFinishLevel (int player) // 80004598
 ====================
 */
 
-int gobalcheats = 0; // [GEC]
+int globalcheats = 0; // [GEC]
 
 void G_PlayerReborn (int player) // 80004630
 {
@@ -121,7 +121,7 @@ void G_PlayerReborn (int player) // 80004630
     p->maxammo[am_cell] = maxammo[am_cell];
     p->maxammo[am_misl] = maxammo[am_misl];
 
-    p->cheats |= gobalcheats; // [GEC] Apply global cheat codes
+    p->cheats |= globalcheats; // [GEC] Apply global cheat codes
 }
 
 /*============================================================================  */

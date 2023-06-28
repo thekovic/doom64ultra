@@ -266,6 +266,9 @@ void R_RenderVoidSky(void) // 800256B4
     // Fill borders with SkyVoidColor
     gDPSetFillColor(GFX1++, (color << 16) | color);
     gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+
+    gDPPipeSync(GFX1++);
+    gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
 }
 
 void R_RenderEvilSky(void) // 80025738
@@ -462,6 +465,9 @@ void R_RenderSkyPic(int lump, int yoffset, boolean repeat) // 80025BDC
         yh = nextyh;
         src += (tileh << 8);
     }
+
+    gDPPipeSync(GFX1++);
+    gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
 }
 
 void R_RenderFireSky(void) // 80025F68

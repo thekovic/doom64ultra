@@ -753,7 +753,8 @@ void I_ClearFrame(void) // 8000637C
     gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
     gDPSetScissor(GFX1++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WD, SCREEN_HT);
 
-	R_RenderFilter();    // [GEC and Immorpher] New filter options
+    gDPSetTextureFilter(GFX1++, G_TF_POINT);
+    gDPSetColorDither(GFX1++, G_CD_DISABLE);
 
     gSPViewport(GFX1++, &vid_viewport);
 

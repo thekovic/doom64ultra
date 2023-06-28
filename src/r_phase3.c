@@ -50,6 +50,7 @@ void R_RenderWorld(subsector_t *sub) // 80026638
     I_CheckGFX();
 
     gDPSetPrimColor(GFX1++, 0, frontsector->lightlevel, 0, 0, 0, 255);
+    R_RenderFilter(filt_textures);
 
     numverts = sub->numverts;
 
@@ -118,8 +119,7 @@ void R_RenderWorld(subsector_t *sub) // 80026638
         }
         else
         {
-            gDPPipeSync(GFX1++);
-            gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_XLU_SURF2);
+            R_RenderModes(rm_texture);
 
             if (frontsector->flags & MS_SCROLLFLOOR)
             {
@@ -139,6 +139,7 @@ void R_RenderWorld(subsector_t *sub) // 80026638
                             xoffset, yoffset,
                             lights[frontsector->colors[1]].rgba);
 
+            R_RenderModes(rm_liquid);
             //--------------------------------------------------------------
             gDPSetPrimColor(GFX1++, 0, frontsector->lightlevel, 0, 0, 0, 160);
 
@@ -147,9 +148,6 @@ void R_RenderWorld(subsector_t *sub) // 80026638
                             textures[frontsector->floorpic],
                             -yoffset, xoffset,
                             lights[frontsector->colors[1]].rgba);
-
-            gDPPipeSync(GFX1++);
-            gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_TEX_EDGE2);
         }
     }
 
@@ -479,7 +477,7 @@ void R_RenderWall(seg_t *seg, int flags, int texture, int topHeight, int bottomH
             globalcm = (cms | cmt);
         }
 
-        gSPTexture(GFX1++, (1024 << 6)-1, (1024 << 6)-1, 0, G_TX_RENDERTILE, G_ON);
+        R_RenderModes(rm_texture);
 
         gSPVertex(GFX1++, VTX1, 4, 0);
         gSP1Quadrangle(GFX1++, 0, 1, 2, 3, 1);
@@ -577,7 +575,7 @@ void R_RenderSwitch(seg_t *seg, int texture, int topOffset, int color) // 800276
         globallump = texture;
     }
 
-    gSPTexture(GFX1++, (512 << 6), (512 << 6), 0, 0, 1);
+    R_RenderModes(rm_switch);
 
     gSPVertex(GFX1++, VTX1, 4, 0);
     gSP1Quadrangle(GFX1++, 0, 1, 2, 3, 1);
@@ -690,8 +688,6 @@ void R_RenderPlane(leaf_t *leaf, int numverts, int zpos, int texture, int xpos, 
 
     x = ((vrt->x + xpos) >> 16) & -64;
     y = ((vrt->y + ypos) >> 16) & -64;
-
-    gSPTexture(GFX1++, (1024 << 6)-1, (1024 << 6)-1, 0, G_TX_RENDERTILE, G_ON);
 
     if (numverts >= 32)
         numverts = 32;
@@ -827,6 +823,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
     int width;
     int tiles;
     int color;
+    int nightmare;
 
     fixed_t xx, yy;
     int xpos1, xpos2;
@@ -838,12 +835,9 @@ void R_RenderThings(subsector_t *sub) // 80028248
     vissprite_p = sub->vissprite;
     if (vissprite_p)
     {
-        gDPPipeSync(GFX1++);
-
         if (vissprite_p->thing->flags & MF_RENDERLASER)
         {
-            gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_RA_OPA_SURF2);
-            gDPSetCombineMode(GFX1++, G_CC_D64COMB15, G_CC_D64COMB16);
+            R_RenderModes(rm_laser);
 
             do
             {
@@ -857,17 +851,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
 
             } while(vissprite_p->thing->flags & MF_RENDERLASER);
 
-            gDPPipeSync(GFX1++);
-            gDPSetCombineMode(GFX1++, G_CC_D64COMB07, G_CC_D64COMB08);
-
-            if (vissprite_p == NULL)
-            {
-                gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_TEX_EDGE2);
-                return;
-            }
         }
-
-        gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_XLU_SURF2_CLAMP);
 
         while (vissprite_p)
         {
@@ -877,22 +861,26 @@ void R_RenderThings(subsector_t *sub) // 80028248
             lump = vissprite_p->lump;
             flip = vissprite_p->flip;
 
-            if (thing->flags & MTF_NIGHTMARE)
+            nightmare = !!(thing->flags & MTF_NIGHTMARE);
+
+            if (nightmare)
             {
+                R_RenderModes(rm_nightmaresprite);
                 color = PACKRGBA(64, 255, 0, 255);
-                gDPSetRenderMode(GFX1++, G_RM_XLU_SURF_CLAMP, G_RM_XLU_SURF2_ADD);
             }
             else if (thing->frame & FF_FULLBRIGHT)
             {
+                R_RenderModes(rm_sprite);
                 color = PACKRGBA(255, 255, 255, 255);//0xffffffff;
             }
             else
             {
+                R_RenderModes(rm_sprite);
                 color = lights[vissprite_p->sector->colors[2]].rgba;
             }
 
             gDPSetPrimColorD64(GFX1++, 0, vissprite_p->sector->lightlevel, thing->alpha);
-            
+
             data = W_CacheLumpNum(lump, PU_CACHE, dec_jag);
 
             compressed = ((spriteN64_t*)data)->compressed;
@@ -926,8 +914,6 @@ void R_RenderThings(subsector_t *sub) // 80028248
                 zpos2 = -(yy - (width * viewcos)) >> 16;
                 zpos1 = -(yy) >> 16;
             }
-
-            gSPTexture(GFX1++, (512 << 6), (512 << 6), 0, 0, 1);
 
             gSPVertex(GFX1++, VTX1, (tiles+2), 0);
 
@@ -1075,17 +1061,9 @@ void R_RenderThings(subsector_t *sub) // 80028248
             }
 
             vissprite_p = vissprite_p->next;
-
-            if (thing->flags & MTF_NIGHTMARE)
-            {
-                gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_TEX_EDGE2);
-            }
         }
 
         globallump = -1;
-
-        gDPPipeSync(GFX1++);
-        gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_TEX_EDGE2);
     }
 }
 
@@ -1164,9 +1142,11 @@ void R_RenderPSprites(void) // 80028f20
 
 	I_CheckGFX();
 
-	gDPPipeSync(GFX1++);
-	gDPSetTexturePersp(GFX1++, G_TP_NONE);
-	gDPSetCombineMode(GFX1++, G_CC_D64COMB17, G_CC_D64COMB18);
+    gDPPipeSync(GFX1++);
+    gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
+    gDPSetTexturePersp(GFX1++, G_TP_NONE);
+    gDPSetCombineMode(GFX1++, G_CC_D64COMB17, G_CC_D64COMB18);
+    R_RenderFilter(filt_sprites);
 
     psp = &viewplayer->psprites[0];
 
@@ -1178,10 +1158,12 @@ void R_RenderPSprites(void) // 80028f20
         if(flagtranslucent || ((psptmp->state != 0) && (psptmp->alpha < 255)))
         {
             gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_XLU_SURF2_CLAMP);
-            break;
+            goto draw;
         }
     }
 
+    gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_TEX_EDGE2);
+draw:
     palloaded = false;
 
     for (i = 0; i < NUMPSPRITES; i++, psp++)

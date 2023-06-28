@@ -672,89 +672,61 @@ void P_SetMovingCamera(line_t *line) // 8000F2F8
 }
 void P_RefreshVideo(void) // [Immorpher] video refresh
 {
-	// default to silence compiler
-	OSViMode *ViMode = OS_VI_NTSC_LPN1;
+    // default to silence compiler
+    OSViMode *ViMode = OS_VI_NTSC_LPN1;
 
-	if(antialiasing==true && interlacing==true)
-	{
-		if(osTvType == OS_TV_PAL)
-		{
-			ViMode = &osViModeTable[OS_VI_PAL_LAF1];
-		}
-		else if(osTvType == OS_TV_NTSC)
-		{
-			ViMode = &osViModeTable[OS_VI_NTSC_LAF1];
-		}
-		else if(osTvType == OS_TV_MPAL)
-		{
-			ViMode = &osViModeTable[OS_VI_MPAL_LAF1];
-		}
-	}
-	else if(antialiasing==true)
-	{
-		if(osTvType == OS_TV_PAL)
-		{
-			ViMode = &osViModeTable[OS_VI_PAL_LAN1];
-		}
-		else if(osTvType == OS_TV_NTSC)
-		{
-			ViMode = &osViModeTable[OS_VI_NTSC_LAN1];
-		}
-		else if(osTvType == OS_TV_MPAL)
-		{
-			ViMode = &osViModeTable[OS_VI_MPAL_LAN1];
-		}
-	}
-	else if(interlacing==true)
-	{
-		if(osTvType == OS_TV_PAL)
-		{
-			ViMode = &osViModeTable[OS_VI_PAL_LPF1];
-		}
-		else if(osTvType == OS_TV_NTSC)
-		{
-			ViMode = &osViModeTable[OS_VI_NTSC_LPF1];
-		}
-		else if(osTvType == OS_TV_MPAL)
-		{
-			ViMode = &osViModeTable[OS_VI_MPAL_LPF1];
-		}
-	}
-	else
-	{
-		if(osTvType == OS_TV_PAL)
-		{
-			ViMode = &osViModeTable[OS_VI_PAL_LPN1];
-		}
-		else if(osTvType == OS_TV_NTSC)
-		{
-			ViMode = &osViModeTable[OS_VI_NTSC_LPN1];
-		}
-		else if(osTvType == OS_TV_MPAL)
-		{
-			ViMode = &osViModeTable[OS_VI_MPAL_LPN1];
-		}
-	}
-	
+    if(TvMode == 3)
+    {
+        if(osTvType == OS_TV_PAL)
+            ViMode = &osViModeTable[OS_VI_PAL_LAF1];
+        else if(osTvType == OS_TV_NTSC)
+            ViMode = &osViModeTable[OS_VI_NTSC_LAF1];
+        else if(osTvType == OS_TV_MPAL)
+            ViMode = &osViModeTable[OS_VI_MPAL_LAF1];
+    }
+    else if(TvMode == 2)
+    {
+        if(osTvType == OS_TV_PAL)
+            ViMode = &osViModeTable[OS_VI_PAL_LPF1];
+        else if(osTvType == OS_TV_NTSC)
+            ViMode = &osViModeTable[OS_VI_NTSC_LPF1];
+        else if(osTvType == OS_TV_MPAL)
+            ViMode = &osViModeTable[OS_VI_MPAL_LPF1];
+    }
+    else if(TvMode == 1)
+    {
+        if(osTvType == OS_TV_PAL)
+            ViMode = &osViModeTable[OS_VI_PAL_LAN1];
+        else if(osTvType == OS_TV_NTSC)
+            ViMode = &osViModeTable[OS_VI_NTSC_LAN1];
+        else if(osTvType == OS_TV_MPAL)
+            ViMode = &osViModeTable[OS_VI_MPAL_LAN1];
+    }
+    else
+    {
+        if(osTvType == OS_TV_PAL)
+            ViMode = &osViModeTable[OS_VI_PAL_LPN1];
+        else if(osTvType == OS_TV_NTSC)
+            ViMode = &osViModeTable[OS_VI_NTSC_LPN1];
+        else if(osTvType == OS_TV_MPAL)
+            ViMode = &osViModeTable[OS_VI_MPAL_LPN1];
+    }
+
     osViSetMode(ViMode);
-	
-	if(DitherFilter == true) // [Immorpher] Dither filter option
-	{
-		if (players[0].cheats & CF_GAMMA)
-        {
+
+    if(DitherFilter == true) // [Immorpher] Dither filter option
+    {
+        if (players[0].cheats & CF_GAMMA)
             osViSetSpecialFeatures(OS_VI_GAMMA_ON|OS_VI_GAMMA_DITHER_OFF|OS_VI_DIVOT_OFF|OS_VI_DITHER_FILTER_ON);	
-        } else {
-			osViSetSpecialFeatures(OS_VI_GAMMA_OFF|OS_VI_GAMMA_DITHER_OFF|OS_VI_DIVOT_OFF|OS_VI_DITHER_FILTER_ON);	
-		}
-	}
-	else {
-		if (players[0].cheats & CF_GAMMA)
-        {
+        else
+            osViSetSpecialFeatures(OS_VI_GAMMA_OFF|OS_VI_GAMMA_DITHER_OFF|OS_VI_DIVOT_OFF|OS_VI_DITHER_FILTER_ON);	
+    }
+    else {
+        if (players[0].cheats & CF_GAMMA)
             osViSetSpecialFeatures(OS_VI_GAMMA_ON|OS_VI_GAMMA_DITHER_OFF|OS_VI_DIVOT_OFF|OS_VI_DITHER_FILTER_OFF);	
-        } else {
-			osViSetSpecialFeatures(OS_VI_GAMMA_OFF|OS_VI_GAMMA_DITHER_OFF|OS_VI_DIVOT_OFF|OS_VI_DITHER_FILTER_OFF);	
-		}
-	}
+        else
+            osViSetSpecialFeatures(OS_VI_GAMMA_OFF|OS_VI_GAMMA_DITHER_OFF|OS_VI_DIVOT_OFF|OS_VI_DITHER_FILTER_OFF);	
+    }
 
 }
 

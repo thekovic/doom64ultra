@@ -61,8 +61,6 @@ extern u16 cfb[2][SCREEN_WD*SCREEN_HT]; // 8036A000
 #define	NULL	0
 #endif
 
-extern void R_RenderFilter(void);
-
 extern int D_vsprintf(char *string, const char *format, va_list args);
 
 /* c_convert.c  */
@@ -979,9 +977,8 @@ extern int SfxVolume;               // 8005A7C0
 extern int MusVolume;               // 8005A7C4
 extern int brightness;              // 8005A7C8
 extern fixed_t MotionBob;				// [Immorpher] Motion Bob
-extern int VideoFilter;				// [GEC & Immorpher] VideoFilter
-extern boolean antialiasing;     	// [Immorpher] Anti-aliasing
-extern boolean interlacing;     	// [Immorpher] Interlacing
+extern int VideoFilters[3];			// [nova] Independent filter select
+extern int TvMode;                  // [nova] interlace/aa
 extern boolean DitherFilter;     	// [Immorpher] Dither Filter
 extern int ColorDither;     		// [Immorpher] Color Dither
 extern int FlashBrightness;     	// [Immorpher] Strobe brightness adjustment

@@ -14,35 +14,30 @@ static void M_WmsCreditsDrawer(void);
 //intermission
 int DrawerStatus;
 
-#define CT_TXT00	"default: %s"
-#define CT_TXT01	"  stick:"
-
-#define CT_TXT02	"move forward"
-#define CT_TXT03	"move backward"
-#define CT_TXT04	"strafe left"
-#define CT_TXT05	"strafe right"
-#define CT_TXT06	"strafe on"
-#define CT_TXT07	"attack"
-#define CT_TXT08	"run"
-#define CT_TXT09	"jump"
-#define CT_TXT10	"crouch"
-
-#define CT_TXT11	"turn left"
-#define CT_TXT12	"turn right"
-#define CT_TXT13	"look up"
-#define CT_TXT14	"look down"
-#define CT_TXT15	"look on"
-#define CT_TXT16	"use"
-#define CT_TXT17	"weapon up"
-#define CT_TXT18	"weapon down"
-#define CT_TXT19	"map"
-
 char *ControlText[] =   //8007517C
 {
-    CT_TXT00, CT_TXT01, CT_TXT02, CT_TXT03, CT_TXT04,
-	CT_TXT05, CT_TXT06, CT_TXT07, CT_TXT08, CT_TXT09,
-	CT_TXT10, CT_TXT11, CT_TXT12, CT_TXT13, CT_TXT14,
-    CT_TXT15, CT_TXT16, CT_TXT17, CT_TXT18, CT_TXT19
+    "default: %s",
+    "  stick:",
+
+    "move forward",
+    "move backward",
+    "strafe left",
+    "strafe right",
+    "strafe on",
+    "attack",
+    "run",
+    "jump",
+    "crouch",
+
+    "turn left",
+    "turn right",
+    "look up",
+    "look down",
+    "look on",
+    "use",
+    "weapon up",
+    "weapon down",
+    "map"
 };
 
 u8 ControlMappings[] = {
@@ -50,297 +45,277 @@ u8 ControlMappings[] = {
     1,  0, 14, 15,  13, 5, 12, 11, 6
 };
 
-#define M_TXT00	"Gamepad"
-#define M_TXT01	"Volume"
-#define M_TXT02	"Video"
-#define M_TXT03	"Password"
-#define M_TXT04	"Main Menu"
-#define M_TXT05	"Restart Level"
-#define M_TXT06	"\x90 Return"
-#define M_TXT07 "Music Volume"
-#define M_TXT08 "Sound Volume"
-#define M_TXT09 "Brightness"
-#define M_TXT10 "Resume"
-#define M_TXT11 "Options"
-#define M_TXT12 "Autorun:"
-#define M_TXT13 "Defaults" // default for video
-#define M_TXT14 "New Game"
-#define M_TXT15 "Be Gentle!"
-#define M_TXT16 "Bring It On!"
-#define M_TXT17 "I Own Doom!"
-#define M_TXT18 "Watch Me Die!"
-#define M_TXT19 "Be Merciless!"
-#define M_TXT20 "Yes"
-#define M_TXT21 "No"
-#define M_TXT22 "Cheats"
-#define M_TXT69 "Show Credits"   // [Immorpher] Credits
-#define M_TXT23 "WARP TO LEVEL"
-#define M_TXT24 "INVULNERABLE"
-#define M_TXT25 "HEALTH BOOST"
-#define M_TXT26 "SECURITY KEYS"
-#define M_TXT27 "WEAPONS"
-#define M_TXT85 "ARTIFACTS"
-#define M_TXT28 "Exit"
-#define M_TXT29 "DEBUG"
-#define M_TXT30 "TEXTURE TEST"
-#define M_TXT31 "WALL BLOCKING"
-#define M_TXT32 "Center Display"
-#define M_TXT33 "Messages:"
-#define M_TXT34 "Opacity"
-#define M_TXT35 "LOCK MONSTERS"
-#define M_TXT36 "SCREENSHOT"
-#define M_TXT37 "MAP EVERYTHING"
-#define M_TXT38 "MACRO PEEK"
-#define M_TXT39 "MUSIC TEST"
-#define M_TXT40 "WARP TO FUN"
-#define M_TXT41 "Movement"
-#define M_TXT42 "Original" // Original default for Doom 64
-#define M_TXT43 "Sensitivity"
-#define M_TXT87 "Vert Look:"
-#define M_TXT88 "Autoaim:"
-#define M_TXT44 "Manage Pak"
-#define M_TXT45 "Do not use Pak"
-#define M_TXT46 "Try again"
-#define M_TXT47 "Create game note"
+#define MENU_STRINGS \
+    _F(MTXT_MAIN_MENU, "Main Menu") \
+    _F(MTXT_PASSWORD, "Password") \
+    _F(MTXT_RESTART, "Restart Level") \
+    _F(MTXT_RETURN, "\x90 Return") \
+    _F(MTXT_YES, "Yes") \
+    _F(MTXT_NO, "No") \
+    \
+    _F(MTXT_MANAGE_PAK, "Manage Pak") \
+    _F(MTXT_DONT_USE_PAK, "Do not use Pak") \
+    _F(MTXT_TRY_AGAIN, "Try again") \
+    _F(MTXT_CREATE_GAME_NOTE, "Create game note") \
+    \
+    _F(MTXT_NEW_GAME, "New Game") \
+    _F(MTXT_SKILL1, "Be Gentle!") \
+    _F(MTXT_SKILL2, "Bring It On!") \
+    _F(MTXT_SKILL3, "I Own Doom!") \
+    _F(MTXT_SKILL4, "Watch Me Die!") \
+    _F(MTXT_SKILL5, "Be Merciless!") \
+    \
+    _F(MTXT_CHEATS, "Cheats") \
+    _F(MTXT_WARP, "WARP TO LEVEL") \
+    _F(MTXT_INVULNERABLE, "INVULNERABLE") \
+    _F(MTXT_FLY, "FLY MODE") \
+    _F(MTXT_KEYS, "SECURITY KEYS") \
+    _F(MTXT_WEAPONS, "WEAPONS") \
+    _F(MTXT_ARTIFACTS, "ARTIFACTS") \
+    _F(MTXT_EXIT, "Exit") \
+    _F(MTXT_DEBUG, "DEBUG") \
+    _F(MTXT_TEXTURE_TEST, "TEXTURE TEST") \
+    _F(MTXT_WALL_BLOCKING, "WALL BLOCKING") \
+    _F(MTXT_LOCK_MONSTERS, "LOCK MONSTERS") \
+    _F(MTXT_SCREENSHOT, "SCREENSHOT") \
+    _F(MTXT_MAP_EVERYTHING, "MAP EVERYTHING") \
+    _F(MTXT_MACRO_PEEK, "MACRO PEEK") \
+    _F(MTXT_MUSIC_TEST, "MUSIC TEST") \
+    _F(MTXT_GAMMA_CORRECT, "GAMMA CORRECT") \
+    _F(MTXT_SECTOR_COLORS, "SECTOR COLORS") \
+    _F(MTXT_FULL_BRIGHT, "FULL BRIGHT") \
+    _F(MTXT_CREDITS, "Show Credits") \
+    \
+    _F(MTXT_OPTIONS, "Options") \
+    \
+    _F(MTXT_GAMEPAD, "Gamepad") \
+    \
+    _F(MTXT_MOVEMENT, "Movement") \
+    _F(MTXT_MOTION_BOB, "Motion Bob") \
+    _F(MTXT_SENSITIVITY, "Sensitivity") \
+    _F(MTXT_AUTORUN, "Autorun:") \
+    _F(MTXT_VERTICAL_LOOK, "Vert Look:") \
+    _F(MTXT_AUTOAIM, "Autoaim:") \
+    \
+    _F(MTXT_SOUND, "Sound") \
+    _F(MTXT_MUSIC_VOLUME, "Music Volume") \
+    _F(MTXT_EFFECT_VOLUME, "Effect Volume") \
+    \
+    _F(MTXT_VIDEO, "Video") \
+    _F(MTXT_TEXTURE_FILTER, "Texture Filter:") \
+    _F(MTXT_SPRITE_FILTER, "Sprite Filter:") \
+    _F(MTXT_SKY_FILTER, "Sky Filter:") \
+    _F(MTXT_DITHER_FILTER, "Dither Filter:") \
+    _F(MTXT_COLOR_DITHER, "Color Dither:") \
+    _F(MTXT_TV_MODE, "TV Mode:") \
+    \
+    _F(MTXT_DISPLAY, "Display") \
+    _F(MTXT_BRIGHTNESS, "Brightness") \
+    _F(MTXT_FLASH_BRIGHTNESS, "Flash Brightness") \
+    _F(MTXT_CENTER_DISPLAY, "Center Display") \
+    _F(MTXT_STORY_TEXT, "Story Text:") \
+    _F(MTXT_MAP_STATS, "Map Stats:") \
+    \
+    _F(MTXT_STATUS_HUD, "Status HUD") \
+    _F(MTXT_MARGIN, "Margin") \
+    _F(MTXT_OPACITY, "Opacity") \
+    _F(MTXT_COLORED, "Colored:") \
+    _F(MTXT_CROSSHAIR, "Crosshair:") \
+    _F(MTXT_MESSAGES, "Messages:") \
+    \
+    _F(MTXT_DEFAULTS, "Defaults") \
+    _F(MTXT_ORIGINAL, "Original") \
+    _F(MTXT_MERCILESS, "Merciless") \
+    _F(MTXT_RETRO, "Retro") \
+    _F(MTXT_ACCESSIBLE, "Accessible") \
 
-// New additions to Doom 64 RE and Merciless Edition
-#define M_TXT48 "COLORS"     // [GEC] NEW CHEAT CODE
-#define M_TXT49 "FULL BRIGHT"   // [GEC] NEW CHEAT CODE
-#define M_TXT50 "Filtering:"   // [GEC] New video filter option
-#define M_TXT51 "Display"   // [Immorpher] New menu item
-#define M_TXT52 "Motion Bob"   // [Immorpher] New menu item
-#define M_TXT53 "Dither Filter:" // [Immorpher] Dither Filter
-#define M_TXT54 "Anti-Aliasing:" // [Immorpher] New anti-aliasing option
-#define M_TXT55 "Interlacing:" // [Immorpher] New interlacing option
-#define M_TXT56 "Color Dither:" // [Immorpher] New color dither options
-#define M_TXT57 "Flash Brightness" // [Immorpher] New flash brightness option
-#define M_TXT58 "Merciless" // [Immorpher] Merciless default settings
-#define M_TXT59 "Immorpher" // [Immorpher] Immorpher default settings
-#define M_TXT60 "Accessible" // [Immorpher] Increased accessibility default settings
-#define M_TXT61 "Story Text:" // [Immorpher] Skip cut scenes
-#define M_TXT62 "Map Stats:" // [Immorpher] Display automap statistics
-#define M_TXT63 "Status HUD" // [Immorpher] New menu option for HUD elements!
-#define M_TXT64 "Margin" // [Immorpher] Adjust the margin for the HUD
-#define M_TXT65 "WARP TO MOTHER" // [Immorpher] New features menu warps
-#define M_TXT66 "WARP TO SECRET" // [Immorpher] New features menu warps
-#define M_TXT67 "Colored:" // [Immorpher] Colored hud
-#define M_TXT86 "Crosshair:" // [Immorpher] Crosshair
-#define M_TXT68 "GAMMA CORRECT"   // [Immorpher] NEW CHEAT CODE
+#define _F(_id, _s) _id,
+typedef enum { MENU_STRINGS } menuentry_t;
+#undef _F
 
-// Merciless Edition Credits
-#define M_TXT70 "PROGRAMMING          IMMORPHER"   // [Immorpher] Credits
-#define M_TXT71 "JNMARTIN84"   // [Immorpher] Credits
-#define M_TXT72 "NOVA"   // [Immorpher] Credits
-#define M_TXT73 "REVERSE ENGINEERING  ERICK194"   // [Immorpher] Credits
-#define M_TXT74 "KAISER"   // [Immorpher] Credits
-#define M_TXT75 "BODB DEARG"   // [Immorpher] Credits
-#define M_TXT76 "QUASAR"   // [Immorpher] Credits
-#define M_TXT77 "COMPILER ASSETS      CRASHOVERIDE"   // [Immorpher] Credits
-#define M_TXT78 "ALPHATANGO"   // [Immorpher] Credits
-#define M_TXT79 "PLAY TESTING"   // [Immorpher] Credits
-#define M_TXT80 "BUU342, IRL RANDOM HAJILE"   // [Immorpher] Credits
-#define M_TXT81 "SCD, TAUFAN99"   // [Immorpher] Credits
-#define M_TXT82 "SPECIAL THANKS"   // [Immorpher] Credits
-#define M_TXT83 "GEC TEAM, DOOMWORLD, DOOM 64 DISCORD"   // [Immorpher] Credits
-#define M_TXT84 "NEIGH WINNY, ISANN KEKET, NEVANDER"   // [Immorpher] Credits
+#define _F(_id, _s) _s,
+char *MenuText[] = { MENU_STRINGS };
+#undef _F
 
-char *MenuText[] =   // 8005ABA0
+menuitem_t Menu_Title[] =
 {
-    M_TXT00, M_TXT01, M_TXT02, M_TXT03, M_TXT04,
-    M_TXT05, M_TXT06, M_TXT07, M_TXT08, M_TXT09,
-    M_TXT10, M_TXT11, M_TXT12, M_TXT13, M_TXT14,
-    M_TXT15, M_TXT16, M_TXT17, M_TXT18, M_TXT19,
-    M_TXT20, M_TXT21, M_TXT22, M_TXT23, M_TXT24,
-    M_TXT25, M_TXT26, M_TXT27, M_TXT28, M_TXT29,
-    M_TXT30, M_TXT31, M_TXT32, M_TXT33, M_TXT34,
-    M_TXT35, M_TXT36, M_TXT37, M_TXT38, M_TXT39,
-    M_TXT40, M_TXT41, M_TXT42, M_TXT43, M_TXT44,
-    M_TXT45, M_TXT46, M_TXT47, M_TXT48, M_TXT49,
-    M_TXT50, M_TXT51, M_TXT52, M_TXT53, M_TXT54,
-    M_TXT55, M_TXT56, M_TXT57, M_TXT58, M_TXT59,
-    M_TXT60, M_TXT61, M_TXT62, M_TXT63, M_TXT64,
-    M_TXT65, M_TXT66, M_TXT67, M_TXT68, M_TXT69,
-    M_TXT70, M_TXT71, M_TXT72, M_TXT73, M_TXT74,
-    M_TXT75, M_TXT76, M_TXT77, M_TXT78, M_TXT79,
-    M_TXT80, M_TXT81, M_TXT82, M_TXT83, M_TXT84,
-    M_TXT85, M_TXT86, M_TXT87, M_TXT88
+    { MTXT_NEW_GAME, 115, 170 },
+    { MTXT_PASSWORD, 115, 190 },
+	{ MTXT_OPTIONS,  115, 210 },
 };
 
-menuitem_t Menu_Title[] = // 8005A978
+menuitem_t Menu_Skill[] =
 {
-    { 14, 115, 170 },   // New Game
-    { 3, 115, 190 },   // Password
-	{ 11, 115, 210 },   // Options
+    { MTXT_SKILL1, 102, 70 },
+    { MTXT_SKILL2, 102, 90},
+    { MTXT_SKILL3, 102, 110},
+    { MTXT_SKILL4, 102, 130},
+    { MTXT_SKILL5, 102, 150},
+    { MTXT_RETURN, 102, 180},
 };
 
-menuitem_t Menu_Skill[] = // 8005A990
+menuitem_t Menu_Options[] =
 {
-    { 15, 102, 70 },    // Be Gentle!
-    { 16, 102, 90},    // Bring it on!
-    { 17, 102, 110},    // I own Doom!
-    { 18, 102, 130},    // Watch me die!
-    { 19, 102, 150},    // Be merciless!
-    { 6, 102, 180},    	// Return
+    { MTXT_GAMEPAD,    112, 60 },
+    { MTXT_MOVEMENT,   112, 80 },
+    { MTXT_SOUND,      112, 100},
+    { MTXT_VIDEO,      112, 120},
+    { MTXT_DISPLAY,    112, 140},
+    { MTXT_STATUS_HUD, 112, 160},
+    { MTXT_DEFAULTS,   112, 180},
+    { MTXT_RETURN,     112, 200},
 };
 
-menuitem_t Menu_Options[] = // 8005A9C0
+menuitem_t Menu_Volume[] =
 {
-    {  0, 112, 60 },    // Gamepad
-    { 41, 112, 80 },    // Movement
-    {  1, 112, 100},    // Volume
-    {  2, 112, 120},    // Video
-    { 51, 112, 140},    // Display
-    { 63, 112, 160},    // Status HUD
-    { 13, 112, 180},    // Default settings
-    {  6, 112, 200},    // Return
+    { MTXT_MUSIC_VOLUME,  82, 60 },
+    { MTXT_EFFECT_VOLUME, 82, 100},
+    { MTXT_RETURN,        82, 140},
 };
 
-menuitem_t Menu_Volume[] = // 8005AA08
+menuitem_t Menu_Movement[] =
 {
-    {  7, 82, 60 },    // Music Volume
-    {  8, 82, 100},    // Sound Volume
-    {  6, 82, 140},    // Return
+    { MTXT_MOTION_BOB,    82, 60},
+    { MTXT_SENSITIVITY,   82, 100},
+    { MTXT_AUTORUN,       82, 140},
+    { MTXT_VERTICAL_LOOK, 82, 160},
+    { MTXT_AUTOAIM,       82, 180},
+    { MTXT_RETURN,        82, 200},
 };
 
-menuitem_t Menu_Movement[] = // [Immorpher] Movement
+menuitem_t Menu_Video[] =
 {
-    { 52, 82, 60 },    // Motion Bob
-    { 43, 82, 100 },   // Sensitivity
-    { 12, 82, 140},    // Autorun
-    { 87, 82, 160},    // Vertical Look
-    { 88, 82, 180},    // Autoaim
-    {  6, 82, 200},    // Return
+    { MTXT_TEXTURE_FILTER, 42, 60},
+    { MTXT_SPRITE_FILTER,  42, 80},
+    { MTXT_SKY_FILTER,     42, 100},
+    { MTXT_DITHER_FILTER,  42, 120},
+    { MTXT_COLOR_DITHER,   42, 140},
+    { MTXT_TV_MODE,        42, 160},
+    { MTXT_RETURN,         42, 180},
 };
 
-menuitem_t Menu_Video[] = // 8005AA5C
+menuitem_t Menu_Display[] =
 {
-    {  9, 82, 60 },    // Brightness
-    { 50, 82, 100},    // Video Filter
-    { 56, 82, 120},    // Color Dither
-    { 54, 82, 140},    // Anti-Aliasing
-    { 55, 82, 160},    // Interlacing
-    { 53, 82, 180},    // Dither Filter
-    {  6, 82, 200},    // Return
+    { MTXT_BRIGHTNESS,       82, 60 },
+    { MTXT_FLASH_BRIGHTNESS, 82, 100},
+    { MTXT_CENTER_DISPLAY,   82, 140},
+    { MTXT_STORY_TEXT,       82, 160},
+    { MTXT_MAP_STATS,        82, 180},
+    { MTXT_RETURN,           82, 200},
 };
 
-menuitem_t Menu_Display[] = // [Immorpher] Display menu
+menuitem_t Menu_StatusHUD[] =
 {
-    { 57, 82, 60},    	// Flash Brightness
-    { 32, 82, 100},    // Center Display
-    { 61, 82, 120},    // Story Text
-    { 62, 82, 140},    // Map Stats
-    {  6, 82, 160},    // Return
+    { MTXT_MARGIN,    82, 60},
+    { MTXT_OPACITY,   82, 100},
+    { MTXT_COLORED,   82, 140},
+    { MTXT_CROSSHAIR, 82, 160},
+    { MTXT_MESSAGES,  82, 180},
+    { MTXT_RETURN,    82, 200},
 };
 
-menuitem_t Menu_StatusHUD[] = // [Immorpher] Status HUD
+menuitem_t Menu_Defaults[] =
 {
-    { 64, 82, 60},   	// Margin
-    { 34, 82, 100},    // Opacity
-    { 67, 82, 140},    // Colored HUD
-    { 86, 82, 160},    // Crosshair
-    { 33, 82, 180},    // Messages
-    {  6, 82, 200},    // Return
+    { MTXT_ORIGINAL,   102, 60},
+    { MTXT_MERCILESS,  102, 80},
+    { MTXT_RETRO,  102, 100},
+    { MTXT_ACCESSIBLE, 102, 120},
+    { MTXT_RETURN,     102, 140},
 };
 
-menuitem_t Menu_Defaults[] = // [Immorpher] Defaults menu
+menuitem_t Menu_Game[] =
 {
-    { 42, 102, 60},    	// Original doom 64 defaults
-    { 58, 102, 80},    	// Merciless edition defaults
-    { 59, 102, 100},    	// Immorpher's defaults
-    { 60, 102, 120},    	// Accessibility defaults
-    {  6, 102, 140},    	// Return
+    { MTXT_PASSWORD,  122, 60 },
+    { MTXT_OPTIONS,   122, 80 },
+    { MTXT_MAIN_MENU, 122, 100},
+    { MTXT_RESTART,   122, 120},
+    { MTXT_CHEATS,    122, 140},
 };
 
-menuitem_t Menu_Game[] = // 8005AAA4
+menuitem_t Menu_Quit[] =
 {
-    { 3, 122, 60 },    // Password
-    { 11, 122, 80 },    // Options
-    {  4, 122, 100},    // Main Menu
-    {  5, 122, 120},    // Restart Level
-    { 22, 122, 140},    // Cheats
+    { MTXT_YES, 142, 100},
+    { MTXT_NO,  142, 120},
 };
 
-menuitem_t Menu_Quit[] = // 8005AAD4
+menuitem_t Menu_DeleteNote[] =
 {
-    { 20, 142, 100},    // Yes
-    { 21, 142, 120},    // No
+    { MTXT_YES, 142, 100},
+    { MTXT_NO,  142, 120},
 };
 
-menuitem_t Menu_DeleteNote[] = // 8005AAEC
+menuitem_t Menu_ControllerPakBad[] =
 {
-    { 20, 142, 100},    // Yes
-    { 21, 142, 120},    // No
+    { MTXT_TRY_AGAIN,    120, 100},
+    { MTXT_DONT_USE_PAK, 120, 120},
 };
 
-menuitem_t Menu_ControllerPakBad[] = // 8005AB04
+menuitem_t Menu_ControllerPakFull[] =
 {
-    { 46, 120, 100},    // Try again
-    { 45, 120, 120},    // Do not use Pak
+    { MTXT_MANAGE_PAK,       110, 90 },
+    { MTXT_CREATE_GAME_NOTE, 110, 110},
+    { MTXT_DONT_USE_PAK,     110, 130},
 };
 
-menuitem_t Menu_ControllerPakFull[] = // 8005AB1C
+menuitem_t Menu_CreateNote[] =
 {
-    { 44, 110, 90 },    // Manage Pak
-    { 47, 110, 110},    // Create game note
-    { 45, 110, 130},    // Do not use Pak
+    { MTXT_YES,          110, 90 },
+    { MTXT_DONT_USE_PAK, 110, 110},
+    { MTXT_MANAGE_PAK,   110, 130},
 };
 
-menuitem_t Menu_CreateNote[] = // 8005AB40
-{
-    { 20, 110, 90 },    // Yes
-    { 45, 110, 110},    // Do not use Pak
-    { 44, 110, 130},    // Manage Pak
-};
-
-//#define MAXFEATURES 5 [Original]
-//#define MAXFEATURES 9 [Doom 64 RE]
 #define MAXFEATURES 14
-menuitem_t Menu_Features[MAXFEATURES] = // 8005AB64
+menuitem_t Menu_Features[MAXFEATURES] =
 {
-    { 24, 40, 50},      // INVULNERABLE
-    { 25, 40, 60},      // HEALTH BOOST
-    { 27, 40, 70},      // WEAPONS
-    { 85, 40, 80},      // ARTIFACTS
-    { 37, 40, 90},      // MAP EVERYTHING
+    { MTXT_INVULNERABLE,   40, 50},
+    { MTXT_FLY,            40, 60},
+    { MTXT_WEAPONS,        40, 70},
+    { MTXT_ARTIFACTS,      40, 80},
+    { MTXT_MAP_EVERYTHING, 40, 90},
+    { MTXT_KEYS,           40, 100},
+    { MTXT_WALL_BLOCKING,  40, 110},
+    { MTXT_LOCK_MONSTERS,  40, 120},
+    { MTXT_WARP,           40, 130},
+    { MTXT_MUSIC_TEST,     40, 140},
+    { MTXT_SECTOR_COLORS,  40, 150},
+    { MTXT_FULL_BRIGHT,    40, 160},
+    { MTXT_GAMMA_CORRECT,  40, 170},
 
-    { 26, 40, 100},      // SECURITY KEYS
-    { 31, 40, 110},      // WALL BLOCKING
-    { 35, 40, 120},      // LOCK MONSTERS
-
-    { 23, 40, 130},      // WARP TO LEVEL
-    { 39, 40, 140},      // MUSIC TEST
-
-    { 48, 40, 150},      // COLORS [GEC] NEW CHEAT CODE
-    { 49, 40, 160},      // FULL BRIGHT [GEC] NEW CHEAT CODE
-    { 68, 40, 170},      // Gamma correction [Immorpher] NEW CHEAT CODE
-    { 69, 40, 190},      // Credits
+    { MTXT_CREDITS,        40, 190},
 };
 
-menuitem_t Ultra_Credits[] = {
-    {70, 20, 48},       // Credits
-    {71, 188, 58},       // Credits
-    {72, 188, 68}       // Credits
+typedef struct
+{
+    char *text;
+    int x;
+    int y;
+} credit_t;
+
+credit_t Ultra_Credits[] = {
+    {"PROGRAMMING          IMMORPHER",   20, 48},
+    {                     "JNMARTIN84", 188, 58},
+    {                     "NOVA",       188, 68}
 };
 
-menuitem_t Merciless_Credits[] =
+credit_t Merciless_Credits[] =
 {
-    {70, 20, 48},       // Credits
+    {"PROGRAMMING          IMMORPHER",     20, 48},
 
-    {73, 20, 65},       // Credits
-    {74, 188, 75},      // Credits
-    {75, 188, 85},      // Credits
-    {76, 188, 95},     // Credits
+    {"REVERSE ENGINEERING  ERICK194",      20, 65},
+    {                     "KAISER",       188, 75},
+    {                     "BODB DEARG",   188, 85},
+    {                     "QUASAR",       188, 95},
 
-    {77, 20, 112},      // Credits
-    {78, 188, 122},     // Credits
+    {"COMPILER ASSETS      CRASHOVERIDE",  20, 112},
+    {                     "ALPHATANGO",   188, 122},
 
-    {79, -1, 139},      // Credits
-    {80, -1, 151},      // Credits
-    {81, -1, 161},      // Credits
+    {"PLAY TESTING",              -1, 139},
+    {"BUU342, IRL RANDOM HAJILE", -1, 151},
+    {"SCD, TAUFAN99",             -1, 161},
 
-    {82, -1, 178},      // Credits
-    {83, -1, 190},      // Credits
-    {84, -1, 200},      // Credits
+    {"SPECIAL THANKS",                       -1, 178},
+    {"GEC TEAM, DOOMWORLD, DOOM 64 DISCORD", -1, 190},
+    {"NEIGH WINNY, ISANN KEKET, NEVANDER",   -1, 200},
 };
 
 menudata_t MenuData[8]; // 800A54F0
@@ -374,9 +349,8 @@ int SfxVolume = 100;             // 8005A7C0
 int MusVolume = 80;             // 8005A7C4
 int brightness = 125;             // 8005A7C8
 fixed_t MotionBob = 0x100000; // [Immorpher] Motion Bob works in hexadecimal
-int VideoFilter = 0; // [GEC & Immorpher] Set 3 point filtering on or off
-boolean antialiasing = false; // [Immorpher] Anti-Aliasing
-boolean interlacing = false; // [Immorpher] Interlacing
+int VideoFilters[3] = {0, 0, 0}; // [nova] Independent filter select
+int TvMode = 0;
 boolean DitherFilter = false; // [Immorpher] Dither filter
 int ColorDither = 0; // [Immorpher] Color dithering options (Off, Square, Bayer, Noise)
 int FlashBrightness = 32; // [Immorpher] Strobe brightness adjustment, will need to change to float
@@ -792,7 +766,7 @@ void M_MenuGameDrawer(void) // 80007C48
 extern mobj_t mobjhead;
 extern mapthing_t *spawnlist;   // 800A5D74
 extern int spawncount;          // 800A5D78
-extern int gobalcheats; // [GEC]
+extern int globalcheats; // [GEC]
 
 int M_MenuTicker(void) // 80007E0C
 {
@@ -874,1406 +848,1389 @@ int M_MenuTicker(void) // 80007E0C
         }
         else
         {
-                truebuttons = (buttons & PAD_A) && !(oldbuttons & PAD_A);
+            truebuttons = (buttons & PAD_A) && !(oldbuttons & PAD_A);
 
-                switch(MenuItem[cursorpos].casepos)
+            switch((menuentry_t) MenuItem[cursorpos].casepos)
+            {
+
+            case MTXT_GAMEPAD:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    MenuCall = M_ControlPadDrawer;
+                    cursorpos = 0;
+                    linepos = 0;
+
+                    MiniLoop(M_FadeInStart,M_FadeOutStart,M_ControlPadTicker,M_MenuGameDrawer);
+                    M_RestoreMenuData(true);
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_SOUND:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    SET_MENU(Menu_Volume);
+                    MenuCall = M_VolumeDrawer;
+                    cursorpos = 0;
+
+                    MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
+                    M_RestoreMenuData(true);
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_VIDEO:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    SET_MENU(Menu_Video);
+                    MenuCall = M_VideoDrawer;
+                    cursorpos = 0;
+
+                    MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
+                    M_RestoreMenuData(true);
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_PASSWORD:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    ret = I_CheckControllerPak();
+                    exit = ga_exit;
+
+                    if (ret == 0)
+                    {
+                        if (I_ReadPakFile() == 0)
+                        {
+                            EnableExpPak = 1;
+                            MenuCall = M_LoadPakDrawer;
+                            exit = MiniLoop(M_LoadPakStart,M_LoadPakStop,M_LoadPakTicker,M_MenuGameDrawer);
+                        }
+                        else
+                            exit = ga_exit;
+                    }
+
+                    if (exit == ga_exit)
+                    {
+                        MenuCall = M_PasswordDrawer;
+                        exit = MiniLoop(M_PasswordStart,M_PasswordStop,M_PasswordTicker,M_MenuGameDrawer);
+                    }
+
+                    if (exit == ga_exit)
+                    {
+                        M_RestoreMenuData(true);
+                        return ga_nothing;
+                    }
+
+                    if (EnableExpPak != 0)
+                    {
+                        return exit;
+                    }
+
+                    EnableExpPak = (M_ControllerPak() == 0);
+                    return exit;
+                }
+                break;
+
+            case MTXT_MAIN_MENU:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    SET_MENU(Menu_Quit);
+                    MenuCall = M_MenuTitleDrawer;
+                    cursorpos = 1;
+
+                    exit = MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
+                    M_RestoreMenuData((exit == ga_exit));
+                    if (exit == ga_exit) {
+                        return ga_nothing;
+                    }
+
+                    return ga_exitdemo;
+                }
+                break;
+
+            case MTXT_RESTART:
+                if (truebuttons)
                 {
 
-                case 0: // Gamepad
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-                        M_SaveMenuData();
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
 
-                        MenuCall = M_ControlPadDrawer;
-                        cursorpos = 0;
-                        linepos = 0;
+                    SET_MENU(Menu_Skill);
+                    MenuCall = M_MenuTitleDrawer;
+                    cursorpos = gameskill;  // Set default to current difficulty
 
-                        MiniLoop(M_FadeInStart,M_FadeOutStart,M_ControlPadTicker,M_MenuGameDrawer);
+                    exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
+
+                    if (exit == ga_exit) {
                         M_RestoreMenuData(true);
                         return ga_nothing;
                     }
-                    break;
 
-                case 1: // Volume
-                    if (truebuttons)
+                    gameskill = cursorpos;
+
+                    startmap = gamemap;
+                    startskill = gameskill;
+                    G_InitSkill (gameskill); // [Immorpher] initialize new skill
+
+                    return ga_warped;
+                }
+                break;
+
+            case MTXT_RETURN:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    return ga_exit;
+                }
+                break;
+
+            case MTXT_MUSIC_VOLUME:
+                if (buttons & PAD_RIGHT)
+                {
+                    MusVolume += 1;
+                    if (MusVolume <= 100)
                     {
-                        S_StartSound(NULL, sfx_pistol);
-                        M_SaveMenuData();
-
-                        SET_MENU(Menu_Volume);
-                        MenuCall = M_VolumeDrawer;
-                        cursorpos = 0;
-
-                        MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
-                        M_RestoreMenuData(true);
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 2: // Video
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-                        M_SaveMenuData();
-
-                        SET_MENU(Menu_Video);
-                        MenuCall = M_VideoDrawer;
-                        cursorpos = 0;
-
-                        MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
-                        M_RestoreMenuData(true);
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 3: // Password
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-                        M_SaveMenuData();
-
-                        ret = I_CheckControllerPak();
-                        exit = ga_exit;
-
-                        if (ret == 0)
+                        S_SetMusicVolume(MusVolume);
+                        if (MusVolume & 1)
                         {
-                            if (I_ReadPakFile() == 0)
-                            {
-                                EnableExpPak = 1;
-                                MenuCall = M_LoadPakDrawer;
-                                exit = MiniLoop(M_LoadPakStart,M_LoadPakStop,M_LoadPakTicker,M_MenuGameDrawer);
-                            }
-                            else
-                                exit = ga_exit;
-                        }
-
-                        if (exit == ga_exit)
-                        {
-                            MenuCall = M_PasswordDrawer;
-                            exit = MiniLoop(M_PasswordStart,M_PasswordStop,M_PasswordTicker,M_MenuGameDrawer);
-                        }
-
-                        if (exit == ga_exit)
-                        {
-                            M_RestoreMenuData(true);
+                            S_StartSound(NULL, sfx_secmove);
                             return ga_nothing;
                         }
-
-                        if (EnableExpPak != 0)
-                        {
-                            return exit;
-                        }
-
-                        EnableExpPak = (M_ControllerPak() == 0);
-                        return exit;
-                    }
-                    break;
-
-                case 4: // Main Menu
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-                        M_SaveMenuData();
-
-                        SET_MENU(Menu_Quit);
-                        MenuCall = M_MenuTitleDrawer;
-                        cursorpos = 1;
-
-                        exit = MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
-                        M_RestoreMenuData((exit == ga_exit));
-                        if (exit == ga_exit) {
-                            return ga_nothing;
-                        }
-
-                        return ga_exitdemo;
-                    }
-                    break;
-
-                case 5: // [Immorpher] Updated Restart Level
-                    if (truebuttons)
-                    {
-						
-                        S_StartSound(NULL, sfx_pistol);
-                        M_SaveMenuData();
-
-                        SET_MENU(Menu_Skill);
-                        MenuCall = M_MenuTitleDrawer;
-                        cursorpos = gameskill;  // Set default to current difficulty
-
-                        exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
-
-                        if (exit == ga_exit) {
-							M_RestoreMenuData(true);
-                            return ga_nothing;
-						}
-						
-                        gameskill = cursorpos;
-						
-						startmap = gamemap;
-						startskill = gameskill;
-						G_InitSkill (gameskill); // [Immorpher] initialize new skill
-						
-						return ga_warped;
-                    }
-                    break;
-
-                case 6: // Return
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-                        return ga_exit;
-                    }
-                    break;
-
-                case 7: // Music Volume
-                    if (buttons & PAD_RIGHT)
-                    {
-                        MusVolume += 1;
-                        if (MusVolume <= 100)
-                        {
-                            S_SetMusicVolume(MusVolume);
-                            if (MusVolume & 1)
-                            {
-                                S_StartSound(NULL, sfx_secmove);
-                                return ga_nothing;
-                            }
-                            ConfigChanged = true;
-                        }
-                        else
-                        {
-                            MusVolume = 100;
-                        }
-                    }
-                    else if (buttons & PAD_LEFT)
-                    {
-                        MusVolume -= 1;
-                        if (MusVolume < 0)
-                        {
-                            MusVolume = 0;
-                        }
-                        else
-                        {
-                            S_SetMusicVolume(MusVolume);
-                            if (MusVolume & 1)
-                            {
-                                S_StartSound(NULL, sfx_secmove);
-                                return ga_nothing;
-                            }
-                            ConfigChanged = true;
-                        }
-                    }
-                    break;
-
-                case 8: // Sound Volume
-                    if (buttons & PAD_RIGHT)
-                    {
-                        SfxVolume += 1;
-                        if (SfxVolume <= 100)
-                        {
-                            S_SetSoundVolume(SfxVolume);
-                            if (SfxVolume & 1)
-                            {
-                                S_StartSound(NULL, sfx_secmove);
-                                return ga_nothing;
-                            }
-                            ConfigChanged = true;
-                        }
-                        else
-                        {
-                            SfxVolume = 100;
-                        }
-                    }
-                    else if (buttons & PAD_LEFT)
-                    {
-                        SfxVolume -= 1;
-                        if (SfxVolume < 0)
-                        {
-                            SfxVolume = 0;
-                        }
-                        else
-                        {
-                            S_SetSoundVolume(SfxVolume);
-                            if (SfxVolume & 1)
-                            {
-                                S_StartSound(NULL, sfx_secmove);
-                                return ga_nothing;
-                            }
-                            ConfigChanged = true;
-                        }
-                    }
-                    break;
-
-                case 9: // Brightness
-                    if (buttons & PAD_RIGHT)
-                    {
-                        brightness += 2; // [Immorpher] increments doubled for scroll speed
-                        if (brightness <= 200) // [Immorpher] limit extended to 200 from 100 for an optional brightness boost
-                        {
-                            P_RefreshBrightness();
-                            if (brightness & 2)
-                            {
-                                S_StartSound(NULL, sfx_secmove);
-                                return ga_nothing;
-                            }
-                            ConfigChanged = true;
-                        }
-                        else
-                        {
-                            brightness = 200; // [Immorpher] new limit is 200 instead of 100
-                        }
-                    }
-                    else if (buttons & PAD_LEFT)
-                    {
-                        brightness -= 2; // [Immorpher] decrement speed doubled
-                        if (brightness < 0)
-                        {
-                            brightness = 0;
-                        }
-                        else
-                        {
-                            P_RefreshBrightness();
-                            if (brightness & 2)
-                            {
-                                S_StartSound(NULL, sfx_secmove);
-                                return ga_nothing;
-                            }
-                            ConfigChanged = true;
-                        }
-                    }
-                    break;
-
-                case 11: // Options
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-                        M_SaveMenuData();
-
-                        SET_MENU(Menu_Options);
-                        MenuCall = M_MenuTitleDrawer;
-                        cursorpos = 0;
-
-                        exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
-                        M_RestoreMenuData((exit == ga_exit));
-
-                        if (exit == ga_exit)
-                            return ga_nothing;
-
-                        return exit;
-                    }
-                    break;
-
-                case 12: // Autorun
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        playerconfigs[0].autorun ^= true;
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 13: // Set defaults
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-                        M_SaveMenuData();
-
-                        SET_MENU(Menu_Defaults);
-                        MenuCall = M_DefaultsDrawer;
-                        cursorpos = 0;
-
-                        MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
-                        M_RestoreMenuData(true);
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 14: // New Game
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-						
-                        M_SaveMenuData();
-
-                        SET_MENU(Menu_Skill);
-                        MenuCall = M_MenuTitleDrawer;
-                        cursorpos = 1;  // Set Default Bring it on!
-						
-                        exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
-						
-						if (exit == ga_exit) {
-							M_RestoreMenuData(true);
-                            return ga_nothing;
-						}
-						
-						
-						nextmap = 1; // [Immorpher] For running introduction text"
-						runintroduction = true; // [Immorpher] turn introduction on
-
-                        startskill = cursorpos;
-						
-                        // Check ControllerPak
-                        EnableExpPak = (M_ControllerPak() == 0);
-
-                        return ga_exit;
-                    }
-                    break;
-
-                case 15: // Be Gentle!
-                case 16: // Bring it on!
-                case 17: // I own Doom!
-                case 18: // Watch me die!
-				case 19: // Be merciless!
-                
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-                        return ga_warped;
-                    }
-                    break;
-
-                case 20: // Yes
-                case 46: // Try again
-                case 47: // Create game note
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-                        return ga_exitdemo;
-                    }
-                    break;
-
-                case 21: // No
-                case 45: // Do not use Pak
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-                        return ga_exit;
-                    }
-                    break;
-
-                case 22: // Cheats
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-                        M_SaveMenuData();
-
-                        players[0].cheats &= 0xffff1fff;
-
-                        SET_MENU(Menu_Features);
-                        MenuCall = M_FeaturesDrawer;
-                        cursorpos = 0;
-                        m_actualmap = gamemap;
-
-                        exit = MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
-                        M_RestoreMenuData((exit == ga_exit));
-
-                        if (exit == ga_exit)
-                            return ga_nothing;
-
-                        return exit;
-                    }
-                    break;
-
-                case 23: // WARP TO LEVEL
-                    if (padrepeat)
-                    {
-                        if (buttons & PAD_LEFT)
-                        {
-                            m_actualmap -= 1;
-                            if (m_actualmap < 1)
-                            {
-                                m_actualmap = 1;
-                            }
-                            else
-                            {
-                                S_StartSound(NULL, sfx_switch2);
-                            }
-                            return ga_nothing;
-                        }
-                        else if (buttons & PAD_RIGHT)
-                        {
-                            m_actualmap += 1;
-                            if (m_actualmap > 32)
-                            {
-                                m_actualmap = 32;
-                            }
-                            else
-                            {
-                                S_StartSound(NULL, sfx_switch2);
-                            }
-                            return ga_nothing;
-                        }
-                    }
-                    if (truebuttons)
-                    {
-                        gamemap = m_actualmap;
-                        startmap = m_actualmap;
-                        return ga_warped;
-                    }
-                    break;
-                    
-                case 24: // INVULNERABLE
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        players[0].cheats ^= CF_GODMODE;
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 25: // HEALTH BOOST
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        players[0].cheats |= CF_HEALTH;
-                        players[0].health = 100;
-                        players[0].mo->health = 100;
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 26: // SECURITY KEYS
-                    /* Not available in the release code */
-                    /*
-                    Reconstructed code based on Psx Doom
-                    */
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        players[0].cheats |= CF_ALLKEYS;
-
-                        for (m = mobjhead.next; m != &mobjhead; m = m->next)
-                        {
-                            switch (m->type)
-                            {
-                            case MT_ITEM_BLUECARDKEY:
-                                players[0].cards[it_bluecard] = true;
-                                break;
-                            case MT_ITEM_REDCARDKEY:
-                                players[0].cards[it_redcard] = true;
-                                break;
-                            case MT_ITEM_YELLOWCARDKEY:
-                                players[0].cards[it_yellowcard] = true;
-                                break;
-                            case MT_ITEM_YELLOWSKULLKEY:
-                                players[0].cards[it_yellowskull] = true;
-                                break;
-                            case MT_ITEM_REDSKULLKEY:
-                                players[0].cards[it_redskull] = true;
-                                break;
-                            case MT_ITEM_BLUESKULLKEY:
-                                players[0].cards[it_blueskull] = true;
-                                break;
-                            default:
-                                break;
-                            }
-                        }
-
-                        for (i = 0; i < spawncount; i++)
-                        {
-                            switch (spawnlist[i].type)
-                            {
-                            case 5:
-                                players[0].cards[it_bluecard] = true;
-                                break;
-                            case 13:
-                                players[0].cards[it_redcard] = true;
-                                break;
-                            case 6:
-                                players[0].cards[it_yellowcard] = true;
-                                break;
-                            case 39:
-                                players[0].cards[it_yellowskull] = true;
-                                break;
-                            case 38:
-                                players[0].cards[it_redskull] = true;
-                                break;
-                            case 40:
-                                players[0].cards[it_blueskull] = true;
-                                break;
-                            default:
-                                break;
-                            }
-                        }
-
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 27: // WEAPONS
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        players[0].cheats |= CF_WEAPONS;
-
-                        for(i = 0; i < NUMWEAPONS; i++) {
-                            players[0].weaponowned[i] = true;
-                        }
-
-                        if (!players[0].backpack)
-                        {
-                            for (i=0 ; i<NUMAMMO ; i++)
-                                players[0].maxammo[i] *= 2;
-                            players[0].backpack = true;
-                        }
-
-                        for(i = 0; i < NUMAMMO; i++) {
-                            players[0].ammo[i] = players[0].maxammo[i];
-                        }
-
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 28: // Exit
-                    /* nothing special */
-                    break;
-
-                case 29: // DEBUG
-                    /* Not available in the release code */
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        players[0].cheats ^= CF_DEBUG;
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 30: // TEXTURE TEST
-                    /* Not available in the release code */
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        players[0].cheats ^= CF_TEX_TEST;
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 31: // WALL BLOCKING
-                    /* Not available in the release code */
-                    /*
-                    In my opinion it must have been the NOCLIP cheat code
-                    */
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        players[0].cheats ^= CF_WALLBLOCKING;
-                        players[0].mo->flags ^= MF_NOCLIP;
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 32: // Center Display
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-                        M_SaveMenuData();
-
-                        MenuCall = M_CenterDisplayDrawer;
-
-                        MiniLoop(M_FadeInStart,M_FadeOutStart,M_CenterDisplayTicker,M_MenuGameDrawer);
-                        M_RestoreMenuData(true);
-
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 33: // Messages
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        enable_messages ^= true;
                         ConfigChanged = true;
-                        return ga_nothing;
                     }
-                    break;
-
-                case 34: // [Immorpher] HUD opacity
-                    if (buttons & PAD_RIGHT)
+                    else
                     {
-                        HUDopacity += 4;
-                        if (HUDopacity <= 255)
+                        MusVolume = 100;
+                    }
+                }
+                else if (buttons & PAD_LEFT)
+                {
+                    MusVolume -= 1;
+                    if (MusVolume < 0)
+                    {
+                        MusVolume = 0;
+                    }
+                    else
+                    {
+                        S_SetMusicVolume(MusVolume);
+                        if (MusVolume & 1)
                         {
-                            if (HUDopacity & 4)
-                            {
-                                S_StartSound(NULL, sfx_secmove);
-                                return ga_nothing;
-                            }
-                            ConfigChanged = true;
+                            S_StartSound(NULL, sfx_secmove);
+                            return ga_nothing;
                         }
-                        else
+                        ConfigChanged = true;
+                    }
+                }
+                break;
+
+            case MTXT_EFFECT_VOLUME:
+                if (buttons & PAD_RIGHT)
+                {
+                    SfxVolume += 1;
+                    if (SfxVolume <= 100)
+                    {
+                        S_SetSoundVolume(SfxVolume);
+                        if (SfxVolume & 1)
                         {
-                            HUDopacity = 255;
+                            S_StartSound(NULL, sfx_secmove);
+                            return ga_nothing;
                         }
+                        ConfigChanged = true;
                     }
-                    else if (buttons & PAD_LEFT)
+                    else
                     {
-                        HUDopacity -= 4;
-                        if (HUDopacity < 0)
+                        SfxVolume = 100;
+                    }
+                }
+                else if (buttons & PAD_LEFT)
+                {
+                    SfxVolume -= 1;
+                    if (SfxVolume < 0)
+                    {
+                        SfxVolume = 0;
+                    }
+                    else
+                    {
+                        S_SetSoundVolume(SfxVolume);
+                        if (SfxVolume & 1)
                         {
-                            HUDopacity = 0;
+                            S_StartSound(NULL, sfx_secmove);
+                            return ga_nothing;
                         }
-                        else
+                        ConfigChanged = true;
+                    }
+                }
+                break;
+
+            case MTXT_BRIGHTNESS:
+                if (buttons & PAD_RIGHT)
+                {
+                    brightness += 2; // [Immorpher] increments doubled for scroll speed
+                    if (brightness <= 200) // [Immorpher] limit extended to 200 from 100 for an optional brightness boost
+                    {
+                        P_RefreshBrightness();
+                        if (brightness & 2)
                         {
-                            if (HUDopacity & 4)
-                            {
-                                S_StartSound(NULL, sfx_secmove);
-                                return ga_nothing;
-                            }
-                            ConfigChanged = true;
+                            S_StartSound(NULL, sfx_secmove);
+                            return ga_nothing;
                         }
+                        ConfigChanged = true;
                     }
-                    break;
-
-                case 35: // LOCK MONSTERS
-                    /* Not available in the release code */
-                    /*
-                    Reconstructed code based on Doom 64 Ex
-                    */
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                    else
                     {
-                        S_StartSound(NULL, sfx_switch2);
-                        players[0].cheats ^= CF_LOCKMOSTERS;
-                        return ga_nothing;
+                        brightness = 200; // [Immorpher] new limit is 200 instead of 100
                     }
-                    break;
-
-                case 36: // SCREENSHOT
-                    /* Not available in the release code */
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                }
+                else if (buttons & PAD_LEFT)
+                {
+                    brightness -= 2; // [Immorpher] decrement speed doubled
+                    if (brightness < 0)
                     {
-                        S_StartSound(NULL, sfx_switch2);
-                        players[0].cheats ^= CF_SCREENSHOT;
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 37: // MAP EVERYTHING
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        players[0].cheats ^= CF_ALLMAP;
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 38: // MACRO PEEK
-                    /* Not available in the release code */
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        players[0].cheats ^= CF_MACROPEEK;
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 39: // MUSIC TEST
-                    /* Not available in the release code */
-                    /*
-                    Reconstructed code in my interpretation
-                    */
-                    if (padrepeat)
-                    {
-                        if (buttons & PAD_LEFT)
-                        {
-                            MusicID -= 1;
-                            if (MusicID > 0)
-                            {
-                                S_StartSound(NULL, sfx_switch2);
-                                return ga_nothing;
-                            }
-                            MusicID = 1;
-                        }
-                        else if (buttons & PAD_RIGHT)
-                        {
-                            MusicID += 1;
-                            if (MusicID < 25)
-                            {
-                                S_StartSound(NULL, sfx_switch2);
-                                return ga_nothing;
-                            }
-                            MusicID = 24;
-                        }
-                    }
-                    if (truebuttons)
-                    {
-                        S_StopMusic();
-                        S_StartMusic(MusicID+92);
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 41: // Control Stick
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-                        M_SaveMenuData();
-
-                        SET_MENU(Menu_Movement);
-                        MenuCall = M_MovementDrawer;
-                        cursorpos = 0;
-
-                        MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
-                        M_RestoreMenuData(true);
-
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 42: // Original Doom 64 defaults
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-						
-						// Set movement/controller options
-						MotionBob = 0x100000;
-
-						// Set video options
                         brightness = 0;
-						VideoFilter = 0; // [Immorpher] new video option
-						antialiasing = false; // [Immorpher] new video option
-						interlacing = false;  // [Immorpher] new video option
-						DitherFilter = false;  // [Immorpher] new video option
-						ColorDither = 0;  // [Immorpher] new video option
-						
-						// Set display options
-						FlashBrightness = 32;  // [Immorpher] new video option
-						StoryText = true; // [Immorpher] Skip story cut scenes?
-						MapStats = false; // [Immorpher] Display automap stats?
-						
-						// Set HUD options
-                        enable_messages = true;
-                        HUDopacity = 128;
-						HUDmargin = 19; // [Immorpher] HUD margin options
-						ColoredHUD = false; // [Immorpher] Colored hud
-						
-						// Set sound options
-                        SfxVolume = 0x50;
-                        MusVolume = 0x50;
-						
-						// Reset functions
-                        for (int i = 0; i < MAXPLAYERS; i++)
-                        {
-                            ConfgNumb[i] = 0;    // gamepad configuration
-                            D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
-                            playerconfigs[i].crosshair = 0;
-                            playerconfigs[i].sensitivity = 0;
-                            playerconfigs[i].verticallook = 1;
-                            playerconfigs[i].autorun = false;
-                            playerconfigs[i].autoaim = true;
-                        }
-                        I_MoveDisplay(0,0);
+                    }
+                    else
+                    {
                         P_RefreshBrightness();
-						P_RefreshVideo();
-                        S_SetMusicVolume(MusVolume);
-                        S_SetSoundVolume(SfxVolume);
-						
-                        ConfigChanged = true;
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 43: // Sensitivity
-                    if (buttons & PAD_RIGHT)
-                    {
-                        playerconfigs[0].sensitivity += 1;
-                        if (playerconfigs[0].sensitivity <= 100)
+                        if (brightness & 2)
                         {
-                            if (playerconfigs[0].sensitivity & 1)
-                            {
-                                S_StartSound(NULL, sfx_secmove);
-                                return ga_nothing;
-                            }
-                            ConfigChanged = true;
-                        }
-                        else
-                        {
-                            playerconfigs[0].sensitivity = 100;
-                        }
-                    }
-                    else if (buttons & PAD_LEFT)
-                    {
-                        playerconfigs[0].sensitivity -= 1;
-                        if (playerconfigs[0].sensitivity < 0)
-                        {
-                            playerconfigs[0].sensitivity = 0;
-                        }
-                        else
-                        {
-                            if (playerconfigs[0].sensitivity & 1)
-                            {
-                                S_StartSound(NULL, sfx_secmove);
-                                return ga_nothing;
-                            }
-                            ConfigChanged = true;
-                        }
-                    }
-                    break;
-
-                case 44: // Manage Pak
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-                        M_SaveMenuData();
-
-                        MenuCall = M_ControllerPakDrawer;
-                        linepos = 0;
-                        cursorpos = 0;
-
-                        exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_ScreenTicker, M_MenuGameDrawer);
-                        M_RestoreMenuData((exit == ga_exit));
-
-                        if (exit == ga_exit)
+                            S_StartSound(NULL, sfx_secmove);
                             return ga_nothing;
-
-                        return exit;
-                    }
-                    break;
-
-                case 48: // COLORS [GEC] NEW CHEAT CODE
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        players[0].cheats ^= CF_NOCOLORS;
-                        gobalcheats ^= CF_NOCOLORS;
-                        P_RefreshBrightness();
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 49: // FULL BRIGHT [GEC] NEW CHEAT CODE
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        players[0].cheats ^= CF_FULLBRIGHT;
-                        gobalcheats ^= CF_FULLBRIGHT;
-                        P_RefreshBrightness();
-                        return ga_nothing;
-                    }
-                    break;
-					
-                case 50: // [GEC and Immorpher] Video filtering mode
-                    if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        VideoFilter += 1;
-						if (VideoFilter > 2)
-						{
-							VideoFilter = 0;
-						}
+                        }
                         ConfigChanged = true;
-                        return ga_nothing;
                     }
-                    else if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        VideoFilter -= 1;
-						if (VideoFilter < 0)
-						{
-							VideoFilter = 2;
-						}
-                        ConfigChanged = true;
+                }
+                break;
+
+            case MTXT_OPTIONS:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    SET_MENU(Menu_Options);
+                    MenuCall = M_MenuTitleDrawer;
+                    cursorpos = 0;
+
+                    exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
+                    M_RestoreMenuData((exit == ga_exit));
+
+                    if (exit == ga_exit)
                         return ga_nothing;
-                    }
-                    break;
-			
-                case 51: // Display
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-                        M_SaveMenuData();
 
-                        SET_MENU(Menu_Display);
-                        MenuCall = M_DisplayDrawer;
-                        cursorpos = 0;
+                    return exit;
+                }
+                break;
 
-                        MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
+            case MTXT_AUTORUN:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    playerconfigs[0].autorun ^= true;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_DEFAULTS:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    SET_MENU(Menu_Defaults);
+                    MenuCall = M_DefaultsDrawer;
+                    cursorpos = 0;
+
+                    MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
+                    M_RestoreMenuData(true);
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_NEW_GAME:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+
+                    M_SaveMenuData();
+
+                    SET_MENU(Menu_Skill);
+                    MenuCall = M_MenuTitleDrawer;
+                    cursorpos = 1;  // Set Default Bring it on!
+
+                    exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
+
+                    if (exit == ga_exit) {
                         M_RestoreMenuData(true);
                         return ga_nothing;
                     }
-                    break;
-					
-                case 52: // Motion Bob
-                    if (buttons & PAD_RIGHT)
+
+
+                    nextmap = 1; // [Immorpher] For running introduction text"
+                    runintroduction = true; // [Immorpher] turn introduction on
+
+                    startskill = cursorpos;
+
+                    // Check ControllerPak
+                    EnableExpPak = (M_ControllerPak() == 0);
+
+                    return ga_exit;
+                }
+                break;
+
+            case MTXT_SKILL1:
+            case MTXT_SKILL2:
+            case MTXT_SKILL3:
+            case MTXT_SKILL4:
+            case MTXT_SKILL5:
+
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    return ga_warped;
+                }
+                break;
+
+            case MTXT_YES:
+            case MTXT_TRY_AGAIN:
+            case MTXT_CREATE_GAME_NOTE:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    return ga_exitdemo;
+                }
+                break;
+
+            case MTXT_NO:
+            case MTXT_DONT_USE_PAK:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    return ga_exit;
+                }
+                break;
+
+            case MTXT_CHEATS:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    players[0].cheats &= 0xffff1fff;
+
+                    SET_MENU(Menu_Features);
+                    MenuCall = M_FeaturesDrawer;
+                    cursorpos = 0;
+                    m_actualmap = gamemap;
+
+                    exit = MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
+                    M_RestoreMenuData((exit == ga_exit));
+
+                    if (exit == ga_exit)
+                        return ga_nothing;
+
+                    return exit;
+                }
+                break;
+
+            case MTXT_WARP:
+                if (padrepeat)
+                {
+                    if (buttons & PAD_LEFT)
                     {
-                        MotionBob += 0x8000; // increments
-                        if (MotionBob <= 0x100000) // Maximum is 32 in hex
+                        m_actualmap -= 1;
+                        if (m_actualmap < 1)
                         {
-                            if (MotionBob & 0x8000)
-                            {
-                                S_StartSound(NULL, sfx_secmove);
-                                return ga_nothing;
-                            }
-                            ConfigChanged = true;
+                            m_actualmap = 1;
                         }
                         else
                         {
-                            MotionBob = 0x100000; // The Limit
+                            S_StartSound(NULL, sfx_switch2);
                         }
+                        return ga_nothing;
                     }
-                    else if (buttons & PAD_LEFT)
+                    else if (buttons & PAD_RIGHT)
                     {
-                        MotionBob -= 0x8000; // decrements 
-                        if (MotionBob < 0x0)
+                        m_actualmap += 1;
+                        if (m_actualmap > 32)
                         {
-                            MotionBob = 0x0;
+                            m_actualmap = 32;
                         }
                         else
                         {
-                            if (MotionBob & 0x8000)
-                            {
-                                S_StartSound(NULL, sfx_secmove);
-                                return ga_nothing;
-                            }
-                            ConfigChanged = true;
+                            S_StartSound(NULL, sfx_switch2);
                         }
+                        return ga_nothing;
                     }
-                    break;		
+                }
+                if (truebuttons)
+                {
+                    gamemap = m_actualmap;
+                    startmap = m_actualmap;
+                    return ga_warped;
+                }
+                break;
 
-                case 53: // [Immorpher] Dither Filter
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        DitherFilter ^= true;
-						P_RefreshVideo();
-                        ConfigChanged = true;
-                        return ga_nothing;
-                    }
-                    break;
-					
-                case 54: // [Immorpher] Anti-Aliasing
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        antialiasing ^= true;
-						P_RefreshVideo();
-                        ConfigChanged = true;
-                        return ga_nothing;
-                    }
-                    break;
-					
-                case 55: // [Immorpher] Interlacing
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        interlacing ^= true;
-                        P_RefreshVideo();
-                        ConfigChanged = true;
-                        return ga_nothing;
-                    }
-                    break;
+            case MTXT_INVULNERABLE:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    players[0].cheats ^= CF_GODMODE;
+                    return ga_nothing;
+                }
+                break;
 
-                case 56: // [Immorpher] Color Dither
-                    if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        ColorDither += 1;
-                        if (ColorDither > 3)
-                            ColorDither = 0;
-                        ConfigChanged = true;
-                        return ga_nothing;
-                    }
-                    if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        ColorDither -= 1;
-                        if (ColorDither < 0)
-                            ColorDither = 3;
-                        ConfigChanged = true;
-                        return ga_nothing;
-                    }
-                    break;
+            case MTXT_FLY:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    players[0].cheats ^= CF_FLYMODE;
+                    return ga_nothing;
+                }
+                break;
 
-                case 57: // Flash Brightness
-                    if (buttons & PAD_RIGHT)
+            case MTXT_KEYS:
+                /* Not available in the release code */
+                /*
+                Reconstructed code based on Psx Doom
+                */
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    players[0].cheats |= CF_ALLKEYS;
+
+                    for (m = mobjhead.next; m != &mobjhead; m = m->next)
                     {
-                        FlashBrightness += 1; // increments
-                        if (FlashBrightness  <= 32) // Maximum is 32
+                        switch (m->type)
                         {
-                            if (FlashBrightness & 1)
-                            {
-                                S_StartSound(NULL, sfx_secmove);
-                                return ga_nothing;
-                            }
-                            ConfigChanged = true;
-                        }
-                        else
-                        {
-                            FlashBrightness = 32; // The Limit
-                        }
-                    }
-                    else if (buttons & PAD_LEFT)
-                    {
-                        FlashBrightness -= 1; // decrements 
-                        if (FlashBrightness < 0)
-                        {
-                            FlashBrightness = 0;
-                        }
-                        else
-                        {
-                            if (FlashBrightness & 1)
-                            {
-                                S_StartSound(NULL, sfx_secmove);
-                                return ga_nothing;
-                            }
-                            ConfigChanged = true;
+                        case MT_ITEM_BLUECARDKEY:
+                            players[0].cards[it_bluecard] = true;
+                            break;
+                        case MT_ITEM_REDCARDKEY:
+                            players[0].cards[it_redcard] = true;
+                            break;
+                        case MT_ITEM_YELLOWCARDKEY:
+                            players[0].cards[it_yellowcard] = true;
+                            break;
+                        case MT_ITEM_YELLOWSKULLKEY:
+                            players[0].cards[it_yellowskull] = true;
+                            break;
+                        case MT_ITEM_REDSKULLKEY:
+                            players[0].cards[it_redskull] = true;
+                            break;
+                        case MT_ITEM_BLUESKULLKEY:
+                            players[0].cards[it_blueskull] = true;
+                            break;
+                        default:
+                            break;
                         }
                     }
-                    break;	
-					
-                case 58: // Merciless edition defaults
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-						
-						// Set movement/controller options
-						MotionBob = 0x100000;
 
-						// Set video options
-                        brightness = 100;
-						VideoFilter = 0; // [Immorpher] new video option
-						antialiasing = false; // [Immorpher] new video option
-						interlacing = false;  // [Immorpher] new video option
-						DitherFilter = false;  // [Immorpher] new video option
-						ColorDither = 0;  // [Immorpher] new video option
-						
-						// Set display options
-						FlashBrightness = 32;  // [Immorpher] new video option
-						StoryText = true; // [Immorpher] Skip story cut scenes?
-						MapStats = false; // [Immorpher] Display automap stats?
-						
-						// Set HUD options
-                        enable_messages = true;
-                        HUDopacity = 128;
-						HUDmargin = 15; // [Immorpher] HUD margin options
-						ColoredHUD = true; // [Immorpher] Colored hud
-						
-						// Set sound options
-                        SfxVolume = 100;
-                        MusVolume = 0x50;
-						
-						// Reset functions
-                        for (int i = 0; i < MAXPLAYERS; i++)
+                    for (i = 0; i < spawncount; i++)
+                    {
+                        switch (spawnlist[i].type)
                         {
-                            ConfgNumb[i] = 0;    // gamepad configuration
-                            D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
-                            playerconfigs[i].crosshair = 0;
-                            playerconfigs[i].sensitivity = 0;
-                            playerconfigs[i].verticallook = 1;
-                            playerconfigs[i].autorun = false;
-                            playerconfigs[i].autoaim = true;
+                        case 5:
+                            players[0].cards[it_bluecard] = true;
+                            break;
+                        case 13:
+                            players[0].cards[it_redcard] = true;
+                            break;
+                        case 6:
+                            players[0].cards[it_yellowcard] = true;
+                            break;
+                        case 39:
+                            players[0].cards[it_yellowskull] = true;
+                            break;
+                        case 38:
+                            players[0].cards[it_redskull] = true;
+                            break;
+                        case 40:
+                            players[0].cards[it_blueskull] = true;
+                            break;
+                        default:
+                            break;
                         }
-                        I_MoveDisplay(0,0);
-                        P_RefreshBrightness();
-						P_RefreshVideo();
-                        S_SetMusicVolume(MusVolume);
-                        S_SetSoundVolume(SfxVolume);
+                    }
+
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_WEAPONS:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    players[0].cheats |= CF_WEAPONS;
+
+                    for(i = 0; i < NUMWEAPONS; i++) {
+                        players[0].weaponowned[i] = true;
+                    }
+
+                    if (!players[0].backpack)
+                    {
+                        for (i=0 ; i<NUMAMMO ; i++)
+                            players[0].maxammo[i] *= 2;
+                        players[0].backpack = true;
+                    }
+
+                    for(i = 0; i < NUMAMMO; i++) {
+                        players[0].ammo[i] = players[0].maxammo[i];
+                    }
+
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_EXIT:
+                /* nothing special */
+                break;
+
+            case MTXT_DEBUG:
+                /* Not available in the release code */
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    players[0].cheats ^= CF_DEBUG;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_TEXTURE_TEST:
+                /* Not available in the release code */
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    players[0].cheats ^= CF_TEX_TEST;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_WALL_BLOCKING:
+                /* Not available in the release code */
+                /*
+                In my opinion it must have been the NOCLIP cheat code
+                */
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    players[0].cheats ^= CF_WALLBLOCKING;
+                    players[0].mo->flags ^= MF_NOCLIP;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_CENTER_DISPLAY:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    MenuCall = M_CenterDisplayDrawer;
+
+                    MiniLoop(M_FadeInStart,M_FadeOutStart,M_CenterDisplayTicker,M_MenuGameDrawer);
+                    M_RestoreMenuData(true);
+
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_MESSAGES:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    enable_messages ^= true;
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_OPACITY:
+                if (buttons & PAD_RIGHT)
+                {
+                    HUDopacity += 4;
+                    if (HUDopacity <= 255)
+                    {
+                        if (HUDopacity & 4)
+                        {
+                            S_StartSound(NULL, sfx_secmove);
+                            return ga_nothing;
+                        }
                         ConfigChanged = true;
-						
-                        return ga_nothing;
                     }
-                    break;
-					
-                case 59: // Immorpher's defaults
-                    if (truebuttons)
+                    else
                     {
-                        S_StartSound(NULL, sfx_switch2);
-						
-						// Set movement/controller options
-						MotionBob = 0x100000;
-
-						// Set video options
-                        brightness = 200;
-						VideoFilter = 1; // [Immorpher] new video option
-						antialiasing = false; // [Immorpher] new video option
-						interlacing = false;  // [Immorpher] new video option
-						DitherFilter = false;  // [Immorpher] new video option
-						ColorDither = 2;  // [Immorpher] new video option
-						
-						// Set display options
-						FlashBrightness = 32;  // [Immorpher] new video option
-						StoryText = true; // [Immorpher] Keep story cut scenes?
-						MapStats = true; // [Immorpher] Display automap stats?
-						
-						// Set HUD options
-                        enable_messages = true;
-                        HUDopacity = 196;
-						HUDmargin = 5; // [Immorpher] HUD margin options
-						ColoredHUD = true; // [Immorpher] Colored hud
-						
-						// Set sound options
-                        SfxVolume = 100;
-                        MusVolume = 0x50;
-						
-						// Reset functions
-                        for (int i = 0; i < MAXPLAYERS; i++)
-                        {
-                            ConfgNumb[i] = 6;    // gamepad configuration
-                            D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
-                            playerconfigs[i].crosshair = 2;
-                            playerconfigs[i].sensitivity = 0;
-                            playerconfigs[i].verticallook = 1;
-                            playerconfigs[i].autorun = true;
-                            playerconfigs[i].autoaim = false;
-                        }
-                        I_MoveDisplay(0,0);
-                        P_RefreshBrightness();
-						P_RefreshVideo();
-                        S_SetMusicVolume(MusVolume);
-                        S_SetSoundVolume(SfxVolume);
-                        ConfigChanged = true;
-						
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 60: // Accessibility defaults
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-						
-						// Set movement/controller options
-						MotionBob = 0x0;
-
-						// Set video options
-                        brightness = 200;
-						VideoFilter = 0; // [Immorpher] new video option
-						antialiasing = false; // [Immorpher] new video option
-						interlacing = false;  // [Immorpher] new video option
-						DitherFilter = false;  // [Immorpher] new video option
-						ColorDither = 0;  // [Immorpher] new video option
-						
-						// Set display options
-						FlashBrightness = 0;  // [Immorpher] new video option
-						StoryText = true; // [Immorpher] Skip story cut scenes?
-						MapStats = false; // [Immorpher] Display automap stats?
-						
-						// Set HUD options
-                        enable_messages = true;
                         HUDopacity = 255;
-						HUDmargin = 15; // [Immorpher] HUD margin options (default 20)
-						ColoredHUD = true; // [Immorpher] Colored hud
-						
-						// Set sound options
-                        SfxVolume = 100;
-                        MusVolume = 0x50;
-						
-						// Reset functions
-                        for (int i = 0; i < MAXPLAYERS; i++)
+                    }
+                }
+                else if (buttons & PAD_LEFT)
+                {
+                    HUDopacity -= 4;
+                    if (HUDopacity < 0)
+                    {
+                        HUDopacity = 0;
+                    }
+                    else
+                    {
+                        if (HUDopacity & 4)
                         {
-                            ConfgNumb[i] = 0;    // gamepad configuration
-                            D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
-                            playerconfigs[i].crosshair = 2;
-                            playerconfigs[i].sensitivity = 0;
-                            playerconfigs[i].verticallook = 1;
-                            playerconfigs[i].autorun = true;
-                            playerconfigs[i].autoaim = true;
-                        }
-                        I_MoveDisplay(0,0);
-                        P_RefreshBrightness();
-						P_RefreshVideo();
-                        S_SetMusicVolume(MusVolume);
-                        S_SetSoundVolume(SfxVolume);
-                        ConfigChanged = true;
-						
-                        return ga_nothing;
-                    }
-                    break;	
-					
-                case 61: // [Immorpher] Story Text
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        StoryText ^= true;
-                        return ga_nothing;
-                    }
-                    break;	
-					
-                case 62: // [Immorpher] Map stats
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        MapStats ^= true;
-                        return ga_nothing;
-                    }
-                    break;	
-							
-                case 63: // [Immorpher] Status HUD
-                    if (truebuttons)
-                    {
-                        S_StartSound(NULL, sfx_pistol);
-                        M_SaveMenuData();
-
-                        SET_MENU(Menu_StatusHUD);
-                        MenuCall = M_StatusHUDDrawer;
-                        cursorpos = 0;
-
-                        MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
-                        M_RestoreMenuData(true);
-                        return ga_nothing;
-                    }
-                    break;
-					
-                case 64: // HUDmargin
-                    if (buttons & PAD_RIGHT)
-                    {
-                        HUDmargin += 1; // increments
-                        if (HUDmargin <= 20) // Maximum is 20
-                        {
-                            if (HUDmargin & 1)
-                            {
-                                S_StartSound(NULL, sfx_secmove);
-                                return ga_nothing;
-                            }
-                            ConfigChanged = true;
-                        }
-                        else
-                        {
-                            HUDmargin = 20; // The Limit
-                        }
-                    }
-                    else if (buttons & PAD_LEFT)
-                    {
-                        HUDmargin -= 1; // decrements 
-                        if (HUDmargin < 0)
-                        {
-                            HUDmargin = 0;
-                        }
-                        else
-                        {
-                            if (HUDmargin & 1)
-                            {
-                                S_StartSound(NULL, sfx_secmove);
-                                return ga_nothing;
-                            }
-                            ConfigChanged = true;
-                        }
-                    }
-                    break;	
-					
-                case 67: // [Immorpher] Colored HUD
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        ColoredHUD ^= true;
-                        ConfigChanged = true;
-                        return ga_nothing;
-                    }
-                    break;	
-
-				case 68: // Gamma Correction [Immorpher] NEW CHEAT CODE
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        S_StartSound(NULL, sfx_switch2);
-                        players[0].cheats ^= CF_GAMMA;
-                        gobalcheats ^= CF_GAMMA;
-                        P_RefreshVideo();
-                        return ga_nothing;
-                    }
-                    break;
-
-                case 69: // Credits
-                    if (truebuttons)
-                    {
-                        static const menufunc_t cred_drawers[] = {
-                            M_ModCredits1Drawer,
-                            M_ModCredits2Drawer,
-                            M_IdCreditsDrawer,
-                            M_WmsCreditsDrawer,
-                        };
-
-                        S_StartSound(NULL, sfx_pistol);
-                        M_SaveMenuData();
-                        for (int i = 0; i < ARRAYLEN(cred_drawers); i++)
-                        {
-                            MenuCall = cred_drawers[i];
-                            exit = MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuCreditsTicker,M_MenuGameDrawer);
-                        }
-                        M_RestoreMenuData(true);
-
-                        if (exit == ga_exit)
+                            S_StartSound(NULL, sfx_secmove);
                             return ga_nothing;
+                        }
+                        ConfigChanged = true;
+                    }
+                }
+                break;
 
-                        return exit;
-                    }
-                    break;
+            case MTXT_LOCK_MONSTERS:
+                /* Not available in the release code */
+                /*
+                Reconstructed code based on Doom 64 Ex
+                */
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    players[0].cheats ^= CF_LOCKMOSTERS;
+                    return ga_nothing;
+                }
+                break;
 
-                case 85: // ARTIFACTS
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                    {
-                        players[0].artifacts |= 4;
-                        players[0].artifacts |= 2;
-                        players[0].artifacts |= 1;
+            case MTXT_SCREENSHOT:
+                /* Not available in the release code */
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    players[0].cheats ^= CF_SCREENSHOT;
+                    return ga_nothing;
+                }
+                break;
 
-                        S_StartSound(NULL, sfx_switch2);
-                        return ga_nothing;
-                    }
-                    break;
-                case 86: // [Immorpher] Crosshair
-                    if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+            case MTXT_MAP_EVERYTHING:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    players[0].cheats ^= CF_ALLMAP;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_MACRO_PEEK:
+                /* Not available in the release code */
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    players[0].cheats ^= CF_MACROPEEK;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_MUSIC_TEST:
+                /* Not available in the release code */
+                /*
+                Reconstructed code in my interpretation
+                */
+                if (padrepeat)
+                {
+                    if (buttons & PAD_LEFT)
                     {
-                        S_StartSound(NULL, sfx_switch2);
-                        playerconfigs[0].crosshair += 1;
-                        if (playerconfigs[0].crosshair > 3)
-                            playerconfigs[0].crosshair = 0;
-                        ConfigChanged = true;
-                        return ga_nothing;
+                        MusicID -= 1;
+                        if (MusicID > 0)
+                        {
+                            S_StartSound(NULL, sfx_switch2);
+                            return ga_nothing;
+                        }
+                        MusicID = 1;
                     }
-                    else if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                    else if (buttons & PAD_RIGHT)
                     {
-                        S_StartSound(NULL, sfx_switch2);
-                        playerconfigs[0].crosshair -= 1;
-                        if (playerconfigs[0].crosshair < 0)
-                            playerconfigs[0].crosshair = 3;
-                        ConfigChanged = true;
-                        return ga_nothing;
+                        MusicID += 1;
+                        if (MusicID < 25)
+                        {
+                            S_StartSound(NULL, sfx_switch2);
+                            return ga_nothing;
+                        }
+                        MusicID = 24;
                     }
-                    break;
-                case 87: // [nova] Vertical Look
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                }
+                if (truebuttons)
+                {
+                    S_StopMusic();
+                    S_StartMusic(MusicID+92);
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_MOVEMENT:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    SET_MENU(Menu_Movement);
+                    MenuCall = M_MovementDrawer;
+                    cursorpos = 0;
+
+                    MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
+                    M_RestoreMenuData(true);
+
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_ORIGINAL:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_switch2);
+
+                    // Set movement/controller options
+                    MotionBob = 0x100000;
+
+                    // Set video options
+                    brightness = 0;
+                    VideoFilters[0] = VideoFilters[1] = VideoFilters[2] = 0;
+                    TvMode = 0;
+                    DitherFilter = false;  // [Immorpher] new video option
+                    ColorDither = 0;  // [Immorpher] new video option
+
+                    // Set display options
+                    FlashBrightness = 32;  // [Immorpher] new video option
+                    StoryText = true; // [Immorpher] Skip story cut scenes?
+                    MapStats = false; // [Immorpher] Display automap stats?
+
+                    // Set HUD options
+                    enable_messages = true;
+                    HUDopacity = 128;
+                    HUDmargin = 19; // [Immorpher] HUD margin options
+                    ColoredHUD = false; // [Immorpher] Colored hud
+
+                    // Set sound options
+                    SfxVolume = 0x50;
+                    MusVolume = 0x50;
+
+                    // Reset functions
+                    for (int i = 0; i < MAXPLAYERS; i++)
                     {
-                        S_StartSound(NULL, sfx_switch2);
-                        playerconfigs[0].verticallook
-                            = playerconfigs[0].verticallook == 1 ? -1 : 1;
-                        ConfigChanged = true;
-                        return ga_nothing;
+                        ConfgNumb[i] = 0;    // gamepad configuration
+                        D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
+                        playerconfigs[i].crosshair = 0;
+                        playerconfigs[i].sensitivity = 0;
+                        playerconfigs[i].verticallook = 1;
+                        playerconfigs[i].autorun = false;
+                        playerconfigs[i].autoaim = true;
                     }
-                    break;
-                case 88: // [nova] Auto aim
-                    if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                            || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                    I_MoveDisplay(0,0);
+                    P_RefreshBrightness();
+                    P_RefreshVideo();
+                    S_SetMusicVolume(MusVolume);
+                    S_SetSoundVolume(SfxVolume);
+
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_SENSITIVITY:
+                if (buttons & PAD_RIGHT)
+                {
+                    playerconfigs[0].sensitivity += 1;
+                    if (playerconfigs[0].sensitivity <= 100)
                     {
-                        S_StartSound(NULL, sfx_switch2);
-                        playerconfigs[0].autoaim ^= true;
+                        if (playerconfigs[0].sensitivity & 1)
+                        {
+                            S_StartSound(NULL, sfx_secmove);
+                            return ga_nothing;
+                        }
                         ConfigChanged = true;
-                        return ga_nothing;
                     }
-                    break;
-			}
+                    else
+                    {
+                        playerconfigs[0].sensitivity = 100;
+                    }
+                }
+                else if (buttons & PAD_LEFT)
+                {
+                    playerconfigs[0].sensitivity -= 1;
+                    if (playerconfigs[0].sensitivity < 0)
+                    {
+                        playerconfigs[0].sensitivity = 0;
+                    }
+                    else
+                    {
+                        if (playerconfigs[0].sensitivity & 1)
+                        {
+                            S_StartSound(NULL, sfx_secmove);
+                            return ga_nothing;
+                        }
+                        ConfigChanged = true;
+                    }
+                }
+                break;
+
+            case MTXT_MANAGE_PAK:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    MenuCall = M_ControllerPakDrawer;
+                    linepos = 0;
+                    cursorpos = 0;
+
+                    exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_ScreenTicker, M_MenuGameDrawer);
+                    M_RestoreMenuData((exit == ga_exit));
+
+                    if (exit == ga_exit)
+                        return ga_nothing;
+
+                    return exit;
+                }
+                break;
+
+            case MTXT_SECTOR_COLORS:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    players[0].cheats ^= CF_NOCOLORS;
+                    globalcheats ^= CF_NOCOLORS;
+                    P_RefreshBrightness();
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_FULL_BRIGHT:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    players[0].cheats ^= CF_FULLBRIGHT;
+                    globalcheats ^= CF_FULLBRIGHT;
+                    P_RefreshBrightness();
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_TEXTURE_FILTER:
+            case MTXT_SPRITE_FILTER:
+            case MTXT_SKY_FILTER:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    i = MenuItem[cursorpos].casepos - MTXT_TEXTURE_FILTER;
+                    S_StartSound(NULL, sfx_switch2);
+                    VideoFilters[i] ^= 1;
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_DISPLAY:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    SET_MENU(Menu_Display);
+                    MenuCall = M_DisplayDrawer;
+                    cursorpos = 0;
+
+                    MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
+                    M_RestoreMenuData(true);
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_MOTION_BOB:
+                if (buttons & PAD_RIGHT)
+                {
+                    MotionBob += 0x8000; // increments
+                    if (MotionBob <= 0x100000) // Maximum is 32 in hex
+                    {
+                        if (MotionBob & 0x8000)
+                        {
+                            S_StartSound(NULL, sfx_secmove);
+                            return ga_nothing;
+                        }
+                        ConfigChanged = true;
+                    }
+                    else
+                    {
+                        MotionBob = 0x100000; // The Limit
+                    }
+                }
+                else if (buttons & PAD_LEFT)
+                {
+                    MotionBob -= 0x8000; // decrements
+                    if (MotionBob < 0x0)
+                    {
+                        MotionBob = 0x0;
+                    }
+                    else
+                    {
+                        if (MotionBob & 0x8000)
+                        {
+                            S_StartSound(NULL, sfx_secmove);
+                            return ga_nothing;
+                        }
+                        ConfigChanged = true;
+                    }
+                }
+                break;
+
+            case MTXT_DITHER_FILTER:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    DitherFilter ^= true;
+                    P_RefreshVideo();
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_TV_MODE:
+                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    TvMode += 1;
+                    if (TvMode > 3)
+                        TvMode = 0;
+                    P_RefreshVideo();
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    TvMode -= 1;
+                    if (TvMode < 0)
+                        TvMode = 3;
+                    P_RefreshVideo();
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_COLOR_DITHER:
+                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    ColorDither += 1;
+                    if (ColorDither > 2)
+                        ColorDither = 0;
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    ColorDither -= 1;
+                    if (ColorDither < 0)
+                        ColorDither = 2;
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_FLASH_BRIGHTNESS:
+                if (buttons & PAD_RIGHT)
+                {
+                    FlashBrightness += 1; // increments
+                    if (FlashBrightness  <= 32) // Maximum is 32
+                    {
+                        if (FlashBrightness & 1)
+                        {
+                            S_StartSound(NULL, sfx_secmove);
+                            return ga_nothing;
+                        }
+                        ConfigChanged = true;
+                    }
+                    else
+                    {
+                        FlashBrightness = 32; // The Limit
+                    }
+                }
+                else if (buttons & PAD_LEFT)
+                {
+                    FlashBrightness -= 1; // decrements
+                    if (FlashBrightness < 0)
+                    {
+                        FlashBrightness = 0;
+                    }
+                    else
+                    {
+                        if (FlashBrightness & 1)
+                        {
+                            S_StartSound(NULL, sfx_secmove);
+                            return ga_nothing;
+                        }
+                        ConfigChanged = true;
+                    }
+                }
+                break;
+
+            case MTXT_MERCILESS:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_switch2);
+
+                    // Set movement/controller options
+                    MotionBob = 0x100000;
+
+                    // Set video options
+                    brightness = 100;
+                    VideoFilters[0] = VideoFilters[1] = VideoFilters[2] = 0;
+                    TvMode = 0;
+                    DitherFilter = false;  // [Immorpher] new video option
+                    ColorDither = 0;  // [Immorpher] new video option
+
+                    // Set display options
+                    FlashBrightness = 32;  // [Immorpher] new video option
+                    StoryText = true; // [Immorpher] Skip story cut scenes?
+                    MapStats = false; // [Immorpher] Display automap stats?
+
+                    // Set HUD options
+                    enable_messages = true;
+                    HUDopacity = 128;
+                    HUDmargin = 15; // [Immorpher] HUD margin options
+                    ColoredHUD = true; // [Immorpher] Colored hud
+
+                    // Set sound options
+                    SfxVolume = 100;
+                    MusVolume = 0x50;
+
+                    // Reset functions
+                    for (int i = 0; i < MAXPLAYERS; i++)
+                    {
+                        ConfgNumb[i] = 0;    // gamepad configuration
+                        D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
+                        playerconfigs[i].crosshair = 0;
+                        playerconfigs[i].sensitivity = 0;
+                        playerconfigs[i].verticallook = 1;
+                        playerconfigs[i].autorun = false;
+                        playerconfigs[i].autoaim = true;
+                    }
+                    I_MoveDisplay(0,0);
+                    P_RefreshBrightness();
+                    P_RefreshVideo();
+                    S_SetMusicVolume(MusVolume);
+                    S_SetSoundVolume(SfxVolume);
+                    ConfigChanged = true;
+
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_RETRO:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_switch2);
+
+                    // Set movement/controller options
+                    MotionBob = 0x100000;
+
+                    // Set video options
+                    brightness = 200;
+                    VideoFilters[filt_textures] = VideoFilters[filt_sprites] = 0;
+                    VideoFilters[filt_skies] = 1;
+                    TvMode = 0;
+                    DitherFilter = false;  // [Immorpher] new video option
+                    ColorDither = 2;  // [Immorpher] new video option
+
+                    // Set display options
+                    FlashBrightness = 32;  // [Immorpher] new video option
+                    StoryText = true; // [Immorpher] Keep story cut scenes?
+                    MapStats = true; // [Immorpher] Display automap stats?
+
+                    // Set HUD options
+                    enable_messages = true;
+                    HUDopacity = 196;
+                    HUDmargin = 5; // [Immorpher] HUD margin options
+                    ColoredHUD = true; // [Immorpher] Colored hud
+
+                    // Set sound options
+                    SfxVolume = 100;
+                    MusVolume = 0x50;
+
+                    // Reset functions
+                    for (int i = 0; i < MAXPLAYERS; i++)
+                    {
+                        ConfgNumb[i] = 6;    // gamepad configuration
+                        D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
+                        playerconfigs[i].crosshair = 2;
+                        playerconfigs[i].sensitivity = 0;
+                        playerconfigs[i].verticallook = 1;
+                        playerconfigs[i].autorun = true;
+                        playerconfigs[i].autoaim = false;
+                    }
+                    I_MoveDisplay(0,0);
+                    P_RefreshBrightness();
+                    P_RefreshVideo();
+                    S_SetMusicVolume(MusVolume);
+                    S_SetSoundVolume(SfxVolume);
+                    ConfigChanged = true;
+
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_ACCESSIBLE:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_switch2);
+
+                    // Set movement/controller options
+                    MotionBob = 0x0;
+
+                    // Set video options
+                    brightness = 200;
+                    VideoFilters[0] = VideoFilters[1] = VideoFilters[2] = 0;
+                    TvMode = 0;
+                    DitherFilter = false;  // [Immorpher] new video option
+                    ColorDither = 0;  // [Immorpher] new video option
+
+                    // Set display options
+                    FlashBrightness = 0;  // [Immorpher] new video option
+                    StoryText = true; // [Immorpher] Skip story cut scenes?
+                    MapStats = false; // [Immorpher] Display automap stats?
+
+                    // Set HUD options
+                    enable_messages = true;
+                    HUDopacity = 255;
+                    HUDmargin = 15; // [Immorpher] HUD margin options (default 20)
+                    ColoredHUD = true; // [Immorpher] Colored hud
+
+                    // Set sound options
+                    SfxVolume = 100;
+                    MusVolume = 0x50;
+
+                    // Reset functions
+                    for (int i = 0; i < MAXPLAYERS; i++)
+                    {
+                        ConfgNumb[i] = 0;    // gamepad configuration
+                        D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
+                        playerconfigs[i].crosshair = 2;
+                        playerconfigs[i].sensitivity = 0;
+                        playerconfigs[i].verticallook = 1;
+                        playerconfigs[i].autorun = true;
+                        playerconfigs[i].autoaim = true;
+                    }
+                    I_MoveDisplay(0,0);
+                    P_RefreshBrightness();
+                    P_RefreshVideo();
+                    S_SetMusicVolume(MusVolume);
+                    S_SetSoundVolume(SfxVolume);
+                    ConfigChanged = true;
+
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_STORY_TEXT:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    StoryText ^= true;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_MAP_STATS:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    MapStats ^= true;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_STATUS_HUD:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    SET_MENU(Menu_StatusHUD);
+                    MenuCall = M_StatusHUDDrawer;
+                    cursorpos = 0;
+
+                    MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
+                    M_RestoreMenuData(true);
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_MARGIN:
+                if (buttons & PAD_RIGHT)
+                {
+                    HUDmargin += 1; // increments
+                    if (HUDmargin <= 20) // Maximum is 20
+                    {
+                        if (HUDmargin & 1)
+                        {
+                            S_StartSound(NULL, sfx_secmove);
+                            return ga_nothing;
+                        }
+                        ConfigChanged = true;
+                    }
+                    else
+                    {
+                        HUDmargin = 20; // The Limit
+                    }
+                }
+                else if (buttons & PAD_LEFT)
+                {
+                    HUDmargin -= 1; // decrements
+                    if (HUDmargin < 0)
+                    {
+                        HUDmargin = 0;
+                    }
+                    else
+                    {
+                        if (HUDmargin & 1)
+                        {
+                            S_StartSound(NULL, sfx_secmove);
+                            return ga_nothing;
+                        }
+                        ConfigChanged = true;
+                    }
+                }
+                break;
+
+            case MTXT_COLORED:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    ColoredHUD ^= true;
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_GAMMA_CORRECT:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    players[0].cheats ^= CF_GAMMA;
+                    globalcheats ^= CF_GAMMA;
+                    P_RefreshVideo();
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_CREDITS:
+                if (truebuttons)
+                {
+                    static const menufunc_t cred_drawers[] = {
+                        M_ModCredits1Drawer,
+                        M_ModCredits2Drawer,
+                        M_IdCreditsDrawer,
+                        M_WmsCreditsDrawer,
+                    };
+
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+                    for (int i = 0; i < ARRAYLEN(cred_drawers); i++)
+                    {
+                        MenuCall = cred_drawers[i];
+                        exit = MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuCreditsTicker,M_MenuGameDrawer);
+                    }
+                    M_RestoreMenuData(true);
+
+                    if (exit == ga_exit)
+                        return ga_nothing;
+
+                    return exit;
+                }
+                break;
+
+            case MTXT_ARTIFACTS:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    players[0].artifacts |= 4;
+                    players[0].artifacts |= 2;
+                    players[0].artifacts |= 1;
+
+                    S_StartSound(NULL, sfx_switch2);
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_CROSSHAIR:
+                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    playerconfigs[0].crosshair += 1;
+                    if (playerconfigs[0].crosshair > 3)
+                        playerconfigs[0].crosshair = 0;
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                else if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    playerconfigs[0].crosshair -= 1;
+                    if (playerconfigs[0].crosshair < 0)
+                        playerconfigs[0].crosshair = 3;
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_VERTICAL_LOOK:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    playerconfigs[0].verticallook
+                        = playerconfigs[0].verticallook == 1 ? -1 : 1;
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_AUTOAIM:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    playerconfigs[0].autoaim ^= true;
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+        }
             exit = ga_nothing;
         }
     }
@@ -2346,93 +2303,83 @@ void M_FeaturesDrawer(void) // 800091C0
 
     for(i = 0; i < itemlines; i++)
     {
-        if ((item->casepos == 23) && ((m_actualmap >= 25) && (m_actualmap <= 27)))
+        text = MenuText[item->casepos];
+
+        if (item->casepos == MTXT_WARP)
         {
-            /* Show "WARP TO FUN" text */
-            ST_Message(item->x, item->y, MenuText[40], text_alpha | 0xffffff00);
+            if (m_actualmap >= 25 && m_actualmap <= 27)
+                text = "WARP TO FUN";
+            else if (m_actualmap == 28)
+                text = "WARP TO MOTHER";
+            else if (m_actualmap > 28 && m_actualmap <= 32)
+                text = "WARP TO SECRET";
         }
-		else if ((item->casepos == 23) && (m_actualmap == 28)) // [Immorpher] Show "WARP TO MOTHER" text
-		{ 
-            ST_Message(item->x, item->y, MenuText[65], text_alpha | 0xffffff00);
-		}
-		else if ((item->casepos == 23) && (m_actualmap > 28)) // [Immorpher] Show "WARP TO SECRET" text
-		{
-            ST_Message(item->x, item->y, MenuText[66], text_alpha | 0xffffff00);
-		}
-        else
-        {
-            /* Show "WARP TO LEVEL" text */
-            ST_Message(item->x, item->y, MenuText[item->casepos], text_alpha | 0xffffff00);
-        }
+
+        ST_Message(item->x, item->y, text, text_alpha | 0xffffff00);
 
         text = textbuff;
         switch(item->casepos)
         {
-            case 23: /* WARP TO LEVEL */
+            case MTXT_WARP:
                 sprintf(textbuff, "%s", MapInfo[m_actualmap].name);
                 break;
-            case 24: /* INVULNERABLE */
+            case MTXT_INVULNERABLE:
                 text = (!(players[0].cheats & CF_GODMODE)) ? "OFF": "ON";
                 break;
-            case 25: /* HEALTH BOOST */
-                text = (!(players[0].cheats & CF_HEALTH)) ? "-" : "100%";
+            case MTXT_FLY:
+                text = (!(players[0].cheats & CF_FLYMODE)) ? "OFF": "ON";
                 break;
-            case 26: /* SECURITY KEYS */
+            case MTXT_KEYS:
                 text = (!(players[0].cheats & CF_ALLKEYS)) ? "-" : "100%";
                 break;
-            case 27: /* WEAPONS */
+            case MTXT_WEAPONS:
                 text = (!(players[0].cheats & CF_WEAPONS)) ? "-" : "100%";
                 break;
-            case 28: /* Exit */
+            case MTXT_EXIT:
                 break;
-            case 29: /* DEBUG */
+            case MTXT_DEBUG:
                 text = (!(players[0].cheats & CF_DEBUG)) ? "OFF": "ON";
                 break;
-            case 30: /* TEXTURE TEST */
+            case MTXT_TEXTURE_TEST:
                 text = (!(players[0].cheats & CF_TEX_TEST)) ? "OFF": "ON";
                 break;
-            case 31: /* WALL BLOCKING */
+            case MTXT_WALL_BLOCKING:
                 text = (!(players[0].mo->flags & MF_NOCLIP)) ? "ON": "OFF";
                 break;
-            case 35: /* LOCK MONSTERS */
+            case MTXT_LOCK_MONSTERS:
                 text = (!(players[0].cheats & CF_LOCKMOSTERS)) ? "OFF": "ON";
                 break;
-            case 36: /* SCREENSHOT */
+            case MTXT_SCREENSHOT:
                 text = (!(players[0].cheats & CF_SCREENSHOT)) ? "OFF": "ON";
                 break;
-            case 37: /* MAP EVERYTHING */
+            case MTXT_MAP_EVERYTHING:
                 text = (!(players[0].cheats & CF_ALLMAP)) ? "OFF": "ON";
                 break;
-            case 38: /* MACRO PEEK */
+            case MTXT_MACRO_PEEK:
                 text = ((players[0].cheats & CF_MACROPEEK)) ? "ON": "OFF";
                 break;
-            case 39: /* MUSIC TEST */
+            case MTXT_MUSIC_TEST:
                 sprintf(textbuff, "%d", MusicID);
                 break;
-
-            // [GEC] NEW CHEAT CODES
-            case 48: /* COLORS */
+            case MTXT_SECTOR_COLORS:
                 text = (!(players[0].cheats & CF_NOCOLORS)) ? "ON": "OFF";
                 break;
-
-            case 49: /* FULL BRIGHT */
+            case MTXT_FULL_BRIGHT:
                 text = (!(players[0].cheats & CF_FULLBRIGHT)) ? "OFF": "ON";
                 break;
-
-            case 68: /* Gamma Correction */
+            case MTXT_GAMMA_CORRECT:
                 text = (!(players[0].cheats & CF_GAMMA)) ? "OFF": "ON";
                 break;
-
-            case 85: /* ARTIFACTS */
+            case MTXT_ARTIFACTS:
                 text = (!(players[0].artifacts & 1 && players[0].artifacts & 2 && players[0].artifacts & 4)) ? "-" : "100%";
                 break;
-
             default:
-                text = ""; // [Immorpher] set to null for credits menu
+                text = NULL; // [Immorpher] set to null for credits menu
                 break;
         }
 
-        ST_Message(item->x + 130, item->y, text, text_alpha | 0xffffff00);
+        if (text)
+            ST_Message(item->x + 130, item->y, text, text_alpha | 0xffffff00);
         item++;
     }
 
@@ -2467,7 +2414,7 @@ static void M_WmsCreditsDrawer(void)
     M_DrawBackground(29, 28, text_alpha, "WMSCRED2");
 }
 
-static void M_ModCreditsDrawer(menuitem_t *menu, int items)
+static void M_ModCreditsDrawer(credit_t *credits, int items)
 {
     char *text;
     int i;
@@ -2475,14 +2422,14 @@ static void M_ModCreditsDrawer(menuitem_t *menu, int items)
 
     for(i = 0; i < items; i++)
     {
-        x = menu->x;
-        text = MenuText[menu->casepos];
+        x = credits->x;
+        text = credits->text;
 
         if (x < 0)
             x = (320 - D_strlen(text) * 8) / 2;
 
-        ST_Message(x, menu->y, text, text_alpha | 0xffffff00);
-        menu++;
+        ST_Message(x, credits->y, text, text_alpha | 0xffffff00);
+        credits++;
     }
 }
 
@@ -2503,7 +2450,7 @@ void M_VolumeDrawer(void) // 800095B4
     menuitem_t *item;
     int i;
 
-    ST_DrawString(-1, 20, "Volume", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Sound", text_alpha | 0xc0000000);
     item = Menu_Volume;
 
     for(i = 0; i < itemlines; i++)
@@ -2535,21 +2482,21 @@ void M_MovementDrawer(void) // 80009738
     {
         casepos = item->casepos;
 
-        if (casepos == 12) // [Immorpher] Autorun
+        if (casepos == MTXT_AUTORUN) // [Immorpher] Autorun
         {
             if (playerconfigs[0].autorun)
                 text = "On";
             else
                 text = "Off";
         }
-        else if (casepos == 87) // [nova] Vertical Look
+        else if (casepos == MTXT_VERTICAL_LOOK) // [nova] Vertical Look
         {
             if (playerconfigs[0].verticallook == 1)
                 text = "Normal";
             else
                 text = "Inverted";
         }
-        else if (casepos == 88) // [nova] Autoaim
+        else if (casepos == MTXT_AUTOAIM) // [nova] Autoaim
         {
             if (playerconfigs[0].autoaim)
                 text = "On";
@@ -2561,23 +2508,23 @@ void M_MovementDrawer(void) // 80009738
             text = NULL;
         }
 
-		if (text)
-			ST_DrawString(item->x + 120, item->y, text, text_alpha | 0xc0000000);
-		
+        if (text)
+            ST_DrawString(item->x + 120, item->y, text, text_alpha | 0xc0000000);
+
         ST_DrawString(item->x, item->y, MenuText[item->casepos], text_alpha | 0xc0000000);
         item++;
     }
 
     ST_DrawSymbol(MenuItem->x - 37, MenuItem[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
-	// Sensitivity
+    // Sensitivity
     ST_DrawSymbol(82,120,68,text_alpha | 0xffffff00);
     ST_DrawSymbol(playerconfigs[0].sensitivity + 83, 120, 69, text_alpha | 0xffffff00);
-	
-	// Motion bob
+
+    // Motion bob
     ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
-	ST_DrawSymbol(MotionBob/0x28F6 + 83, 80, 69, text_alpha | 0xffffff00);
-	
+    ST_DrawSymbol(MotionBob/0x28F6 + 83, 80, 69, text_alpha | 0xffffff00);
+
 }
 
 void M_VideoDrawer(void) // 80009884
@@ -2593,45 +2540,39 @@ void M_VideoDrawer(void) // 80009884
     for(i = 0; i < 7; i++)
     {
         casepos = item->casepos;
-		
-        if (casepos == 50) // [GEC and Immorpher] New video filter
+
+        if (casepos == MTXT_TEXTURE_FILTER || casepos == MTXT_SPRITE_FILTER || casepos == MTXT_SKY_FILTER)
         {
-            if (VideoFilter == 0)
-                text = "On";
-            else if (VideoFilter == 1)
-                text = "Skies";
-            else
-                text = "Off";
-        }		
-        else if (casepos == 54) // [Immorpher] Anti-Aliasing
-        {
-            if (antialiasing)
-                text = "On";
+            int ti = casepos - MTXT_TEXTURE_FILTER;
+            if (VideoFilters[ti] == 0)
+                text = "Bilinear";
             else
                 text = "Off";
         }
-        else if (casepos == 55) // [Immorpher] Interlacing
+        else if (casepos == MTXT_TV_MODE)
         {
-            if (interlacing)
-                text = "On";
+            if (TvMode == 1)
+                text = "AA";
+            else if (TvMode == 2)
+                text = "Interlace";
+            else if (TvMode == 3)
+                text = "Inter AA";
             else
-                text = "Off";
+                text = "Normal";
         }
-        else if (casepos == 53) // [Immorpher] Dither Filter
+        else if (casepos == MTXT_DITHER_FILTER)
         {
             if (DitherFilter)
                 text = "On";
             else
                 text = "Off";
         }
-        else if (casepos == 56) // [Immorpher] Dither Filter
+        else if (casepos == MTXT_COLOR_DITHER)
         {
             if (ColorDither == 1)
                 text = "Square";
             else if (ColorDither == 2)
                 text = "Bayer";
-            else if (ColorDither == 3)
-                text = "Noise";
             else
                 text = "Off";
         }
@@ -2641,15 +2582,12 @@ void M_VideoDrawer(void) // 80009884
         }
 
         if (text)
-			ST_DrawString(item->x + 140, item->y, text, text_alpha | 0xc0000000);
+            ST_DrawString(item->x + 170, item->y, text, text_alpha | 0xc0000000);
 
         ST_DrawString(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
 
         item++;
     }
-
-    ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
-    ST_DrawSymbol(brightness/2 + 83, 80, 69, text_alpha | 0xffffff00);
 
     ST_DrawSymbol(Menu_Video[0].x - 37, Menu_Video[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 }
@@ -2668,14 +2606,14 @@ void M_DisplayDrawer(void) // 80009884
     {
         casepos = item->casepos;
 
-        if (casepos == 61) // Story Text:
+        if (casepos == MTXT_STORY_TEXT)
         {
             if (StoryText)
                 text = "On";
             else
                 text = "Off";
         }
-        else if (casepos == 62) // Map stats:
+        else if (casepos == MTXT_MAP_STATS)
         {
             if (MapStats)
                 text = "On";
@@ -2694,10 +2632,14 @@ void M_DisplayDrawer(void) // 80009884
 
         item++;
     }
-	
-	// Flash brightness
+
+    // Brightness
     ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
-	ST_DrawSymbol(100*FlashBrightness/32 + 83, 80, 69, text_alpha | 0xffffff00);
+    ST_DrawSymbol(brightness/2 + 83, 80, 69, text_alpha | 0xffffff00);
+
+    // Flash brightness
+    ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
+    ST_DrawSymbol(100*FlashBrightness/32 + 83, 80, 69, text_alpha | 0xffffff00);
 
     ST_DrawSymbol(Menu_Display[0].x - 37, Menu_Display[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 }
@@ -2716,21 +2658,21 @@ void M_StatusHUDDrawer(void) // 80009884
     {
         casepos = item->casepos;
 
-        if (casepos == 33) // Messages:
+        if (casepos == MTXT_MESSAGES)
         {
             if (enable_messages)
                 text = "On";
             else
                 text = "Off";
         }
-        else if (casepos == 67) // Colored HUD:
+        else if (casepos == MTXT_COLORED)
         {
             if (ColoredHUD)
                 text = "On";
             else
                 text = "Off";
-        }	
-        else if (casepos == 86) // [Immorpher] Crosshair
+        }
+        else if (casepos == MTXT_CROSSHAIR)
         {
             if (playerconfigs[0].crosshair == 0)
                 text = "None";
@@ -2740,7 +2682,7 @@ void M_StatusHUDDrawer(void) // 80009884
                 text = "Cross";
             else
                 text = "Vertical";
-        }	
+        }
         else
         {
             text = NULL;
@@ -2753,12 +2695,12 @@ void M_StatusHUDDrawer(void) // 80009884
 
         item++;
     }
-	
-	// HUD Margin
+
+    // HUD Margin
     ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
-	ST_DrawSymbol(100*HUDmargin/20 + 83, 80, 69, text_alpha | 0xffffff00);
-	
-	// HUD Opacity
+    ST_DrawSymbol(100*HUDmargin/20 + 83, 80, 69, text_alpha | 0xffffff00);
+
+    // HUD Opacity
     ST_DrawSymbol(82, 120, 68, text_alpha | 0xffffff00);
     ST_DrawSymbol(100*HUDopacity/255 + 83, 120, 69, text_alpha | 0xffffff00);
 
