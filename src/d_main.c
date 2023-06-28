@@ -18,7 +18,7 @@ extern boolean run_hectic_demo;
 
 extern void ST_Init(void);
 
-void D_DoomMain(void) // 800027C0
+void D_DoomMain(void *arg) // 800027C0
 {
     int exit;
 

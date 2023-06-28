@@ -22,13 +22,13 @@ extern char _codeSegmentEnd[];
  */
 
 /*
- * Stacks for the threads as well as message queues for synchronization
- * This stack is ridiculously large, and could also be reclaimed once
- * the main thread is started.
+ * Stacks for the threads as well as message queues for synchronization.
  */
-u64	bootStack[STACKSIZE/sizeof(u64)];
 
 extern u16 cfb[2][SCREEN_WD*SCREEN_HT]; // 8036A000
+/* this stack size is in bytes */
+#define	BOOT_STACKSIZE	0x100
+u64	bootStack[BOOT_STACKSIZE/sizeof(u64)];
 
 extern int globallump; // 800A68f8 r_local.h
 extern int globalcm;   // 800A68fC r_local.h
@@ -42,9 +42,7 @@ extern int globalcm;   // 800A68fC r_local.h
 #define SYS_THREAD_ID_MAIN 2
 #define SYS_THREAD_ID_TICKER 3
 
-#define SYS_IDLE_STACKSIZE 0x400
 OSThread	idle_thread;                        // 800A4A18
-u64	idle_stack[SYS_IDLE_STACKSIZE/sizeof(u64)]; // 800979E0
 
 #define SYS_MAIN_STACKSIZE 0xA000
 OSThread	main_thread;                        // 800A4BC8
@@ -234,7 +232,7 @@ void I_Start(void)  // 80005620
 
     /* Create and start idle thread... */
     osCreateThread(&idle_thread, SYS_THREAD_ID_IDLE, I_IdleGameThread, (void *)0,
-                   idle_stack + SYS_IDLE_STACKSIZE/sizeof(u64), 10);
+                   bootStack + BOOT_STACKSIZE/sizeof(u64), 10);
     osStartThread(&idle_thread);
 }
 
@@ -245,7 +243,7 @@ void I_IdleGameThread(void *arg) // 8000567C
                         SYS_MSGBUF_SIZE_PI );
 
     /* Create main thread... */
-    osCreateThread(&main_thread, SYS_THREAD_ID_MAIN, I_Main, (void *)0,
+    osCreateThread(&main_thread, SYS_THREAD_ID_MAIN, D_DoomMain, (void *)0,
                    main_stack + SYS_MAIN_STACKSIZE/sizeof(u64), 10);
     osStartThread(&main_thread);
 
@@ -257,10 +255,6 @@ void I_IdleGameThread(void *arg) // 8000567C
     } while(TRUE);
 }
 
-void I_Main(void *arg) // 80005710
-{
-    D_DoomMain();
-}
 
 void I_SystemTicker(void *arg) // 80005730
 {
@@ -582,7 +576,7 @@ void I_Init(void) // 80005C50
 
     osContInit(&sys_msgque_joy, &gamepad_bit_pattern, gamepad_status);
 
-    gamepad_data = (OSContPad *)idle_stack;
+    gamepad_data = (OSContPad *)bootStack;
 
     if ((gamepad_bit_pattern & 1) != 0)
     {

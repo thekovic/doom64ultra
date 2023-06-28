@@ -891,7 +891,7 @@ void	DecodeJaguar(unsigned char *input, unsigned char *output);
 /* D_MAIN */
 /*--------*/
 
-void D_DoomMain (void);
+void D_DoomMain (void *arg);
 
 /*------*/
 /* GAME */
