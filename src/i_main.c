@@ -122,18 +122,18 @@ OSMesgQueue sys_msgque_joy; // 800A4F88
 OSMesg		sys_msg_joy;    // 800A51D4
 
 #define SYS_MSGBUF_SIZE_VID 16
-OSMesgQueue sys_msgque_vbi; // 800A4FB8
-OSMesg		sys_msgbuf_vbi[SYS_MSGBUF_SIZE_VID]; // 800A51E0
+OSMesgQueue sys_ticker_queue; // 800A4FB8
+OSMesg		sys_ticker_msgbuf[SYS_MSGBUF_SIZE_VID]; // 800A51E0
 
 #define SYS_MSGBUF_SIZE_VID2 2
-OSMesgQueue sys_msgque_vbi2; // 800A4F28
-OSMesg		sys_msgbuf_vbi2[SYS_MSGBUF_SIZE_VID2]; // 800A51D8
+OSMesgQueue rdp_done_queue; // 800A4F28
+OSMesg		rdp_done_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A51D8
 
-OSMesgQueue sys_msgque_vbi3; // 800A4F40
-OSMesg		sys_msgbuf_vbi3[SYS_MSGBUF_SIZE_VID2]; // 800A5220
+OSMesgQueue vid_task_queue; // 800A4F40
+OSMesg		vid_task_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A5220
 
-OSMesgQueue sys_msgque_vbi4; // 800A4F58
-OSMesg		sys_msgbuf_vbi4[SYS_MSGBUF_SIZE_VID2]; // 800A5228
+OSMesgQueue audio_task_queue; // 800A4F58
+OSMesg		audio_task_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A5228
 
 OSContStatus gamepad_status[MAXCONTROLLERS]; // 800a5230
 OSContPad   *gamepad_data;    // 800A5240
@@ -255,6 +255,12 @@ void I_IdleGameThread(void *arg) // 8000567C
     } while(TRUE);
 }
 
+#define STF_GFX_PENDING 1
+#define STF_GFX_YIELDED 2
+#define STF_GFX_RESUME 4
+#define STF_RDP_PENDING 8
+#define STF_RDP_DONE 16
+#define STF_AUDIO_PENDING 32
 
 void I_SystemTicker(void *arg) // 80005730
 {
@@ -275,7 +281,7 @@ void I_SystemTicker(void *arg) // 80005730
 
     while(true)
     {
-        osRecvMesg(&sys_msgque_vbi, (OSMesg *)&vbi_msg, OS_MESG_BLOCK);
+        osRecvMesg(&sys_ticker_queue, (OSMesg *)&vbi_msg, OS_MESG_BLOCK);
 
         //sprintf(str, "SystemTickerStatus %d",SystemTickerStatus);
         //printstr(WHITE, 0, 13, str);
@@ -293,12 +299,12 @@ void I_SystemTicker(void *arg) // 80005730
 
                     if(rspTask->t.type == M_AUDTASK)
                     {
-                        SystemTickerStatus &= ~32;
+                        SystemTickerStatus &= ~STF_AUDIO_PENDING;
 
-                        if (SystemTickerStatus & 4)//OS_SC_YIELDED
+                        if (SystemTickerStatus & STF_GFX_RESUME)
                         {
-                            SystemTickerStatus &= ~4;
-                            SystemTickerStatus |= 1;
+                            SystemTickerStatus &= ~STF_GFX_RESUME;
+                            SystemTickerStatus |= STF_GFX_PENDING;
 
                             rspTask = rspTaskPrev;
                             osWritebackDCacheAll();
@@ -307,9 +313,9 @@ void I_SystemTicker(void *arg) // 80005730
                         }
                         else
                         {
-                            if ((SystemTickerStatus & 24) == 0)
+                            if ((SystemTickerStatus & (STF_RDP_PENDING|STF_RDP_DONE)) == 0)
                             {
-                                ret = osRecvMesg(&sys_msgque_vbi3, (OSMesg *)&vbi_msg, OS_MESG_NOBLOCK);
+                                ret = osRecvMesg(&vid_task_queue, (OSMesg *)&vbi_msg, OS_MESG_NOBLOCK);
                                 rspTask = (OSTask*)vbi_msg;
 
                                 if(ret != -1)
@@ -319,7 +325,7 @@ void I_SystemTicker(void *arg) // 80005730
                                     else
                                         vidside = 1;
 
-                                    SystemTickerStatus |= 1;
+                                    SystemTickerStatus |= STF_GFX_PENDING;
 
                                     osWritebackDCacheAll();
                                     osSpTaskLoad(rspTask);
@@ -330,22 +336,22 @@ void I_SystemTicker(void *arg) // 80005730
                     }
                     else
                     {
-                        SystemTickerStatus &= ~1;
+                        SystemTickerStatus &= ~STF_GFX_PENDING;
 
-                        if(SystemTickerStatus & 2)//OS_SC_YIELD
+                        if(SystemTickerStatus & STF_GFX_YIELDED)
                         {
-                            SystemTickerStatus &= ~2;
+                            SystemTickerStatus &= ~STF_GFX_YIELDED;
 
                             if (osSpTaskYielded(rspTask))
                             {
                                 rspTaskPrev = rspTask;
 
-                                SystemTickerStatus |= 4;//OS_SC_YIELDED
+                                SystemTickerStatus |= STF_GFX_RESUME;
 
-                                osRecvMesg(&sys_msgque_vbi4, (OSMesg *)&vbi_msg, OS_MESG_NOBLOCK);
+                                osRecvMesg(&audio_task_queue, (OSMesg *)&vbi_msg, OS_MESG_NOBLOCK);
                                 rspTask = (OSTask*)vbi_msg;
 
-                                SystemTickerStatus |= 32;
+                                SystemTickerStatus |= STF_AUDIO_PENDING;
 
                                 osWritebackDCacheAll();
                                 osSpTaskLoad(rspTask);
@@ -354,15 +360,15 @@ void I_SystemTicker(void *arg) // 80005730
                         }
                         else
                         {
-                            if ((SystemTickerStatus & 16) == 0)
-                                SystemTickerStatus |= 8;
+                            if ((SystemTickerStatus & STF_RDP_DONE) == 0)
+                                SystemTickerStatus |= STF_RDP_PENDING;
 
-                            ret = osRecvMesg(&sys_msgque_vbi4, (OSMesg *)&vbi_msg, OS_MESG_NOBLOCK);
+                            ret = osRecvMesg(&audio_task_queue, (OSMesg *)&vbi_msg, OS_MESG_NOBLOCK);
                             rspTask = (OSTask*)vbi_msg;
 
                             if(ret!= -1)
                             {
-                                SystemTickerStatus |= 32;
+                                SystemTickerStatus |= STF_AUDIO_PENDING;
 
                                 osWritebackDCacheAll();
                                 osSpTaskLoad(rspTask);
@@ -378,8 +384,8 @@ void I_SystemTicker(void *arg) // 80005730
 				    //sprintf(str, "VID_MSG_RDP");
                     //printstr(WHITE, 0, 28, str);
 
-				    SystemTickerStatus &= ~8;
-				    SystemTickerStatus |= 16;
+				    SystemTickerStatus &= ~STF_RDP_PENDING;
+				    SystemTickerStatus |= STF_RDP_DONE;
 
                     osViSwapBuffer(cfb[vidside]);
 				}
@@ -403,21 +409,21 @@ void I_SystemTicker(void *arg) // 80005730
 
                     vsync += 1;
 
-                    if (sys_msgque_vbi4.validCount)
+                    if (audio_task_queue.validCount)
                     {
-                        if (SystemTickerStatus & 1)
+                        if (SystemTickerStatus & STF_GFX_PENDING)
                         {
-                            SystemTickerStatus |= 2; // GFX_YIELDED
+                            SystemTickerStatus |= STF_GFX_YIELDED;
                             osSpTaskYield();
                         }
                         else
                         {
-                            if ((SystemTickerStatus & 32) == 0)
+                            if ((SystemTickerStatus & STF_AUDIO_PENDING) == 0)
                             {
-                                osRecvMesg(&sys_msgque_vbi4, (OSMesg *)&vbi_msg, OS_MESG_NOBLOCK);
+                                osRecvMesg(&audio_task_queue, (OSMesg *)&vbi_msg, OS_MESG_NOBLOCK);
                                 rspTask = (OSTask*)vbi_msg;
 
-                                SystemTickerStatus |= 32;
+                                SystemTickerStatus |= STF_AUDIO_PENDING;
 
                                 osWritebackDCacheAll();
                                 osSpTaskLoad(rspTask);
@@ -437,11 +443,11 @@ void I_SystemTicker(void *arg) // 80005730
                         // next audio function task
                         wess = wess_work();
                         if (wess)
-                            osSendMesg(&sys_msgque_vbi4,(OSMesg) wess, OS_MESG_NOBLOCK);
+                            osSendMesg(&audio_task_queue,(OSMesg) wess, OS_MESG_NOBLOCK);
                     }
                     side++;
 
-                    if (SystemTickerStatus & 16)
+                    if (SystemTickerStatus & STF_RDP_DONE)
                     {
                         if ((u32)(vsync - drawsync2) < 2) continue;
 
@@ -450,7 +456,7 @@ void I_SystemTicker(void *arg) // 80005730
 
                         if (next_fbuf != current_fbuf) continue;
 
-                        SystemTickerStatus &= ~16;
+                        SystemTickerStatus &= ~STF_RDP_DONE;
 
                         if (demoplayback || demorecording)
                         {
@@ -469,12 +475,12 @@ void I_SystemTicker(void *arg) // 80005730
                             gamepad_system_busy = 1;
                         }
 
-                        osSendMesg(&sys_msgque_vbi2, (OSMesg)VID_MSG_KICKSTART, OS_MESG_NOBLOCK);
+                        osSendMesg(&rdp_done_queue, (OSMesg)VID_MSG_KICKSTART, OS_MESG_NOBLOCK);
                     }
 
                     if(SystemTickerStatus == 0)
                     {
-                        ret = osRecvMesg(&sys_msgque_vbi3, (OSMesg *)&vbi_msg, OS_MESG_NOBLOCK);
+                        ret = osRecvMesg(&vid_task_queue, (OSMesg *)&vbi_msg, OS_MESG_NOBLOCK);
                         rspTask = (OSTask*)vbi_msg;
 
                         //sprintf(str, "ret %d", ret);
@@ -492,7 +498,7 @@ void I_SystemTicker(void *arg) // 80005730
                             else
                                 vidside = 1;
 
-                            SystemTickerStatus |= 1;
+                            SystemTickerStatus |= STF_GFX_PENDING;
 
                             osWritebackDCacheAll();
                             osSpTaskLoad(rspTask);
@@ -517,11 +523,11 @@ void I_Init(void) // 80005C50
 
     osCreateMesgQueue( &romcopy_msgque, &romcopy_msgbuf, 1 );
 
-    osCreateMesgQueue( &sys_msgque_vbi, sys_msgbuf_vbi, SYS_MSGBUF_SIZE_VID );
+    osCreateMesgQueue( &sys_ticker_queue, sys_ticker_msgbuf, SYS_MSGBUF_SIZE_VID );
 
-    osCreateMesgQueue(&sys_msgque_vbi2, sys_msgbuf_vbi2, SYS_MSGBUF_SIZE_VID2);//&sys_msgque_jam, sys_msgbuf_jam
-    osCreateMesgQueue(&sys_msgque_vbi3, sys_msgbuf_vbi3, SYS_MSGBUF_SIZE_VID2);//&sys_msgque_ser, sys_msgbuf_ser
-    osCreateMesgQueue(&sys_msgque_vbi4, sys_msgbuf_vbi4, SYS_MSGBUF_SIZE_VID2);//&sys_msgque_tmr, sys_msgbuf_tmr
+    osCreateMesgQueue(&rdp_done_queue, rdp_done_msgbuf, SYS_MSGBUF_SIZE_VID2);//&sys_msgque_jam, sys_msgbuf_jam
+    osCreateMesgQueue(&vid_task_queue, vid_task_msgbuf, SYS_MSGBUF_SIZE_VID2);//&sys_msgque_ser, sys_msgbuf_ser
+    osCreateMesgQueue(&audio_task_queue, audio_task_msgbuf, SYS_MSGBUF_SIZE_VID2);//&sys_msgque_tmr, sys_msgbuf_tmr
 
     if(osTvType == OS_TV_PAL)
     {
@@ -561,11 +567,11 @@ void I_Init(void) // 80005C50
 
     osViBlack(FALSE);
 
-    osSetEventMesg( OS_EVENT_SP, &sys_msgque_vbi, (OSMesg)VID_MSG_RSP );
-    osSetEventMesg( OS_EVENT_DP, &sys_msgque_vbi, (OSMesg)VID_MSG_RDP );
-    osSetEventMesg( OS_EVENT_PRENMI, &sys_msgque_vbi, (OSMesg)VID_MSG_PRENMI );
+    osSetEventMesg( OS_EVENT_SP, &sys_ticker_queue, (OSMesg)VID_MSG_RSP );
+    osSetEventMesg( OS_EVENT_DP, &sys_ticker_queue, (OSMesg)VID_MSG_RDP );
+    osSetEventMesg( OS_EVENT_PRENMI, &sys_ticker_queue, (OSMesg)VID_MSG_PRENMI );
 
-    osViSetEvent( &sys_msgque_vbi, (OSMesg)VID_MSG_VBI, 1 ); // last parm: 2 indicates 30 FPS (1=60)
+    osViSetEvent( &sys_ticker_queue, (OSMesg)VID_MSG_VBI, 1 ); // last parm: 2 indicates 30 FPS (1=60)
 
     vid_side = 1;
 
@@ -592,7 +598,7 @@ void I_Init(void) // 80005C50
                    sys_ticker_stack + SYS_TICKER_STACKSIZE/sizeof(u64), 11);
     osStartThread(&sys_ticker_thread);
 
-    osJamMesg(&sys_msgque_vbi2, (OSMesg)VID_MSG_KICKSTART, OS_MESG_NOBLOCK);
+    osJamMesg(&rdp_done_queue, (OSMesg)VID_MSG_KICKSTART, OS_MESG_NOBLOCK);
 }
 
 #include "stdarg.h"
@@ -776,16 +782,16 @@ void I_DrawFrame(void)  // 80006570
     vid_task->t.data_ptr = (u64 *) Gfx_base[vid_side];
     vid_task->t.data_size = (u32)((((int)((int)GFX1 - (int)GFX2) / sizeof(Gfx)) + GfxIndex) * sizeof(Gfx));
 
-    osSendMesg(&sys_msgque_vbi3,(OSMesg) vid_task, OS_MESG_NOBLOCK);
-    osRecvMesg(&sys_msgque_vbi2, NULL, OS_MESG_BLOCK);//retraceMessageQ
+    osSendMesg(&vid_task_queue,(OSMesg) vid_task, OS_MESG_NOBLOCK);
+    osRecvMesg(&rdp_done_queue, NULL, OS_MESG_BLOCK);//retraceMessageQ
     vid_side ^= 1;
 }
 
 void I_GetScreenGrab(void) // 800066C0
 {
-    if ((SystemTickerStatus & ~32) || (sys_msgque_vbi3.validCount != 0)) {
-        osRecvMesg(&sys_msgque_vbi2, (OSMesg *)0, OS_MESG_BLOCK);
-        osJamMesg(&sys_msgque_vbi2, (OSMesg)VID_MSG_KICKSTART, OS_MESG_NOBLOCK);
+    if ((SystemTickerStatus & ~STF_AUDIO_PENDING) || (vid_task_queue.validCount != 0)) {
+        osRecvMesg(&rdp_done_queue, (OSMesg *)0, OS_MESG_BLOCK);
+        osJamMesg(&rdp_done_queue, (OSMesg)VID_MSG_KICKSTART, OS_MESG_NOBLOCK);
     }
 }
 
