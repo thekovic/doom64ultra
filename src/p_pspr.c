@@ -1290,6 +1290,8 @@ void T_LaserThinker(laser_t *laser) // 8001C9B8
     }
 }
 
+extern fixed_t crouchease[];
+
 /*
 ================
 =
@@ -1350,8 +1352,8 @@ void A_FireLaser(player_t *player, pspdef_t *psp) // 8001CAC0
 
 
     shootheight = LASERAIMHEIGHT >> FRACBITS;
-    if (player->crouch)
-        shootheight /= 2;
+    if (player->crouchtimer)
+        shootheight = FixedMul (shootheight, crouchease[player->crouchtimer]);
     laserheight = (shootheight + (((shootheight >> 1) * finesine(player->pitch >> ANGLETOFINESHIFT)) >> FRACBITS)) << FRACBITS;
     laserspacing = (LASERDISTANCE*finecosine(player->pitch >> ANGLETOFINESHIFT)) >> FRACBITS;
 

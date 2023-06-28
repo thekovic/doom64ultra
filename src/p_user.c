@@ -180,7 +180,7 @@ void P_PlayerXYMovement (mobj_t *mo) // 80021E20
 	/* */
 	/* slow down */
 	/* */
-	if (mo->z > mo->floorz)
+	if (mo->z > mo->floorz && !(mo->player->cheats & CF_FLYMODE))
 		return;		/* no friction when airborne */
 
 	if (mo->flags & MF_CORPSE)
@@ -195,8 +195,8 @@ void P_PlayerXYMovement (mobj_t *mo) // 80021E20
 	}
 	else
 	{
-		mo->momx = (mo->momx>>8)*(FRICTION>>8);
-		mo->momy = (mo->momy>>8)*(FRICTION>>8);
+		mo->momx = FixedMul(mo->momx, FRICTION);
+		mo->momy = FixedMul(mo->momy, FRICTION);
 	}
 }
 
@@ -227,29 +227,36 @@ void P_PlayerZMovement (mobj_t *mo) // 80021f38
 	/* */
 	mo->z += mo->momz;
 
-	/* */
-	/* clip movement */
-	/* */
-	if (mo->z <= mo->floorz)
-	{	/* hit the floor */
-		if (mo->momz < 0)
-		{
-			if (mo->momz < -(GRAVITY*2))	/* squat down */
-			{
-				mo->player->deltaviewheight = mo->momz>>3;
-				S_StartSound (mo, sfx_oof);
-			}
-			mo->momz = 0;
-		}
-		mo->z = mo->floorz;
-	}
-	else
-	{
-		if (mo->momz == 0)
-			mo->momz = -(GRAVITY/2);
-		else
-			mo->momz -= (GRAVITY/4);
-	}
+    /* */
+    /* clip movement */
+    /* */
+    if (mo->z <= mo->floorz)
+    {	/* hit the floor */
+        if (mo->momz < 0)
+        {
+            if (mo->momz < -(GRAVITY*2))	/* squat down */
+            {
+                mo->player->deltaviewheight = mo->momz>>3;
+                S_StartSound (mo, sfx_oof);
+            }
+            mo->momz = 0;
+        }
+        mo->z = mo->floorz;
+    }
+    else if (mo->player->cheats & CF_FLYMODE)
+    {
+        if (mo->momz > -STOPSPEED && mo->momz < STOPSPEED)
+            mo->momz = 0;
+        else
+            mo->momz = FixedMul(mo->momz, FRICTION);
+    }
+    else
+    {
+        if (mo->momz == 0)
+            mo->momz = -(GRAVITY/2);
+        else
+            mo->momz -= (GRAVITY/4);
+    }
 
 	if (mo->z + mo->height > mo->ceilingz)
 	{	/* hit the ceiling */
@@ -313,7 +320,7 @@ void P_PlayerMobjThink (mobj_t *mobj) // 80022060
 /*
  * Returns true if a button was pressed, or if (shift | shiftbutton) is
  * pressed when button is unbound */
-boolean P_ButtonOrShift(int button, int shift, int shiftbutton, int buttons, int oldbuttons)
+static boolean P_ButtonOrShift(int button, int shift, int shiftbutton, int buttons, int oldbuttons)
 {
     return button
         ? (buttons & button) && !(oldbuttons & button)
@@ -336,36 +343,49 @@ boolean P_ButtonOrShift(int button, int shift, int shiftbutton, int buttons, int
 #define JUMPTHRUST      0x90000
 #define JUMPGRACE       5
 
-void P_BuildMove (player_t *player) // 80022154
+typedef struct {
+    int     pitchmove;
+    fixed_t forwardmove;
+    fixed_t sidemove;
+    angle_t angleturn;
+    u8 crouch;
+    u8 crouchheld;
+    u8 jump;
+    u8 jumpheld;
+} buildmove_t;
+
+void P_BuildMove (player_t *player, buildmove_t *move) // 80022154
 {
     int             speed, movespeed, sensitivity;
     int             buttons, oldbuttons;
     mobj_t         *mo;
     controls_t     *cbutton;
     playerconfig_t *config;
+    int             aircontrol;
 
     cbutton = player->controls;
+    aircontrol = player->cheats & CF_FLYMODE;
     config = player->config;
     buttons = ticbuttons[0];
     oldbuttons = oldticbuttons[0];
 
-    int xstick = 0, ystick = 0, crouch;
+    int xstick = 0, ystick = 0;
 
-    player->forwardmove = player->sidemove = player->pitchmove = player->angleturn = 0;
+    move->forwardmove = move->sidemove = move->pitchmove = move->angleturn = 0;
 
     // check for button held by passing oldbuttons = 0
-    crouch = P_ButtonOrShift(cbutton->BT_CROUCH, cbutton->BT_LOOK, cbutton->BT_LOOKDOWN, buttons, 0);
+    move->crouchheld = P_ButtonOrShift(cbutton->BT_CROUCH, cbutton->BT_LOOK, cbutton->BT_LOOKDOWN, buttons, 0);
+    move->jumpheld = P_ButtonOrShift(cbutton->BT_JUMP, cbutton->BT_LOOK, cbutton->BT_LOOKUP, buttons, 0);
+    move->crouch =  move->crouchheld && !move->jumpheld;
+    move->jump =   !move->crouchheld &&  P_ButtonOrShift(cbutton->BT_JUMP, cbutton->BT_LOOK, cbutton->BT_LOOKUP, buttons, oldbuttons);
 
     if(config->autorun) // [Immorpher] New autorun option
         speed = (buttons & cbutton->BT_SPEED) < 1;
     else
         speed = (buttons & cbutton->BT_SPEED) > 0;
 
-    movespeed = crouch ? 2 : speed;
+    movespeed = (move->crouchheld && !aircontrol) ? 2 : speed;
     sensitivity = 0;
-
-    player->crouch =  crouch && !P_ButtonOrShift(cbutton->BT_JUMP, cbutton->BT_LOOK, cbutton->BT_LOOKUP, buttons, 0);
-    player->jump =   !crouch &&  P_ButtonOrShift(cbutton->BT_JUMP, cbutton->BT_LOOK, cbutton->BT_LOOKUP, buttons, oldbuttons);
 
     // [nova] control stick configurations
     if (buttons & cbutton->BT_LOOK)
@@ -421,11 +441,11 @@ void P_BuildMove (player_t *player) // 80022154
 
     if (cbutton->BT_LOOKUP & buttons)
     {
-        player->pitchmove = config->verticallook * (angleturn[player->pitchheld + (speed * SLOWTURNTICS)] << 18);
+        move->pitchmove = config->verticallook * (angleturn[player->pitchheld + (speed * SLOWTURNTICS)] << 18);
     }
     if (cbutton->BT_LOOKDOWN & buttons)
     {
-        player->pitchmove = config->verticallook * -(angleturn[player->pitchheld + (speed * SLOWTURNTICS)] << 18);
+        move->pitchmove = config->verticallook * -(angleturn[player->pitchheld + (speed * SLOWTURNTICS)] << 18);
     }
     if (ystick == STICK_VLOOK && !(buttons & (cbutton->BT_LOOKUP | cbutton->BT_LOOKDOWN)))
     {
@@ -435,24 +455,24 @@ void P_BuildMove (player_t *player) // 80022154
         if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
         {
             sensitivity = (((config->sensitivity * 800) / 100) + 233) * sensitivity;
-            player->pitchmove = (sensitivity / 40) << 17;
+            move->pitchmove = (sensitivity / 40) << 17;
         }
     }
 
     if (cbutton->BT_FORWARD & buttons)
     {
-        player->forwardmove = forwardmove[movespeed];
+        move->forwardmove = forwardmove[movespeed];
     }
     if (cbutton->BT_BACK & buttons)
     {
-        player->forwardmove = -forwardmove[movespeed];
+        move->forwardmove = -forwardmove[movespeed];
     }
     if (ystick == STICK_MOVE && !(buttons & (cbutton->BT_FORWARD | cbutton->BT_BACK)))
     {
         sensitivity = (int)((buttons) << 24) >> 24;
         if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
         {
-            player->forwardmove = (forwardmove[movespeed] * sensitivity) / 80;
+            move->forwardmove = (forwardmove[movespeed] * sensitivity) / 80;
         }
     }
 
@@ -474,11 +494,11 @@ void P_BuildMove (player_t *player) // 80022154
     /*  */
     if (buttons & cbutton->BT_STRAFELEFT)
     {
-        player->sidemove -= sidemove[movespeed];
+        move->sidemove -= sidemove[movespeed];
     }
     if (buttons & cbutton->BT_STRAFERIGHT)
     {
-        player->sidemove += sidemove[movespeed];
+        move->sidemove += sidemove[movespeed];
     }
     if (xstick == STICK_STRAFE && !(buttons & (cbutton->BT_STRAFELEFT | cbutton->BT_STRAFERIGHT)))
     {
@@ -487,17 +507,17 @@ void P_BuildMove (player_t *player) // 80022154
 
         if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
         {
-            player->sidemove += (sidemove[movespeed] * sensitivity) / 80;
+            move->sidemove += (sidemove[movespeed] * sensitivity) / 80;
         }
     }
 
     if (buttons & cbutton->BT_LEFT)
     {
-        player->angleturn =  angleturn[player->turnheld + (speed * SLOWTURNTICS)] << 17;
+        move->angleturn =  angleturn[player->turnheld + (speed * SLOWTURNTICS)] << 17;
     }
     if (buttons & cbutton->BT_RIGHT)
     {
-        player->angleturn = -angleturn[player->turnheld + (speed * SLOWTURNTICS)] << 17;
+        move->angleturn = -angleturn[player->turnheld + (speed * SLOWTURNTICS)] << 17;
     }
     if (xstick == STICK_TURN && !(buttons & (cbutton->BT_LEFT | cbutton->BT_RIGHT)))
     {
@@ -508,7 +528,7 @@ void P_BuildMove (player_t *player) // 80022154
         if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
         {
             sensitivity = (((config->sensitivity * 800) / 100) + 233) * sensitivity;
-            player->angleturn = (sensitivity / 80) << 17;
+            move->angleturn = (sensitivity / 80) << 17;
         }
     }
 
@@ -517,7 +537,7 @@ void P_BuildMove (player_t *player) // 80022154
     /* */
     /* if slowed down to a stop, change to a standing frame */
     /* */
-    if (!mo->momx && !mo->momy && player->forwardmove == 0 && player->sidemove == 0 )
+    if (!mo->momx && !mo->momy && move->forwardmove == 0 && move->sidemove == 0 )
     {	/* if in a walking frame, stop moving */
         if (mo->state == &states[S_PLAY_RUN1]
                 || mo->state == &states[S_PLAY_RUN2]
@@ -638,6 +658,8 @@ void P_CalcHeight (player_t *player) // 80022670
 
 #define MAXLOOKANGLE 0x30000000
 #define LOOKSPRINGRESET (0x4000 << FRACBITS)
+#define FLYTHRUST 0x16000
+
 
 /*
 =================
@@ -647,61 +669,77 @@ void P_CalcHeight (player_t *player) // 80022670
 =================
 */
 
-void P_MovePlayer (player_t *player) // 8002282C
+void P_MovePlayer (player_t *player, const buildmove_t* move) // 8002282C
 {
-    player->mo->angle += vblsinframe[0] * player->angleturn;
+    int aircontrol;
 
-    if(player->onground)
+    player->mo->angle += vblsinframe[0] * move->angleturn;
+
+    aircontrol = (player->cheats & CF_FLYMODE);
+    if(player->onground || aircontrol)
     {
-        if (player->forwardmove)
-            P_Thrust (player, player->mo->angle, player->forwardmove);
-        if (player->sidemove)
-            P_Thrust (player, player->mo->angle-ANG90, player->sidemove);
+        if (move->forwardmove)
+            P_Thrust (player, player->mo->angle, move->forwardmove);
+        if (move->sidemove)
+            P_Thrust (player, player->mo->angle-ANG90, move->sidemove);
     }
 
-    if ((player->forwardmove || player->sidemove) && player->mo->state == &states[S_PLAY])
+    if ((move->forwardmove || move->sidemove) && player->mo->state == &states[S_PLAY]
+            && (!aircontrol || player->onground))
         P_SetMobjState (player->mo, S_PLAY_RUN1);
 
-    if (player->crouch)
+    if (aircontrol ? move->crouchheld : move->crouch)
     {
-        if (player->crouchtimer < ARRAYLEN(crouchease) - 1)
+        if ((!aircontrol || player->onground || player->crouchtimer > 0) && player->crouchtimer < ARRAYLEN(crouchease) - 1)
         {
             player->crouchtimer++;
+            player->mo->height = FixedMul (player->mo->info->height, crouchease[player->crouchtimer]);
             player->deltaviewheight -= 1;
         }
+        if (aircontrol && player->crouchtimer == 0)
+            player->mo->momz -= FLYTHRUST;
     }
-    else
+    else if (player->crouchtimer > 0)
     {
-        if (player->crouchtimer > 0)
-        {
-            int origviewheight, viewheight;
+        int origviewheight, viewheight, testheight;
+        sector_t *sec = player->mo->subsector->sector;
 
+        testheight = FixedMul (player->mo->info->height, crouchease[player->crouchtimer - 1]);
+        if (sec->ceilingheight - sec->floorheight >= testheight)
+        {
             origviewheight = FixedMul (VIEWHEIGHT, crouchease[player->crouchtimer]);
             player->crouchtimer--;
             viewheight = FixedMul (VIEWHEIGHT, crouchease[player->crouchtimer]);
             player->deltaviewheight += viewheight - origviewheight;
+            player->mo->height = testheight;
         }
     }
 
-    player->mo->height = FixedMul (player->mo->info->height, crouchease[player->crouchtimer]);
-
-    if (player->jump
-            && (player->onground || player->falltimer < JUMPGRACE)
-            && player->mo->momz < JUMPTHRUST)
+    if (aircontrol)
     {
-        player->mo->momz = JUMPTHRUST;
-        player->falltimer = 30;
+        if (move->jumpheld)
+            player->mo->momz += FLYTHRUST;
+    }
+    else
+    {
+        if (move->jump
+                && (player->onground || player->falltimer < JUMPGRACE)
+                && player->mo->momz < JUMPTHRUST)
+        {
+            player->mo->momz = JUMPTHRUST;
+            player->falltimer = 30;
+        }
     }
 
     // [nova] change pitch along with angleturn
-    if (player->pitchmove)
+    if (move->pitchmove)
     {
         player->lookspring = 0;
-        player->pitch += player->pitchmove;
-        if (player->pitch >= ANG180 && player->pitch <= -MAXLOOKANGLE)
-            player->pitch = -MAXLOOKANGLE + FINEANGLES;
-        else if (player->pitch >= MAXLOOKANGLE)
-            player->pitch = MAXLOOKANGLE - FINEANGLES;
+        player->pitch += move->pitchmove;
+        if (player->pitch >= ANG180 && player->pitch <= 0xd0000000)
+            player->pitch = 0xd0000000 + FINEANGLES;
+        else if (player->pitch >= 0x30000000)
+            player->pitch = 0x30000000 - FINEANGLES;
     }
 
     // [nova] handle lookspring
@@ -725,8 +763,8 @@ void P_MovePlayer (player_t *player) // 8002282C
         }
         else
         {
-            if (player->forwardmove || player->sidemove)
-                player->lookspring += D_abs(player->forwardmove) + D_abs(player->sidemove);
+            if (move->forwardmove || move->sidemove)
+                player->lookspring += D_abs(move->forwardmove) + D_abs(move->sidemove);
             else if (player->lookspring >= (16 << FRACBITS))
                 player->lookspring += FRACUNIT;
 
@@ -997,8 +1035,10 @@ void P_PlayerThink (player_t *player) // 80022D60
 
 	if (!gamepaused)
 	{
+        buildmove_t move;
+
 		P_PlayerMobjThink(player->mo);
-		P_BuildMove(player);
+		P_BuildMove(player, &move);
 
         sec = player->mo->subsector->sector;
         if (sec->flags & (MS_SECRET | MS_DAMAGEX5 | MS_DAMAGEX10 | MS_DAMAGEX20 | MS_SCROLLFLOOR))
@@ -1015,10 +1055,10 @@ void P_PlayerThink (player_t *player) // 80022D60
 		/* */
 		if (player->mo->flags & MF_JUSTATTACKED)
 		{
-			player->angleturn = 0;
-			player->forwardmove = 0xc800;
-			player->sidemove = 0;
-			player->pitchmove = 0;
+			move.angleturn = 0;
+			move.forwardmove = 0xc800;
+			move.sidemove = 0;
+			move.pitchmove = 0;
 			player->mo->flags &= ~MF_JUSTATTACKED;
 		}
 
@@ -1030,7 +1070,7 @@ void P_PlayerThink (player_t *player) // 80022D60
 		if (player->mo->reactiontime)
 			player->mo->reactiontime--;
 		else
-			P_MovePlayer(player);
+			P_MovePlayer(player, &move);
 
 		P_CalcHeight(player);
 

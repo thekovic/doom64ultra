@@ -507,6 +507,7 @@ mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yof
 }
 
 
+extern fixed_t crouchease[];
 /*
 ================
 =
@@ -549,8 +550,9 @@ void P_SpawnPlayerMissile (mobj_t *source, mobjtype_t type) // 80019668
         offset = 0;
     }
 
-    if (source->player->crouch)
-        missileheight >>= 1;
+    if (source->player->crouchtimer)
+        missileheight = FixedMul (missileheight, crouchease[source->player->crouchtimer]);
+
     missileheight = (missileheight + (((missileheight >> 1) * finesine(pitch >> ANGLETOFINESHIFT)) >> FRACBITS)) << FRACBITS;
     offset = (offset*finecosine(pitch >> ANGLETOFINESHIFT)) >> FRACBITS;
 

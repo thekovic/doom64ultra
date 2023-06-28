@@ -573,8 +573,6 @@ typedef struct player_s
 	mobj_t		*mo;
 	playerstate_t	playerstate;
 
-	fixed_t		forwardmove, sidemove;	/* built from ticbuttons */
-	angle_t		angleturn;				/* built from ticbuttons */
 
 	fixed_t		viewz;					/* focal origin above r.z */
 	fixed_t		viewheight;				/* base height above floor for viewz */
@@ -627,12 +625,9 @@ typedef struct player_s
 	int			turnheld;				/* for accelerative turning */
 	int         onground;               /* [d64] */
     int         pitch;			// [Immorpher] Player vertical look information
-    int         pitchmove;
 	int			pitchheld;				/* for accelerative vlook */
     fixed_t     lookspring;
 
-    boolean     crouch;
-    boolean     jump;
 	int			falltimer;				/* for jump grace period */
 	int			crouchtimer;				/* for crouch easing */
 
@@ -640,10 +635,10 @@ typedef struct player_s
     playerconfig_t *config;
 } player_t;
 
-#define CF_NOCLIP       1       // no use
-#define CF_GODMODE      2
-#define CF_ALLMAP       4
-#define CF_DEBUG        64
+#define CF_NOCLIP       0x1       // no use
+#define CF_GODMODE      0x2
+#define CF_ALLMAP       0x4
+#define CF_DEBUG        0x40
 #define CF_TEX_TEST     0x200
 #define CF_SCREENSHOT 	0x400    // Original 0x1000
 #define CF_LOCKMOSTERS  0x800
@@ -656,6 +651,7 @@ typedef struct player_s
 #define CF_NOCOLORS     0x20000    // [GEC] NEW CHEAT CODE
 #define CF_FULLBRIGHT   0x40000    // [GEC] NEW CHEAT CODE
 #define CF_GAMMA		0x80000    // [Immorpher] NEW CHEAT CODE
+#define CF_FLYMODE      0x100000
 
 #define	AF_LINES		1				/* automap active on lines mode */
 #define	AF_SUBSEC		2               /* automap active on subsector mode */
