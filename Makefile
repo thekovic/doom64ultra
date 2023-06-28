@@ -95,7 +95,8 @@ ASFLAGS     := -mno-check-zero-division -march=vr4300 -mabi=32 $(foreach i,$(INC
 # $(foreach d,$(DEFINES),--defsym $(d))
 #
 ifeq ($(DEBUG),0)
-  CFLAGS += -O2
+  #CFLAGS += -Ofast -fno-unroll-loops -fno-peel-loops --param case-values-threshold=20 -fno-inline -finline-functions-called-once --param max-completely-peeled-insns=8
+  CFLAGS += -Os -finline-functions-called-once -ffast-math -falign-functions=32
 endif
 
 # C preprocessor flags
