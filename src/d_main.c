@@ -154,7 +154,7 @@ int I_Random(void) // [Immorpher] new randomizer
 
 void M_ClearRandom(void) // 80002980
 {
-	rndindex = prndindex = 0; // [Immorpher] new random index doesn't get reset
+	irndindex = rndindex = prndindex = 0;
 }
 
 /*
