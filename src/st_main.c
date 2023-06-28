@@ -228,17 +228,11 @@ extern u32 last_bsp_count;
 extern u32 last_phase3_count;
 extern u32 last_iter_count;
 
-struct color_t {
-    int r, g, b;
-};
-
 void ST_Drawer (void) // 80029DC0
 {
     byte        *src;
     player_t    *player;
-    weapontype_t weapon;
-    int ammo, ind, ms_alpha;
-    struct color_t hc;
+    int ind, ms_alpha;
 
     player = &players[0];
 
@@ -290,8 +284,20 @@ void ST_Drawer (void) // 80029DC0
         }
     }
 
+    if(debug)
+    {
+        for(int i = 0; i < debugcnt; i++)
+        {
+            int index = (i+debugstart)%ARRAYLEN(debugbuf);
+            ST_Message(debugX, (i*8) + debugY, debugbuf[index],0x00ff00ff);
+        }
+    }
 
     if (HUDopacity){
+        int crosshair, color, stat;
+        weapontype_t weapon;
+        ammotype_t ammotype;
+
         I_CheckGFX();
 
         if (globallump != (int)sfontlump)
@@ -351,45 +357,46 @@ void ST_Drawer (void) // 80029DC0
                                     (40 << 5), (0 << 5),
                                     (1 << 10), (1 << 10));
 
-        if (!ColoredHUD) { // skip the hud coloring
-            hc = (struct color_t) {224,0,0};
-        } else if (player->health <= 67) { // [Immorpher] colored hud
-            hc = (struct color_t) {224-96*player->health/67,128*player->health/67,0};
-        } else if (player->health <= 133) { // [Immorpher] colored hud
-            hc = (struct color_t) {256-256*player->health/133,128,64*player->health/133-32};
-        } else { // [Immorpher] colored hud
-            hc = (struct color_t) {256-192*player->health/200,288*player->health/200-160};
+        stat = player->health;
+        if (!ColoredHUD) {
+            color = PACKRGBA(224,0,0,HUDopacity);
+        } else if (stat <= 67) {
+            color = PACKRGBA(224-96*stat/67,128*stat/67,0, HUDopacity);
+        } else if (stat <= 133) {
+            color = PACKRGBA(256-256*stat/133,128,64*stat/133-32, HUDopacity);
+        } else {
+            color = PACKRGBA(0, 256-192*stat/200,288*stat/200-160, HUDopacity);
         }
 
-        // Crosshair (use health to draw it)
-        gDPSetPrimColor(GFX1++, 0, 0, hc.r, hc.g, hc.b, HUDopacity);
-        if (player->config->crosshair == 1) { // Dot
-            gSPTextureRectangle(GFX1++, 159 << 2, 120 << 2, 160 << 2, 121 << 2,
-                    G_TX_RENDERTILE,
-                    (39 << 5), (5 << 5),
-                    (1 << 10), (1 << 10));
-            gSPTextureRectangle(GFX1++, 159 << 2, 120 << 2, 160 << 2, 121 << 2,
-                    G_TX_RENDERTILE,
-                    (39 << 5), (5 << 5),
-                    (1 << 10), (1 << 10));
-        } else if (player->config->crosshair == 2) { // Cross
-            gSPTextureRectangle(GFX1++, 159 << 2, 119 << 2, 160 << 2, 122 << 2,
-                    G_TX_RENDERTILE,
-                    (40 << 5), (3 << 5),
-                    (1 << 10), (1 << 10)); // vertical
-            gSPTextureRectangle(GFX1++, 158 << 2, 120 << 2, 161 << 2, 121 << 2,
-                    G_TX_RENDERTILE,
-                    (23 << 5), (5 << 5),
-                    (1 << 10), (1 << 10)); // horizontal
-        } else if (player->config->crosshair == 3) { // Vertical
-            gSPTextureRectangle(GFX1++, 157 << 2, 120 << 2, 162 << 2, 121 << 2,
-                    G_TX_RENDERTILE,
-                    (55 << 5), (4 << 5),
-                    (1 << 10), (1 << 10)); // horizontal
-            gSPTextureRectangle(GFX1++, 159 << 2, 119 << 2, 160 << 2, 122 << 2,
-                    G_TX_RENDERTILE,
-                    (40 << 5), (3 << 5),
-                    (1 << 10), (1 << 10)); // vertical
+        // Crosshair (use health color to draw it)
+        crosshair = player->config->crosshair;
+        if (crosshair > 0)
+        {
+            gDPSetPrimColorD64(GFX1++, 0, 0, color);
+            if (crosshair == 1) { // Dot
+                gSPTextureRectangle(GFX1++, 159 << 2, 120 << 2, 160 << 2, 121 << 2,
+                        G_TX_RENDERTILE,
+                        (39 << 5), (5 << 5),
+                        0, 0);
+            } else if (crosshair == 2) { // Cross
+                gSPTextureRectangle(GFX1++, 159 << 2, 119 << 2, 160 << 2, 122 << 2,
+                        G_TX_RENDERTILE,
+                        (40 << 5), (3 << 5),
+                        (1 << 10), (1 << 10)); // vertical
+                gSPTextureRectangle(GFX1++, 158 << 2, 120 << 2, 161 << 2, 121 << 2,
+                        G_TX_RENDERTILE,
+                        (23 << 5), (5 << 5),
+                        (1 << 10), (1 << 10)); // horizontal
+            } else if (crosshair == 3) { // Vertical
+                gSPTextureRectangle(GFX1++, 157 << 2, 120 << 2, 162 << 2, 121 << 2,
+                        G_TX_RENDERTILE,
+                        (55 << 5), (4 << 5),
+                        (1 << 10), (1 << 10)); // horizontal
+                gSPTextureRectangle(GFX1++, 159 << 2, 119 << 2, 160 << 2, 122 << 2,
+                        G_TX_RENDERTILE,
+                        (40 << 5), (3 << 5),
+                        (1 << 10), (1 << 10)); // vertical
+            }
         }
 
         /* */
@@ -416,6 +423,11 @@ void ST_Drawer (void) // 80029DC0
         }
 
         /* */
+        /* Health */
+        /* */
+        ST_DrawNumber(22+HUDmargin, 227-HUDmargin, player->health, 0, color);
+
+        /* */
         /* Ammo */
         /* */
         weapon = player->pendingweapon;
@@ -423,49 +435,40 @@ void ST_Drawer (void) // 80029DC0
         if (weapon == wp_nochange)
             weapon = player->readyweapon;
 
-        if (weaponinfo[weapon].ammo != am_noammo)
+        ammotype = weaponinfo[weapon].ammo;
+
+        if (ammotype != am_noammo)
         {
-            ammo = player->ammo[weaponinfo[weapon].ammo];
-            if (ammo < 0)
-                ammo = 0;
+            stat = player->ammo[ammotype];
+            if (stat < 0)
+                stat = 0;
 
-            if (!ColoredHUD) { // skip the hud coloring
-                ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(224,0,0,HUDopacity)); // 0xe0000080
-            } else if (weaponinfo[weapon].ammo == am_clip) { // [Immorpher] clip ammo
-                ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(96,96,128,HUDopacity)); // [Immorpher] colored hud
-            } else if (weaponinfo[weapon].ammo == am_shell) { // [Immorpher] shell ammo
-                ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(196,32,0,HUDopacity)); // [Immorpher] colored hud
-            } else if (weaponinfo[weapon].ammo == am_cell) { // [Immorpher] cell ammo
-                ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(0,96,128,HUDopacity)); // [Immorpher] colored hud
-            } else { // [Immorpher] it must be rockets
-                ST_DrawNumber(160, 227-HUDmargin, ammo, 0, PACKRGBA(164,96,0,HUDopacity)); // [Immorpher] colored hud
+            if (!ColoredHUD) {
+                color = PACKRGBA(224,0,0,HUDopacity);
+            } else if (ammotype == am_clip) {
+                color = PACKRGBA(96,96,128,HUDopacity);
+            } else if (ammotype == am_shell) {
+                color = PACKRGBA(196,32,0,HUDopacity);
+            } else if (ammotype == am_cell) {
+                color = PACKRGBA(0,96,128,HUDopacity);
+            } else {
+                color = PACKRGBA(164,96,0,HUDopacity);
             }
+            ST_DrawNumber(160, 227-HUDmargin, stat, 0, color);
         }
-
-        /* */
-        /* Health */
-        /* */
-        ST_DrawNumber(22+HUDmargin, 227-HUDmargin, player->health, 0, PACKRGBA(hc.r,hc.g,hc.b,HUDopacity));
 
         /* */
         /* Armor */
         /* */
-        if (!ColoredHUD || player->armorpoints == 0) { // [Immorpher] No armor
-            ST_DrawNumber(298-HUDmargin, 227-HUDmargin, player->armorpoints, 0, PACKRGBA(224,0,0,HUDopacity)); // 0xe0000080
-        } else if (player->armortype == 1) { // [Immorpher] Green armor
-            ST_DrawNumber(298-HUDmargin, 227-HUDmargin, player->armorpoints, 0, PACKRGBA(0,128,64,HUDopacity));
-        } else { // [Immorpher] Blue armor
-            ST_DrawNumber(298-HUDmargin, 227-HUDmargin, player->armorpoints, 0, PACKRGBA(0,64,128,HUDopacity));
+        stat = player->armorpoints;
+        if (!ColoredHUD || stat == 0) {
+            color = PACKRGBA(224,0,0,HUDopacity);
+        } else if (player->armortype == 1) {
+            color = PACKRGBA(0,128,64,HUDopacity);
+        } else {
+            color = PACKRGBA(0,64,128,HUDopacity);
         }
-    }
-
-    if(debug)
-    {
-        for(int i = 0; i < debugcnt; i++)
-        {
-            int index = (i+debugstart)%ARRAYLEN(debugbuf);
-            ST_Message(debugX, (i*8) + debugY, debugbuf[index],0x00ff00ff);
-        }
+        ST_DrawNumber(298-HUDmargin, 227-HUDmargin, stat, 0, color);
     }
 }
 
@@ -869,7 +872,7 @@ void ST_DrawSymbol(int xpos, int ypos, int index, int color) // 8002ADEC
         globallump = sumbolslump;
     }
 
-    gDPSetPrimColorD64(GFX1++, 0, 0, color)
+    gDPSetPrimColorD64(GFX1++, 0, 0, color);
 
     // Load Image Data
     gDPSetTextureImage(GFX1++, G_IM_FMT_CI, G_IM_SIZ_8b ,
