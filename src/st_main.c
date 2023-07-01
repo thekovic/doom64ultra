@@ -6,7 +6,7 @@
 
 extern void P_RefreshBrightness(void);
 
-sbflash_t flashCards[6];    // 800A8180
+static sbflash_t flashCards[6];    // 800A8180
 boolean tryopen[6]; // 800A81E0
 
 byte *sfontlump;     // 800A81F8
@@ -16,7 +16,15 @@ int sumbolslump;    // 800A8204
 int err_text_x = 20;     // 800A8208
 int err_text_y = 20;     // 800A820C
 
-symboldata_t symboldata[] = // 8005B260
+typedef struct
+{
+    int      x;
+    int      y;
+    int      w;
+    int      h;
+} symboldata_t;
+
+static const symboldata_t symboldata[] = // 8005B260
 {
     {120, 14,  13, 13}, // 0
     {134, 14,   9, 13}, // 1
@@ -118,7 +126,7 @@ symboldata_t symboldata[] = // 8005B260
     {134, 96,   7, 13}, // Right arrow
 };
 
-int card_x[6] = {(78 << 2), (89 << 2), (100 << 2), (78 << 2), (89 << 2), (100 << 2)};      // 8005b870
+static int card_x[6] = {(78 << 2), (89 << 2), (100 << 2), (78 << 2), (89 << 2), (100 << 2)};      // 8005b870
 
 void ST_Init(void) // 80029BA0
 {
@@ -474,7 +482,7 @@ void ST_Drawer (void) // 80029DC0
 
 #define ST_FONTWHSIZE 8
 
-void ST_Message(int x,int y,char *text,int color) // 8002A36C
+void ST_Message(int x,int y,const char *text,int color) // 8002A36C
 {
     byte *src;
     byte c;
@@ -603,7 +611,7 @@ void ST_DrawNumber(int x, int y, int value, int mode, int color) // 8002A79C
 	}
 }
 
-void ST_DrawString(int x, int y, char *text, int color) // 8002A930
+void ST_DrawString(int x, int y, const char *text, int color) // 8002A930
 {
     byte c;
     int xpos, ypos, index;
@@ -835,7 +843,7 @@ void ST_UpdateFlash(void) // 8002AC30
 
 void ST_DrawSymbol(int xpos, int ypos, int index, int color) // 8002ADEC
 {
-    symboldata_t *symbol;
+    const symboldata_t *symbol;
     byte *data;
     int offset;
 

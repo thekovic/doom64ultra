@@ -134,17 +134,17 @@ typedef enum { MENU_STRINGS } menuentry_t;
 #undef _F
 
 #define _F(_id, _s) _s,
-char *MenuText[] = { MENU_STRINGS };
+const char *MenuText[] = { MENU_STRINGS };
 #undef _F
 
-menuitem_t Menu_Title[] =
+const menuitem_t Menu_Title[] =
 {
     { MTXT_NEW_GAME, 115, 170 },
     { MTXT_PASSWORD, 115, 190 },
 	{ MTXT_OPTIONS,  115, 210 },
 };
 
-menuitem_t Menu_Skill[] =
+const menuitem_t Menu_Skill[] =
 {
     { MTXT_SKILL1, 102, 70 },
     { MTXT_SKILL2, 102, 90},
@@ -154,7 +154,7 @@ menuitem_t Menu_Skill[] =
     { MTXT_RETURN, 102, 180},
 };
 
-menuitem_t Menu_Options[] =
+const menuitem_t Menu_Options[] =
 {
     { MTXT_GAMEPAD,    112, 60 },
     { MTXT_MOVEMENT,   112, 80 },
@@ -166,14 +166,14 @@ menuitem_t Menu_Options[] =
     { MTXT_RETURN,     112, 200},
 };
 
-menuitem_t Menu_Volume[] =
+const menuitem_t Menu_Volume[] =
 {
     { MTXT_MUSIC_VOLUME,  82, 60 },
     { MTXT_EFFECT_VOLUME, 82, 100},
     { MTXT_RETURN,        82, 140},
 };
 
-menuitem_t Menu_Movement[] =
+const menuitem_t Menu_Movement[] =
 {
     { MTXT_MOTION_BOB,    82, 60},
     { MTXT_SENSITIVITY,   82, 100},
@@ -183,7 +183,7 @@ menuitem_t Menu_Movement[] =
     { MTXT_RETURN,        82, 200},
 };
 
-menuitem_t Menu_Video[] =
+const menuitem_t Menu_Video[] =
 {
     { MTXT_TEXTURE_FILTER, 42, 60},
     { MTXT_SPRITE_FILTER,  42, 80},
@@ -194,7 +194,7 @@ menuitem_t Menu_Video[] =
     { MTXT_RETURN,         42, 180},
 };
 
-menuitem_t Menu_Display[] =
+const menuitem_t Menu_Display[] =
 {
     { MTXT_BRIGHTNESS,       82, 60 },
     { MTXT_FLASH_BRIGHTNESS, 82, 100},
@@ -204,7 +204,7 @@ menuitem_t Menu_Display[] =
     { MTXT_RETURN,           82, 200},
 };
 
-menuitem_t Menu_StatusHUD[] =
+const menuitem_t Menu_StatusHUD[] =
 {
     { MTXT_MARGIN,    82, 60},
     { MTXT_OPACITY,   82, 100},
@@ -214,7 +214,7 @@ menuitem_t Menu_StatusHUD[] =
     { MTXT_RETURN,    82, 200},
 };
 
-menuitem_t Menu_Defaults[] =
+const menuitem_t Menu_Defaults[] =
 {
     { MTXT_ORIGINAL,   102, 60},
     { MTXT_MERCILESS,  102, 80},
@@ -223,7 +223,7 @@ menuitem_t Menu_Defaults[] =
     { MTXT_RETURN,     102, 140},
 };
 
-menuitem_t Menu_Game[] =
+const menuitem_t Menu_Game[] =
 {
     { MTXT_PASSWORD,  122, 60 },
     { MTXT_OPTIONS,   122, 80 },
@@ -232,32 +232,32 @@ menuitem_t Menu_Game[] =
     { MTXT_CHEATS,    122, 140},
 };
 
-menuitem_t Menu_Quit[] =
+const menuitem_t Menu_Quit[] =
 {
     { MTXT_YES, 142, 100},
     { MTXT_NO,  142, 120},
 };
 
-menuitem_t Menu_DeleteNote[] =
+const menuitem_t Menu_DeleteNote[] =
 {
     { MTXT_YES, 142, 100},
     { MTXT_NO,  142, 120},
 };
 
-menuitem_t Menu_ControllerPakBad[] =
+const menuitem_t Menu_ControllerPakBad[] =
 {
     { MTXT_TRY_AGAIN,    120, 100},
     { MTXT_DONT_USE_PAK, 120, 120},
 };
 
-menuitem_t Menu_ControllerPakFull[] =
+const menuitem_t Menu_ControllerPakFull[] =
 {
     { MTXT_MANAGE_PAK,       110, 90 },
     { MTXT_CREATE_GAME_NOTE, 110, 110},
     { MTXT_DONT_USE_PAK,     110, 130},
 };
 
-menuitem_t Menu_CreateNote[] =
+const menuitem_t Menu_CreateNote[] =
 {
     { MTXT_YES,          110, 90 },
     { MTXT_DONT_USE_PAK, 110, 110},
@@ -265,7 +265,7 @@ menuitem_t Menu_CreateNote[] =
 };
 
 #define MAXFEATURES 14
-menuitem_t Menu_Features[MAXFEATURES] =
+const menuitem_t Menu_Features[MAXFEATURES] =
 {
     { MTXT_INVULNERABLE,   40, 50},
     { MTXT_FLY,            40, 60},
@@ -291,13 +291,13 @@ typedef struct
     int y;
 } credit_t;
 
-credit_t Ultra_Credits[] = {
+const credit_t Ultra_Credits[] = {
     {"PROGRAMMING          IMMORPHER",   20, 48},
     {                     "JNMARTIN84", 188, 58},
     {                     "NOVA",       188, 68}
 };
 
-credit_t Merciless_Credits[] =
+const credit_t Merciless_Credits[] =
 {
     {"PROGRAMMING          IMMORPHER",     20, 48},
 
@@ -322,7 +322,7 @@ menudata_t MenuData[8]; // 800A54F0
 int MenuAnimationTic;   // 800a5570
 int cursorpos;          // 800A5574
 int m_vframe1;          // 800A5578
-menuitem_t *MenuItem;   // 800A5578
+const menuitem_t *MenuItem;   // 800A5578
 int itemlines;          // 800A5580
 menufunc_t MenuCall;    // 800A5584
 
@@ -375,12 +375,12 @@ controls_t CurrentControls[MAXPLAYERS] __attribute__((aligned(16))) = {
 }
 };
 
-char *ControlSetupNames[MAXCONTROLSETUPS] =
+const char *ControlSetupNames[MAXCONTROLSETUPS] =
 {
     "Modern", "Classic", "Arcade", "Dark", "Hunter", "Action", "Nuke", "Fighter",
 };
 
-controls_t DefaultControlSetups[MAXCONTROLSETUPS] __attribute__((aligned(16))) = {
+const controls_t DefaultControlSetups[MAXCONTROLSETUPS] __attribute__((aligned(16))) = {
     // Modern
     {
         {{
@@ -2245,7 +2245,7 @@ void M_MenuClearCall(void) // 80008E6C
 
 void M_MenuTitleDrawer(void) // 80008E7C
 {
-    menuitem_t *item;
+    const menuitem_t *item;
     int i;
 
     if (MenuItem == Menu_Game)
@@ -2294,8 +2294,9 @@ void M_MenuTitleDrawer(void) // 80008E7C
 
 void M_FeaturesDrawer(void) // 800091C0
 {
-    char *text, textbuff[32];
-    menuitem_t *item;
+    const char *text;
+    char textbuff[32];
+    const menuitem_t *item;
     int i;
 
     ST_DrawString(-1, 20, "Cheats", text_alpha | 0xc0000000);
@@ -2414,7 +2415,7 @@ static void M_WmsCreditsDrawer(void)
     M_DrawBackground(29, 28, text_alpha, "WMSCRED2");
 }
 
-static void M_ModCreditsDrawer(credit_t *credits, int items)
+static void M_ModCreditsDrawer(const credit_t *credits, int items)
 {
     char *text;
     int i;
@@ -2447,7 +2448,7 @@ void M_ModCredits2Drawer(void)
 
 void M_VolumeDrawer(void) // 800095B4
 {
-    menuitem_t *item;
+    const menuitem_t *item;
     int i;
 
     ST_DrawString(-1, 20, "Sound", text_alpha | 0xc0000000);
@@ -2471,7 +2472,7 @@ void M_VolumeDrawer(void) // 800095B4
 void M_MovementDrawer(void) // 80009738
 {
     char *text;
-    menuitem_t *item;
+    const menuitem_t *item;
     int i, casepos;
 
     ST_DrawString(-1, 20, "Movement", text_alpha | 0xc0000000);
@@ -2530,7 +2531,7 @@ void M_MovementDrawer(void) // 80009738
 void M_VideoDrawer(void) // 80009884
 {
     char *text;
-    menuitem_t *item;
+    const menuitem_t *item;
     int i, casepos;
 
     ST_DrawString(-1, 20, "Video", text_alpha | 0xc0000000);
@@ -2595,7 +2596,7 @@ void M_VideoDrawer(void) // 80009884
 void M_DisplayDrawer(void) // 80009884
 {
     char *text;
-    menuitem_t *item;
+    const menuitem_t *item;
     int i, casepos;
 
     ST_DrawString(-1, 20, "Display", text_alpha | 0xc0000000);
@@ -2647,7 +2648,7 @@ void M_DisplayDrawer(void) // 80009884
 void M_StatusHUDDrawer(void) // 80009884
 {
     char *text;
-    menuitem_t *item;
+    const menuitem_t *item;
     int i, casepos;
 
     ST_DrawString(-1, 20, "Status HUD", text_alpha | 0xc0000000);
@@ -2709,7 +2710,7 @@ void M_StatusHUDDrawer(void) // 80009884
 
 void M_DefaultsDrawer(void) // [Immorpher] new defaults drawer
 {
-    menuitem_t *item;
+    const menuitem_t *item;
     int i, casepos;
 
     ST_DrawString(-1, 20, "Set Defaults", text_alpha | 0xc0000000);

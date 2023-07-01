@@ -236,11 +236,11 @@ typedef enum
 /* library replacements */
 /* */
 
-void D_memmove(void *dest, void *src);
+void D_memmove(void *dest, const void *src);
 void D_memset (void *dest, int val, int count);
-void D_memcpy (void *dest, void *src, int count);
-void D_strncpy (char *dest, char *src, int maxcount);
-int D_strncasecmp (char *s1, char *s2, int len);
+void D_memcpy (void *dest, const void *src, int count);
+void D_strncpy (char *dest, const char *src, int maxcount);
+int D_strncasecmp (const char *s1, const char *s2, int len);
 void D_strupr(char *s);
 int D_strlen(char *s);
 
@@ -663,7 +663,7 @@ typedef struct player_s
 
 #define MAXCONTROLSETUPS 8
 extern controls_t CurrentControls[MAXPLAYERS];
-extern controls_t DefaultControlSetups[MAXCONTROLSETUPS];
+extern const controls_t DefaultControlSetups[MAXCONTROLSETUPS];
 
 typedef struct __attribute__((aligned (4))){
     u32 magic;
@@ -945,18 +945,18 @@ typedef struct
 
 typedef struct
 {
-	menuitem_t *menu_item;
+	const menuitem_t *menu_item;
 	int item_lines;
 	menufunc_t menu_call;
 	int cursor_pos;
 } menudata_t;
 
 extern menudata_t MenuData[8];      // 800A54F0
-extern menuitem_t Menu_Game[5];     // 8005AAA4
+extern const menuitem_t Menu_Game[5];     // 8005AAA4
 extern int MenuAnimationTic;        // 800a5570
 extern int cursorpos;               // 800A5574
 extern int m_vframe1;               // 800A5578
-extern menuitem_t *MenuItem;        // 800A5578
+extern const menuitem_t *MenuItem;        // 800A5578
 extern int itemlines;               // 800A5580
 extern menufunc_t MenuCall;         // 800A5584
 
