@@ -118,7 +118,7 @@ extern fixed_t finesine(int x);
 extern fixed_t finecosine(int x);
 extern angle_t tantoangle(int x);
 */
-static inline fixed_t FixedDiv2(fixed_t a, fixed_t b)
+static INLINE_ALWAYS fixed_t FixedDiv2(fixed_t a, fixed_t b)
 {
     fixed_t flo;
 
@@ -137,7 +137,7 @@ static inline fixed_t FixedDiv2(fixed_t a, fixed_t b)
     return (fixed_t) flo;
 }
 
-static inline fixed_t FixedMul(fixed_t a, fixed_t b)
+static INLINE_ALWAYS fixed_t FixedMul(fixed_t a, fixed_t b)
 {
     fixed_t flo;
 
@@ -156,7 +156,7 @@ static inline fixed_t FixedMul(fixed_t a, fixed_t b)
     return (fixed_t) flo;
 }
 
-static inline fixed_t D_abs(fixed_t x)
+static INLINE_ALWAYS fixed_t D_abs(fixed_t x)
 {
     fixed_t _s = x >> 31;
     return (x ^ _s) - _s;
@@ -191,7 +191,7 @@ static inline fixed_t finesine(int x)
     return x * (98304 - ((x * x) >> 11)) >> 13;
 }
 
-static inline fixed_t finecosine(int x) {
+static INLINE_ALWAYS fixed_t finecosine(int x) {
     return finesine(x + 2048);
 }
 
