@@ -96,7 +96,12 @@ int	EV_Teleport( line_t *line, mobj_t *thing ) // 8000E3A0
             , thing->z + (thing->info->height>>1), MT_TELEPORTFOG);
         S_StartSound (fog, sfx_telept);
         if (thing->player)
+        {
             thing->reactiontime = 9;	/* don't move for a bit */ //[psx] changed to 9
+            thing->player->addfov = ANG1*54;
+            thing->player->pitch = 0;
+            thing->player->bfgcount = 60;
+        }
         thing->angle = m->angle;
         thing->momx = thing->momy = thing->momz = 0;
         return 1;
