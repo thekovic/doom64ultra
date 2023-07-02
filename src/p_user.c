@@ -676,60 +676,6 @@ void P_MovePlayer (player_t *player, const buildmove_t* move) // 8002282C
     player->mo->angle += vblsinframe[0] * move->angleturn;
 
     aircontrol = (player->cheats & CF_FLYMODE);
-    if(player->onground || aircontrol)
-    {
-        if (move->forwardmove)
-            P_Thrust (player, player->mo->angle, move->forwardmove);
-        if (move->sidemove)
-            P_Thrust (player, player->mo->angle-ANG90, move->sidemove);
-    }
-
-    if ((move->forwardmove || move->sidemove) && player->mo->state == &states[S_PLAY]
-            && (!aircontrol || player->onground))
-        P_SetMobjState (player->mo, S_PLAY_RUN1);
-
-    if (aircontrol ? move->crouchheld : move->crouch)
-    {
-        if ((!aircontrol || player->onground || player->crouchtimer > 0) && player->crouchtimer < ARRAYLEN(crouchease) - 1)
-        {
-            player->crouchtimer++;
-            player->mo->height = FixedMul (player->mo->info->height, crouchease[player->crouchtimer]);
-            player->deltaviewheight -= 1;
-        }
-        if (aircontrol && player->crouchtimer == 0)
-            player->mo->momz -= FLYTHRUST;
-    }
-    else if (player->crouchtimer > 0)
-    {
-        int origviewheight, viewheight, testheight;
-        sector_t *sec = player->mo->subsector->sector;
-
-        testheight = FixedMul (player->mo->info->height, crouchease[player->crouchtimer - 1]);
-        if (sec->ceilingheight - sec->floorheight >= testheight)
-        {
-            origviewheight = FixedMul (VIEWHEIGHT, crouchease[player->crouchtimer]);
-            player->crouchtimer--;
-            viewheight = FixedMul (VIEWHEIGHT, crouchease[player->crouchtimer]);
-            player->deltaviewheight += viewheight - origviewheight;
-            player->mo->height = testheight;
-        }
-    }
-
-    if (aircontrol)
-    {
-        if (move->jumpheld)
-            player->mo->momz += FLYTHRUST;
-    }
-    else
-    {
-        if (move->jump
-                && (player->onground || player->falltimer < JUMPGRACE)
-                && player->mo->momz < JUMPTHRUST)
-        {
-            player->mo->momz = JUMPTHRUST;
-            player->falltimer = 30;
-        }
-    }
 
     // [nova] change pitch along with angleturn
     if (move->pitchmove)
@@ -775,6 +721,77 @@ void P_MovePlayer (player_t *player, const buildmove_t* move) // 8002282C
     else
     {
         player->lookspring = 0;
+    }
+
+    if(player->onground || aircontrol)
+    {
+        if (move->forwardmove)
+        {
+            if (aircontrol && player->pitch)
+            {
+                fixed_t forwardmove;
+                int finepitch;
+
+                finepitch = player->pitch >> ANGLETOFINESHIFT;
+                forwardmove = FixedMul(move->forwardmove, finecosine(finepitch));
+                P_Thrust (player, player->mo->angle, forwardmove);
+                player->mo->momz += FixedMul(vblsinframe[0] * forwardmove, finesine(finepitch));
+            }
+            else
+            {
+                P_Thrust (player, player->mo->angle, move->forwardmove);
+            }
+        }
+
+        if (move->sidemove)
+            P_Thrust (player, player->mo->angle-ANG90, move->sidemove);
+    }
+
+    if ((move->forwardmove || move->sidemove) && player->mo->state == &states[S_PLAY]
+            && (!aircontrol || player->onground))
+        P_SetMobjState (player->mo, S_PLAY_RUN1);
+
+    if (aircontrol ? move->crouchheld : move->crouch)
+    {
+        if ((!aircontrol || player->onground || player->crouchtimer > 0) && player->crouchtimer < ARRAYLEN(crouchease) - 1)
+        {
+            player->crouchtimer++;
+            player->mo->height = FixedMul (player->mo->info->height, crouchease[player->crouchtimer]);
+            player->deltaviewheight -= 1;
+        }
+        if (aircontrol && player->crouchtimer == 0)
+            player->mo->momz -= vblsinframe[0] * FLYTHRUST;
+    }
+    else if (player->crouchtimer > 0)
+    {
+        int origviewheight, viewheight, testheight;
+        sector_t *sec = player->mo->subsector->sector;
+
+        testheight = FixedMul (player->mo->info->height, crouchease[player->crouchtimer - 1]);
+        if (sec->ceilingheight - sec->floorheight >= testheight)
+        {
+            origviewheight = FixedMul (VIEWHEIGHT, crouchease[player->crouchtimer]);
+            player->crouchtimer--;
+            viewheight = FixedMul (VIEWHEIGHT, crouchease[player->crouchtimer]);
+            player->deltaviewheight += viewheight - origviewheight;
+            player->mo->height = testheight;
+        }
+    }
+
+    if (aircontrol)
+    {
+        if (move->jumpheld)
+            player->mo->momz += vblsinframe[0] * FLYTHRUST;
+    }
+    else
+    {
+        if (move->jump
+                && (player->onground || player->falltimer < JUMPGRACE)
+                && player->mo->momz < JUMPTHRUST)
+        {
+            player->mo->momz = JUMPTHRUST;
+            player->falltimer = 30;
+        }
     }
 }
 
