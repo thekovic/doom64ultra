@@ -1044,6 +1044,19 @@ void P_PlayerThink (player_t *player) // 80022D60
         if (sec->flags & (MS_SECRET | MS_DAMAGEX5 | MS_DAMAGEX10 | MS_DAMAGEX20 | MS_SCROLLFLOOR))
             P_PlayerInSpecialSector(player, sec);
 
+        if (player->addfov > 0)
+        {
+            player->addfov -= ANG1*8;
+            if (player->addfov < 0)
+                player->addfov = 0;
+        }
+        if (player->addfov < 0)
+        {
+            player->addfov += ANG1*8;
+            if (player->addfov > 0)
+                player->addfov = 0;
+        }
+
 		if (player->playerstate == PST_DEAD)
 		{
 			P_DeathThink(player);

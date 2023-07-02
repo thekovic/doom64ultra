@@ -312,6 +312,9 @@ extern int      FogColor;           // 800A8124
 extern skyfunc_t       R_RenderSKY;        // 800A8130
 extern int      Skyfadeback;        // 800A814C
 
+extern const fixed_t aspectscale[3];
+extern const fixed_t invaspectscale[3];
+
 void R_SetupSky(void);
 
 /*--------*/
@@ -319,7 +322,7 @@ void R_SetupSky(void);
 /*--------*/
 void R_RenderAll(void);
 void R_RenderPSprites(void);
-
+void R_RenderPlane(leaf_t *leaf, int numverts, int zpos, int texture, int xpos, int ypos, int color);
 
 /* to get a global angle from cartesian coordinates, the coordinates are */
 /* flipped until they are in the first octant of the coordinate system, then */
@@ -351,6 +354,7 @@ extern	fixed_t		viewcos, viewsin;       //80077EC8, 80077EE0
 extern	angle_t		viewpitch;
 extern	fixed_t		viewpitchsin, viewpitchcos;
 extern	angle_t		viewmaxhalffov;
+extern	fixed_t		pitchoffset;
 
 extern	player_t	*viewplayer;            //80077D60
 

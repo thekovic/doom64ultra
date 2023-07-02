@@ -7,8 +7,6 @@
 #define FIRESKY_WIDTH   64
 #define FIRESKY_HEIGHT  64
 
-#define VINVFOV 0x9c399       /* ANGMAX/atan(3/4) */
-
 typedef enum
 {
     SKF_CLOUD       = 1,
@@ -303,12 +301,10 @@ extern Mtx R_ModelMatrix;
 void R_RenderClouds(void) // 80025878
 {
     int x, y;
-    int pitchoffset;
 
-    pitchoffset = FixedMul(((int)viewpitch) >> 16, VINVFOV * (SCREEN_HT/2)) >> 16;
-    if (pitchoffset < 136)
+    if (pitchoffset < 136*FRACUNIT)
     {
-        int yoff = 100+pitchoffset;
+        int yoff = 100+(pitchoffset>>FRACBITS);
         int color = FlashEnvColor;
 
         if (yoff < 0)
@@ -363,8 +359,7 @@ void R_RenderClouds(void) // 80025878
     gSPTexture(GFX1++, 0xe000, 0xe000, 0, G_TX_RENDERTILE, G_ON);
 
     gSPVertex(GFX1++, VTX1, 4, 0);
-    gSP1Triangle(GFX1++, 0, 2, 1, 0);
-    gSP1Triangle(GFX1++, 0, 3, 2, 0);
+    gSP2Triangles(GFX1++, 0, 2, 1, 0, 0, 3, 2, 0);
 
     VTX1 += 4;
 
@@ -382,7 +377,6 @@ void R_RenderSkyPic(int lump, int yoffset, boolean repeat) // 80025BDC
     int yl, yh = 0, nextyh;
     int ang;
     int lrs;
-    int pitchoffset;
     int spriteh;
 
     data = W_CacheLumpNum(lump, PU_CACHE, dec_jag);
@@ -411,10 +405,9 @@ void R_RenderSkyPic(int lump, int yoffset, boolean repeat) // 80025BDC
     gDPPipeSync(GFX1++);
 
     spriteh = ((spriteN64_t*)data)->height << 2;
-    pitchoffset = FixedMul(((int)viewpitch) >> 16, VINVFOV * (SCREEN_HT/2)) >> 14;
     lrs = (((tileh << 8) + 1) >> 1) - 1;
     yl = (yoffset << 2) - spriteh;
-    yl += pitchoffset;
+    yl += pitchoffset >> 14;
     if (repeat)
         while (yl > 0)
             yl -= spriteh;
@@ -423,7 +416,7 @@ void R_RenderSkyPic(int lump, int yoffset, boolean repeat) // 80025BDC
     {
         nextyh = yh + (tileh << 2);
 
-        if (!repeat && yl + nextyh <= 0)
+        if (repeat && yl + nextyh <= 0)
             continue;
 
         gDPSetTextureImage(GFX1++, G_IM_FMT_CI, G_IM_SIZ_16b , 1, src);
@@ -473,11 +466,8 @@ void R_RenderFireSky(void) // 80025F68
     byte *src, *srcoffset, *tmpSrc;
     int width, height, rand;
     int pixel, randIdx;
-    int ang, t;
-    int pitchoffset;
+    int ang, t, t2;
     int color;
-
-    pitchoffset = FixedMul(((int)viewpitch) >> 16, VINVFOV * (SCREEN_HT/2)) >> 16;
 
     gDPSetCycleType(GFX1++, G_CYC_FILL);
     gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
@@ -487,16 +477,16 @@ void R_RenderFireSky(void) // 80025F68
         color = FlashEnvColor;
         color = RGBATO551(color);
         gDPSetFillColor(GFX1++, (color << 16) | color);
-        gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, pitchoffset-1);
+        gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, (pitchoffset>>FRACBITS)-1);
     }
-    if (pitchoffset < 120)
+    if (pitchoffset < (120<<FRACBITS))
     {
         color = *(int*)SkyFireVertex[2].v.cn;
         color = R_MultColor(color, lights[255].rgba >> 8);
         color = R_AddColors(color, FlashEnvColor & 0xffffff00);
         color = RGBATO551(color);
         gDPSetFillColor(GFX1++, (color << 16) | color);
-        gDPFillRectangle(GFX1++, 0, pitchoffset + 120, SCREEN_WD-1, SCREEN_HT-1);
+        gDPFillRectangle(GFX1++, 0, (pitchoffset>>FRACBITS) + 120, SCREEN_WD-1, SCREEN_HT-1);
 
     }
 
@@ -597,13 +587,17 @@ void R_RenderFireSky(void) // 80025F68
 
     ang = (viewangle >> 22);
     t = ((-ang & 255) << 5);
+    t2 = t + (FixedMul(SCREEN_WD<<FRACBITS, invaspectscale[ScreenAspect])>>11);
 
     for (int i = 0; i < 4; i++)
-        VTX1[i].v.ob[1] -= pitchoffset;
+    {
+        VTX1[i].v.ob[0] = FixedMul(invaspectscale[ScreenAspect], VTX1[i].v.ob[0]<<FRACBITS)>>FRACBITS;
+        VTX1[i].v.ob[1] -= pitchoffset>>FRACBITS;
+    }
 
     VTX1[0].v.tc[0] = t;
-    VTX1[1].v.tc[0] = t + 0x2800;
-    VTX1[2].v.tc[0] = t + 0x2800;
+    VTX1[1].v.tc[0] = t2;
+    VTX1[2].v.tc[0] = t2;
     VTX1[3].v.tc[0] = t;
 
     gDPSetTextureImage(GFX1++, G_IM_FMT_I, G_IM_SIZ_16b , 1, buff);
@@ -618,8 +612,7 @@ void R_RenderFireSky(void) // 80025F68
     gSPTexture(GFX1++, (1024 << 6)-1, (512 << 6), 0, G_TX_RENDERTILE, G_ON);
 
     gSPVertex(GFX1++, VTX1, 4, 0);
-    gSP1Triangle(GFX1++, 0, 2, 1, 0);
-    gSP1Triangle(GFX1++, 0, 3, 2, 0);
+    gSP2Triangles(GFX1++, 0, 2, 1, 0, 0, 3, 2, 0);
 
     VTX1 += 4;
 }

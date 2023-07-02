@@ -2,9 +2,9 @@
 
 #include "doomdef.h"
 #include "p_local.h"
-extern void R_RenderPlane(leaf_t *leaf, int numverts, int zpos, int texture, int xpos, int ypos, int color);
+#include "r_local.h"
+#include "st_main.h"
 
-extern void ST_Message(int x,int y,char *text,int color);
 #define COLOR_RED     0xA40000FF
 #define COLOR_GREEN   0x00C000FF
 #define COLOR_BROWN   0x8A5C30ff

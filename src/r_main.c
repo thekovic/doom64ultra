@@ -39,6 +39,7 @@ fixed_t		viewcos, viewsin;       // 800A68A0,
 angle_t		viewpitch;
 fixed_t		viewpitchsin, viewpitchcos;
 angle_t		viewmaxhalffov;
+fixed_t		pitchoffset;
 player_t	*viewplayer;            // 800A688C, 800a68a4
 
 int			validcount;		/* increment every time a check is made */ // 800A6900
@@ -184,6 +185,14 @@ void R_RotateCameraMatrix(void)
 
 }
 
+#define VFOV (0x346feb89) // atan(3/4)*2
+const fixed_t aspectscale[3] = { FRACUNIT, 0xd555, 0xc000 }; // 1, 5/6, 3/4
+const fixed_t invaspectscale[3] = { FRACUNIT, 0x13333, 0x15555 }; // 1, 6/5, 4/3
+static const angle_t aspectfovs[3] = { ANG90, 0x4ccccccc, 0x55555555 }; // 90, 108, 120
+static const fixed_t aspectratios[3] = { 0x15555, 0x19999, 0x1c71c }; // 4/3, 16/10, 16/9
+static const fixed_t invaspectratios[3] = { 0xc000, 0xa000, 0x9000 }; // 3/4, 10/16, 9/16
+static const fixed_t invhalfvfov[3] = { 0x9c399, 0xb3f83, 0xc4334 }; // ANGMAX/atan(invaspectratios)
+
 /*
 ==============
 =
@@ -196,14 +205,29 @@ void R_RenderPlayerView(void) // 80023448
 {
     fixed_t Fnear, FnearA, FnearB;
     int finepitch, fineangle;
+    angle_t fov;
+    fixed_t hcot, vcot;
 
     viewplayer = &players[0];
+
+    fov = aspectfovs[ScreenAspect];
+    hcot = aspectscale[ScreenAspect];
+    vcot = aspectratios[0];
 
     if (cameratarget == players[0].mo)
     {
         viewz = players[0].viewz;
         viewpitch = players[0].recoilpitch + players[0].pitch;
         finepitch = viewpitch >> ANGLETOFINESHIFT;
+
+        if (players[0].addfov)
+        {
+            angle_t halfvfov = (VFOV + players[0].addfov) >> (1+ANGLETOFINESHIFT);
+
+            fov += players[0].addfov;
+            vcot = FixedDiv2(finecosine(halfvfov), finesine(halfvfov));
+            hcot = FixedDiv2(vcot, aspectratios[ScreenAspect]);
+        }
     }
     else
     {
@@ -223,46 +247,22 @@ void R_RenderPlayerView(void) // 80023448
     viewpitchsin = finesine(finepitch);
     viewpitchcos = finecosine(finepitch);
 
-    /*
-    fov = aspectfovs[ScreenAspect];
-    if (players[0].addfov)
-    {
-        fov += players[0].addfov;
-        hcot = FixedDiv2(aspectratios[0], fov);
-        vcot = FixedMul(hcot, aspectratios[ScreenAspect]);
-    }
-    else
-    {
-        hcot = FRACUNIT;
-        vcot = aspectratios[ScreenAspect];
-    }
     R_ProjectionMatrix.m[0][0] = hcot & 0xffff0000;
     R_ProjectionMatrix.m[2][0] = (hcot<<16) & 0xffff0000;
     R_ProjectionMatrix.m[0][2] = (vcot >> 16) & 0xffff;
     R_ProjectionMatrix.m[2][2] = vcot & 0xffff;
+
     if (viewpitch == 0)
     {
         viewmaxhalffov = fov >> 1;
     }
     else
     {
-        viewmaxhalffov = R_PointToPseudoAngle(FRACUNIT,
-                FixedMul(D_abs(viewpitchsin), invaspectratios[ScreenAspect]) - viewpitchcos) + ANG180;
-        if (viewmaxhalffov >= ANG90)
-                viewmaxhalffov = 0;
-    }
-    */
+        fixed_t corner;
 
-    if (viewpitch == 0)
-    {
-        viewmaxhalffov = ANG90 >> 1;
-    }
-    else
-    {
         /* rotate the closest corner of the frustum into into world space and get its angle */
-        viewmaxhalffov = R_PointToPseudoAngle(FRACUNIT,
-                FixedMul(D_abs(viewpitchsin), 0xc000) // 1/aspect == 3/4
-                - viewpitchcos) + ANG180;
+        corner = FixedMul(D_abs(viewpitchsin), invaspectratios[0]) - viewpitchcos;
+        viewmaxhalffov = R_PointToPseudoAngle(invaspectscale[ScreenAspect], corner) + ANG180;
         if (viewmaxhalffov >= ANG90)
                 viewmaxhalffov = 0;
     }
@@ -277,6 +277,7 @@ void R_RenderPlayerView(void) // 80023448
     // Phase 2
     if (rendersky)
     {
+        pitchoffset = FixedMul(((int)viewpitch) >> 16, invhalfvfov[ScreenAspect] * (SCREEN_HT/2));
         R_RenderFilter(filt_skies);
         R_RenderSKY();
     }

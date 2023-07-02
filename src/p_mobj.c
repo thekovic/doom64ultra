@@ -265,6 +265,7 @@ void P_SpawnPlayer(/*mapthing_t *mthing*/) // 80018F94
 	p->controls = &CurrentControls[0];
 	p->config = &playerconfigs[0];
 	p->pitch = 0;
+    p->addfov = 0;
 	cameratarget = p->mo;
 
 	P_SetupPsprites (0);		/* setup gun psprite	 */

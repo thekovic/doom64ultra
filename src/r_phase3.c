@@ -1126,7 +1126,7 @@ void R_RenderPSprites(void) // 80028f20
 	int				flagtranslucent;
 
 	boolean         palloaded;
-	byte		    *data;
+	spriteN64_t		*sprite;
 	byte		    *paldata;
 	byte		    *src;
 
@@ -1139,6 +1139,7 @@ void R_RenderPSprites(void) // 80028f20
 	int             width2;
 	int             yh;
 	int             x, y;
+	int             dsdx = 1 << 10;
 
 	I_CheckGFX();
 
@@ -1174,23 +1175,29 @@ draw:
 			sprframe = &sprdef->spriteframes[state->frame & FF_FRAMEMASK];
 			lump = sprframe->lump[0];
 
-            data = W_CacheLumpNum(lump, PU_CACHE, dec_jag);
+            sprite = W_CacheLumpNum(lump, PU_CACHE, dec_jag);
 
             tilecnt = 0;
-            tiles = ((spriteN64_t*)data)->tiles;
-            width = ((spriteN64_t*)data)->width;
-            tileh = ((spriteN64_t*)data)->tileheight;
+            tiles = sprite->tiles;
+            width = sprite->width;
+            tileh = sprite->tileheight;
             width2 = (width + 7) & ~7;
             tilew = tileh * width2;
-            height = ((spriteN64_t*)data)->height;
-            src = data + sizeof(spriteN64_t);
+            height = sprite->height;
+            src = ((byte*)sprite) + sizeof(spriteN64_t);
 
-            x = (((psp->sx >> 16) - ((spriteN64_t*)data)->xoffs) + 160) << 2;
-            y = (((psp->sy >> 16) - ((spriteN64_t*)data)->yoffs) + 239) << 2;
+            x = (((psp->sx >> 16) - sprite->xoffs) + 160) << 2;
+            y = (((psp->sy >> 16) - sprite->yoffs) + 239) << 2;
             if (viewplayer->onground)
             {
                 x += (quakeviewx >> 20);
                 y += (quakeviewy >> 14);
+            }
+            if (ScreenAspect)
+            {
+                x += (sprite->xoffs - FixedMul(aspectscale[ScreenAspect], sprite->xoffs)) << 2;
+                width = FixedMul(aspectscale[ScreenAspect], width);
+                dsdx = invaspectscale[ScreenAspect] >> 6;
             }
 
 			if (psp->state->frame & FF_FULLBRIGHT)
@@ -1218,11 +1225,11 @@ draw:
             {
                 palloaded = true;
 
-                if (((spriteN64_t*)data)->cmpsize & 1)
+                if (sprite->cmpsize & 1)
                 {
                 /* Loads the palette from the first frame of the animation,  */
                 /* which uses an odd number to get to the lump */
-                    paldata = W_CacheLumpNum((lump - (((spriteN64_t*)data)->cmpsize >> 1)),
+                    paldata = W_CacheLumpNum((lump - (sprite->cmpsize >> 1)),
                                              PU_CACHE, dec_jag);
 
                     paldata += (((spriteN64_t*)paldata)->cmpsize + sizeof(spriteN64_t));
@@ -1230,7 +1237,7 @@ draw:
                 else
                 {
                 /* Loads the palette if it is included in the image data */
-                    paldata = (src + ((spriteN64_t*)data)->cmpsize);
+                    paldata = (src + sprite->cmpsize);
                 }
 
                 /* Load Palette Data (256 colors) */
@@ -1269,7 +1276,7 @@ draw:
                                     (width << 2) + x, yh,
                                     0,
                                     0, 0,
-                                    (1 << 10), (1 << 10));
+                                    dsdx, (1 << 10));
 
                     height -= tileh;
                     if (height < tileh) {

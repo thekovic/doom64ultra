@@ -634,6 +634,7 @@ typedef struct player_s
 
 	int			falltimer;				/* for jump grace period */
 	int			crouchtimer;				/* for crouch easing */
+    int         addfov;
 
     controls_t *controls;
     playerconfig_t *config;
@@ -985,6 +986,7 @@ extern int brightness;              // 8005A7C8
 extern fixed_t MotionBob;				// [Immorpher] Motion Bob
 extern int VideoFilters[3];			// [nova] Independent filter select
 extern int TvMode;                  // [nova] interlace/aa
+extern int ScreenAspect;            // [nova] widescreen
 extern boolean DitherFilter;     	// [Immorpher] Dither Filter
 extern int ColorDither;     		// [Immorpher] Color Dither
 extern int FlashBrightness;     	// [Immorpher] Strobe brightness adjustment

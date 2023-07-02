@@ -675,7 +675,7 @@ void P_RefreshVideo(void) // [Immorpher] video refresh
     // default to silence compiler
     OSViMode *ViMode = OS_VI_NTSC_LPN1;
 
-    if(TvMode == 3)
+    if(TvMode == 3) // interlaced antialiasing
     {
         if(osTvType == OS_TV_PAL)
             ViMode = &osViModeTable[OS_VI_PAL_LAF1];
@@ -684,7 +684,7 @@ void P_RefreshVideo(void) // [Immorpher] video refresh
         else if(osTvType == OS_TV_MPAL)
             ViMode = &osViModeTable[OS_VI_MPAL_LAF1];
     }
-    else if(TvMode == 2)
+    else if(TvMode == 2) // interlaced
     {
         if(osTvType == OS_TV_PAL)
             ViMode = &osViModeTable[OS_VI_PAL_LPF1];
@@ -693,7 +693,7 @@ void P_RefreshVideo(void) // [Immorpher] video refresh
         else if(osTvType == OS_TV_MPAL)
             ViMode = &osViModeTable[OS_VI_MPAL_LPF1];
     }
-    else if(TvMode == 1)
+    else if(TvMode == 1) // antialiasing
     {
         if(osTvType == OS_TV_PAL)
             ViMode = &osViModeTable[OS_VI_PAL_LAN1];

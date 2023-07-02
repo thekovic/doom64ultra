@@ -16,8 +16,8 @@ int DrawerStatus;
 
 char *ControlText[] =   //8007517C
 {
-    "default: %s",
-    "  stick:",
+    "default  %s",
+    "  stick ",
 
     "move forward",
     "move backward",
@@ -50,6 +50,7 @@ u8 ControlMappings[] = {
     _F(MTXT_PASSWORD, "Password") \
     _F(MTXT_RESTART, "Restart Level") \
     _F(MTXT_RETURN, "\x90 Return") \
+    _F(MTXT_MRETURN, "Return") \
     _F(MTXT_YES, "Yes") \
     _F(MTXT_NO, "No") \
     \
@@ -88,7 +89,7 @@ u8 ControlMappings[] = {
     \
     _F(MTXT_OPTIONS, "Options") \
     \
-    _F(MTXT_GAMEPAD, "Gamepad") \
+    _F(MTXT_CONTROLS, "Controls") \
     \
     _F(MTXT_MOVEMENT, "Movement") \
     _F(MTXT_MOTION_BOB, "Motion Bob") \
@@ -102,26 +103,26 @@ u8 ControlMappings[] = {
     _F(MTXT_EFFECT_VOLUME, "Effect Volume") \
     \
     _F(MTXT_VIDEO, "Video") \
-    _F(MTXT_TEXTURE_FILTER, "Texture Filter:") \
-    _F(MTXT_SPRITE_FILTER, "Sprite Filter:") \
-    _F(MTXT_SKY_FILTER, "Sky Filter:") \
-    _F(MTXT_DITHER_FILTER, "Dither Filter:") \
-    _F(MTXT_COLOR_DITHER, "Color Dither:") \
-    _F(MTXT_TV_MODE, "TV Mode:") \
-    \
-    _F(MTXT_DISPLAY, "Display") \
     _F(MTXT_BRIGHTNESS, "Brightness") \
     _F(MTXT_FLASH_BRIGHTNESS, "Flash Brightness") \
+    _F(MTXT_ASPECT_RATIO, "Aspect Ratio") \
+    _F(MTXT_TEXTURE_FILTER, "Texture Filter") \
+    _F(MTXT_SPRITE_FILTER, "Sprite Filter") \
+    _F(MTXT_SKY_FILTER, "Sky Filter") \
+    _F(MTXT_DITHER_FILTER, "Dither Filter") \
+    _F(MTXT_COLOR_DITHER, "Color Dither") \
+    _F(MTXT_ANTIALIASING, "Anti-Aliasing") \
+    _F(MTXT_INTERLACING, "Interlacing") \
     _F(MTXT_CENTER_DISPLAY, "Center Display") \
-    _F(MTXT_STORY_TEXT, "Story Text:") \
-    _F(MTXT_MAP_STATS, "Map Stats:") \
     \
-    _F(MTXT_STATUS_HUD, "Status HUD") \
+    _F(MTXT_HUD, "HUD") \
     _F(MTXT_MARGIN, "Margin") \
     _F(MTXT_OPACITY, "Opacity") \
-    _F(MTXT_COLORED, "Colored:") \
-    _F(MTXT_CROSSHAIR, "Crosshair:") \
-    _F(MTXT_MESSAGES, "Messages:") \
+    _F(MTXT_COLORED, "Colored") \
+    _F(MTXT_CROSSHAIR, "Crosshair") \
+    _F(MTXT_MESSAGES, "Messages") \
+    _F(MTXT_STORY_TEXT, "Story Text") \
+    _F(MTXT_MAP_STATS, "Map Stats") \
     \
     _F(MTXT_DEFAULTS, "Defaults") \
     _F(MTXT_ORIGINAL, "Original") \
@@ -156,14 +157,13 @@ const menuitem_t Menu_Skill[] =
 
 const menuitem_t Menu_Options[] =
 {
-    { MTXT_GAMEPAD,    112, 60 },
-    { MTXT_MOVEMENT,   112, 80 },
-    { MTXT_SOUND,      112, 100},
-    { MTXT_VIDEO,      112, 120},
-    { MTXT_DISPLAY,    112, 140},
-    { MTXT_STATUS_HUD, 112, 160},
-    { MTXT_DEFAULTS,   112, 180},
-    { MTXT_RETURN,     112, 200},
+    { MTXT_CONTROLS, 112, 60 },
+    { MTXT_MOVEMENT, 112, 80 },
+    { MTXT_SOUND,    112, 100},
+    { MTXT_VIDEO,    112, 120},
+    { MTXT_HUD,      112, 140},
+    { MTXT_DEFAULTS, 112, 160},
+    { MTXT_RETURN,   112, 180},
 };
 
 const menuitem_t Menu_Volume[] =
@@ -185,33 +185,30 @@ const menuitem_t Menu_Movement[] =
 
 const menuitem_t Menu_Video[] =
 {
-    { MTXT_TEXTURE_FILTER, 42, 60},
-    { MTXT_SPRITE_FILTER,  42, 80},
-    { MTXT_SKY_FILTER,     42, 100},
-    { MTXT_DITHER_FILTER,  42, 120},
-    { MTXT_COLOR_DITHER,   42, 140},
-    { MTXT_TV_MODE,        42, 160},
-    { MTXT_RETURN,         42, 180},
-};
-
-const menuitem_t Menu_Display[] =
-{
-    { MTXT_BRIGHTNESS,       82, 60 },
-    { MTXT_FLASH_BRIGHTNESS, 82, 100},
-    { MTXT_CENTER_DISPLAY,   82, 140},
-    { MTXT_STORY_TEXT,       82, 160},
-    { MTXT_MAP_STATS,        82, 180},
-    { MTXT_RETURN,           82, 200},
+    { MTXT_BRIGHTNESS,       42, 60},
+    { MTXT_FLASH_BRIGHTNESS, 42, 70},
+    { MTXT_ASPECT_RATIO,     42, 80},
+    { MTXT_TEXTURE_FILTER,   42, 90},
+    { MTXT_SPRITE_FILTER,    42, 100},
+    { MTXT_SKY_FILTER,       42, 110},
+    { MTXT_DITHER_FILTER,    42, 120},
+    { MTXT_COLOR_DITHER,     42, 130},
+    { MTXT_ANTIALIASING,     42, 140},
+    { MTXT_INTERLACING,      42, 150},
+    { MTXT_CENTER_DISPLAY,   42, 160},
+    { MTXT_MRETURN,          42, 180},
 };
 
 const menuitem_t Menu_StatusHUD[] =
 {
-    { MTXT_MARGIN,    82, 60},
-    { MTXT_OPACITY,   82, 100},
-    { MTXT_COLORED,   82, 140},
-    { MTXT_CROSSHAIR, 82, 160},
-    { MTXT_MESSAGES,  82, 180},
-    { MTXT_RETURN,    82, 200},
+    { MTXT_MARGIN,     62, 60},
+    { MTXT_OPACITY,    62, 70},
+    { MTXT_COLORED,    62, 80},
+    { MTXT_CROSSHAIR,  62, 90},
+    { MTXT_MESSAGES,   62, 100},
+    { MTXT_STORY_TEXT, 62, 110},
+    { MTXT_MAP_STATS,  62, 120},
+    { MTXT_MRETURN,    62, 140},
 };
 
 const menuitem_t Menu_Defaults[] =
@@ -338,27 +335,28 @@ int EnableExpPak;       // 800A55A8
 
 //-----------------------------------------
 
-int MenuIdx = 0;                // 8005A7A4
-int text_alpha = 255;           // 8005A7A8
+int MenuIdx = 0;                 // 8005A7A4
+int text_alpha = 255;            // 8005A7A8
 int ConfgNumb[MAXPLAYERS] = {0}; // 8005A7AC
-int Display_X = 0;              // 8005A7B0
-int Display_Y = 0;              // 8005A7B4
-boolean enable_messages = true; // 8005A7B8
-int HUDopacity = 255;			// [Immorpher] HUD opacity
+int Display_X = 0;               // 8005A7B0
+int Display_Y = 0;               // 8005A7B4
+boolean enable_messages = true;  // 8005A7B8
+int HUDopacity = 255;            // [Immorpher] HUD opacity
 int SfxVolume = 100;             // 8005A7C0
-int MusVolume = 80;             // 8005A7C4
-int brightness = 125;             // 8005A7C8
-fixed_t MotionBob = 0x100000; // [Immorpher] Motion Bob works in hexadecimal
+int MusVolume = 80;              // 8005A7C4
+int brightness = 125;            // 8005A7C8
+fixed_t MotionBob = 0x100000;    // [Immorpher] Motion Bob works in hexadecimal
 int VideoFilters[3] = {0, 0, 0}; // [nova] Independent filter select
-int TvMode = 0;
-boolean DitherFilter = false; // [Immorpher] Dither filter
-int ColorDither = 0; // [Immorpher] Color dithering options (Off, Square, Bayer, Noise)
-int FlashBrightness = 32; // [Immorpher] Strobe brightness adjustment, will need to change to float
+int TvMode = 1;                  // [nova] AA, Interlacing
+int ScreenAspect = 0;            // [nova] select 4:3, 16:10, 16:9
+boolean DitherFilter = false;    // [Immorpher] Dither filter
+int ColorDither = 0;             // [Immorpher] Color dithering options (Off, Square, Bayer, Noise)
+int FlashBrightness = 32;        // [Immorpher] Strobe brightness adjustment, will need to change to float
 boolean runintroduction = false; // [Immorpher] New introduction sequence!
-boolean StoryText = false; // [Immorpher] Skip story cut scenes?
-boolean MapStats = false; // [Immorpher] Enable map statistics for automap?
-int HUDmargin = 20; // [Immorpher] HUD margin options (default 20)
-boolean ColoredHUD = true; // [Immorpher] Colored hud
+boolean StoryText = true;        // [Immorpher] Skip story cut scenes?
+boolean MapStats = false;        // [Immorpher] Enable map statistics for automap?
+int HUDmargin = 20;              // [Immorpher] HUD margin options (default 20)
+boolean ColoredHUD = true;       // [Immorpher] Colored hud
 
 boolean ConfigChanged = false;
 
@@ -853,7 +851,7 @@ int M_MenuTicker(void) // 80007E0C
             switch((menuentry_t) MenuItem[cursorpos].casepos)
             {
 
-            case MTXT_GAMEPAD:
+            case MTXT_CONTROLS:
                 if (truebuttons)
                 {
                     S_StartSound(NULL, sfx_pistol);
@@ -993,6 +991,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_RETURN:
+            case MTXT_MRETURN:
                 if (truebuttons)
                 {
                     S_StartSound(NULL, sfx_pistol);
@@ -1752,22 +1751,6 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
 
-            case MTXT_DISPLAY:
-                if (truebuttons)
-                {
-                    S_StartSound(NULL, sfx_pistol);
-                    M_SaveMenuData();
-
-                    SET_MENU(Menu_Display);
-                    MenuCall = M_DisplayDrawer;
-                    cursorpos = 0;
-
-                    MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
-                    M_RestoreMenuData(true);
-                    return ga_nothing;
-                }
-                break;
-
             case MTXT_MOTION_BOB:
                 if (buttons & PAD_RIGHT)
                 {
@@ -1805,6 +1788,27 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
 
+            case MTXT_ASPECT_RATIO:
+                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    ScreenAspect += 1;
+                    if (ScreenAspect > 2)
+                        ScreenAspect = 0;
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    ScreenAspect -= 1;
+                    if (ScreenAspect < 0)
+                        ScreenAspect = 2;
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+
             case MTXT_DITHER_FILTER:
                 if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
                         || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
@@ -1817,23 +1821,24 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
 
-            case MTXT_TV_MODE:
-                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+            case MTXT_ANTIALIASING:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    TvMode += 1;
-                    if (TvMode > 3)
-                        TvMode = 0;
+                    TvMode ^= 1;
                     P_RefreshVideo();
                     ConfigChanged = true;
                     return ga_nothing;
                 }
-                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                break;
+
+            case MTXT_INTERLACING:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    TvMode -= 1;
-                    if (TvMode < 0)
-                        TvMode = 3;
+                    TvMode ^= 2;
                     P_RefreshVideo();
                     ConfigChanged = true;
                     return ga_nothing;
@@ -2075,7 +2080,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
 
-            case MTXT_STATUS_HUD:
+            case MTXT_HUD:
                 if (truebuttons)
                 {
                     S_StartSound(NULL, sfx_pistol);
@@ -2538,7 +2543,7 @@ void M_VideoDrawer(void) // 80009884
 
     item = Menu_Video;
 
-    for(i = 0; i < 7; i++)
+    for(i = 0; i < itemlines; i++)
     {
         casepos = item->casepos;
 
@@ -2550,16 +2555,28 @@ void M_VideoDrawer(void) // 80009884
             else
                 text = "Off";
         }
-        else if (casepos == MTXT_TV_MODE)
+        else if (casepos == MTXT_ASPECT_RATIO)
         {
-            if (TvMode == 1)
-                text = "AA";
-            else if (TvMode == 2)
-                text = "Interlace";
-            else if (TvMode == 3)
-                text = "Inter AA";
+            if (ScreenAspect == 1)
+                text = "16:10";
+            else if (ScreenAspect == 2)
+                text = "16:9";
             else
-                text = "Normal";
+                text = "4:3";
+        }
+        else if (casepos == MTXT_ANTIALIASING)
+        {
+            if (TvMode & 1)
+                text = "On";
+            else
+                text = "Off";
+        }
+        else if (casepos == MTXT_INTERLACING)
+        {
+            if (TvMode & 2)
+                text = "On";
+            else
+                text = "Off";
         }
         else if (casepos == MTXT_DITHER_FILTER)
         {
@@ -2582,67 +2599,26 @@ void M_VideoDrawer(void) // 80009884
             text = NULL;
         }
 
-        if (text)
-            ST_DrawString(item->x + 170, item->y, text, text_alpha | 0xc0000000);
+        if (casepos == MTXT_BRIGHTNESS)
+        {
+            ST_DrawSymbol(item->x + 140, item->y, 68, text_alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 141 + brightness/2, item->y, 69, text_alpha | 0xffffff00);
+        }
+        else if (casepos == MTXT_FLASH_BRIGHTNESS)
+        {
+            ST_DrawSymbol(item->x + 140, item->y, 68, text_alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 141 + 100*FlashBrightness/32, item->y, 69, text_alpha | 0xffffff00);
+        }
 
-        ST_DrawString(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+        if (text)
+            ST_Message(item->x + 140, item->y, text, text_alpha | 0xc0000000);
+
+        ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
 
         item++;
     }
 
-    ST_DrawSymbol(Menu_Video[0].x - 37, Menu_Video[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
-}
-
-void M_DisplayDrawer(void) // 80009884
-{
-    char *text;
-    const menuitem_t *item;
-    int i, casepos;
-
-    ST_DrawString(-1, 20, "Display", text_alpha | 0xc0000000);
-
-    item = Menu_Display;
-
-    for(i = 0; i < itemlines; i++)
-    {
-        casepos = item->casepos;
-
-        if (casepos == MTXT_STORY_TEXT)
-        {
-            if (StoryText)
-                text = "On";
-            else
-                text = "Off";
-        }
-        else if (casepos == MTXT_MAP_STATS)
-        {
-            if (MapStats)
-                text = "On";
-            else
-                text = "Off";
-        }
-        else
-        {
-            text = NULL;
-        }
-
-        if (text)
-            ST_DrawString(item->x + 130, item->y, text, text_alpha | 0xc0000000);
-
-        ST_DrawString(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
-
-        item++;
-    }
-
-    // Brightness
-    ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
-    ST_DrawSymbol(brightness/2 + 83, 80, 69, text_alpha | 0xffffff00);
-
-    // Flash brightness
-    ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
-    ST_DrawSymbol(100*FlashBrightness/32 + 83, 80, 69, text_alpha | 0xffffff00);
-
-    ST_DrawSymbol(Menu_Display[0].x - 37, Menu_Display[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
+    ST_DrawSymbol(Menu_Video[0].x - 10, Menu_Video[cursorpos].y - 2, 78, text_alpha | 0x90600000);
 }
 
 void M_StatusHUDDrawer(void) // 80009884
@@ -2684,28 +2660,45 @@ void M_StatusHUDDrawer(void) // 80009884
             else
                 text = "Vertical";
         }
+        else if (casepos == MTXT_STORY_TEXT)
+        {
+            if (StoryText)
+                text = "On";
+            else
+                text = "Off";
+        }
+        else if (casepos == MTXT_MAP_STATS)
+        {
+            if (MapStats)
+                text = "On";
+            else
+                text = "Off";
+        }
         else
         {
             text = NULL;
         }
 
-        if (text)
-            ST_DrawString(item->x + 130, item->y, text, text_alpha | 0xc0000000);
+        if (casepos == MTXT_MARGIN)
+        {
+            ST_DrawSymbol(item->x + 100, item->y, 68, text_alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 101 + 100*HUDmargin/20, item->y, 69, text_alpha | 0xffffff00);
+        }
+        else if (casepos == MTXT_OPACITY)
+        {
+            ST_DrawSymbol(item->x + 100, item->y, 68, text_alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 101 + 100*HUDopacity/255, item->y, 69, text_alpha | 0xffffff00);
+        }
 
-        ST_DrawString(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+        if (text)
+            ST_Message(item->x + 100, item->y, text, text_alpha | 0xc0000000);
+
+        ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
 
         item++;
     }
 
-    // HUD Margin
-    ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
-    ST_DrawSymbol(100*HUDmargin/20 + 83, 80, 69, text_alpha | 0xffffff00);
-
-    // HUD Opacity
-    ST_DrawSymbol(82, 120, 68, text_alpha | 0xffffff00);
-    ST_DrawSymbol(100*HUDopacity/255 + 83, 120, 69, text_alpha | 0xffffff00);
-
-    ST_DrawSymbol(Menu_StatusHUD[0].x - 37, Menu_StatusHUD[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
+    ST_DrawSymbol(Menu_StatusHUD[0].x - 10, Menu_StatusHUD[cursorpos].y - 2, 78, text_alpha | 0x90600000);
 }
 
 void M_DefaultsDrawer(void) // [Immorpher] new defaults drawer
@@ -3752,13 +3745,13 @@ void M_ControlPadDrawer(void) // 8000B988
     char buffer [44];
     int c, stick;
 
-    ST_DrawString(-1, 20, "Gamepad", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Controls", text_alpha | 0xc0000000);
 
     if (ConfgNumb[0] == -1)
         sprintf(buffer, ControlText[0], "Custom");
     else
         sprintf(buffer, ControlText[0], ControlSetupNames[ConfgNumb[0]]);
-    ST_Message(20, 40, buffer, text_alpha | 0xffffff00);
+    ST_Message(20, 40, buffer, text_alpha | 0xc0000000);
 
     c = sprintf(buffer, ControlText[1]);
     stick = CurrentControls[0].STICK_MODE;
@@ -3770,7 +3763,7 @@ void M_ControlPadDrawer(void) // 8000B988
         sprintf(&buffer[c], " strafe");
     else if (stick & STICK_TURN)
         sprintf(&buffer[c], " turn");
-    ST_Message(20, 50, buffer, text_alpha | 0xffffff00);
+    ST_Message(20, 50, buffer, text_alpha | 0xc0000000);
 
     for(int i = 2; i < ARRAYLEN(ControlText); i++)
     {
@@ -3779,7 +3772,7 @@ void M_ControlPadDrawer(void) // 8000B988
         int y = ((i - 2) % CONTROLCOLSIZE) * 16 + 68;
         int len = D_strlen(ControlText[i]);
 
-        ST_Message(x + 98 - len * 8, y + 3, ControlText[i], text_alpha | 0xffffff00);
+        ST_Message(x + 98 - len * 8, y + 3, ControlText[i], text_alpha | 0xc0000000);
         if (code)
         {
             int symbol = button_code_to_symbol_index(code);
@@ -3788,11 +3781,11 @@ void M_ControlPadDrawer(void) // 8000B988
     }
 
     if (cursorpos < 2)
-        ST_DrawSymbol(10, cursorpos * 10 + 39, 78, text_alpha | 0xffffff00);
+        ST_DrawSymbol(10, cursorpos * 10 + 39, 78, text_alpha | 0x90600000);
     else if (cursorpos < 2 + CONTROLCOLSIZE)
-        ST_DrawSymbol(116, ((cursorpos - 2) * 16) + 69, 78, text_alpha | 0xffffff00);
+        ST_DrawSymbol(116, ((cursorpos - 2) * 16) + 69, 78, text_alpha | 0x90600000);
     else
-        ST_DrawSymbol(276, (cursorpos - 2) % CONTROLCOLSIZE * 16 + 69, 78, text_alpha | 0xffffff00);
+        ST_DrawSymbol(276, (cursorpos - 2) % CONTROLCOLSIZE * 16 + 70 , 78, text_alpha | 0x90600000);
 
     ST_DrawString(-1, 220, "press \x8d to exit", text_alpha | 0xffffff00);
 }
