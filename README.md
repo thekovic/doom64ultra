@@ -45,6 +45,7 @@ make REQUIRE_EXPANSION_PAK=0          # Disable expansion pak requirement screen
 make SKIP_INTRO=1                     # Skip the intro screens on boot and go straight to the menu
 make DEVWARP=XX                       # Warp to map number XX on boot
 make DEVWARP=XX DEVSKILL=2            # Warp to map number XX on boot, with the specified difficulty (0-4)
+make "DEVCHEATS=CF_GODMODE|CF_NOCLIP" # Spawn with cheats enabled (see doomdef.h for more CF_ flags)
 ```
 
 ## Contact

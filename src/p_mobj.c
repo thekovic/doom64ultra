@@ -99,7 +99,7 @@ extern boolean PB_CheckPosition(void);
 
 mobj_t *P_SpawnMapThing (mapthing_t *mthing) // 80018C24
 {
-	int			i, bit;
+	int			i, bit = 0;
 	mobj_t		*mobj;
 	fixed_t		x,y,z;
 	mobj_t		tmp_mobj;
@@ -223,8 +223,8 @@ void P_SpawnPlayer(/*mapthing_t *mthing*/) // 80018F94
 
 	p = &players[0];
 
-	if (p->playerstate == PST_REBORN)
-		G_PlayerReborn(0);
+    if (p->playerstate == PST_REBORN)
+        G_PlayerReborn(0);
     else
     {
         p->killcount = 0;
@@ -268,7 +268,10 @@ void P_SpawnPlayer(/*mapthing_t *mthing*/) // 80018F94
     p->addfov = 0;
 	cameratarget = p->mo;
 
-	P_SetupPsprites (0);		/* setup gun psprite	 */
+    if (p->cheats & (CF_WALLBLOCKING|CF_NOCLIP))
+        p->mo->flags |= MF_NOCLIP;
+
+    P_SetupPsprites (0);		/* setup gun psprite	 */
 
     if (doPassword != 0)
     {

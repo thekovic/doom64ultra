@@ -129,6 +129,9 @@ void G_PlayerReborn (int player) // 80004630
     p->maxammo[am_misl] = maxammo[am_misl];
 
     p->cheats |= globalcheats; // [GEC] Apply global cheat codes
+#ifdef DEVCHEATS
+    p->cheats |= (DEVCHEATS);
+#endif
 }
 
 /*============================================================================  */
