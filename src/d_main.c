@@ -38,10 +38,10 @@ void D_DoomMain(void *arg) // 800027C0
 
 #ifdef DEVWARP
     {
-        const char map[6] = DEVWARP;
-        startmap = ((u32) map[4]) - '0' + (((u32) map[3]) - '0') * 10;
+        const char map[] = DEVWARP;
+        startmap = MIN(((u32) map[1]) - '0' + (((u32) map[0]) - '0') * 10, TOTALMAPS);
 #ifdef DEVSKILL
-        startskill = (DEVSKILL);
+        startskill = MIN((DEVSKILL)-1, sk_nightmare);
 #else
         startskill = sk_medium;
 #endif

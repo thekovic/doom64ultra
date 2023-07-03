@@ -22,14 +22,14 @@ endif
 ifdef SKIP_INTRO
   OPTIONS += SKIP_INTRO
 endif
-ifdef DEVWARP
-  OPTIONS += DEVWARP="MAP$(shell printf "%02d" $(DEVWARP))"
+ifdef WARP
+  OPTIONS += DEVWARP="$(shell printf "%02d" $(WARP))"
 endif
-ifdef DEVSKILL
-  OPTIONS += DEVSKILL=$(DEVSKILL)
+ifdef SKILL
+  OPTIONS += DEVSKILL=$(SKILL)
 endif
-ifdef DEVCHEATS
-  OPTIONS += DEVCHEATS=$(DEVCHEATS)
+ifdef CHEATS
+  OPTIONS += DEVCHEATS=$(CHEATS)
 endif
 
 SRC_DIRS :=
