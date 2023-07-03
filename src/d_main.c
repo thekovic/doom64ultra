@@ -4,6 +4,7 @@
 #include "doomdef.h"
 #include "p_spec.h"
 #include "r_local.h"
+#include "config.h"
 
 int gamevbls;		            // 80063130 /* may not really be vbls in multiplayer */
 int gametic;		            // 80063134
@@ -36,13 +37,11 @@ void D_DoomMain(void *arg) // 800027C0
     oldticbuttons[0] = 0;
 
 #ifdef DEVWARP
-#define _STRINGIFY(x) (#x)
-#define STRINGIFY(x) _STRINGIFY(x)
     {
-        const char map[6] = STRINGIFY(DEVWARP);
+        const char map[6] = DEVWARP;
         startmap = ((u32) map[4]) - '0' + (((u32) map[3]) - '0') * 10;
 #ifdef DEVSKILL
-        startskill = DEVSKILL;
+        startskill = (DEVSKILL);
 #else
         startskill = sk_medium;
 #endif

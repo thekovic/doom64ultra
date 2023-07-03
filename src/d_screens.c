@@ -4,6 +4,7 @@
 #include "doomdef.h"
 #include "r_local.h"
 #include "st_main.h"
+#include "config.h"
 
 int D_RunDemo(char *name, skill_t skill, int map) // 8002B2D0
 {

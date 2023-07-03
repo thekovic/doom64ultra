@@ -8,7 +8,6 @@
 #include <ultra64.h>
 #include "ultratypes.h"
 #include <PR/ramrom.h>	/* needed for argument passing into the app */
-#include <assert.h>
 #include <libaudio.h>
 #include <stdarg.h>
 
@@ -225,12 +224,6 @@ typedef enum
 
 #define LASTLEVEL 34
 #define TOTALMAPS 33
-
-#ifdef DEVWARP
-#define DEVWARP_ENABLED 1
-#else
-#define DEVWARP_ENABLED 0
-#endif
 
 /* */
 /* library replacements */

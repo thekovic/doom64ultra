@@ -10,21 +10,26 @@ TARGET := $(TARGET_STRING)
 DEBUG ?= 0
 
 DEFINES := _FINALROM=1 F3DEX_GBI_2=1
+OPTIONS :=
+
 ifeq ($(DEBUG),0)
-  DEFINES += NDEBUG=1
+  OPTIONS += NDEBUG=1
 endif
 
 ifneq ($(REQUIRE_EXPANSION_PAK),0)
-  DEFINES += REQUIRE_EXPANSION_PAK
+  OPTIONS += REQUIRE_EXPANSION_PAK
 endif
 ifdef SKIP_INTRO
-  DEFINES += SKIP_INTRO
+  OPTIONS += SKIP_INTRO
 endif
 ifdef DEVWARP
-  DEFINES += DEVWARP=$(DEVWARP)
+  OPTIONS += DEVWARP="MAP$(shell printf "%02d" $(DEVWARP))"
 endif
 ifdef DEVSKILL
-  DEFINES += DEVSKILL=$(DEVSKILL)
+  OPTIONS += DEVSKILL=$(DEVSKILL)
+endif
+ifdef DEVCHEATS
+  OPTIONS += DEVCHEATS=$(DEVCHEATS)
 endif
 
 SRC_DIRS :=
@@ -56,6 +61,7 @@ BOOT_OBJ	:= $(BUILD_DIR)/boot.6102.o
 
 # Directories containing source files
 SRC_DIRS += src src/buffers src/asm
+ALL_DIRS := $(BUILD_DIR) $(addprefix $(BUILD_DIR)/,$(SRC_DIRS))
 
 C_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c))
 S_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.s))
@@ -69,6 +75,22 @@ O_FILES := $(foreach file,$(C_FILES),$(BUILD_DIR)/$(file:.c=.o)) \
 
 # Automatic dependency files
 DEP_FILES := $(O_FILES:.o=.d) $(ASM_O_FILES:.o=.d)  $(BUILD_DIR)/$(LD_SCRIPT).d
+
+# Make sure build directory exists before compiling anything
+$(shell mkdir -p $(ALL_DIRS))
+
+define nl
+
+
+endef
+
+# cache build options
+CONFIG_H := $(BUILD_DIR)/config.h
+C_OPTIONS = $(foreach d,$(OPTIONS),#define $(subst =, ,$(d))$(nl))
+
+ifneq ($(strip $(file < $(CONFIG_H))),$(strip $(C_OPTIONS)))
+    $(file > $(CONFIG_H),$(C_OPTIONS))
+endif
 
 #==============================================================================#
 # Compiler Options                                                             #
@@ -85,6 +107,7 @@ OBJCOPY   := $(N64_BINDIR)/mips-n64-objcopy
 INCLUDE_DIRS += /usr/include/n64 /usr/include/n64/PR $(BUILD_DIR) $(BUILD_DIR)/include src src/asm
 
 C_DEFINES := $(foreach d,$(DEFINES),-D$(d))
+LD_DEFINES := $(C_DEFINES) $(foreach d,$(OPTIONS),"-D$(d)")
 DEF_INC_CFLAGS := $(foreach i,$(INCLUDE_DIRS),-I$(i)) $(C_DEFINES)
 
 CFLAGS = -Wall -mno-check-zero-division -march=vr4300 -mtune=vr4300 \
@@ -129,11 +152,6 @@ default: $(ROM)
 clean:
 	$(RM) -r $(BUILD_DIR)
 
-ALL_DIRS := $(BUILD_DIR) $(addprefix $(BUILD_DIR)/,$(SRC_DIRS))
-
-# Make sure build directory exists before compiling anything
-DUMMY != mkdir -p $(ALL_DIRS)
-
 #==============================================================================#
 # Compilation Recipes                                                          #
 #==============================================================================#
@@ -156,9 +174,9 @@ $(BUILD_DIR)/%.o: %.s
 	$(V)$(CC) -c $(ASFLAGS) $(foreach i,$(INCLUDE_DIRS),-Wa,-I$(i)) -x assembler-with-cpp -MMD -MF $(BUILD_DIR)/$*.d  -o $@ $<
 
 # Run linker script through the C preprocessor
-$(BUILD_DIR)/$(LD_SCRIPT): src/$(LD_SCRIPT)
+$(BUILD_DIR)/$(LD_SCRIPT): src/$(LD_SCRIPT) $(CONFIG_H)
 	$(call print,Preprocessing linker script:,$<,$@)
-	$(V)$(CPP) $(CPPFLAGS) -DBUILD_DIR=$(BUILD_DIR) $(C_DEFINES) -MMD -MP -MT $@ -MF $@.d -o $@ $<
+	$(V)$(CPP) $(CPPFLAGS) -DBUILD_DIR=$(BUILD_DIR) $(LD_DEFINES) -MMD -MP -MT $@ -MF $@.d -o $@ $<
 
 $(BOOT_OBJ): $(BOOT)
 	$(V)$(OBJCOPY) -I binary -B mips -O elf32-bigmips $< $@

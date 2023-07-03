@@ -3,6 +3,13 @@
 #include "doomdef.h"
 #include "p_local.h"
 #include "p_saveg.h"
+#include "config.h"
+
+#ifdef DEVWARP
+#define DEVWARP_ENABLED 1
+#else
+#define DEVWARP_ENABLED 0
+#endif
 
 void G_PlayerReborn (int player);
 

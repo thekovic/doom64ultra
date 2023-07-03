@@ -40,11 +40,11 @@ make
 Additional options can be provided to configure or debug the ROM:
 
 ```sh
-make DEBUG=1                    # Don't strip debug symbols
-make REQUIRE_EXPANSION_PAK=0    # Disable expansion pak requirement screen
-make SKIP_INTRO=1               # Skip the intro screens on start and go straight to the menu
-make DEVWARP=MAPXX              # Warp to a map on start
-make DEVWARP=MAPXX DEVSKILL=2   # Warp to a map on start, with the specified difficulty (0-4)
+make DEBUG=1                          # Don't strip debug symbols
+make REQUIRE_EXPANSION_PAK=0          # Disable expansion pak requirement screen
+make SKIP_INTRO=1                     # Skip the intro screens on boot and go straight to the menu
+make DEVWARP=XX                       # Warp to map number XX on boot
+make DEVWARP=XX DEVSKILL=2            # Warp to map number XX on boot, with the specified difficulty (0-4)
 ```
 
 ## Contact
