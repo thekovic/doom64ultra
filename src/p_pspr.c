@@ -301,7 +301,7 @@ weaponinfo_t	weaponinfo[NUMWEAPONS] = // 8005AD80
 
 	{	/* plasma */
 /* ammo 		*/	am_cell,
-/* upstate 		*/	S_PLASMAUP,
+/* upstate 		*/	S_PLASMAANIM,
 /* downstate 	*/	S_PLASMADOWN,
 /* readystate 	*/	S_PLASMA,
 /* atkstate 	*/	S_PLASMA1,
