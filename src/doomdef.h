@@ -638,8 +638,8 @@ typedef struct player_s
 #define CF_ALLMAP       0x4
 #define CF_DEBUG        0x40
 #define CF_TEX_TEST     0x200
-#define CF_SCREENSHOT 	0x400    // Original 0x1000
-#define CF_LOCKMOSTERS  0x800
+#define CF_SCREENSHOT   0x400    // Original 0x1000
+#define CF_LOCKMONSTERS 0x800
 #define CF_WALLBLOCKING 0x1000
 #define CF_WEAPONS      0x2000
 #define CF_HEALTH       0x4000

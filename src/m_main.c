@@ -1514,7 +1514,7 @@ int M_MenuTicker(void) // 80007E0C
                         || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    players[0].cheats ^= CF_LOCKMOSTERS;
+                    players[0].cheats ^= CF_LOCKMONSTERS;
                     return ga_nothing;
                 }
                 break;
@@ -2353,7 +2353,7 @@ void M_FeaturesDrawer(void) // 800091C0
                 text = (!(players[0].mo->flags & MF_NOCLIP)) ? "ON": "OFF";
                 break;
             case MTXT_LOCK_MONSTERS:
-                text = (!(players[0].cheats & CF_LOCKMOSTERS)) ? "OFF": "ON";
+                text = (!(players[0].cheats & CF_LOCKMONSTERS)) ? "OFF": "ON";
                 break;
             case MTXT_SCREENSHOT:
                 text = (!(players[0].cheats & CF_SCREENSHOT)) ? "OFF": "ON";

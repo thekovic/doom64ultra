@@ -48,7 +48,7 @@ void P_RunMobjBase(void) // 8000CDE0
 	{
 	    /* Based on Doom 64 Ex */
 	    /*-----------------------------------------------------------------------------------*/
-        if((players[0].cheats & CF_LOCKMOSTERS) && !mo->player && mo->flags & MF_COUNTKILL) {
+        if((players[0].cheats & CF_LOCKMONSTERS) && !mo->player && mo->flags & MF_COUNTKILL) {
             continue;
         }
         /*-----------------------------------------------------------------------------------*/
@@ -67,7 +67,7 @@ void P_RunMobjBase(void) // 8000CDE0
 
 	    /* Based on Doom 64 Ex */
 	    /*-----------------------------------------------------------------------------------*/
-        if((players[0].cheats & CF_LOCKMOSTERS) && !mo->player && mo->flags & MF_COUNTKILL) {
+        if((players[0].cheats & CF_LOCKMONSTERS) && !mo->player && mo->flags & MF_COUNTKILL) {
             continue;
         }
         /*-----------------------------------------------------------------------------------*/
