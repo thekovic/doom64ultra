@@ -243,7 +243,7 @@ void P_PlayerZMovement (mobj_t *mo) // 80021f38
         }
         mo->z = mo->floorz;
     }
-    else if (mo->player->cheats & CF_FLYMODE)
+    else if ((mo->player->cheats & CF_FLYMODE) && mo->player->playerstate != PST_DEAD)
     {
         if (mo->momz > -STOPSPEED && mo->momz < STOPSPEED)
             mo->momz = 0;
