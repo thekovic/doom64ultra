@@ -209,6 +209,7 @@ void AM_Control (player_t *player) // 800004F4
                        PAD_L_TRIG | PAD_R_TRIG | 0xffff);
 }
 
+extern Mtx R_ProjectionMatrix;
 /*
 ==================
 =
@@ -235,6 +236,14 @@ void AM_Drawer (void) // 800009AC
 	char		killcount[20]; // [Immorpher] Automap kill count
 	char		itemcount[20]; // [Immorpher] Automap item count
 	char		secretcount[20]; // [Immorpher] Automap secret count
+    fixed_t     hcot, vcot;
+
+    hcot = aspectscale[ScreenAspect];
+    vcot = aspectratios[0];
+    R_ProjectionMatrix.m[0][0] = hcot & 0xffff0000;
+    R_ProjectionMatrix.m[2][0] = (hcot << 16) & 0xffff0000;
+    R_ProjectionMatrix.m[0][2] = (vcot >> 16) & 0xffff;
+    R_ProjectionMatrix.m[2][2] = vcot & 0xffff;
 
     gDPPipeSync(GFX1++);
     gDPSetCycleType(GFX1++, G_CYC_FILL);

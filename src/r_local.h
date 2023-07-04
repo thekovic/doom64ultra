@@ -314,6 +314,7 @@ extern int      Skyfadeback;        // 800A814C
 
 extern const fixed_t aspectscale[3];
 extern const fixed_t invaspectscale[3];
+extern const fixed_t aspectratios[3];
 
 void R_SetupSky(void);
 
@@ -354,7 +355,8 @@ extern	fixed_t		viewcos, viewsin;       //80077EC8, 80077EE0
 extern	angle_t		viewpitch;
 extern	fixed_t		viewpitchsin, viewpitchcos;
 extern	angle_t		viewmaxhalffov;
-extern	fixed_t		pitchoffset;
+extern	fixed_t 	viewhcot, viewvcot;
+extern	fixed_t		viewinvhcot, viewinvvcot;
 
 extern	player_t	*viewplayer;            //80077D60
 
