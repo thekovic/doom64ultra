@@ -247,7 +247,8 @@ void AM_Drawer (void) // 800009AC
     gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
     gDPSetRenderMode(GFX1++, G_RM_OPA_CI, G_RM_AA_OPA_SURF2);
 
-    R_RenderFilter(filt_textures);    // [GEC and Immorpher] New filter options
+    R_RenderFilter(filt_textures);
+    gSPTexture(GFX1++, (1024 << 6)-1, (1024 << 6)-1, 0, G_TX_RENDERTILE, G_ON);
 
     p = &players[0];
 
