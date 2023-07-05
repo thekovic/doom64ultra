@@ -268,8 +268,16 @@ void P_SpawnPlayer(/*mapthing_t *mthing*/) // 80018F94
     p->addfov = 0;
 	cameratarget = p->mo;
 
+#ifdef DEVCHEATS
     if (p->cheats & (CF_WALLBLOCKING|CF_NOCLIP))
         p->mo->flags |= MF_NOCLIP;
+    if (p->cheats & CF_WEAPONS)
+        P_GiveAllWeapons(p);
+    if (p->cheats & CF_ALLKEYS)
+        P_GiveAllKeys(p);
+    if (p->cheats & CF_ARTIFACTS)
+        p->artifacts |= 1 | 2 | 4;
+#endif
 
     P_SetupPsprites (0);		/* setup gun psprite	 */
 

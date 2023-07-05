@@ -147,6 +147,88 @@ boolean P_GiveWeapon (player_t *player, weapontype_t weapon, boolean dropped) //
 }
 
 
+void P_GiveAllWeapons (player_t *player)
+{
+    int i;
+
+    for(i = 0; i < NUMWEAPONS; i++) {
+        player->weaponowned[i] = true;
+    }
+
+    if (!player->backpack)
+    {
+        for (i=0 ; i<NUMAMMO ; i++)
+            player->maxammo[i] *= 2;
+        player->backpack = true;
+    }
+
+    for(i = 0; i < NUMAMMO; i++) {
+        player->ammo[i] = player->maxammo[i];
+    }
+}
+
+extern mapthing_t *spawnlist;   // 800A5D74
+extern int spawncount;          // 800A5D78
+
+void P_GiveAllKeys (player_t *player)
+{
+    mobj_t *m;
+    int i;
+
+    for (m = mobjhead.next; m != &mobjhead; m = m->next)
+    {
+        switch (m->type)
+        {
+        case MT_ITEM_BLUECARDKEY:
+            player->cards[it_bluecard] = true;
+            break;
+        case MT_ITEM_REDCARDKEY:
+            player->cards[it_redcard] = true;
+            break;
+        case MT_ITEM_YELLOWCARDKEY:
+            player->cards[it_yellowcard] = true;
+            break;
+        case MT_ITEM_YELLOWSKULLKEY:
+            player->cards[it_yellowskull] = true;
+            break;
+        case MT_ITEM_REDSKULLKEY:
+            player->cards[it_redskull] = true;
+            break;
+        case MT_ITEM_BLUESKULLKEY:
+            player->cards[it_blueskull] = true;
+            break;
+        default:
+            break;
+        }
+    }
+
+    for (i = 0; i < spawncount; i++)
+    {
+        switch (spawnlist[i].type)
+        {
+        case 5:
+            player->cards[it_bluecard] = true;
+            break;
+        case 13:
+            player->cards[it_redcard] = true;
+            break;
+        case 6:
+            player->cards[it_yellowcard] = true;
+            break;
+        case 39:
+            player->cards[it_yellowskull] = true;
+            break;
+        case 38:
+            player->cards[it_redskull] = true;
+            break;
+        case 40:
+            player->cards[it_blueskull] = true;
+            break;
+        default:
+            break;
+        }
+    }
+}
 
 /*
 ===================

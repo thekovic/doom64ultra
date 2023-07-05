@@ -1,6 +1,7 @@
 /* m_main.c -- menu routines */
 
 #include "doomdef.h"
+#include "p_local.h"
 #include "r_local.h"
 #include "st_main.h"
 
@@ -761,9 +762,6 @@ void M_MenuGameDrawer(void) // 80007C48
     }
 }
 
-extern mobj_t mobjhead;
-extern mapthing_t *spawnlist;   // 800A5D74
-extern int spawncount;          // 800A5D78
 extern int globalcheats; // [GEC]
 
 int M_MenuTicker(void) // 80007E0C
@@ -774,7 +772,6 @@ int M_MenuTicker(void) // 80007E0C
     int ret;
     int i;
     boolean padrepeat = false;
-    mobj_t *m;
 
     /* animate skull */
     if ((gamevbls < gametic) && ((gametic & 3U) == 0))
@@ -1317,59 +1314,7 @@ int M_MenuTicker(void) // 80007E0C
                     S_StartSound(NULL, sfx_switch2);
                     players[0].cheats |= CF_ALLKEYS;
 
-                    for (m = mobjhead.next; m != &mobjhead; m = m->next)
-                    {
-                        switch (m->type)
-                        {
-                        case MT_ITEM_BLUECARDKEY:
-                            players[0].cards[it_bluecard] = true;
-                            break;
-                        case MT_ITEM_REDCARDKEY:
-                            players[0].cards[it_redcard] = true;
-                            break;
-                        case MT_ITEM_YELLOWCARDKEY:
-                            players[0].cards[it_yellowcard] = true;
-                            break;
-                        case MT_ITEM_YELLOWSKULLKEY:
-                            players[0].cards[it_yellowskull] = true;
-                            break;
-                        case MT_ITEM_REDSKULLKEY:
-                            players[0].cards[it_redskull] = true;
-                            break;
-                        case MT_ITEM_BLUESKULLKEY:
-                            players[0].cards[it_blueskull] = true;
-                            break;
-                        default:
-                            break;
-                        }
-                    }
-
-                    for (i = 0; i < spawncount; i++)
-                    {
-                        switch (spawnlist[i].type)
-                        {
-                        case 5:
-                            players[0].cards[it_bluecard] = true;
-                            break;
-                        case 13:
-                            players[0].cards[it_redcard] = true;
-                            break;
-                        case 6:
-                            players[0].cards[it_yellowcard] = true;
-                            break;
-                        case 39:
-                            players[0].cards[it_yellowskull] = true;
-                            break;
-                        case 38:
-                            players[0].cards[it_redskull] = true;
-                            break;
-                        case 40:
-                            players[0].cards[it_blueskull] = true;
-                            break;
-                        default:
-                            break;
-                        }
-                    }
+                    P_GiveAllKeys(&players[0]);
 
                     return ga_nothing;
                 }
@@ -1382,20 +1327,7 @@ int M_MenuTicker(void) // 80007E0C
                     S_StartSound(NULL, sfx_switch2);
                     players[0].cheats |= CF_WEAPONS;
 
-                    for(i = 0; i < NUMWEAPONS; i++) {
-                        players[0].weaponowned[i] = true;
-                    }
-
-                    if (!players[0].backpack)
-                    {
-                        for (i=0 ; i<NUMAMMO ; i++)
-                            players[0].maxammo[i] *= 2;
-                        players[0].backpack = true;
-                    }
-
-                    for(i = 0; i < NUMAMMO; i++) {
-                        players[0].ammo[i] = players[0].maxammo[i];
-                    }
+                    P_GiveAllWeapons(&players[0]);
 
                     return ga_nothing;
                 }
@@ -2186,9 +2118,8 @@ int M_MenuTicker(void) // 80007E0C
                 if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
                         || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                 {
-                    players[0].artifacts |= 4;
-                    players[0].artifacts |= 2;
-                    players[0].artifacts |= 1;
+                    players[0].cheats |= CF_ARTIFACTS;
+                    players[0].artifacts |= 1 | 2 | 4;
 
                     S_StartSound(NULL, sfx_switch2);
                     return ga_nothing;
@@ -2377,7 +2308,7 @@ void M_FeaturesDrawer(void) // 800091C0
                 text = (!(players[0].cheats & CF_GAMMA)) ? "OFF": "ON";
                 break;
             case MTXT_ARTIFACTS:
-                text = (!(players[0].artifacts & 1 && players[0].artifacts & 2 && players[0].artifacts & 4)) ? "-" : "100%";
+                text = (!(players[0].cheats & CF_ARTIFACTS)) ? "OFF": "ON";
                 break;
             default:
                 text = NULL; // [Immorpher] set to null for credits menu

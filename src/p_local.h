@@ -286,6 +286,9 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher);
 
 void P_DamageMobj (mobj_t *target, mobj_t *inflictor, mobj_t *source, int damage);
 
+void P_GiveAllWeapons (player_t *player);
+void P_GiveAllKeys (player_t *player);
+
 #include "p_spec.h"
 
 /*

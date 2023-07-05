@@ -648,8 +648,9 @@ typedef struct player_s
 
 #define CF_NOCOLORS     0x20000    // [GEC] NEW CHEAT CODE
 #define CF_FULLBRIGHT   0x40000    // [GEC] NEW CHEAT CODE
-#define CF_GAMMA		0x80000    // [Immorpher] NEW CHEAT CODE
+#define CF_GAMMA        0x80000    // [Immorpher] NEW CHEAT CODE
 #define CF_FLYMODE      0x100000
+#define CF_ARTIFACTS    0x200000
 
 #define	AF_LINES		1				/* automap active on lines mode */
 #define	AF_SUBSEC		2               /* automap active on subsector mode */
