@@ -31,7 +31,13 @@ packages with apt-get:
 sudo apt-get install binutils-mips-n64 gcc-mips-n64 newlib-mips-n64 n64sdk-common n64sdk makemask
 ```
 
-Once the SDK packages are installed, the rom can be built by invoking "make":
+The data files from the original game must be placed in the `data` folder in
+order to build. The required files are: DOOM64.WAD, DOOM64.WMD, DOOM64.WSD,
+DOOM64.WDD. Currently these can be extracted from the original game ROM using the
+[extractor tool from DOOM64-RE](https://github.com/Erick194/DOOM64-RE/tree/f3792388b43d6fcef087b953f117f4df1bfd261e/doom64/Tools).
+
+Once the SDK packages are installed and the data is in place, the rom can be
+built by invoking "make":
 
 ```sh
 make
