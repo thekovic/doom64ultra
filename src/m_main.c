@@ -1367,10 +1367,13 @@ int M_MenuTicker(void) // 80007E0C
             case MTXT_CHEATS:
                 if (truebuttons)
                 {
+                    int cheats;
+
                     S_StartSound(NULL, sfx_pistol);
                     M_SaveMenuData();
 
-                    players[0].cheats &= 0xffff1fff;
+                    cheats = players[0].cheats;
+                    players[0].cheats &= ~(CF_WEAPONS|CF_HEALTH|CF_ALLKEYS);
 
                     SET_MENU(Menu_Features);
                     MenuCall = M_FeaturesDrawer;
@@ -1379,6 +1382,7 @@ int M_MenuTicker(void) // 80007E0C
 
                     exit = MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
                     M_RestoreMenuData((exit == ga_exit));
+                    players[0].cheats = cheats;
 
                     if (exit == ga_exit)
                         return ga_nothing;

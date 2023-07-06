@@ -2,6 +2,7 @@
 
 #include "doomdef.h"
 #include "p_local.h"
+#include "config.h"
 
 void G_PlayerReborn (int player);
 
