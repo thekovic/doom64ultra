@@ -9,11 +9,11 @@ TARGET := $(TARGET_STRING)
 
 DEBUG ?= 0
 
-DEFINES := _FINALROM=1 F3DEX_GBI_2=1
+DEFINES :=
 OPTIONS :=
 
 ifeq ($(DEBUG),0)
-  OPTIONS += NDEBUG=1
+  DEFINES += NDEBUG=1
 endif
 
 ifneq ($(REQUIRE_EXPANSION_PAK),0)
@@ -95,6 +95,12 @@ ifneq ($(strip $(file < $(CONFIG_H))),$(strip $(C_OPTIONS)))
     $(file > $(CONFIG_H),$(C_OPTIONS))
 endif
 
+DEFINES_TXT := $(BUILD_DIR)/defines.txt
+
+ifneq ($(strip $(file < $(DEFINES_TXT))),$(strip $(DEFINES)))
+    $(file > $(DEFINES_TXT),$(DEFINES))
+endif
+
 #==============================================================================#
 # Compiler Options                                                             #
 #==============================================================================#
@@ -109,6 +115,7 @@ OBJCOPY   := $(N64_BINDIR)/mips-n64-objcopy
 
 INCLUDE_DIRS += /usr/include/n64 /usr/include/n64/PR $(BUILD_DIR) $(BUILD_DIR)/include src src/asm
 
+DEFINES += _FINALROM=1 F3DEX_GBI_2=1
 C_DEFINES := $(foreach d,$(DEFINES),-D$(d))
 LD_DEFINES := $(C_DEFINES) $(foreach d,$(OPTIONS),"-D$(d)")
 DEF_INC_CFLAGS := $(foreach i,$(INCLUDE_DIRS),-I$(i)) $(C_DEFINES)
@@ -164,20 +171,20 @@ $(BUILD_DIR)/DOOM64.%.o: data/DOOM64.%
 	$(V)$(LD) -r -b binary $< -o $@
 
 # Compile C code
-$(BUILD_DIR)/%.o: %.c
+$(BUILD_DIR)/%.o: %.c $(DEFINES_TXT)
 	$(call print,Compiling:,$<,$@)
 	$(V)$(CC) -c $(CFLAGS) -MMD -MF $(BUILD_DIR)/$*.d  -o $@ $<
-$(BUILD_DIR)/%.o: $(BUILD_DIR)/%.c
+$(BUILD_DIR)/%.o: $(BUILD_DIR)/%.c $(DEFINES_TXT)
 	$(call print,Compiling:,$<,$@)
 	$(V)$(CC) -c $(CFLAGS) -MMD -MF $(BUILD_DIR)/$*.d  -o $@ $<
 
 # Assemble assembly code
-$(BUILD_DIR)/%.o: %.s
+$(BUILD_DIR)/%.o: %.s $(DEFINES_TXT)
 	$(call print,Assembling:,$<,$@)
 	$(V)$(CC) -c $(ASFLAGS) $(foreach i,$(INCLUDE_DIRS),-Wa,-I$(i)) -x assembler-with-cpp -MMD -MF $(BUILD_DIR)/$*.d  -o $@ $<
 
 # Run linker script through the C preprocessor
-$(BUILD_DIR)/$(LD_SCRIPT): src/$(LD_SCRIPT) $(CONFIG_H)
+$(BUILD_DIR)/$(LD_SCRIPT): src/$(LD_SCRIPT) $(CONFIG_H) $(DEFINES_TXT)
 	$(call print,Preprocessing linker script:,$<,$@)
 	$(V)$(CPP) $(CPPFLAGS) -DBUILD_DIR=$(BUILD_DIR) $(LD_DEFINES) -MMD -MP -MT $@ -MF $@.d -o $@ $<
 
