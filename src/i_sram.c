@@ -5,18 +5,18 @@
 #include "st_main.h"
 
 boolean SramPresent = false;
+static u32 SramSize = 0x20000;
 
 #define SRAM_MAGIC 0x44363455 // 'D64U'
 #define QUICKSAVE_MAGIC 0x44363453 // 'D64S'
 #define SRAM_DATA_VERSION 0
-#define SRAM_SIZE 0x20000
 
 #define HEADER_ADDR 0
 #define CONFIG_ADDR 8
 #define SAVE_ADDR (CONFIG_ADDR + sizeof(config_t))
 #define QUICKSAVE_ADDR (SAVE_ADDR + sizeof(levelsave_t) * MAXSRAMSAVES)
-#define FOOTER_ADDR (SRAM_SIZE - 8)
-#define QUICKSAVE_SIZE (SRAM_SIZE - QUICKSAVE_ADDR - 8)
+#define FOOTER_ADDR (SramSize - 8)
+#define QUICKSAVE_SIZE (SramSize - QUICKSAVE_ADDR - 8)
 
 static OSPiHandle SramHandle __attribute__((aligned(8)));
 
@@ -67,9 +67,16 @@ static void ReadWriteSram(u32 addr, void* buf, u32 size, s32 flag)
     }
 }
 
+typedef struct  __attribute__((aligned(8))) {
+    u32 magic;
+    u32 small: 1;
+    u32 version: 31;
+} sramheader_t;
+
 void I_InitSram(void)
 {
-    int header[2] __attribute__((aligned(16)));
+    sramheader_t header;
+    sramheader_t empty = { 0, 0, 0};
 
     if (SramHandle.baseAddress == PHYS_TO_K1(SRAM_START_ADDR))
         return;
@@ -87,27 +94,44 @@ void I_InitSram(void)
     osEPiLinkHandle(&SramHandle);
 
     // try to read from start and end to ensure we have the correct size
-    ReadWriteSram(0, header, sizeof header, OS_READ);
-    if (header[0] == SRAM_MAGIC && header[1] == SRAM_DATA_VERSION)
+    ReadWriteSram(0, &header, sizeof header, OS_READ);
+    if (header.magic == SRAM_MAGIC && header.version == SRAM_DATA_VERSION)
     {
-        ReadWriteSram(FOOTER_ADDR, header, sizeof header, OS_READ);
-        if (header[0] == SRAM_MAGIC && header[1] == SRAM_DATA_VERSION)
+        ReadWriteSram(FOOTER_ADDR, &header, sizeof header, OS_READ);
+        if (header.magic == SRAM_MAGIC && header.version == SRAM_DATA_VERSION)
+        {
+            if (header.small)
+                SramSize = 0x8000;
             SramPresent = true;
+        }
     }
 
     // could be uninitialized, try to initialize and then check again
     if (!SramPresent)
     {
-        header[0] = SRAM_MAGIC;
-        header[1] = SRAM_DATA_VERSION;
-        ReadWriteSram(0, header, sizeof header, OS_WRITE);
-        ReadWriteSram(0, header, sizeof header, OS_READ);
-        if (header[0] == SRAM_MAGIC && header[1] == SRAM_DATA_VERSION)
+        header.magic = SRAM_MAGIC;
+        header.version = SRAM_DATA_VERSION;
+        header.small = 0;
+        ReadWriteSram(0, &header, sizeof header, OS_WRITE);
+        ReadWriteSram(0, &header, sizeof header, OS_READ);
+        if (header.magic == SRAM_MAGIC && header.version == SRAM_DATA_VERSION)
         {
-            ReadWriteSram(FOOTER_ADDR, header, sizeof header, OS_WRITE);
-            ReadWriteSram(FOOTER_ADDR, header, sizeof header, OS_READ);
-            if (header[0] == SRAM_MAGIC && header[1] == SRAM_DATA_VERSION)
+            ReadWriteSram(0x8000 - 8, &empty, sizeof empty, OS_WRITE);
+            ReadWriteSram(FOOTER_ADDR, &header, sizeof header, OS_WRITE);
+            ReadWriteSram(FOOTER_ADDR, &header, sizeof header, OS_READ);
+            if (header.magic == SRAM_MAGIC && header.version == SRAM_DATA_VERSION)
+            {
+                // check if the write was mirrored to the low bank
+                ReadWriteSram(0x8000 - 8, &header, sizeof header, OS_READ);
+                if (header.magic == SRAM_MAGIC && header.version == SRAM_DATA_VERSION)
+                {
+                    SramSize = 0x8000;
+                    header.small = 1;
+                    ReadWriteSram(0, &header, sizeof header, OS_WRITE);
+                    ReadWriteSram(FOOTER_ADDR, &header, sizeof header, OS_WRITE);
+                }
                 SramPresent = true;
+            }
         }
     }
 
