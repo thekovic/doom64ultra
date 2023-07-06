@@ -120,5 +120,5 @@ int D_vsprintf(char *string, const char *format, va_list args) // 80001D24
   }
   *string = 0;
 
-  return origstring - string;
+  return string - origstring;
 }

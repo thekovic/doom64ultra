@@ -1,6 +1,7 @@
 
 #include <ultra64.h>
 #include <PR/ramrom.h>	/* needed for argument passing into the app */
+#include <os_internal.h>
 
 #include "i_main.h"
 #include "doomdef.h"
@@ -8,6 +9,7 @@
 
 // text for debug
 #include "graph.h"
+#include "config.h"
 
 /*
  * Symbol genererated by "makerom" to indicate the end of the code segment
@@ -40,6 +42,7 @@ extern int globalcm;   // 800A68fC r_local.h
 #define SYS_THREAD_ID_IDLE 1
 #define SYS_THREAD_ID_MAIN 2
 #define SYS_THREAD_ID_TICKER 3
+#define SYS_THREAD_ID_FAULT 4
 
 OSThread	idle_thread;                        // 800A4A18
 
@@ -50,6 +53,14 @@ u64	main_stack[SYS_MAIN_STACKSIZE/sizeof(u64)]; // 80099A00
 #define SYS_TICKER_STACKSIZE 0x800
 OSThread	sys_ticker_thread;                          // 800A4D78
 u64	sys_ticker_stack[SYS_TICKER_STACKSIZE/sizeof(u64)]; // 800A3A00
+
+#ifndef NDEBUG
+#define SYS_FAULT_STACKSIZE 0x800
+OSThread fault_thread;
+u64	sys_fault_stack[SYS_FAULT_STACKSIZE/sizeof(u64)];
+OSMesgQueue fault_queue;
+OSMesg fault_msgbuf;
+#endif
 
 #define SYS_MSGBUF_SIZE_PI 128
 OSMesgQueue msgque_Pi;                  // 800A4FA0
@@ -223,6 +234,9 @@ Gfx *GfxBlocks[8] = {0,0,0,0,0,0,0,0}; // 8005A748
 Vtx *VtxBlocks[8] = {0,0,0,0,0,0,0,0}; // 8005A768
 
 extern OSTask * wess_work(void);
+#ifndef NDEBUG
+void I_FaultThread(void *arg);
+#endif
 
 void I_Start(void)  // 80005620
 {
@@ -237,6 +251,13 @@ void I_Start(void)  // 80005620
 
 void I_IdleGameThread(void *arg) // 8000567C
 {
+#ifndef NDEBUG
+    osCreateMesgQueue(&fault_queue, &fault_msgbuf, 1);
+    osCreateThread(&fault_thread, SYS_THREAD_ID_FAULT, I_FaultThread, (void *)0,
+                   sys_fault_stack + SYS_FAULT_STACKSIZE/sizeof(u64), 10);
+    osStartThread(&fault_thread);
+#endif
+
     /* Create and start the Pi manager... */
     osCreatePiManager( (OSPri)OS_PRIORITY_PIMGR, &msgque_Pi, msgbuf_Pi,
                         SYS_MSGBUF_SIZE_PI );
@@ -1168,3 +1189,217 @@ int I_CreatePakFile(void) // 800074D4
 
     return ret;
 }
+
+#ifndef NDEBUG
+
+typedef struct {
+  u32 mask;
+  u32 value;
+  char* string;
+} regDesc_t;
+
+static regDesc_t causeDesc[] = {
+    {CAUSE_BD, CAUSE_BD, "BD"},
+    {CAUSE_IP8, CAUSE_IP8, "IP8"},
+    {CAUSE_IP7, CAUSE_IP7, "IP7"},
+    {CAUSE_IP6, CAUSE_IP6, "IP6"},
+    {CAUSE_IP5, CAUSE_IP5, "IP5"},
+    {CAUSE_IP4, CAUSE_IP4, "IP4"},
+    {CAUSE_IP3, CAUSE_IP3, "IP3"},
+    {CAUSE_SW2, CAUSE_SW2, "IP2"},
+    {CAUSE_SW1, CAUSE_SW1, "IP1"},
+    {CAUSE_EXCMASK, EXC_INT, "Interrupt"},
+    {CAUSE_EXCMASK, EXC_MOD, "TLB modification exception"},
+    {CAUSE_EXCMASK, EXC_RMISS, "TLB exception on load or instruction fetch"},
+    {CAUSE_EXCMASK, EXC_WMISS, "TLB exception on store"},
+    {CAUSE_EXCMASK, EXC_RADE, "Address error on load or instruction fetch"},
+    {CAUSE_EXCMASK, EXC_WADE, "Address error on store"},
+    {CAUSE_EXCMASK, EXC_IBE, "Bus error exception on instruction fetch"},
+    {CAUSE_EXCMASK, EXC_DBE, "Bus error exception on data reference"},
+    {CAUSE_EXCMASK, EXC_SYSCALL, "System call exception"},
+    {CAUSE_EXCMASK, EXC_BREAK, "Breakpoint exception"},
+    {CAUSE_EXCMASK, EXC_II, "Reserved instruction exception"},
+    {CAUSE_EXCMASK, EXC_CPU, "Coprocessor unusable exception"},
+    {CAUSE_EXCMASK, EXC_OV, "Arithmetic overflow exception"},
+    {CAUSE_EXCMASK, EXC_TRAP, "Trap exception"},
+    {CAUSE_EXCMASK, EXC_VCEI,
+     "Virtual coherency exception on intruction fetch"},
+    {CAUSE_EXCMASK, EXC_FPE, "Floating point exception (see fpcsr)"},
+    {CAUSE_EXCMASK, EXC_WATCH, "Watchpoint exception"},
+    {CAUSE_EXCMASK, EXC_VCED, "Virtual coherency exception on data reference"},
+    {0, 0, ""}};
+
+static regDesc_t srDesc[] = {{SR_CU3, SR_CU3, "CU3"},
+                             {SR_CU2, SR_CU2, "CU2"},
+                             {SR_CU1, SR_CU1, "CU1"},
+                             {SR_CU0, SR_CU0, "CU0"},
+                             {SR_RP, SR_RP, "RP"},
+                             {SR_FR, SR_FR, "FR"},
+                             {SR_RE, SR_RE, "RE"},
+                             {SR_BEV, SR_BEV, "BEV"},
+                             {SR_TS, SR_TS, "TS"},
+                             {SR_SR, SR_SR, "SR"},
+                             {SR_CH, SR_CH, "CH"},
+                             {SR_CE, SR_CE, "CE"},
+                             {SR_DE, SR_DE, "DE"},
+                             {SR_IBIT8, SR_IBIT8, "IM8"},
+                             {SR_IBIT7, SR_IBIT7, "IM7"},
+                             {SR_IBIT6, SR_IBIT6, "IM6"},
+                             {SR_IBIT5, SR_IBIT5, "IM5"},
+                             {SR_IBIT4, SR_IBIT4, "IM4"},
+                             {SR_IBIT3, SR_IBIT3, "IM3"},
+                             {SR_IBIT2, SR_IBIT2, "IM2"},
+                             {SR_IBIT1, SR_IBIT1, "IM1"},
+                             {SR_KX, SR_KX, "KX"},
+                             {SR_SX, SR_SX, "SX"},
+                             {SR_UX, SR_UX, "UX"},
+                             {SR_KSU_MASK, SR_KSU_USR, "USR"},
+                             {SR_KSU_MASK, SR_KSU_SUP, "SUP"},
+                             {SR_KSU_MASK, SR_KSU_KER, "KER"},
+                             {SR_ERL, SR_ERL, "ERL"},
+                             {SR_EXL, SR_EXL, "EXL"},
+                             {SR_IE, SR_IE, "IE"},
+                             {0, 0, ""}};
+
+static regDesc_t fpcsrDesc[] = {{FPCSR_FS, FPCSR_FS, "FS"},
+                                {FPCSR_C, FPCSR_C, "C"},
+                                {FPCSR_CE, FPCSR_CE, "Unimplemented operation"},
+                                {FPCSR_CV, FPCSR_CV, "Invalid operation"},
+                                {FPCSR_CZ, FPCSR_CZ, "Division by zero"},
+                                {FPCSR_CO, FPCSR_CO, "Overflow"},
+                                {FPCSR_CU, FPCSR_CU, "Underflow"},
+                                {FPCSR_CI, FPCSR_CI, "Inexact operation"},
+                                {FPCSR_EV, FPCSR_EV, "EV"},
+                                {FPCSR_EZ, FPCSR_EZ, "EZ"},
+                                {FPCSR_EO, FPCSR_EO, "EO"},
+                                {FPCSR_EU, FPCSR_EU, "EU"},
+                                {FPCSR_EI, FPCSR_EI, "EI"},
+                                {FPCSR_FV, FPCSR_FV, "FV"},
+                                {FPCSR_FZ, FPCSR_FZ, "FZ"},
+                                {FPCSR_FO, FPCSR_FO, "FO"},
+                                {FPCSR_FU, FPCSR_FU, "FU"},
+                                {FPCSR_FI, FPCSR_FI, "FI"},
+                                {FPCSR_RM_MASK, FPCSR_RM_RN, "RN"},
+                                {FPCSR_RM_MASK, FPCSR_RM_RZ, "RZ"},
+                                {FPCSR_RM_MASK, FPCSR_RM_RP, "RP"},
+                                {FPCSR_RM_MASK, FPCSR_RM_RM, "RM"},
+                                {0, 0, ""}};
+
+static char *faultbuf;
+
+__attribute__ ((format (printf, 1, 2)))
+static void I_FaultPrintf(const char *text, ...)
+{
+    va_list args;
+    va_start (args, text);
+    int ret = D_vsprintf (faultbuf, text, args);
+    if (ret > 0)
+        faultbuf += ret;
+    va_end (args);
+}
+
+static void I_FaultPrintRegister(u32 regValue, char* regName, regDesc_t* regDesc) {
+    int first = 1;
+
+    I_FaultPrintf("%s\t\t0x%08lx\n <", regName, regValue);
+    while (regDesc->mask != 0) {
+        if ((regValue & regDesc->mask) == regDesc->value) {
+            if (first)
+                first = 0;
+            else
+                I_FaultPrintf(",");
+            I_FaultPrintf("%s", regDesc->string);
+        }
+        regDesc++;
+    }
+    I_FaultPrintf(">\n");
+}
+
+#define MAX_STACK_TRACE 100
+
+static void* stackTraceReturnAddresses[MAX_STACK_TRACE];
+
+int I_GetPrevStackPointer(void** prev_sp, void** prev_ra, void* sp, void* ra)
+{
+    unsigned* wra = (unsigned*)ra;
+    unsigned* k0base = (unsigned*)K0BASE;
+    int spofft;
+
+    if (wra < k0base) {
+        return 0;
+    }
+    /* scan towards the beginning of the function -
+       addui sp,sp,spofft should be the first command */
+    while ((*wra >> 16) != 0x27bd) {
+        /* test for "scanned too much" */
+        if (wra < k0base) {
+            return 0;
+        }
+        wra--;
+    }
+    spofft = ((int)*wra << 16) >> 16; /* sign-extend */
+    *prev_sp = (char*)sp - spofft;
+    /* now scan forward for sw r31,raofft(sp) */
+    while (wra < (unsigned*)ra) {
+        if ((*wra >> 16) == 0xafbf) {
+            int raofft = ((int)*wra << 16) >> 16; /* sign */
+            *prev_ra = *(void**)((char*)sp + raofft);
+            return 1;
+        }
+        wra++;
+    }
+    return 0; /* failed to find where ra is saved */
+}
+
+int I_GetCallStack(u64 sp_val, u64 ra_val) {
+    void* sp = (void*)(u32)sp_val; /* stack pointer from thread state */
+    void* ra = (void*)(u32)ra_val; /* return address from thread state */
+    int i = 0;
+
+    while (i < MAX_STACK_TRACE &&
+            I_GetPrevStackPointer(&sp, &ra, sp, ra) && ra != 0) {
+        stackTraceReturnAddresses[i++] = ra;
+    }
+    return i; /* stack size */
+}
+
+void I_FaultThread(void *arg)
+{
+    OSMesg msg = 0;
+    OSIntMask mask;
+    static OSThread *curr;
+    char buf[1500];
+
+    buf[0] = 0;
+    osSetEventMesg(OS_EVENT_FAULT, &fault_queue, NULL);
+
+    do {
+        osRecvMesg(&fault_queue, &msg, OS_MESG_BLOCK);
+        if (msg != NULL)
+            continue;
+        mask = osSetIntMask(1);
+        curr = __osGetCurrFaultedThread();
+        osSetIntMask(mask);
+
+        if (curr)
+        {
+            faultbuf = buf;
+            __OSThreadContext* tc = &curr->context;
+
+            I_FaultPrintRegister(tc->cause, "cause", causeDesc);
+            I_FaultPrintRegister(tc->sr, "sr", srDesc);
+            I_FaultPrintf("badvaddr\t0x%08lx\n\n", tc->badvaddr);
+            I_FaultPrintRegister(tc->fpcsr, "fpcsr", fpcsrDesc);
+            int stackTraceSize = I_GetCallStack(tc->sp, tc->ra);
+            I_FaultPrintf("stacktrace:\n");
+            I_FaultPrintf("%08lx\n", (u32)(tc->pc));
+            I_FaultPrintf("%08lx\n", (u32)(tc->ra));
+            for (int i = 0; i < stackTraceSize; ++i) {
+                I_FaultPrintf("%08lx\n", (u32)stackTraceReturnAddresses[i]);
+            }
+            buf[ARRAYLEN(buf)-1] = 0;
+            I_Error("Fault in thread %ld\n%s", curr->id, buf);
+        }
+    } while(TRUE);
+}
+#endif
