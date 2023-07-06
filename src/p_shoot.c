@@ -373,13 +373,9 @@ fixed_t P_AimLineAttack (mobj_t *t1, angle_t angle, fixed_t zheight, fixed_t dis
 
     // [d64] new argument for shoot height
     if(!zheight)
-    {
         shootz = t1->z + (t1->height>>1) + 12*FRACUNIT;
-    }
     else
-    {
         shootz = t1->z + zheight;
-    }
 
     P_PathTraverse(t1->x, t1->y, tx2, ty2, flags, PTR_AimTraverse);
 

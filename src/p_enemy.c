@@ -702,6 +702,21 @@ void A_OnDeathTrigger (mobj_t *mo) // 80011894
     }
 }
 
+fixed_t P_SlopeToTarget(mobj_t *actor, fixed_t zheight)
+{
+    int dist;
+    mobj_t *target;
+
+    target = actor->target;
+
+    if(!zheight)
+        zheight = actor->z + (actor->height>>1) + 12*FRACUNIT;
+    else
+        zheight = actor->z + zheight;
+
+    dist = P_AproxDistance(target->x - actor->x, target->y - actor->y);
+    return FixedDiv(target->z + (target->height >> 1) - zheight, dist);
+}
 /*
 ==============
 =
@@ -722,7 +737,7 @@ void A_PosAttack (mobj_t *actor) // 80011954
 
 	S_StartSound (actor, sfx_pistol);
 
-	slope = P_AimLineAttack(actor, angle, 0, MISSILERANGE);
+    slope = P_SlopeToTarget(actor, 0);
 
     rnd1 = P_Random();
     rnd2 = P_Random();
@@ -752,7 +767,7 @@ void A_SPosAttack (mobj_t *actor) // 800119FC
 	A_FaceTarget (actor);
 	bangle = actor->angle;
 
-	slope = P_AimLineAttack(actor, bangle, 0, MISSILERANGE);
+    slope = P_SlopeToTarget(actor, 0);
 
 	for (i=0 ; i<3 ; i++)
 	{
@@ -784,7 +799,7 @@ void A_PlayAttack(mobj_t* actor) // 80011b1C
 	A_FaceTarget(actor);
 	bangle = actor->angle;
 
-	slope = P_AimLineAttack(actor, bangle, 0, MISSILERANGE);
+    slope = P_SlopeToTarget(actor, 0);
 
 	angle = bangle + ((P_Random() - P_Random()) << 20);
 	damage = ((P_Random() % 5) * 3) + 3;
