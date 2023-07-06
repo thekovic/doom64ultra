@@ -539,6 +539,7 @@ void R_RenderModes(rendermode_t mode)
     {
         gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_RA_OPA_SURF2);
         gDPSetCombineMode(GFX1++, G_CC_D64COMB15, G_CC_D64COMB16);
+        R_RenderFilter(filt_sprites);
     }
     else if (mode == rm_sprite)
     {

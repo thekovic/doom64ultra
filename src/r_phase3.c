@@ -70,6 +70,8 @@ void R_RenderWorld(subsector_t *sub) // 80026638
         lf++;
     }
 
+    R_RenderModes(rm_texture);
+
     /* */
     /* Render Ceilings */
     /* */
@@ -119,8 +121,6 @@ void R_RenderWorld(subsector_t *sub) // 80026638
         }
         else
         {
-            R_RenderModes(rm_texture);
-
             if (frontsector->flags & MS_SCROLLFLOOR)
             {
                 xoffset = frontsector->xoffset;
