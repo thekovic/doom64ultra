@@ -50,7 +50,7 @@ void D_DoomMain(void *arg) // 800027C0
     }
 #endif
 
-#if defined(DEVWARP) || defined(SKIP_INTRO)
+#if defined(DEVWARP) || defined(SKIP_INTRO) || defined(DEMORECORD)
     M_RunTitle();
 #else
     D_SplashScreen();
@@ -58,6 +58,7 @@ void D_DoomMain(void *arg) // 800027C0
 
     while(true)
     {
+#ifndef DEMORECORD
         exit = D_TitleMap();
 
         if(exit != ga_exit)
@@ -90,6 +91,7 @@ void D_DoomMain(void *arg) // 800027C0
                 }
             }
         }
+#endif
 
         do {
             exit = M_RunTitle();
@@ -217,8 +219,13 @@ int MiniLoop(void(*start)(void), void(*stop)(),
                 *demobuffer++ = buttons;
             }
 
-            if ((buttons & PAD_START) || ((((int)demobuffer - (int)demo_p) >> 2) >= 4000))
+            if ((buttons & PAD_START) || ((u32)demobuffer - (u32)demo_p) >= demosize)
             {
+                if (demorecording)
+                {
+                    demoheader_t *header = (void*)demo_p;
+                    header->size = (u32)demobuffer - (u32)demo_p;
+                }
                 exit = ga_exitdemo;
                 break;
             }

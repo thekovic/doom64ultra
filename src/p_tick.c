@@ -279,7 +279,9 @@ void P_Drawer (void) // 80021AC8
 		R_RenderPlayerView();
         //ST_DebugPrint("x %d || y %d", players[0].mo->x >> 16, players[0].mo->y >> 16);
 
-        if (demoplayback == false)
+        if (demoplayback)
+            ST_DrawDebug();
+        else
             ST_Drawer();
     }
 

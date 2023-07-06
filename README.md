@@ -48,11 +48,21 @@ Additional options can be provided to configure or debug the ROM:
 
 ```sh
 make DEBUG=1                      # Don't strip debug symbols
+
 make REQUIRE_EXPANSION_PAK=0      # Disable expansion pak requirement screen
+
 make SKIP_INTRO=1                 # Skip the intro screens on boot and go straight to the menu
+
 make WARP=XX                      # Warp to map number XX on boot
+
 make WARP=XX SKILL=3              # Warp to map number XX on boot, with the specified difficulty (1-5)
+
 make CHEATS=CF_GODMODE+CF_NOCLIP  # Spawn with cheats enabled (see doomdef.h for more CF_ flags)
+
+make DEMORECORD=1 WARP=XX SKILL=Y # Records a demo on map XX at skill Y
+                                  # The byte size and offset of the demo will be displayed
+                                  # after recording is finished so it can be extracted
+                                  # from a save state.
 ```
 
 ## Contact

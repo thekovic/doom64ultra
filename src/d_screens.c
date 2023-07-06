@@ -6,14 +6,16 @@
 #include "st_main.h"
 #include "config.h"
 
+#ifndef DEMORECORD
 int D_RunDemo(char *name, skill_t skill, int map) // 8002B2D0
 {
   int lump;
   int exit;
 
-  demo_p = Z_Alloc(16000, PU_STATIC, NULL);
-
   lump = W_GetNumForName(name);
+  demosize = W_LumpLength(lump);
+  demo_p = Z_Alloc(demosize, PU_STATIC, NULL);
+
   W_ReadLump(lump, demo_p, dec_d64);
   exit = G_PlayDemoPtr(skill, map);
   Z_Free(demo_p);
@@ -27,16 +29,18 @@ int D_TitleMap(void) // 8002B358
 
   D_OpenControllerPak();
 
-  demo_p = Z_Alloc(16000, PU_STATIC, NULL);
-  D_memset(demo_p, 0, 16000);
+  demosize = 16000;
+  demo_p = Z_Alloc(demosize, PU_STATIC, NULL);
+  D_memset(demo_p, 0, demosize);
   D_memcpy(demo_p, DefaultControlSetups[1].BUTTONS, sizeof(int)*13);
   exit = G_PlayDemoPtr(sk_medium, 33);
   Z_Free(demo_p);
 
   return exit;
 }
+#endif
 
-#if !defined(DEVWARP) && !defined(SKIP_INTRO)
+#if !defined(DEVWARP) && !defined(SKIP_INTRO) && !defined(DEMORECORD)
 int D_WarningTicker(void) // 8002B3E8
 {
     if ((gamevbls < gametic) && !(gametic & 7))

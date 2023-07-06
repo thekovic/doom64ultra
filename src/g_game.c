@@ -4,6 +4,7 @@
 #include "p_local.h"
 #include "p_saveg.h"
 #include "config.h"
+#include "st_main.h"
 
 #ifdef DEVWARP
 #define DEVWARP_ENABLED 1
@@ -37,6 +38,7 @@ playerconfig_t  playerconfigs[MAXPLAYERS] = {
 boolean         demorecording;          // 800633A4
 boolean         demoplayback;           // 800633A8
 int		        *demo_p = NULL, *demobuffer = NULL;   // 8005A180, 8005a184
+int             demosize;
 
 //mapthing_t	deathmatchstarts[10], *deathmatch_p;    // 80097e4c, 80077E8C
 mapthing_t	playerstarts[MAXPLAYERS];   // 800a8c60
@@ -359,6 +361,9 @@ void I_DeleteQuickLoad(void);
 
 void G_RunGame (void) // 80004794
 {
+#ifdef DEMORECORD
+    G_RecordDemo();
+#endif
 
 	while (1)
 	{
@@ -483,12 +488,16 @@ int G_PlayDemoPtr (int skill, int map) // 800049D0
 
             config = (void*)demobuffer;
             P_UnArchivePlayerConfig(i, config);
+            playerconfigs[i].crosshair = 0;
             demobuffer += (sizeof(savedplayerconfig_t) >> 2);
         }
     }
     else
     {
-        // old demo format
+        /* skip all old demos except titlemap due to desyncs */
+        if (map != 33)
+            return ga_exit;
+
         /* set new key configuration */
         bzero(&CurrentControls[0].BUTTONS, sizeof CurrentControls[0].BUTTONS);
         D_memcpy(&CurrentControls[0].BUTTONS, demobuffer, sizeof(int)*13);
@@ -524,34 +533,48 @@ int G_PlayDemoPtr (int skill, int map) // 800049D0
 	return exit;
 }
 
-/*
-=================
-=
-= G_RecordDemo
-=
-=================
-*/
-
+#ifdef DEMORECORD
 void G_RecordDemo (void)//80013D0C
 {
-    #if 0
-	demo_p = demobuffer = Z_Malloc (0x8000, PU_STATIC, NULL);
+    demosize = 0x8000;
+    demo_p = demobuffer = Z_Malloc (demosize, PU_STATIC, NULL);
 
-	*demo_p++ = startskill;
-	*demo_p++ = startmap;
+    demoheader_t *header = (void*) demobuffer;
+    demobuffer += (sizeof *header) >> 2;
 
-	G_InitNew (startskill, startmap, gt_single);
-	G_DoLoadLevel ();
-	demorecording = true;
-	MiniLoop (P_Start, P_Stop, P_Ticker, P_Drawer);
-	demorecording = false;
+    header->magic = DEMO_MAGIC;
+    header->version = 0;
+    header->map = startmap;
+    header->skill = startskill;
+    header->gametype = gt_single;
+    header->player1 = 1;
+    //header->player1 = playersingame[0];
+    //header->player2 = playersingame[1];
+    //header->player3 = playersingame[2];
+    //header->player4 = playersingame[3];
+    for (int i = 0; i < MAXPLAYERS; i++)
+    {
+        savedplayerconfig_t *config;
 
-	D_printf ("w %x,%x",demobuffer,demo_p);
+        //if (!playersingame[i])
+            //continue;
 
-	while (1)
-	{
-		G_PlayDemoPtr (demobuffer);
-	D_printf ("w %x,%x",demobuffer,demo_p);
-	}
-    #endif
+        config = (void*) demobuffer;
+        P_ArchivePlayerConfig(i, config);
+        demobuffer += (sizeof *config) >> 2;
+    }
+
+    G_InitNew (startskill, startmap, gt_single);
+    G_DoLoadLevel ();
+    demorecording = true;
+    MiniLoop (P_Start, P_Stop, P_Ticker, P_Drawer);
+    demorecording = false;
+
+    while (1)
+    {
+        ST_EnableDebug();
+        ST_DebugPrint("Playing Demo\nPos 0x%08lx\nLen 0x%x", (u32) demo_p, (demobuffer - demo_p) * 4);
+        G_PlayDemoPtr (startskill, startmap);
+    }
 }
+#endif

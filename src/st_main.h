@@ -38,6 +38,7 @@ void ST_UpdateFlash(void); // 8002AC30
 void ST_DrawSymbol(int xpos, int ypos, int index, int color); // 8002ADEC
 
 // Debug
+void ST_DrawDebug(void);
 void ST_EnableDebug(void);
 void ST_DisableDebug(void);
 void ST_DebugSetPrintPos(int x, int y);

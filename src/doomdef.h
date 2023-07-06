@@ -897,6 +897,7 @@ void D_DoomMain (void *arg);
 
 extern	boolean	demoplayback, demorecording;
 extern	int		*demo_p, *demobuffer;
+extern int demosize;
 
 #define DEMO_MAGIC 0xFF443634 // '\xffD64'
 
