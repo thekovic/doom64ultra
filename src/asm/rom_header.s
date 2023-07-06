@@ -17,7 +17,6 @@
 .ascii "DOOM 64 ULTRA       "   /* Internal ROM name (Max 20 characters) */
 /* Homebrew header */
 .byte  0x01, 0x01, 0x01, 0x01   /* Controller info */
-.word  0x00000000               /* Empty */
-.ascii "ED"                     /* Game ID */
-.byte  'A'                      /* Country code */
+.byte  0x00, 0x00, 0x00         /* Empty */
+.ascii "NEDA"                   /* Category, Game ID, Country Code */
 .byte  0x61                     /* Savetype */

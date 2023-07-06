@@ -144,14 +144,39 @@ void IN_Start(void) // 80004AF0
 	S_StartMusic(114);
 }
 
+extern const menuitem_t Menu_Save[3];
+
 void IN_Stop(void) // 80004DB0
 {
 	S_StopMusic();
 
     if ((nextmap >= 0) && (nextmap < LASTLEVEL))
     {
-        if (EnableExpPak) {
-            MiniLoop(M_SavePakStart,M_SavePakStop,M_SavePakTicker,M_SavePakDrawer);
+        MenuAnimationTic = 0;
+        MenuIdx = 0;
+        if (SramPresent && I_CheckControllerPak() == 0)
+        {
+            MenuItem = Menu_Save;
+            itemlines = ARRAYLEN(Menu_Save);
+            MenuCall = M_MenuTitleDrawer;
+            cursorpos = 0;
+            MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
+        }
+        else if (SramPresent)
+        {
+            MenuCall = M_SaveGamePakDrawer;
+            MiniLoop(M_SaveGamePakStart,M_SaveGamePakStop,M_SaveGamePakTicker,M_MenuGameDrawer);
+        }
+        else
+        {
+            if (!EnableExpPak)
+                EnableExpPak = (M_ControllerPak() == 0);
+
+            if (EnableExpPak)
+            {
+                MenuCall = M_SavePakDrawer;
+                MiniLoop(M_SavePakStart,M_SavePakStop,M_SavePakTicker,M_MenuGameDrawer);
+            }
         }
     }
 

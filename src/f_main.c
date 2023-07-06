@@ -395,7 +395,7 @@ int F_TickerIntermission(void) // 80002E44
 
 	    exit = ga_nothing;
 
-        if ((buttons != oldbuttons) && (buttons & ALL_BUTTONS))
+        if ((buttons != oldbuttons) && (buttons & (PAD_A|PAD_B)))
         {
             speed = true;
         }
@@ -409,13 +409,13 @@ int F_TickerIntermission(void) // 80002E44
                 textline++;
             }
         }
-        else if ((buttons != oldbuttons) && (buttons & (ALL_CBUTTONS|ALL_TRIG|PAD_A|PAD_B)))
+        else if ((buttons != oldbuttons) && (buttons & (PAD_A|PAD_B)))
         {
             exit = ga_exit;
         }
 		
 		 // [Immorpher] Speed up text intermission by pressing buttons
-		if (buttons & (ALL_CBUTTONS|ALL_TRIG|PAD_A|PAD_B))
+		if (buttons & (PAD_A|PAD_B))
         {
             textalpha += 256;
         }

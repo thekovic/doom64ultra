@@ -286,6 +286,11 @@ void P_SpawnPlayer(/*mapthing_t *mthing*/) // 80018F94
         M_DecodePassword(Passwordbuff, &levelnum, &skill, p);
         doPassword = false;
     }
+    else if (doLoadSave)
+    {
+        I_LoadProgress(&LevelSaveBuffer);
+        doLoadSave = false;
+    }
 
     ST_InitEveryLevel();
     ST_UpdateFlash(); // ST_doPaletteStuff();

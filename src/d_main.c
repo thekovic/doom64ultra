@@ -170,11 +170,12 @@ int MiniLoop(void(*start)(void), void(*stop)(),
 	int		exit;
 	int		buttons;
 
-	gameaction = ga_nothing;
-	gamevbls = 0;
-	gametic = 0;
-	ticon = 0;
-	ticsinframe = 0;
+    if (gameaction != ga_loadquicksave)
+        gameaction = ga_nothing;
+    gamevbls = 0;
+    gametic = 0;
+    ticon = 0;
+    ticsinframe = 0;
 
 	/* */
 	/* setup (cache graphics, etc) */

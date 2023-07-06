@@ -176,7 +176,7 @@ void D_SplashScreen(void) // 8002B988
     /* */
     /* if not connected, it will show the NoPak screen */
     /* */
-    if (FilesUsed < 0) {
+    if (!SramPresent && FilesUsed < 0) {
         last_ticon = 0;
         MiniLoop(NULL, NULL, D_NoPakTicker, D_DrawNoPak);
     }

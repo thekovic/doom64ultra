@@ -608,6 +608,8 @@ void T_FadeThinker(fade_t *fade); // 8000EACC
 int EV_SpawnMobjTemplate(int tag); // 8000EB8C
 int EV_FadeOutMobj(int tag); // 8000ED08
 void T_Quake(quake_t *quake); // 8000EDE8
+void T_Combine(combine_t *combine);
+void T_LaserThinker(laser_t *laser);
 void P_SpawnQuake(int tics); // 8000EE7C
 int P_RandomLineTrigger(line_t *line,mobj_t *thing); // 8000EEE0
 void T_MoveCamera(movecamera_t *camera); // 8000F014

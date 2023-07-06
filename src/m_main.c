@@ -12,6 +12,10 @@ static int M_MenuCreditsTicker(void);
 static void M_IdCreditsDrawer(void);
 static void M_WmsCreditsDrawer(void);
 
+static levelsave_t *GamePak_Data = NULL;
+levelsave_t LevelSaveBuffer;
+boolean doLoadSave = false;
+
 //intermission
 int DrawerStatus;
 
@@ -48,12 +52,29 @@ u8 ControlMappings[] = {
 
 #define MENU_STRINGS \
     _F(MTXT_MAIN_MENU, "Main Menu") \
-    _F(MTXT_PASSWORD, "Password") \
+    _F(MTXT_LOAD_GAME, "Load Game") \
+    _F(MTXT_QUICK_SAVE, "Quick Save") \
+    _F(MTXT_QUICK_LOAD, "Quick Load") \
     _F(MTXT_RESTART, "Restart Level") \
     _F(MTXT_RETURN, "\x90 Return") \
     _F(MTXT_MRETURN, "Return") \
     _F(MTXT_YES, "Yes") \
     _F(MTXT_NO, "No") \
+    \
+    _F(MTXT_LOAD_GAME_PAK, "Game Pak") \
+    _F(MTXT_LOAD_CONTROLLER_PAK, "Controller Pak") \
+    _F(MTXT_LOAD_QUICK_LOAD, "Quick Load") \
+    _F(MTXT_LOAD_PASSWORD, "Password") \
+    _F(MTXT_GAME_PAK_DISABLED, "Game Pak") \
+    _F(MTXT_CONTROLLER_PAK_DISABLED, "Controller Pak") \
+    \
+    _F(MTXT_SAVE_GAME_PAK, "Game Pak") \
+    _F(MTXT_SAVE_CONTROLLER_PAK, "Controller Pak") \
+    _F(MTXT_DONT_SAVE, "Do not save") \
+    \
+    _F(MTXT_QUICK_SAVE_DISABLED, "Quick Save") \
+    _F(MTXT_QUICK_LOAD_DISABLED, "Quick Load") \
+    _F(MTXT_GAME_SAVED, "Game Saved") \
     \
     _F(MTXT_MANAGE_PAK, "Manage Pak") \
     _F(MTXT_DONT_USE_PAK, "Do not use Pak") \
@@ -136,14 +157,14 @@ typedef enum { MENU_STRINGS } menuentry_t;
 #undef _F
 
 #define _F(_id, _s) _s,
-const char *MenuText[] = { MENU_STRINGS };
+char *MenuText[] = { MENU_STRINGS };
 #undef _F
 
 const menuitem_t Menu_Title[] =
 {
-    { MTXT_NEW_GAME, 115, 170 },
-    { MTXT_PASSWORD, 115, 190 },
-	{ MTXT_OPTIONS,  115, 210 },
+    { MTXT_NEW_GAME,  115, 170 },
+    { MTXT_LOAD_GAME, 115, 190 },
+	{ MTXT_OPTIONS,   115, 210 },
 };
 
 const menuitem_t Menu_Skill[] =
@@ -221,13 +242,15 @@ const menuitem_t Menu_Defaults[] =
     { MTXT_RETURN,     102, 140},
 };
 
-const menuitem_t Menu_Game[] =
+menuitem_t Menu_Game[] =
 {
-    { MTXT_PASSWORD,  122, 60 },
-    { MTXT_OPTIONS,   122, 80 },
-    { MTXT_MAIN_MENU, 122, 100},
-    { MTXT_RESTART,   122, 120},
-    { MTXT_CHEATS,    122, 140},
+    { MTXT_OPTIONS,    122, 60},
+    { MTXT_QUICK_SAVE, 122, 78},
+    { MTXT_QUICK_LOAD, 122, 96},
+    { MTXT_LOAD_GAME,  122, 114},
+    { MTXT_MAIN_MENU,  122, 132},
+    { MTXT_RESTART,    122, 150},
+    { MTXT_CHEATS,     122, 168},
 };
 
 const menuitem_t Menu_Quit[] =
@@ -240,6 +263,21 @@ const menuitem_t Menu_DeleteNote[] =
 {
     { MTXT_YES, 142, 100},
     { MTXT_NO,  142, 120},
+};
+
+menuitem_t Menu_Load[] =
+{
+    { MTXT_LOAD_GAME_PAK,       122, 60 },
+    { MTXT_LOAD_CONTROLLER_PAK, 122, 80 },
+    { MTXT_LOAD_PASSWORD,       122, 100 },
+    { MTXT_LOAD_QUICK_LOAD,     122, 120 },
+};
+
+const menuitem_t Menu_Save[] =
+{
+    { MTXT_SAVE_GAME_PAK,       122, 60 },
+    { MTXT_SAVE_CONTROLLER_PAK, 122, 80 },
+    { MTXT_DONT_SAVE,           122, 100 },
 };
 
 const menuitem_t Menu_ControllerPakBad[] =
@@ -269,8 +307,8 @@ const menuitem_t Menu_Features[MAXFEATURES] =
     { MTXT_FLY,            40, 60},
     { MTXT_WEAPONS,        40, 70},
     { MTXT_ARTIFACTS,      40, 80},
-    { MTXT_MAP_EVERYTHING, 40, 90},
-    { MTXT_KEYS,           40, 100},
+    { MTXT_KEYS,           40, 90},
+    { MTXT_MAP_EVERYTHING, 40, 100},
     { MTXT_WALL_BLOCKING,  40, 110},
     { MTXT_LOCK_MONSTERS,  40, 120},
     { MTXT_WARP,           40, 130},
@@ -501,8 +539,12 @@ int M_RunTitle(void) // 80007630
     I_WIPE_FadeOutScreen();
     S_StopMusic();
 
+#ifndef DEMORECORD
     if (exit == ga_timeout)
-        return ga_timeout;
+        return exit;
+    if (exit == ga_loadquicksave)
+        gameaction = exit;
+#endif
 
     G_InitNew(startskill, startmap, gt_single);
     G_RunGame();
@@ -529,13 +571,6 @@ int M_ControllerPak(void) // 80007724
         {
             ret = I_ReadPakFile();
 
-            // Free Pak_Data
-            if (Pak_Data)
-            {
-                Z_Free(Pak_Data);
-                Pak_Data = NULL;
-            }
-
             if(ret == 0)
             {
                 exit = ga_nothing;
@@ -547,14 +582,11 @@ int M_ControllerPak(void) // 80007724
             MenuCall = M_MenuTitleDrawer;
             cursorpos = 0;
 
-            MiniLoop(M_FadeInStart, NULL, M_MenuTicker, M_MenuGameDrawer);
+            exit = MiniLoop(M_FadeInStart, NULL, M_MenuTicker, M_MenuGameDrawer);
             M_FadeOutStart(ga_exit);
 
-            if (cursorpos != 0)
-            {
-                exit = ga_exit;
-                break;
-            }
+            if (exit == ga_exit)
+                return exit;
 
             // Check Memory and Files Used on Controller Pak
             if ((Pak_Memory > 0) && (FilesUsed != 16))
@@ -574,11 +606,8 @@ int M_ControllerPak(void) // 80007724
             MiniLoop(M_FadeInStart, NULL, M_MenuTicker, M_MenuGameDrawer);
             M_FadeOutStart(ga_exit);
 
-            if (cursorpos != 1)
-            {
-                exit = ga_exit;
-                break;
-            }
+            if (exit == ga_exit)
+                return exit;
         }
         else
         {
@@ -597,15 +626,73 @@ int M_ControllerPak(void) // 80007724
             MiniLoop(M_FadeInStart, NULL, M_MenuTicker, M_MenuGameDrawer);
             M_FadeOutStart(ga_exit);
 
-            if (cursorpos != 0)
-            {
-                exit = ga_exit;
-                break;
-            }
+            if (exit == ga_exit)
+                return exit;
         }
     }
 
     return exit;
+}
+
+void M_PauseMenu(void)
+{
+    MenuCall = M_MenuTitleDrawer;
+    SET_MENU(Menu_Game);
+    cursorpos = 0;
+
+    MenuIdx = 0;
+    text_alpha = 255;
+    MenuAnimationTic = 0;
+
+    Menu_Game[1].casepos = I_IsQuickSaveAvailable() ? MTXT_QUICK_SAVE : MTXT_QUICK_SAVE_DISABLED;
+    Menu_Game[2].casepos = I_IsQuickLoadAvailable() ? MTXT_QUICK_LOAD : MTXT_QUICK_LOAD_DISABLED;
+}
+
+static boolean M_AdjustLoadMenu(void)
+{
+    boolean pakpresent = I_CheckControllerPak() == 0;
+    boolean quickloadpresent = !gamepaused && I_IsQuickLoadAvailable();
+    menuentry_t casepos;
+    int i;
+
+    for (i = 0; i < ARRAYLEN(Menu_Load); i++)
+    {
+        casepos = Menu_Load[i].casepos;
+
+        if (casepos == MTXT_LOAD_GAME_PAK || casepos == MTXT_GAME_PAK_DISABLED)
+            Menu_Load[i].casepos = SramPresent ? MTXT_LOAD_GAME_PAK : MTXT_GAME_PAK_DISABLED;
+        if (casepos == MTXT_LOAD_CONTROLLER_PAK || casepos == MTXT_CONTROLLER_PAK_DISABLED)
+            Menu_Load[i].casepos = pakpresent ? MTXT_LOAD_CONTROLLER_PAK : MTXT_CONTROLLER_PAK_DISABLED;
+        if (casepos == MTXT_LOAD_QUICK_LOAD || casepos == MTXT_QUICK_LOAD_DISABLED)
+            Menu_Load[i].casepos = quickloadpresent ? MTXT_LOAD_QUICK_LOAD : MTXT_QUICK_LOAD_DISABLED;
+    }
+
+    return SramPresent || pakpresent || quickloadpresent;
+}
+
+static boolean M_ItemIsDisabled(menuentry_t casepos)
+{
+    return casepos == MTXT_CONTROLLER_PAK_DISABLED
+        || casepos == MTXT_GAME_PAK_DISABLED
+        || casepos == MTXT_QUICK_LOAD_DISABLED
+        || casepos == MTXT_QUICK_SAVE_DISABLED
+        || casepos == MTXT_GAME_SAVED;
+}
+
+static void M_AdjustCursorPos(int dir)
+{
+    int bound;
+
+    dir = dir < 0 ? -1 : 1;
+    bound = dir < 0 ? 0 : itemlines - 1;
+    while (cursorpos != bound && M_ItemIsDisabled(MenuItem[cursorpos].casepos))
+        cursorpos += dir;
+    if (cursorpos == bound && M_ItemIsDisabled(MenuItem[cursorpos].casepos)) // wrap around
+    {
+        cursorpos = dir < 0 ? itemlines - 1 : 0;
+        while (cursorpos != bound && M_ItemIsDisabled(MenuItem[cursorpos].casepos))
+            cursorpos += dir;
+    }
 }
 
 #define MAXSENSIVITY    20
@@ -687,6 +774,7 @@ void M_FadeOutStart(int exitmode) // 80007AEC
     {
         if (ConfigChanged)
         {
+            I_SaveConfig();
             ConfigChanged = false;
         }
 
@@ -724,10 +812,21 @@ void M_RestoreMenuData(boolean alpha_in) // 80007BB8
     MenuCall  = mdat->menu_call;
     cursorpos = mdat->cursor_pos;
 
+    if (MenuItem == Menu_Load)
+    {
+        if (!M_AdjustLoadMenu())
+        {
+            M_RestoreMenuData(alpha_in);
+            return;
+        }
+    }
+
     // Start Menu Fade In
     if (alpha_in)
         MiniLoop(M_AlphaInStart, NULL, M_AlphaInOutTicker, M_MenuGameDrawer);
 }
+
+void ST_DrawDebug (void);
 
 void M_MenuGameDrawer(void) // 80007C48
 {
@@ -751,12 +850,17 @@ void M_MenuGameDrawer(void) // 80007C48
         gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,0) << 16 | GPACK_RGBA5551(0,0,0,0));
         gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
 
-        M_DrawBackground(56, 57, 80, "TITLE");
+        if (MenuCall == M_SavePakDrawer || MenuCall == M_SaveGamePakDrawer || MenuItem == Menu_Save
+                || (MenuIdx > 0 && MenuData[0].menu_item == Menu_Save))
+            M_DrawBackground(63, 25, 128, "EVIL");
+        else
+            M_DrawBackground(56, 57, 80, "TITLE");
 
         if (MenuItem != Menu_Title) {
             M_DrawOverlay(0, 0, 320, 240, 96);
         }
 
+        ST_DrawDebug();
         MenuCall();
         I_DrawFrame();
     }
@@ -764,13 +868,60 @@ void M_MenuGameDrawer(void) // 80007C48
 
 extern int globalcheats; // [GEC]
 
+int M_QuickLoadFailedTicker(void) // 8002BA88
+{
+    if ((ticon - last_ticon) >= 60 && ((u32)ticbuttons[0] >> 16) != 0)
+        return ga_exit;
+
+    return ga_nothing;
+}
+
+void M_QuickLoadFailedDrawer(void) // 8002BBE4
+{
+    I_ClearFrame();
+
+    gDPPipeSync(GFX1++);
+    gDPSetCycleType(GFX1++, G_CYC_FILL);
+    gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
+    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
+    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,0) << 16 | GPACK_RGBA5551(0,0,0,0));
+    gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+
+    ST_DrawString(-1,  40, "quick load data", 0xffffffff);
+    ST_DrawString(-1,  60, "is corrupted.", 0xffffffff);
+
+    if ((ticon - last_ticon) >= 60)
+        ST_DrawString(-1, 120, "press any button to return.", 0xffffffff);
+
+    I_DrawFrame();
+}
+
+void M_QuickLoadFailed(void)
+{
+    last_ticon = 0;
+    MiniLoop(NULL, NULL, M_QuickLoadFailedTicker, M_QuickLoadFailedDrawer);
+    I_WIPE_FadeOutScreen();
+}
+
+int M_PasswordMenu()
+{
+    int exit;
+
+    M_SaveMenuData();
+    MenuCall = M_PasswordDrawer;
+    exit = MiniLoop(M_PasswordStart,M_PasswordStop,M_PasswordTicker,M_MenuGameDrawer);
+    M_RestoreMenuData(true);
+
+    return exit;
+}
+
 int M_MenuTicker(void) // 80007E0C
 {
     unsigned int buttons, oldbuttons;
     int exit;
     int truebuttons;
-    int ret;
     int i;
+    menuentry_t casepos;
     boolean padrepeat = false;
 
     /* animate skull */
@@ -809,6 +960,8 @@ int M_MenuTicker(void) // 80007E0C
                     if (cursorpos >= itemlines)
                         cursorpos = 0;
 
+                    M_AdjustCursorPos(1);
+
                     S_StartSound(NULL, sfx_switch1);
                 }
                 else if (buttons & PAD_UP)
@@ -818,6 +971,8 @@ int M_MenuTicker(void) // 80007E0C
                     if (cursorpos < 0)
                         cursorpos = itemlines-1;
 
+                    M_AdjustCursorPos(-1);
+
                     S_StartSound(NULL, sfx_switch1);
                 }
             }
@@ -826,10 +981,7 @@ int M_MenuTicker(void) // 80007E0C
         if (((buttons & PAD_START) && !(oldticbuttons[0] & PAD_START))
                 || ((buttons & PAD_B) && !(oldticbuttons[0] & PAD_B)))
         {
-            if ((MenuItem == Menu_Title) ||
-                (MenuItem == Menu_ControllerPakBad) ||
-                (MenuItem == Menu_CreateNote) ||
-                (MenuItem == Menu_ControllerPakFull))
+            if (MenuItem == Menu_Title)
             {
                 return ga_nothing;
             }
@@ -844,8 +996,9 @@ int M_MenuTicker(void) // 80007E0C
         else
         {
             truebuttons = (buttons & PAD_A) && !(oldbuttons & PAD_A);
+            casepos = (menuentry_t) MenuItem[cursorpos].casepos;
 
-            switch((menuentry_t) MenuItem[cursorpos].casepos)
+            switch(casepos)
             {
 
             case MTXT_CONTROLS:
@@ -893,49 +1046,6 @@ int M_MenuTicker(void) // 80007E0C
                     MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
                     M_RestoreMenuData(true);
                     return ga_nothing;
-                }
-                break;
-
-            case MTXT_PASSWORD:
-                if (truebuttons)
-                {
-                    S_StartSound(NULL, sfx_pistol);
-                    M_SaveMenuData();
-
-                    ret = I_CheckControllerPak();
-                    exit = ga_exit;
-
-                    if (ret == 0)
-                    {
-                        if (I_ReadPakFile() == 0)
-                        {
-                            EnableExpPak = 1;
-                            MenuCall = M_LoadPakDrawer;
-                            exit = MiniLoop(M_LoadPakStart,M_LoadPakStop,M_LoadPakTicker,M_MenuGameDrawer);
-                        }
-                        else
-                            exit = ga_exit;
-                    }
-
-                    if (exit == ga_exit)
-                    {
-                        MenuCall = M_PasswordDrawer;
-                        exit = MiniLoop(M_PasswordStart,M_PasswordStop,M_PasswordTicker,M_MenuGameDrawer);
-                    }
-
-                    if (exit == ga_exit)
-                    {
-                        M_RestoreMenuData(true);
-                        return ga_nothing;
-                    }
-
-                    if (EnableExpPak != 0)
-                    {
-                        return exit;
-                    }
-
-                    EnableExpPak = (M_ControllerPak() == 0);
-                    return exit;
                 }
                 break;
 
@@ -989,6 +1099,9 @@ int M_MenuTicker(void) // 80007E0C
 
             case MTXT_RETURN:
             case MTXT_MRETURN:
+            case MTXT_DONT_SAVE:
+            case MTXT_NO:
+            case MTXT_DONT_USE_PAK:
                 if (truebuttons)
                 {
                     S_StartSound(NULL, sfx_pistol);
@@ -1183,8 +1296,18 @@ int M_MenuTicker(void) // 80007E0C
 
                     startskill = cursorpos;
 
-                    // Check ControllerPak
-                    EnableExpPak = (M_ControllerPak() == 0);
+                    if (!SramPresent)
+                    {
+                        // Check ControllerPak
+                        EnableExpPak = (M_ControllerPak() == 0);
+
+                        // Free Pak_Data
+                        if (Pak_Data)
+                        {
+                            Z_Free(Pak_Data);
+                            Pak_Data = NULL;
+                        }
+                    }
 
                     return ga_exit;
                 }
@@ -1212,13 +1335,32 @@ int M_MenuTicker(void) // 80007E0C
                     return ga_exitdemo;
                 }
                 break;
-
-            case MTXT_NO:
-            case MTXT_DONT_USE_PAK:
+            case MTXT_LOAD_GAME:
                 if (truebuttons)
                 {
                     S_StartSound(NULL, sfx_pistol);
-                    return ga_exit;
+
+                    if (!M_AdjustLoadMenu())
+                    {
+                        exit = M_PasswordMenu();
+                    }
+                    else
+                    {
+                        M_SaveMenuData();
+                        SET_MENU(Menu_Load);
+                        itemlines = 3;
+                        MenuCall = M_MenuTitleDrawer;
+                        cursorpos = 0;
+                        M_AdjustCursorPos(0);
+                        exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
+                        if (exit == ga_exit)
+                            M_RestoreMenuData(true);
+                    }
+
+                    if (exit == ga_exit)
+                        return ga_nothing;
+
+                    return exit;
                 }
                 break;
 
@@ -1675,7 +1817,7 @@ int M_MenuTicker(void) // 80007E0C
                 if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
                         || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                 {
-                    i = MenuItem[cursorpos].casepos - MTXT_TEXTURE_FILTER;
+                    i = casepos - MTXT_TEXTURE_FILTER;
                     S_StartSound(NULL, sfx_switch2);
                     VideoFilters[i] ^= 1;
                     ConfigChanged = true;
@@ -2166,7 +2308,110 @@ int M_MenuTicker(void) // 80007E0C
                     return ga_nothing;
                 }
                 break;
-        }
+            case MTXT_QUICK_SAVE:
+                if ((buttons & PAD_RIGHT_C) && !(oldbuttons & PAD_RIGHT_C))
+                {
+                    if (I_IsQuickSaveAvailable())
+                    {
+                        S_StartSound(NULL, sfx_pistol);
+                        I_QuickSave();
+                        Menu_Game[1].casepos = MTXT_GAME_SAVED;
+                        Menu_Game[2].casepos = MTXT_QUICK_LOAD_DISABLED;
+                    }
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_QUICK_LOAD:
+                if ((buttons & PAD_RIGHT_C) && !(oldbuttons & PAD_RIGHT_C))
+                    return ga_loadquicksave;
+                break;
+            case MTXT_LOAD_QUICK_LOAD:
+                if ((buttons & PAD_A) && !(oldbuttons & PAD_A))
+                    return ga_loadquicksave;
+                break;
+            case MTXT_QUICK_LOAD_DISABLED:
+            case MTXT_QUICK_SAVE_DISABLED:
+            case MTXT_GAME_PAK_DISABLED:
+            case MTXT_CONTROLLER_PAK_DISABLED:
+            case MTXT_GAME_SAVED:
+                break;
+            case MTXT_LOAD_GAME_PAK:
+            case MTXT_SAVE_GAME_PAK:
+                if (truebuttons)
+                {
+                    exit = ga_nothing;
+                    if (SramPresent)
+                    {
+                        S_StartSound(NULL, sfx_pistol);
+                        M_SaveMenuData();
+                        if (casepos == MTXT_LOAD_GAME_PAK)
+                        {
+                            MenuCall = M_LoadGamePakDrawer;
+                            exit = MiniLoop(M_LoadGamePakStart,M_LoadGamePakStop,M_LoadGamePakTicker,M_MenuGameDrawer);
+                        }
+                        else
+                        {
+                            MenuCall = M_SaveGamePakDrawer;
+                            exit = MiniLoop(M_SaveGamePakStart,M_SaveGamePakStop,M_SaveGamePakTicker,M_MenuGameDrawer);
+                            MenuCall = NULL;
+                        }
+                        if (exit != ga_completed && exit != ga_warped)
+                            M_RestoreMenuData(true);
+                    }
+                    if (exit == ga_exit)
+                        exit = ga_nothing;
+
+                    return exit;
+                }
+                break;
+            case MTXT_LOAD_CONTROLLER_PAK:
+            case MTXT_SAVE_CONTROLLER_PAK:
+                if (truebuttons)
+                {
+                    exit = ga_nothing;
+
+                    S_StartSound(NULL, sfx_pistol);
+
+                    M_SaveMenuData();
+                    EnableExpPak = (M_ControllerPak() == 0);
+
+                    if (EnableExpPak)
+                    {
+                        EnableExpPak = 1;
+                        if (casepos == MTXT_LOAD_CONTROLLER_PAK)
+                        {
+                            MenuCall = M_LoadPakDrawer;
+                            exit = MiniLoop(M_LoadPakStart,M_LoadPakStop,M_LoadPakTicker,M_MenuGameDrawer);
+                            MenuCall = NULL;
+                        }
+                        else
+                        {
+                            MenuCall = M_SavePakDrawer;
+                            exit = MiniLoop(M_SavePakStart,M_SavePakStop,M_SavePakTicker,M_MenuGameDrawer);
+                            MenuCall = NULL;
+                        }
+                    }
+
+                    if (exit != ga_completed && exit != ga_warped)
+                        M_RestoreMenuData(true);
+
+                    if (exit == ga_exit)
+                        return ga_nothing;
+
+                    return exit;
+                }
+                break;
+            case MTXT_LOAD_PASSWORD:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    exit = M_PasswordMenu();
+                    if (exit == ga_exit)
+                        return ga_nothing;
+                    return exit;
+                }
+                break;
+            }
             exit = ga_nothing;
         }
     }
@@ -2217,11 +2462,39 @@ void M_MenuTitleDrawer(void) // 80008E7C
     {
         ST_DrawString(-1, 20, "Create Game Note?", text_alpha | 0xc0000000);
     }
+    else if (MenuItem == Menu_Load)
+    {
+        ST_DrawString(-1, 20, "Load Game", text_alpha | 0xc0000000);
+    }
+    else if (MenuItem == Menu_Save)
+    {
+        ST_DrawString(-1, 20, "Save Game", text_alpha | 0xc0000000);
+    }
 
     item = MenuItem;
     for(i = 0; i < itemlines; i++)
     {
-        ST_DrawString(item->x, item->y, MenuText[item->casepos], text_alpha | 0xc0000000);
+        u32 alpha = text_alpha;
+        u32 color = 0xc0000000;
+        menuentry_t casepos;
+
+        casepos = item->casepos;
+
+        if (casepos == MTXT_GAME_SAVED)
+        {
+            color = 0x4040f000;
+            alpha = (alpha * 160) >> 8;
+        }
+        else if (M_ItemIsDisabled(casepos))
+        {
+            alpha = (alpha * 96) >> 8;
+        }
+        else if (casepos == MTXT_QUICK_SAVE || casepos == MTXT_QUICK_LOAD)
+        {
+            ST_DrawSymbol(240, item->y, 85, alpha | 0xffffff00);
+        }
+
+        ST_DrawString(item->x, item->y, MenuText[casepos], alpha | color);
         item++;
     }
 
@@ -2269,6 +2542,9 @@ void M_FeaturesDrawer(void) // 800091C0
             case MTXT_KEYS:
                 text = (!(players[0].cheats & CF_ALLKEYS)) ? "-" : "100%";
                 break;
+            case MTXT_ARTIFACTS:
+                text = (!(players[0].cheats & CF_ARTIFACTS)) ? "-": "100%";
+                break;
             case MTXT_WEAPONS:
                 text = (!(players[0].cheats & CF_WEAPONS)) ? "-" : "100%";
                 break;
@@ -2306,9 +2582,6 @@ void M_FeaturesDrawer(void) // 800091C0
                 break;
             case MTXT_GAMMA_CORRECT:
                 text = (!(players[0].cheats & CF_GAMMA)) ? "OFF": "ON";
-                break;
-            case MTXT_ARTIFACTS:
-                text = (!(players[0].cheats & CF_ARTIFACTS)) ? "OFF": "ON";
                 break;
             default:
                 text = NULL; // [Immorpher] set to null for credits menu
@@ -2409,7 +2682,8 @@ void M_MovementDrawer(void) // 80009738
 {
     char *text;
     const menuitem_t *item;
-    int i, casepos;
+    int i;
+    menuentry_t casepos;
 
     ST_DrawString(-1, 20, "Movement", text_alpha | 0xc0000000);
 
@@ -2448,7 +2722,7 @@ void M_MovementDrawer(void) // 80009738
         if (text)
             ST_DrawString(item->x + 120, item->y, text, text_alpha | 0xc0000000);
 
-        ST_DrawString(item->x, item->y, MenuText[item->casepos], text_alpha | 0xc0000000);
+        ST_DrawString(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
         item++;
     }
 
@@ -2468,7 +2742,8 @@ void M_VideoDrawer(void) // 80009884
 {
     char *text;
     const menuitem_t *item;
-    int i, casepos;
+    int i;
+    menuentry_t casepos;
 
     ST_DrawString(-1, 20, "Video", text_alpha | 0xc0000000);
 
@@ -2556,7 +2831,8 @@ void M_StatusHUDDrawer(void) // 80009884
 {
     char *text;
     const menuitem_t *item;
-    int i, casepos;
+    int i;
+    menuentry_t casepos;
 
     ST_DrawString(-1, 20, "Status HUD", text_alpha | 0xc0000000);
 
@@ -2635,7 +2911,7 @@ void M_StatusHUDDrawer(void) // 80009884
 void M_DefaultsDrawer(void) // [Immorpher] new defaults drawer
 {
     const menuitem_t *item;
-    int i, casepos;
+    int i;
 
     ST_DrawString(-1, 20, "Set Defaults", text_alpha | 0xc0000000);
 
@@ -2643,9 +2919,7 @@ void M_DefaultsDrawer(void) // [Immorpher] new defaults drawer
 
     for(i = 0; i < itemlines; i++)
     {
-        casepos = item->casepos;
-
-        ST_DrawString(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+        ST_DrawString(item->x, item->y, MenuText[item->casepos], text_alpha | 0xc0000000);
 
         item++;
     }
@@ -2836,36 +3110,33 @@ int M_ScreenTicker(void) // 8000A0F8
     }
     else
     {
-        if (buttons ^ oldbuttons)
+        if ((buttons & PAD_RIGHT_C) && !(oldbuttons & PAD_RIGHT_C))
         {
-            if(buttons == (PAD_LEFT_C|PAD_RIGHT_C))
+            fState = &FileState[cursorpos];
+
+            if(fState->file_size != 0)
             {
-                fState = &FileState[cursorpos];
+                S_StartSound(NULL, sfx_pistol);
+                M_SaveMenuData();
 
-                if(fState->file_size != 0)
+                SET_MENU(Menu_DeleteNote);
+                MenuCall = M_MenuTitleDrawer;
+                cursorpos = 1;
+                MiniLoop(M_FadeInStart, NULL, M_MenuTicker, M_MenuGameDrawer);
+
+                M_FadeOutStart(ga_exit);
+                if (cursorpos == 0)
                 {
-                    S_StartSound(NULL, sfx_pistol);
-                    M_SaveMenuData();
-
-                    SET_MENU(Menu_DeleteNote);
-                    MenuCall = M_MenuTitleDrawer;
-                    cursorpos = 1;
-                    MiniLoop(M_FadeInStart, NULL, M_MenuTicker, M_MenuGameDrawer);
-
-                    M_FadeOutStart(ga_exit);
-                    if (cursorpos == 0)
+                    if (I_DeletePakFile(cursorpos) == 0)
                     {
-                        if (I_DeletePakFile(cursorpos) == 0)
-                        {
-                            fState->file_size = 0;
-                        }
-                        else
-                        {
-                            FilesUsed = -1;
-                        }
+                        fState->file_size = 0;
                     }
-                    M_RestoreMenuData(true);
+                    else
+                    {
+                        FilesUsed = -1;
+                    }
                 }
+                M_RestoreMenuData(true);
             }
         }
         exit = ga_nothing;
@@ -2950,6 +3221,11 @@ void M_ControllerPakDrawer(void) // 8000A3E4
     }
 }
 
+static INLINE_ALWAYS levelsave_t *M_PakDataIndex(int pos)
+{
+    return (void *) &Pak_Data[pos * 32];
+}
+
 void M_SavePakStart(void) // 8000A6E8
 {
     int i;
@@ -2972,7 +3248,7 @@ void M_SavePakStart(void) // 8000A6E8
             {
                 do
                 {
-                    if (Pak_Data[i * 32] == 0)
+                    if (!I_IsSaveValid(M_PakDataIndex(i)))
                         break;
 
                     i++;
@@ -2994,11 +3270,15 @@ void M_SavePakStart(void) // 8000A6E8
     {
         FilesUsed = -1;
     }
+
+    M_FadeInStart();
 }
 
-void M_SavePakStop(void) // 8000A7B4
+void M_SavePakStop(int exit) // 8000A7B4
 {
     S_StartSound(NULL, sfx_pistol);
+
+    M_FadeOutStart(exit);
 
     if (Pak_Data)
     {
@@ -3084,25 +3364,14 @@ int M_SavePakTicker(void) // 8000A804
 
     if (last_ticon == 0)
     {
-        if ((buttons != oldbuttons) && (buttons == (PAD_RIGHT_C|PAD_LEFT_C)))
+        if ((buttons & PAD_A) && !(oldbuttons & PAD_A))
         {
-            // save the next level number and password data in text format
-            if (gameskill == sk_baby) {
-                sprintf((char*) &Pak_Data[cursorpos * 32], "level %2.2d - bg", nextmap);
-            } else if (gameskill == sk_easy) {
-                sprintf((char*) &Pak_Data[cursorpos * 32], "level %2.2d - bio", nextmap);
-            } else if (gameskill == sk_medium) {
-                sprintf((char*) &Pak_Data[cursorpos * 32], "level %2.2d - iod", nextmap);
-            } else if (gameskill == sk_hard) {
-                sprintf((char*) &Pak_Data[cursorpos * 32], "level %2.2d - wmd", nextmap);
-            } else if (gameskill == sk_nightmare) {
-                sprintf((char*) &Pak_Data[cursorpos * 32], "level %2.2d - bm", nextmap);
-            } else {
-                sprintf((char*) &Pak_Data[cursorpos * 32], "level %2.2d", nextmap);
-            }
-            D_memcpy(&Pak_Data[(cursorpos * 32) + 16], &Passwordbuff, 16);
+            levelsave_t save;
+            I_SaveProgress(&save);
+            D_memcpy(M_PakDataIndex(cursorpos), &save, sizeof save);
 
-            if (I_SavePakFile(File_Num, PFS_WRITE, Pak_Data, Pak_Size) == 0) {
+            if (I_SavePakFile(File_Num, PFS_WRITE, Pak_Data, Pak_Size) == 0)
+            {
                 last_ticon = ticon;
             }
             else
@@ -3116,9 +3385,9 @@ int M_SavePakTicker(void) // 8000A804
             }
         }
     }
-    else if ((ticon - last_ticon) >= 60) // 2 * TICRATE
+    else if ((ticon - last_ticon) >= 60)
     {
-        return ga_exit;
+        return ga_completed;
     }
 
     return ga_nothing;
@@ -3128,18 +3397,6 @@ void M_SavePakDrawer(void) // 8000AB44
 {
     int i;
     char buffer[36];
-
-    I_ClearFrame();
-
-    gDPPipeSync(GFX1++);
-    gDPSetCycleType(GFX1++, G_CYC_FILL);
-    gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
-    // Fill borders with black
-    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,0) << 16 | GPACK_RGBA5551(0,0,0,0)) ;
-    gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
-
-    M_DrawBackground(63, 25, 128, "EVIL");
 
     ST_DrawString(-1, 20, "Controller Pak", text_alpha | 0xc0000000);
 
@@ -3157,12 +3414,12 @@ void M_SavePakDrawer(void) // 8000AB44
     {
         for(i = linepos; i < (linepos + 6); i++)
         {
-            if (Pak_Data[i * 32] == 0) {
+            levelsave_t *save = M_PakDataIndex(i);
+
+            if (!I_IsSaveValid(save))
                 D_memmove(buffer, "empty");
-            }
-            else {
-                D_memmove(buffer, &Pak_Data[i * 32]);
-            }
+            else
+                M_PrintSaveTitle(buffer, save->skill, save->map);
 
             ST_DrawString(60, (i - linepos) * 15 + 65, buffer, text_alpha | 0xc0000000);
         }
@@ -3176,12 +3433,154 @@ void M_SavePakDrawer(void) // 8000AB44
         }
 
         ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 56, MenuAnimationTic + 70, text_alpha | 0xffffff00);
+    }
+}
 
-        ST_DrawString(-1, 195, "press \x8b to exit", text_alpha | 0xffffff00);
-        ST_DrawString(-1, 210, "press \x84\x85 to save", text_alpha | 0xffffff00);
+void M_SaveGamePakStart(void)
+{
+    int i;
+
+    GamePak_Data = Z_Malloc(sizeof(levelsave_t) * MAXSRAMSAVES, PU_STATIC, NULL);
+    I_ReadSramSaves(GamePak_Data);
+
+    cursorpos = 0;
+    linepos = 0;
+    last_ticon = 0;
+
+    i = 0;
+    do
+    {
+        if (!I_IsSaveValid(&GamePak_Data[i]))
+            break;
+
+        i++;
+    } while (i != MAXSRAMSAVES);
+
+    if (i < MAXSRAMSAVES)
+    {
+        cursorpos = i;
+
+        if (!(MAXSRAMSAVES < (i+6)))
+            linepos = i;
+        else
+            linepos = (MAXSRAMSAVES-6);
     }
 
-    I_DrawFrame();
+    M_FadeInStart();
+}
+
+void M_SaveGamePakStop(int exit)
+{
+    S_StartSound(NULL, sfx_pistol);
+
+    M_FadeOutStart(exit);
+
+    Z_Free(GamePak_Data);
+    GamePak_Data = NULL;
+}
+
+int M_SaveGamePakTicker(void)
+{
+    unsigned int buttons;
+    unsigned int oldbuttons;
+
+    if ((gamevbls < gametic) && ((gametic & 3U) == 0)) {
+        MenuAnimationTic = (MenuAnimationTic + 1) & 7;
+    }
+
+    buttons = M_ButtonResponder(ticbuttons[0]);
+    oldbuttons = oldticbuttons[0] & 0xffff0000;
+
+    if (((buttons & PAD_START) && !(oldbuttons & PAD_START))
+            || ((buttons & PAD_B) && !(oldbuttons & PAD_B)))
+    {
+        return ga_exit;
+    }
+
+    if (!(buttons & ALL_JPAD)) {
+        m_vframe1 = 0;
+    }
+    else
+    {
+        m_vframe1 -= vblsinframe[0];
+
+        if (m_vframe1 <= 0)
+        {
+            m_vframe1 = 0xf; // TICRATE/2
+
+            if (buttons & PAD_DOWN)
+            {
+                cursorpos += 1;
+
+                if (MAXSRAMSAVES - 1 < cursorpos)
+                    cursorpos = MAXSRAMSAVES - 1;
+                else
+                    S_StartSound(NULL, sfx_switch1);
+
+
+                if ((linepos + 5) < cursorpos)
+                    linepos += 1;
+            }
+            else if (buttons & PAD_UP)
+            {
+                cursorpos -= 1;
+
+                if (cursorpos < 0)
+                    cursorpos = 0;
+                else
+                    S_StartSound(NULL, sfx_switch1);
+
+                if(cursorpos < linepos)
+                    linepos -= 1;
+            }
+        }
+    }
+
+    if (last_ticon == 0)
+    {
+        if ((buttons & PAD_A) && !(oldbuttons & PAD_A))
+        {
+            I_SaveProgress(&GamePak_Data[cursorpos]);;
+            I_SaveProgressToSram(cursorpos, &GamePak_Data[cursorpos]);
+            last_ticon = ticon;
+        }
+    }
+    else if ((ticon - last_ticon) >= 60)
+    {
+        return ga_completed;
+    }
+
+    return ga_nothing;
+}
+
+void M_SaveGamePakDrawer(void) // 8000AB44
+{
+    int i;
+    char buffer[36];
+
+    ST_DrawString(-1, 20, "Game Pak", text_alpha | 0xc0000000);
+
+    for(i = linepos; i < (linepos + 6); i++)
+    {
+        levelsave_t *save = &GamePak_Data[i];
+
+        if (!I_IsSaveValid(save))
+            D_memmove(buffer, "empty");
+        else
+            M_PrintSaveTitle(buffer, save->skill, save->map);
+
+        ST_DrawString(60, (i - linepos) * 15 + 65, buffer, text_alpha | 0xc0000000);
+    }
+
+    if (linepos != 0) {
+        ST_DrawString(60, 50, "\x8f more...", text_alpha | 0xffffff00);
+    }
+
+    if ((linepos + 6) <= (MAXSRAMSAVES - 1)) {
+        ST_DrawString(60, 155, "\x8e more...", text_alpha | 0xffffff00);
+    }
+
+    ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 56, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 }
 
 void M_LoadPakStart(void) // 8000AEEC
@@ -3199,7 +3598,7 @@ void M_LoadPakStart(void) // 8000AEEC
     {
         do
         {
-            if (Pak_Data[i * 32])
+            if (I_IsSaveValid(M_PakDataIndex(i)))
                 break;
 
             i++;
@@ -3236,8 +3635,6 @@ int M_LoadPakTicker(void) // 8000AFE4
     unsigned int buttons;
     unsigned int oldbuttons;
     int size;
-    int skill;
-    int levelnum;
     int exit;
 
     if ((gamevbls < gametic) && ((gametic & 3U) == 0)) {
@@ -3294,35 +3691,20 @@ int M_LoadPakTicker(void) // 8000AFE4
     {
         exit = ga_exit;
     }
+    else if (((buttons & PAD_A) && !(oldbuttons & PAD_A)) && I_IsSaveValid(M_PakDataIndex(cursorpos)))
+    {
+        doLoadSave = true;
+        LevelSaveBuffer = *M_PakDataIndex(cursorpos);
+
+        startmap = gamemap = LevelSaveBuffer.map;
+        startskill = gameskill = LevelSaveBuffer.skill;
+
+        G_InitSkill (gameskill);
+        exit = ga_warped;
+    }
     else
     {
-        if (!(buttons ^ oldbuttons) || buttons != (PAD_RIGHT_C|PAD_LEFT_C) ||
-            (Pak_Data[cursorpos * 32] == 0))
-        {
-            exit = ga_nothing;
-        }
-        else
-        {
-            // load the password data in text format
-            D_memcpy(&Passwordbuff, &Pak_Data[((cursorpos * 32) + 16)], 16);
-
-            if (M_DecodePassword(Passwordbuff, &levelnum, &skill, 0) == 0)
-            {
-                CurPasswordSlot = 0;
-                exit = ga_exit;
-            }
-            else
-            {
-                doPassword = true;
-                CurPasswordSlot = 16;
-
-                startmap = gamemap = levelnum;
-                startskill = gameskill = skill;
-
-				G_InitSkill (gameskill); // [Immorpher] Initialize new game skill
-                exit = ga_warped;
-            }
-        }
+        exit = ga_nothing;
     }
 
     return exit;
@@ -3337,14 +3719,18 @@ void M_LoadPakDrawer(void) // 8000B270
 
     for(i = linepos; i < (linepos + 6); i++)
     {
-        if (FilesUsed == -1) {
+        if (FilesUsed == -1)
+        {
             D_memmove(buffer, "-");
         }
-        else if (Pak_Data[i * 32] == 0) {
+        else if (!I_IsSaveValid(M_PakDataIndex(i)))
+        {
             D_memmove(buffer, "no save");
         }
-        else {
-            D_memmove(buffer, &Pak_Data[i * 32]);
+        else
+        {
+            levelsave_t *save = M_PakDataIndex(i);
+            M_PrintSaveTitle(buffer, save->skill, save->map);
         }
 
         ST_DrawString(60, (i - linepos) * 15 + 65, buffer, text_alpha | 0xc0000000);
@@ -3359,9 +3745,154 @@ void M_LoadPakDrawer(void) // 8000B270
     }
 
     ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 56, MenuAnimationTic + 70, text_alpha | 0xffffff00);
+}
 
-    ST_DrawString(-1, 195, "press \x8b to exit", text_alpha | 0xffffff00);
-    ST_DrawString(-1, 210, "press \x84\x85 to load", text_alpha | 0xffffff00);
+void M_LoadGamePakStart(void)
+{
+    int i;
+
+    GamePak_Data = Z_Malloc(sizeof(levelsave_t) * MAXSRAMSAVES, PU_STATIC, NULL);
+    I_ReadSramSaves(GamePak_Data);
+
+    cursorpos = 0;
+    linepos = 0;
+
+    i = 0;
+    do
+    {
+        if (I_IsSaveValid(&GamePak_Data[i]))
+            break;
+
+        i++;
+    } while (i != MAXSRAMSAVES);
+
+    if (i < MAXSRAMSAVES)
+    {
+        cursorpos = i;
+
+        if (!(MAXSRAMSAVES < (i+6)))
+            linepos = i;
+        else
+            linepos = (MAXSRAMSAVES-6);
+    }
+
+    M_FadeInStart();
+}
+
+void M_LoadGamePakStop(void)
+{
+    S_StartSound(NULL, sfx_pistol);
+    M_FadeOutStart(ga_exit);
+
+    Z_Free(GamePak_Data);
+    GamePak_Data = NULL;
+}
+
+int M_LoadGamePakTicker(void)
+{
+    unsigned int buttons;
+    unsigned int oldbuttons;
+    int exit;
+
+    if ((gamevbls < gametic) && ((gametic & 3U) == 0)) {
+        MenuAnimationTic = (MenuAnimationTic + 1) & 7;
+    }
+
+    buttons = M_ButtonResponder(ticbuttons[0]);
+    oldbuttons = oldticbuttons[0] & 0xffff0000;
+
+    if (!(buttons & ALL_JPAD))
+    {
+        m_vframe1 = 0;
+    }
+    else
+    {
+        m_vframe1 -= vblsinframe[0];
+
+        if (m_vframe1 <= 0)
+        {
+            m_vframe1 = 0xf; // TICRATE/2
+
+            if (buttons & PAD_DOWN)
+            {
+                cursorpos += 1;
+
+                if (MAXSRAMSAVES - 1 < cursorpos)
+                    cursorpos = MAXSRAMSAVES - 1;
+                else
+                    S_StartSound(NULL, sfx_switch1);
+
+                if ((linepos + 5) < cursorpos)
+                    linepos += 1;
+
+            }
+            else if (buttons & PAD_UP)
+            {
+                cursorpos -= 1;
+
+                if (cursorpos < 0)
+                    cursorpos = 0;
+                else
+                    S_StartSound(NULL, sfx_switch1);
+
+                if(cursorpos < linepos)
+                    linepos -= 1;
+            }
+        }
+    }
+
+    if (((buttons & PAD_START) && !(oldbuttons & PAD_START))
+            || ((buttons & PAD_B) && !(oldbuttons & PAD_B)))
+    {
+        exit = ga_exit;
+    }
+    else if (((buttons & PAD_A) && !(oldbuttons & PAD_A)) && I_IsSaveValid(&GamePak_Data[cursorpos]))
+    {
+        doLoadSave = true;
+        LevelSaveBuffer = GamePak_Data[cursorpos];
+
+        startmap = gamemap = LevelSaveBuffer.map;
+        startskill = gameskill = LevelSaveBuffer.skill;
+
+        G_InitSkill (gameskill);
+        exit = ga_warped;
+    }
+    else
+    {
+        exit = ga_nothing;
+    }
+
+    return exit;
+}
+
+void M_LoadGamePakDrawer(void)
+{
+    int i;
+    char buffer[32];
+
+    ST_DrawString(-1, 20, "Game Pak", text_alpha | 0xc0000000);
+
+    for(i = linepos; i < (linepos + 6); i++)
+    {
+        levelsave_t *save = &GamePak_Data[i];
+
+        if (!I_IsSaveValid(save))
+            D_memmove(buffer, "no save");
+        else
+            M_PrintSaveTitle(buffer, save->skill, save->map);
+
+        ST_DrawString(60, (i - linepos) * 15 + 65, buffer, text_alpha | 0xc0000000);
+    }
+
+    if (linepos != 0) {
+        ST_DrawString(60, 50, "\x8f more...", text_alpha | 0xffffff00);
+    }
+
+    if ((linepos + 6) <= (MAXSRAMSAVES - 1)) {
+        ST_DrawString(60, 155, "\x8e more...", text_alpha | 0xffffff00);
+    }
+
+    ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 56, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 }
 
 int M_CenterDisplayTicker(void) // 8000B4C4

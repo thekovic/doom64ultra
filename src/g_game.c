@@ -55,6 +55,7 @@ void G_DoLoadLevel (void) // 80004530
 		players[0].playerstate = PST_REBORN;
 
 	P_SetupLevel(gamemap, gameskill);
+    P_FinishSetupLevel();
 	gameaction = ga_nothing;
 }
 
@@ -345,6 +346,8 @@ void G_InitSkill (skill_t skill) // [Immorpher] initialize skill
 }
 /*============================================================================  */
 
+void M_QuickLoadFailed(void);
+void I_DeleteQuickLoad(void);
 /*
 =================
 =
@@ -360,11 +363,24 @@ void G_RunGame (void) // 80004794
 	while (1)
 	{
         /* load a level */
-        G_DoLoadLevel ();
+        if (gameaction == ga_loadquicksave)
+        {
+            if (!I_QuickLoad())
+            {
+                I_DeleteQuickLoad();
+                M_QuickLoadFailed();
+                gameaction = ga_nothing;
+                return;
+            }
+        }
+        else
+        {
+            G_DoLoadLevel ();
 
-        if(!DEVWARP_ENABLED && runintroduction && StoryText == true) { // [Immorpher] run introduction text screen
-            MiniLoop(F_StartIntermission, F_StopIntermission, F_TickerIntermission, F_DrawerIntermission);
-            runintroduction = false; // [Immorpher] only run it once!
+            if(!DEVWARP_ENABLED && runintroduction && StoryText == true) { // [Immorpher] run introduction text screen
+                MiniLoop(F_StartIntermission, F_StopIntermission, F_TickerIntermission, F_DrawerIntermission);
+                runintroduction = false; // [Immorpher] only run it once!
+            }
         }
 
         //printf("RUN P_Start\n");
@@ -375,7 +391,7 @@ void G_RunGame (void) // 80004794
         //if (gameaction == ga_recorddemo)
             //G_RecordDemo();
 
-        if(gameaction == ga_warped)
+        if(gameaction == ga_warped || gameaction == ga_loadquicksave)
 			continue; /* skip intermission */
 
         if ((gameaction == ga_died) || (gameaction == ga_restart))
@@ -397,7 +413,7 @@ void G_RunGame (void) // 80004794
             /* run the intermission if needed */
             MiniLoop(F_StartIntermission, F_StopIntermission, F_TickerIntermission, F_DrawerIntermission);
 
-            if(gameaction == ga_warped)
+            if(gameaction == ga_warped || gameaction == ga_loadquicksave)
                 continue; /* skip intermission */
 
             if(gameaction == ga_restart)
@@ -413,7 +429,7 @@ void G_RunGame (void) // 80004794
                 /* run the finale if needed */
                 MiniLoop(F_Start, F_Stop, F_Ticker, F_Drawer);
 
-                if(gameaction == ga_warped)
+                if(gameaction == ga_warped || gameaction == ga_loadquicksave)
                     continue; /* skip intermission */
 
                 if(gameaction == ga_restart)

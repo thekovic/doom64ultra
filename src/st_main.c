@@ -236,6 +236,18 @@ extern u32 last_bsp_count;
 extern u32 last_phase3_count;
 extern u32 last_iter_count;
 
+void ST_DrawDebug (void)
+{
+    if(debug)
+    {
+        for(int i = 0; i < debugcnt; i++)
+        {
+            int index = (i+debugstart)%ARRAYLEN(debugbuf);
+            ST_Message(debugX, (i*8) + debugY, debugbuf[index],0x00ff00ff);
+        }
+    }
+}
+
 void ST_Drawer (void) // 80029DC0
 {
     byte        *src;
@@ -292,14 +304,7 @@ void ST_Drawer (void) // 80029DC0
         }
     }
 
-    if(debug)
-    {
-        for(int i = 0; i < debugcnt; i++)
-        {
-            int index = (i+debugstart)%ARRAYLEN(debugbuf);
-            ST_Message(debugX, (i*8) + debugY, debugbuf[index],0x00ff00ff);
-        }
-    }
+    ST_DrawDebug();
 
     if (HUDopacity){
         int crosshair, color, stat;

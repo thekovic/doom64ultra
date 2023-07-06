@@ -25,6 +25,23 @@ int CurPasswordSlot = 0;    // 8005ACBC
 #define PW_ARMORMASK 0x03
 #define PW_ARTIMASK  0x1c
 
+void M_PrintSaveTitle(char *buf, skill_t skill, int map)
+{
+    if (skill == sk_baby) {
+        sprintf(buf, "level %2.2d - be gentle", map);
+    } else if (skill == sk_easy) {
+        sprintf(buf, "level %2.2d - bring it on", map);
+    } else if (skill == sk_medium) {
+        sprintf(buf, "level %2.2d - i own doom", map);
+    } else if (skill == sk_hard) {
+        sprintf(buf, "level %2.2d - watch me die", map);
+    } else if (skill == sk_nightmare) {
+        sprintf(buf, "level %2.2d - be merciless", map);
+    } else {
+        sprintf(buf, "level %2.2d", map);
+    }
+}
+
 void M_EncodePassword(byte *buff) // 8000BC10
 {
     byte encode[10];

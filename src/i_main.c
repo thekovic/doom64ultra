@@ -190,8 +190,8 @@ char Pak_Table[256] = // 8005A620
 
 char Game_Name[16] = // 8005A790
 {
-    0x1D, 0x28, 0x28, 0x26, 0x0F, 0x16, 0x14, 0x00, // (doom 64) byte index from Pak_Table
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    0x1D, 0x28, 0x28, 0x26, 0x0F, 0x16, 0x14, 0x0F, // (doom 64 ultra) byte index from Pak_Table
+    0x2E, 0x25, 0x2D, 0x2B, 0x1A, 0x00, 0x00, 0x00
 };
 
 boolean disabledrawing = false; // 8005A720
@@ -511,6 +511,7 @@ void I_SystemTicker(void *arg) // 80005730
 }
 
 extern void S_Init(void);
+extern void I_InitSram(void);
 
 void I_Init(void) // 80005C50
 {
@@ -580,6 +581,8 @@ void I_Init(void) // 80005C50
     osSetEventMesg(OS_EVENT_SI, &sys_msgque_joy, &sys_msg_joy);
 
     osContInit(&sys_msgque_joy, &gamepad_bit_pattern, gamepad_status);
+
+    I_InitSram();
 
     gamepad_data = (OSContPad *)bootStack;
 
@@ -1095,7 +1098,7 @@ int I_SavePakFile(int filenumb, int flag, byte *data, int size) // 80007308
 }
 
 #define COMPANY_CODE 0x3544     // 5D
-#define GAME_CODE 0x4e444d45    // NDME
+#define GAME_CODE 0x4e454441    // NEDA
 
 int I_ReadPakFile(void) // 800073B8
 {

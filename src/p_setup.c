@@ -608,7 +608,8 @@ void P_LoadLights(void) // 8001E29C
         l->tag = LITTLESHORT(ml->tag);
     }
 
-    P_SetLightFactor(0);
+    if (gameaction != ga_loadquicksave)
+        P_SetLightFactor(0);
 }
 
 /*
@@ -760,8 +761,6 @@ void P_GroupLines (void) // 8001E614
 
 void P_SetupLevel(int map, skill_t skill) // 8001E974
 {
-	int		memory;
-
 	/* free all tags except the PU_STATIC tag */
 	Z_FreeTags(mainzone, ~PU_STATIC); // (PU_LEVEL | PU_LEVSPEC | PU_CACHE)
 
@@ -795,14 +794,19 @@ void P_SetupLevel(int map, skill_t skill) // 8001E974
     P_LoadReject();
     P_LoadLights();
     P_GroupLines();
-	P_LoadThings();
-	W_FreeMapLump();
+    P_LoadThings();
+    W_FreeMapLump();
 
 	P_Init();
+}
 
-	/* set up world state */
-	P_SpawnSpecials();
-	R_SetupSky();
+void P_FinishSetupLevel(void)
+{
+	int		memory;
+
+    /* set up world state */
+    P_SpawnSpecials();
+    R_SetupSky();
 
     Z_SetAllocBase(mainzone);
     Z_CheckZone(mainzone);
@@ -814,7 +818,8 @@ void P_SetupLevel(int map, skill_t skill) // 8001E974
 		I_Error("P_SetupLevel: not enough free memory %d", memory);
 	}
 
-    P_SpawnPlayer();
+    if (gameaction != ga_loadquicksave)
+        P_SpawnPlayer();
 
     //PRINTF_D2(WHITE, 0, 27, "P_SetupLevel DONE\n");
 }

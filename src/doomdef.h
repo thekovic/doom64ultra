@@ -198,6 +198,8 @@ static inline angle_t tantoangle(int x) {
     return ((angle_t)((-47*((x)*(x))) + (359628*(x)) - 3150270));
 }
 
+extern void bzero(void *, int);
+
 typedef enum
 {
 	sk_baby,
@@ -219,7 +221,8 @@ typedef enum
 	//ga_recorddemo,// no used
 	ga_timeout,
 	ga_restart,
-	ga_exit
+	ga_exit,
+    ga_loadquicksave,
 } gameaction_t;
 
 #define LASTLEVEL 34
@@ -909,6 +912,7 @@ int G_PlayDemoPtr (int skill, int map);
 
 mobj_t *P_SpawnMapThing (mapthing_t *mthing);
 void P_SetupLevel (int map, skill_t skill);
+void P_FinishSetupLevel (void);
 void P_Init (void);
 
 void P_Start (void);
@@ -947,7 +951,6 @@ typedef struct
 } menudata_t;
 
 extern menudata_t MenuData[8];      // 800A54F0
-extern const menuitem_t Menu_Game[5];     // 8005AAA4
 extern int MenuAnimationTic;        // 800a5570
 extern int cursorpos;               // 800A5574
 extern int m_vframe1;               // 800A5578
@@ -964,6 +967,7 @@ extern int last_ticon;              // 800a5598
 extern skill_t startskill;          // 800A55A0
 extern int startmap;                // 800A55A4
 extern int EnableExpPak;            // 800A55A8
+extern boolean SramPresent;         // [nova] sram support
 
 //-----------------------------------------
 
@@ -991,6 +995,7 @@ extern int HUDmargin; 				// [Immorpher] HUD margin options
 extern boolean ColoredHUD;     		// [Immorpher] Colored hud
 
 int M_RunTitle(void); // 80007630
+void M_PauseMenu(void);
 
 int M_ControllerPak(void); // 80007724
 int M_ButtonResponder(int buttons); // 80007960
@@ -1026,7 +1031,7 @@ int M_ScreenTicker(void); // 8000A0F8
 void M_ControllerPakDrawer(void); // 8000A3E4
 
 void M_SavePakStart(void); // 8000A6E8
-void M_SavePakStop(void); // 8000A7B4
+void M_SavePakStop(int exit); // 8000A7B4
 int M_SavePakTicker(void); // 8000A804
 void M_SavePakDrawer(void); // 8000AB44
 
@@ -1034,6 +1039,16 @@ void M_LoadPakStart(void); // 8000AEEC
 void M_LoadPakStop(void); // 8000AF8C
 int M_LoadPakTicker(void); // 8000AFE4
 void M_LoadPakDrawer(void); // 8000B270
+
+void M_SaveGamePakStart(void);
+void M_SaveGamePakStop(int exit);
+int M_SaveGamePakTicker(void);
+void M_SaveGamePakDrawer(void);
+
+void M_LoadGamePakStart(void);
+void M_LoadGamePakStop(void);
+int M_LoadGamePakTicker(void);
+void M_LoadGamePakDrawer(void);
 
 int M_CenterDisplayTicker(void); // 8000B4C4
 void M_CenterDisplayDrawer(void); // 8000B604
@@ -1050,6 +1065,7 @@ extern byte Passwordbuff[16];   // 800A55B0
 extern boolean doPassword;      // 8005ACB8
 extern int CurPasswordSlot;     // 8005ACBC
 
+void M_PrintSaveTitle(char *buf, skill_t skill, int map);
 void M_EncodePassword(byte *buff);//8000BC10
 int M_DecodePassword(byte *inbuff, int *levelnum, int *skill, player_t *player); // 8000C194
 void M_PasswordStart(void); // 8000C710
@@ -1202,6 +1218,40 @@ void I_IdleGameThread(void *arg); // 8000567C
 void I_Main(void *arg); // 80005710
 void I_SystemTicker(void *arg); // 80005730
 void I_Init(void); // 80005C50
+
+#define MAXSRAMSAVES 16
+
+typedef struct __attribute__((__packed__)) __attribute__((aligned (8))) {
+    u16 crc;
+    u32 present: 1;
+    u32 map: 7;
+    u32 skill: 3;
+    u32 artifacts: 3;
+    u32 weapons: 8;
+    u32 health: 8;
+    u32 armor: 8;
+    u32 clip: 9;
+    u32 shell: 6;
+    u32 cell: 9;
+    u32 misl: 6;
+    u32 backpack: 1;
+    u32 armortype: 2;
+} levelsave_t;
+
+void I_InitSram(void);
+void I_SaveConfig(void);
+void I_SaveProgressToSram(u8 index, const levelsave_t *save);
+void I_SaveProgress(levelsave_t *save);
+void I_ReadSramSaves(levelsave_t *saves);
+boolean I_IsSaveValid(const levelsave_t *save);
+void I_LoadProgress(const levelsave_t *save);
+void I_QuickSave(void);
+boolean I_QuickLoad(void);
+boolean I_IsQuickSaveAvailable(void);
+boolean I_IsQuickLoadAvailable(void);
+
+extern levelsave_t LevelSaveBuffer;
+extern boolean doLoadSave;
 
 void I_Error(char *error, ...) __attribute__ ((format (printf, 1, 2)));
 int I_GetControllerData(void); // 800060D0

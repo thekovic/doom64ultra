@@ -4,7 +4,7 @@
 
 extern void G_PlayerFinishLevel (int player);
 
-boolean		gamepaused = true; // 800A6270
+boolean		gamepaused = false; // 800A6270
 
 /*
 ===============================================================================
@@ -165,14 +165,7 @@ void P_CheckCheats (void) // 8002187C
 
             lastticon = ticon;
 
-            MenuCall = M_MenuTitleDrawer;
-            MenuItem = Menu_Game;
-            cursorpos = 0;
-            itemlines = ARRAYLEN(Menu_Game);
-
-            MenuIdx = 0;
-            text_alpha = 255;
-            MenuAnimationTic = 0;
+            M_PauseMenu();
         }
 
         return;
@@ -183,14 +176,9 @@ void P_CheckCheats (void) // 8002187C
     if (exit)
         M_MenuClearCall();
 
-    if (exit == ga_warped) {
-        gameaction = ga_warped;
-    }
-    else if (exit == ga_exitdemo) {
-        gameaction = ga_exitdemo;
-    }
-    else if (exit == ga_restart) {
-        gameaction = ga_restart;
+    if (exit == ga_warped || exit == ga_restart || exit == ga_exitdemo || exit == ga_loadquicksave)
+    {
+        gameaction = exit;
     }
     else if (exit == ga_exit)
     {
@@ -324,21 +312,36 @@ void P_Start (void) // 80021C50
 	validcount = 1;
 
 	AM_Start();
-	M_ClearRandom();
 
-	/* do a nice little fade in effect */
-	fb = Z_Malloc(sizeof(*fb), PU_LEVSPEC, 0);
-	P_AddThinker(&fb->thinker);
-	fb->thinker.function = T_FadeInBrightness;
-	fb->factor = 0;
+    if (gameaction == ga_loadquicksave)
+    {
+        if (MusicID != MapInfo[gamemap].MusicSeq-92)
+        {
+            MusicID = MapInfo[gamemap].MusicSeq-92;
+            S_StartMusic(MapInfo[gamemap].MusicSeq);
+        }
+        P_RefreshBrightness();
 
-	/* autoactivate line specials */
-	P_ActivateLineByTag(999, players[0].mo);
+        gameaction = ga_nothing;
+    }
+    else
+    {
+        M_ClearRandom();
 
-	start_time = ticon;
+        /* do a nice little fade in effect */
+        fb = Z_Malloc(sizeof(*fb), PU_LEVSPEC, 0);
+        P_AddThinker(&fb->thinker);
+        fb->thinker.function = T_FadeInBrightness;
+        fb->factor = 0;
 
-    MusicID = MapInfo[gamemap].MusicSeq-92;
-    S_StartMusic(MapInfo[gamemap].MusicSeq);
+        /* autoactivate line specials */
+        P_ActivateLineByTag(999, players[0].mo);
+
+        start_time = ticon;
+
+        MusicID = MapInfo[gamemap].MusicSeq-92;
+        S_StartMusic(MapInfo[gamemap].MusicSeq);
+    }
 }
 
 void P_Stop (int exit) // 80021D58
@@ -355,12 +358,12 @@ void P_Stop (int exit) // 80021D58
 	/* free all tags except the PU_STATIC tag */
 	Z_FreeTags(mainzone, ~PU_STATIC); // (PU_LEVEL | PU_LEVSPEC | PU_CACHE)
 
-    if ((gamemap != 33) || (exit == 8))
+    if ((gamemap != 33) || (exit == ga_exit))
         S_StopMusic();
 
-    if ((demoplayback) && (exit == 8))
+    if ((demoplayback) && (exit == ga_exit))
         I_WIPE_FadeOutScreen();
-    else
+    else if (exit != ga_loadquicksave)
         I_WIPE_MeltScreen();
 
     S_StopAll();

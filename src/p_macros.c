@@ -14,7 +14,9 @@ int         macrointeger;       // 800A60F4
 macro_t     *restartmacro;      // 800A60F8
 int         macrocounter;       // 800A60FC
 macroactivator_t macroqueue[4]; // 800A6100
+/* macro queue write pos */
 int         macroidx1;          // 800A6120
+/* macro queue read pos */
 int         macroidx2;          // 800A6124
 
 int P_StartMacro(int macroindex, line_t *line, mobj_t *thing) // 80021088

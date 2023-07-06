@@ -7,9 +7,10 @@ A fork of [Doom 64-RE] with the goal of creating a base for enhanced mods.
 - Jumping/Crouching
 - Freelook
 - Autoaim option
-- Revamped controls menu
 - Fly mode cheat
 - Widescreen support
+- Persistent saves to SRAM (no more controller pak requirement)
+- Quick saves (for saving/loading during a level)
 - Lots of bugfixes and optimizations
 - Many additional enhancements from [Merciless], [eXpanded] and [Complete] editions
   - "Be Merciless!" Difficulty
