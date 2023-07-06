@@ -4,7 +4,6 @@
 #include "p_local.h"
 
 // text for debug
-#include "graph.h"
 
 extern void P_SpawnPlayer(/*mapthing_t *mthing*/);
 

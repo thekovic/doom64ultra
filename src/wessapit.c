@@ -8,7 +8,6 @@
 
 #include "funqueue.h"
 
-#include "graph.h" // debug
 
 #ifndef NOUSEWESSCODE
 extern pmasterstat *pm_stat;    //0x800B41CC

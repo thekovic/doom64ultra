@@ -7,7 +7,6 @@
 
 #include "funqueue.h"
 
-#include "graph.h"
 
 #ifndef NOUSEWESSCODE
 

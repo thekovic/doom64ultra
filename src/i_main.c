@@ -6,9 +6,6 @@
 #include "i_main.h"
 #include "doomdef.h"
 #include "st_main.h"
-
-// text for debug
-#include "graph.h"
 #include "config.h"
 
 /*

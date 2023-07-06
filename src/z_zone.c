@@ -34,7 +34,6 @@ extern u8 _bss_end;
 ========================
 */
 
-#include "graph.h"
 
 void Z_Init (void) // 8002C8F0
 {

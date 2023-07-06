@@ -2,7 +2,6 @@
 
 #include "doomdef.h"
 
-#include "graph.h"
 
 /*=======*/
 /* TYPES */

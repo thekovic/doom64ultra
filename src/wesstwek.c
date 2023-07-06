@@ -18,7 +18,6 @@
 #include "wesshand.h"
 
 
-#include "graph.h"
 
 #ifndef NOUSEWESSCODE
 

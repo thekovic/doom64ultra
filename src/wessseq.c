@@ -4,7 +4,6 @@
 
 #include "wessseq.h"
 
-#include "graph.h"
 #ifndef NOUSEWESSCODE
 extern void (**CmdFuncArr[10])(track_status *);
 extern void(*DrvFunctions[36])(track_status *);
