@@ -86,21 +86,6 @@ extern int wess_seq_load(int seqnum,void *memptr);
 extern int wess_seq_free(int seqnum);
 
     /*
-        sequence list loading
-
-        - pass in a list of sequnce numbers to be loaded
-        - end this list with the END_SEQ_LIST define
-    */
-
-#define END_SEQ_LIST -1
-
-extern int wess_seq_list_sizeof(short *seqlist);
-
-extern int wess_seq_list_load(short *seqlist,void *memptr);
-
-extern int wess_seq_list_free(short *seqlist);
-
-    /*
         sequence range loading
 
         - specify a number of consecutive sequences to be loaded

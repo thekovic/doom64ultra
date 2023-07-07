@@ -13,7 +13,6 @@
 
 #include "funqueue.h"
 
-#include "wessedit.h"
 #include "wesstrak.h"
 #include "wesshand.h"
 
