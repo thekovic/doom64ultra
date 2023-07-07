@@ -1252,6 +1252,7 @@ int M_MenuTicker(void) // 80007E0C
                 {
                     S_StartSound(NULL, sfx_switch2);
                     playerconfigs[0].autorun ^= true;
+                    ConfigChanged = true;
                     return ga_nothing;
                 }
                 break;
@@ -2144,6 +2145,7 @@ int M_MenuTicker(void) // 80007E0C
                 {
                     S_StartSound(NULL, sfx_switch2);
                     StoryText ^= true;
+                    ConfigChanged = true;
                     return ga_nothing;
                 }
                 break;
@@ -2154,6 +2156,7 @@ int M_MenuTicker(void) // 80007E0C
                 {
                     S_StartSound(NULL, sfx_switch2);
                     MapStats ^= true;
+                    ConfigChanged = true;
                     return ga_nothing;
                 }
                 break;
