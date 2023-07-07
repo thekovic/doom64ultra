@@ -23,8 +23,8 @@ void D_DoomMain(void *arg) // 800027C0
 {
     int exit;
 
-    I_Init();
     Z_Init();
+    I_Init();
     W_Init();
     R_Init();
     ST_Init();

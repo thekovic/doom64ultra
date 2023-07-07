@@ -199,6 +199,8 @@ static inline angle_t tantoangle(int x) {
 }
 
 extern void bzero(void *, int);
+extern int bcmp(void *, void *, int);
+#define memcmp bcmp
 
 typedef enum
 {
@@ -968,7 +970,6 @@ extern int last_ticon;              // 800a5598
 extern skill_t startskill;          // 800A55A0
 extern int startmap;                // 800A55A4
 extern int EnableExpPak;            // 800A55A8
-extern boolean SramPresent;         // [nova] sram support
 
 //-----------------------------------------
 
@@ -1181,6 +1182,8 @@ enum VID_MSG {
 
 extern OSTask *vid_task;   // 800A5244
 extern u32 vid_side;       // 800A5248
+
+extern boolean SramPresent; // [nova] sram support
 
 extern u8 gamepad_bit_pattern; // 800A5260 // one bit for each controller
 

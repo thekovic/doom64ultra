@@ -5,30 +5,34 @@
 #include "st_main.h"
 
 boolean SramPresent = false;
-static u32 SramSize = 0x20000;
+static u32 SramSize = 0;
+static boolean SramBanked = false;
+static boolean QuickLoadAvailable = false;
 
 #define SRAM_MAGIC 0x44363455 // 'D64U'
 #define QUICKSAVE_MAGIC 0x44363453 // 'D64S'
 #define SRAM_DATA_VERSION 0
 
 #define HEADER_ADDR 0
-#define CONFIG_ADDR 8
+#define CONFIG_ADDR (sizeof(sramheader_t))
 #define SAVE_ADDR (CONFIG_ADDR + sizeof(config_t))
 #define QUICKSAVE_ADDR (SAVE_ADDR + sizeof(levelsave_t) * MAXSRAMSAVES)
-#define FOOTER_ADDR (SramSize - 8)
-#define QUICKSAVE_SIZE (SramSize - QUICKSAVE_ADDR - 8)
+#define FOOTER_ADDR (SramSize - sizeof(sramheader_t))
+#define QUICKSAVE_SIZE (SramSize - QUICKSAVE_ADDR - sizeof(sramheader_t))
 
 static OSPiHandle SramHandle __attribute__((aligned(8)));
 
 #define SRAM_START_ADDR  0x08000000
+#define SRAM_PAGE_SIZE   0x8000
 #define SRAM_latency     0x5
 #define SRAM_pulse       0x0c
 #define SRAM_pageSize    0xd
 #define SRAM_relDuration 0x2
 
 static boolean I_LoadConfig(void);
+static void I_DetectQuickLoad(void);
 
-static void ReadWriteSram(u32 addr, void* buf, u32 size, s32 flag)
+static void I_ReadWriteSram(u32 addr, void* buf, u32 size, s32 flag)
 {
     OSIoMesg msgbuf;
     OSMesgQueue queue;
@@ -48,35 +52,135 @@ static void ReadWriteSram(u32 addr, void* buf, u32 size, s32 flag)
     else
         osWritebackDCache((void*)buf, (s32)size);
 
-    // make multiple transfers when (addr + size) crosses bank boundary
+    /* make multiple transfers when (addr + size) crosses bank boundary */
     while (size > 0)
     {
-        base = addr & 0x7fff;
-
-        // bank select in bits 18-19
-        msgbuf.devAddr  = base + ((addr & 0x18000) << 3);
-        msgbuf.size     = (base + size >= 0x8000) ? 0x8000 - base : size;
         msgbuf.dramAddr = buf;
+
+        if (SramBanked)
+        {
+            base = addr & 0x7fff;
+
+            /* bank select in bits 18-19 */
+            msgbuf.devAddr = base + ((addr & 0x18000) << 3);
+            msgbuf.size    = (base + size >= SRAM_PAGE_SIZE) ? SRAM_PAGE_SIZE - base : size;
+            buf += msgbuf.size;
+            addr += msgbuf.size;
+        }
+        else
+        {
+            msgbuf.devAddr = addr;
+            msgbuf.size    = size;
+        }
 
         osEPiStartDma(&SramHandle, &msgbuf, flag);
         osRecvMesg(&queue, &msg, OS_MESG_BLOCK);
 
-        buf += msgbuf.size;
-        addr += msgbuf.size;
         size -= msgbuf.size;
     }
 }
 
+static u8 *write_buf;
+static u8 *read_buf;
+
+static boolean I_SramVerifyBanked(u32 bank)
+{
+    /* Force reading/writing to use banks */
+    SramBanked = true;
+
+    /* Clear all previous SRAM banks to detect address wrapping */
+    D_memset(write_buf, 0, SRAM_PAGE_SIZE);
+    for (u32 i = 0; i < bank; i++)
+        I_ReadWriteSram(i<<15, write_buf, SRAM_PAGE_SIZE, OS_WRITE);
+
+    u32 *write_words = (u32 *)write_buf;
+    for (u32 i = 0; i < SRAM_PAGE_SIZE / sizeof(u32); i++)
+        write_words[i] = (bank << 15) + i * 4;
+
+    I_ReadWriteSram(bank<<15, write_buf, SRAM_PAGE_SIZE, OS_WRITE);
+    I_ReadWriteSram(bank<<15, read_buf, SRAM_PAGE_SIZE, OS_READ);
+
+    if (memcmp(write_buf, read_buf, SRAM_PAGE_SIZE) != 0)
+    {
+        SramBanked = false;
+        return false;
+    }
+
+    /* Check that no previous banks were modified by changing this one */
+    D_memset(write_buf, 0, SRAM_PAGE_SIZE);
+    for (u32 i = 0; i < bank; i++)
+    {
+        I_ReadWriteSram(i<<15, read_buf, SRAM_PAGE_SIZE, OS_READ);
+        if (memcmp(write_buf, read_buf, SRAM_PAGE_SIZE) != 0)
+        {
+            SramBanked = false;
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static boolean I_SramVerify(u32 capacity)
+{
+    u32 offset = 0;
+
+    u32 *write_words = (u32 *)write_buf;
+    for (int i = 0; i < capacity / sizeof(u32); i++)
+        write_words[i] = i * 4;
+
+    while (capacity)
+    {
+        I_ReadWriteSram(offset, write_buf + offset, SRAM_PAGE_SIZE, OS_WRITE);
+        I_ReadWriteSram(offset, read_buf + offset, SRAM_PAGE_SIZE, OS_READ);
+        offset += SRAM_PAGE_SIZE;
+        capacity -= SRAM_PAGE_SIZE;
+    }
+
+    return memcmp(write_buf, read_buf, capacity) == 0;
+}
+
+static void I_DetectSramType(void)
+{
+    write_buf = Z_Malloc(SRAM_PAGE_SIZE*4, PU_STATIC, NULL);
+    read_buf = Z_Malloc(SRAM_PAGE_SIZE*4, PU_STATIC, NULL);
+    if(I_SramVerify(SRAM_PAGE_SIZE))
+    {
+        SramPresent = true;
+        SramSize = SRAM_PAGE_SIZE;
+        if(I_SramVerifyBanked(1) && I_SramVerifyBanked(2))
+        {
+            SramSize = SRAM_PAGE_SIZE*3;
+            if(I_SramVerifyBanked(3))
+                SramSize = SRAM_PAGE_SIZE*4;
+        }
+        // contiguous SRAM checks cause crashes in mupen64plus and derivatives,
+        // disable for now
+        /*
+        else if (I_SramVerify(SRAM_PAGE_SIZE*3))
+        {
+            SramSize = SRAM_PAGE_SIZE*3;
+            if (I_SramVerify(SRAM_PAGE_SIZE*4))
+                SramSize = SRAM_PAGE_SIZE*4;
+        }
+        */
+    }
+    Z_Free(write_buf);
+    Z_Free(read_buf);
+    write_buf = read_buf = NULL;
+}
+
 typedef struct  __attribute__((aligned(8))) {
     u32 magic;
-    u32 small: 1;
-    u32 version: 31;
+    u32 size: 2;
+    u32 banked: 1;
+    u32 version: 29;
 } sramheader_t;
 
 void I_InitSram(void)
 {
-    sramheader_t header;
-    sramheader_t empty = { 0, 0, 0};
+    sramheader_t header __attribute__((aligned(16)));
+    sramheader_t footer __attribute__((aligned(16)));
 
     if (SramHandle.baseAddress == PHYS_TO_K1(SRAM_START_ADDR))
         return;
@@ -94,49 +198,45 @@ void I_InitSram(void)
     osEPiLinkHandle(&SramHandle);
 
     // try to read from start and end to ensure we have the correct size
-    ReadWriteSram(0, &header, sizeof header, OS_READ);
+    I_ReadWriteSram(HEADER_ADDR, &header, sizeof header, OS_READ);
     if (header.magic == SRAM_MAGIC && header.version == SRAM_DATA_VERSION)
     {
-        ReadWriteSram(FOOTER_ADDR, &header, sizeof header, OS_READ);
-        if (header.magic == SRAM_MAGIC && header.version == SRAM_DATA_VERSION)
+        switch (header.size)
         {
-            if (header.small)
-                SramSize = 0x8000;
-            SramPresent = true;
+            case 0: SramSize = SRAM_PAGE_SIZE; break;
+            case 2: SramSize = SRAM_PAGE_SIZE*3; break;
+            case 3: SramSize = SRAM_PAGE_SIZE*4; break;
+            default: break;
         }
-    }
+        if (header.banked)
+            SramBanked = true;
 
-    // could be uninitialized, try to initialize and then check again
-    if (!SramPresent)
-    {
-        header.magic = SRAM_MAGIC;
-        header.version = SRAM_DATA_VERSION;
-        header.small = 0;
-        ReadWriteSram(0, &header, sizeof header, OS_WRITE);
-        ReadWriteSram(0, &header, sizeof header, OS_READ);
-        if (header.magic == SRAM_MAGIC && header.version == SRAM_DATA_VERSION)
+        if (SramSize)
         {
-            ReadWriteSram(0x8000 - 8, &empty, sizeof empty, OS_WRITE);
-            ReadWriteSram(FOOTER_ADDR, &header, sizeof header, OS_WRITE);
-            ReadWriteSram(FOOTER_ADDR, &header, sizeof header, OS_READ);
-            if (header.magic == SRAM_MAGIC && header.version == SRAM_DATA_VERSION)
+            I_ReadWriteSram(FOOTER_ADDR, &footer, sizeof footer, OS_READ);
+            if (memcmp(&header, &footer, sizeof header) == 0)
             {
-                // check if the write was mirrored to the low bank
-                ReadWriteSram(0x8000 - 8, &header, sizeof header, OS_READ);
-                if (header.magic == SRAM_MAGIC && header.version == SRAM_DATA_VERSION)
-                {
-                    SramSize = 0x8000;
-                    header.small = 1;
-                    ReadWriteSram(0, &header, sizeof header, OS_WRITE);
-                    ReadWriteSram(FOOTER_ADDR, &header, sizeof header, OS_WRITE);
-                }
-                SramPresent = true;
+                    SramPresent = true;
+                    I_DetectQuickLoad();
+                    if (!I_LoadConfig())
+                        I_SaveConfig();
+                    return;
             }
         }
     }
 
-    if (SramPresent && !I_LoadConfig())
+    // detect sram type when initializing
+    I_DetectSramType();
+    if (SramPresent)
+    {
+        header.magic = SRAM_MAGIC;
+        header.version = SRAM_DATA_VERSION;
+        header.size = (SramSize >> 15) - 1;
+        header.banked = SramBanked;
+        I_ReadWriteSram(HEADER_ADDR, &header, sizeof header, OS_WRITE);
+        I_ReadWriteSram(FOOTER_ADDR, &header, sizeof header, OS_WRITE);
         I_SaveConfig();
+    }
 }
 
 typedef struct __attribute__((__packed__)) __attribute__((aligned (8))) {
@@ -213,7 +313,7 @@ void I_SaveConfig(void)
 
     config.crc = CRC16_INIT;
     Crc16(((u8*)&config)+sizeof(u16), sizeof(config_t)-sizeof(u16), &config.crc);
-    ReadWriteSram(CONFIG_ADDR, &config, sizeof config, OS_WRITE);
+    I_ReadWriteSram(CONFIG_ADDR, &config, sizeof config, OS_WRITE);
 }
 
 extern void P_RefreshBrightness(void);
@@ -224,7 +324,7 @@ static boolean I_LoadConfig(void)
     config_t config __attribute__((aligned(16)));
     u16 crc = CRC16_INIT;
 
-    ReadWriteSram(CONFIG_ADDR, &config, sizeof config, OS_READ);
+    I_ReadWriteSram(CONFIG_ADDR, &config, sizeof config, OS_READ);
 
     Crc16(((u8*)&config)+sizeof(u16), sizeof(config_t)-sizeof(u16), &crc);
     if (config.crc != crc)
@@ -299,7 +399,7 @@ void I_SaveProgressToSram(u8 index, const levelsave_t *save)
     if (index > MAXSRAMSAVES)
         I_Error("Save index out of range");
 
-    ReadWriteSram(SAVE_ADDR + index * sizeof *save, (void*)save, sizeof *save, OS_WRITE);
+    I_ReadWriteSram(SAVE_ADDR + index * sizeof *save, (void*)save, sizeof *save, OS_WRITE);
 }
 
 void I_ReadSramSaves(levelsave_t *saves)
@@ -307,7 +407,7 @@ void I_ReadSramSaves(levelsave_t *saves)
     u16 crc;
     int i;
 
-    ReadWriteSram(SAVE_ADDR, saves, sizeof(levelsave_t) * MAXSRAMSAVES, OS_READ);
+    I_ReadWriteSram(SAVE_ADDR, saves, sizeof(levelsave_t) * MAXSRAMSAVES, OS_READ);
     for (i = 0; i < MAXSRAMSAVES; i++)
     {
         crc = CRC16_INIT;
@@ -437,7 +537,7 @@ void I_QuickSave(void)
     header.size += sizeof header;
 
     count = P_ArchivePlayers(buf);
-    ReadWriteSram(addr, buf, count, OS_WRITE);
+    I_ReadWriteSram(addr, buf, count, OS_WRITE);
 
     Crc16(buf, count, &header.crc);
     addr += count;
@@ -484,13 +584,14 @@ void I_QuickSave(void)
             I_Error("SRAM overflow");
 
         Crc16(buf, count, &header.crc);
-        ReadWriteSram(addr, buf, count, OS_WRITE);
+        I_ReadWriteSram(addr, buf, count, OS_WRITE);
         addr += count;
         header.size += count;
     }
 
     // write header last after calculating size and crc
-    ReadWriteSram(QUICKSAVE_ADDR, &header, sizeof header, OS_WRITE);
+    I_ReadWriteSram(QUICKSAVE_ADDR, &header, sizeof header, OS_WRITE);
+    QuickLoadAvailable = true;
 }
 
 void G_DoLoadLevel (void);
@@ -512,7 +613,7 @@ boolean I_QuickLoad(void)
     if (!SramPresent)
         return false;
 
-    ReadWriteSram(addr, &header, sizeof header, OS_READ);
+    I_ReadWriteSram(addr, &header, sizeof header, OS_READ);
     addr += sizeof header;
 
     if (header.magic != QUICKSAVE_MAGIC || header.size < sizeof header || header.size > QUICKSAVE_SIZE)
@@ -522,7 +623,7 @@ boolean I_QuickLoad(void)
     while (left > 0)
     {
         u32 o = MIN(left, sizeof buf);
-        ReadWriteSram(addr, buf, o, OS_READ);
+        I_ReadWriteSram(addr, buf, o, OS_READ);
         Crc16(buf, o, &crc);
         addr += o;
         left -= o;
@@ -570,7 +671,7 @@ boolean I_QuickLoad(void)
     //playeringame[1] = header.player2;
     //playeringame[2] = header.player3;
     //playeringame[3] = header.player4;
-    ReadWriteSram(addr, buf, ALIGN(sizeof(player_t), 8) * playercount, OS_READ);
+    I_ReadWriteSram(addr, buf, ALIGN(sizeof(player_t), 8) * playercount, OS_READ);
     count = P_UnArchivePlayers (buf);
     addr += count;
     left -= count;
@@ -580,7 +681,7 @@ boolean I_QuickLoad(void)
     {
         u32 o = MIN(left, sizeof buf);
 
-        ReadWriteSram(addr, buf, o, OS_READ);
+        I_ReadWriteSram(addr, buf, o, OS_READ);
 
         switch (phase)
         {
@@ -636,7 +737,8 @@ void I_DeleteQuickLoad(void)
     if (!SramPresent)
         return;
 
-    ReadWriteSram(QUICKSAVE_ADDR, &empty, sizeof empty, OS_WRITE);
+    I_ReadWriteSram(QUICKSAVE_ADDR, &empty, sizeof empty, OS_WRITE);
+    QuickLoadAvailable = false;
 }
 
 boolean I_IsQuickSaveAvailable(void)
@@ -646,13 +748,15 @@ boolean I_IsQuickSaveAvailable(void)
 
 boolean I_IsQuickLoadAvailable(void)
 {
-    quicksaveheader_t header __attribute__((aligned(16)));
-
-    if (!SramPresent)
-        return false;
-
-    ReadWriteSram(QUICKSAVE_ADDR, &header, sizeof header, OS_READ);
-
-    return header.magic == QUICKSAVE_MAGIC && header.size >= sizeof header && header.size <= QUICKSAVE_SIZE;
+    return QuickLoadAvailable;
 }
 
+static void I_DetectQuickLoad(void)
+{
+    quicksaveheader_t header __attribute__((aligned(16)));
+
+    I_ReadWriteSram(QUICKSAVE_ADDR, &header, sizeof header, OS_READ);
+
+    QuickLoadAvailable = header.magic == QUICKSAVE_MAGIC
+        && header.size >= sizeof header && header.size <= QUICKSAVE_SIZE;
+}

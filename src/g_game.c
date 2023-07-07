@@ -4,7 +4,6 @@
 #include "p_local.h"
 #include "p_saveg.h"
 #include "config.h"
-#include "st_main.h"
 
 #ifdef DEVWARP
 #define DEVWARP_ENABLED 1
