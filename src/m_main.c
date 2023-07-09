@@ -1373,7 +1373,7 @@ int M_MenuTicker(void) // 80007E0C
                     S_StartSound(NULL, sfx_pistol);
                     M_SaveMenuData();
 
-                    cheats = players[0].cheats;
+                    cheats = players[0].cheats & (CF_WEAPONS|CF_HEALTH|CF_ALLKEYS);
                     players[0].cheats &= ~(CF_WEAPONS|CF_HEALTH|CF_ALLKEYS);
 
                     SET_MENU(Menu_Features);
@@ -1383,7 +1383,7 @@ int M_MenuTicker(void) // 80007E0C
 
                     exit = MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
                     M_RestoreMenuData((exit == ga_exit));
-                    players[0].cheats = cheats;
+                    players[0].cheats |= cheats;
 
                     if (exit == ga_exit)
                         return ga_nothing;
