@@ -317,11 +317,8 @@ void P_Start (void) // 80021C50
 
     if (gameaction == ga_loadquicksave)
     {
-        if (MusicID != MapInfo[gamemap].MusicSeq-92)
-        {
-            MusicID = MapInfo[gamemap].MusicSeq-92;
-            S_StartMusic(MapInfo[gamemap].MusicSeq);
-        }
+        MusicID = MapInfo[gamemap].MusicSeq-92;
+        S_StartMusic(MapInfo[gamemap].MusicSeq);
         P_RefreshBrightness();
 
         gameaction = ga_nothing;
