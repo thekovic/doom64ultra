@@ -217,11 +217,11 @@ typedef enum
 	ga_warped,
 	ga_exitdemo,
 	//News
-	//ga_recorddemo,// no used
 	ga_timeout,
 	ga_restart,
 	ga_exit,
     ga_loadquicksave,
+	ga_recorddemo,
 } gameaction_t;
 
 #define LASTLEVEL 34
@@ -235,9 +235,11 @@ void D_memmove(void *dest, const void *src);
 void D_memset (void *dest, int val, int count);
 void D_memcpy (void *dest, const void *src, int count);
 void D_strncpy (char *dest, const char *src, int maxcount);
-int D_strncasecmp (const char *s1, const char *s2, int len);
+int D_strncmp (const char *s1, const char *s2, int len);
 void D_strupr(char *s);
-int D_strlen(char *s);
+int D_strlen(const char *s);
+
+#define MEMORY_BARRIER() asm volatile ("" : : : "memory")
 
 /*
 ===============================================================================
@@ -638,15 +640,11 @@ typedef struct player_s
 #define CF_NOCLIP       0x1       // no use
 #define CF_GODMODE      0x2
 #define CF_ALLMAP       0x4
-#define CF_DEBUG        0x40
-#define CF_TEX_TEST     0x200
-#define CF_SCREENSHOT   0x400    // Original 0x1000
 #define CF_LOCKMONSTERS 0x800
 #define CF_WALLBLOCKING 0x1000
 #define CF_WEAPONS      0x2000
 #define CF_HEALTH       0x4000
 #define CF_ALLKEYS      0x8000
-#define CF_MACROPEEK    0x10000
 
 #define CF_NOCOLORS     0x20000    // [GEC] NEW CHEAT CODE
 #define CF_FULLBRIGHT   0x40000    // [GEC] NEW CHEAT CODE
@@ -827,6 +825,12 @@ void	Z_ChangeTag (void *ptr, int tag);
 int 	Z_FreeMemory (memzone_t *mainzone);
 void    Z_DumpHeap(memzone_t *mainzone);
 
+#ifndef NDEBUG
+extern u32 OccupiedMem;
+extern u32 UsedMem;
+extern u32 LevelMem;
+#endif
+
 /*------- */
 /*WADFILE */
 /*------- */
@@ -980,7 +984,8 @@ extern int HUDopacity;    			// [Immorpher] HUD 0pacity options
 extern int SfxVolume;               // 8005A7C0
 extern int MusVolume;               // 8005A7C4
 extern int brightness;              // 8005A7C8
-extern fixed_t MotionBob;				// [Immorpher] Motion Bob
+extern int ShowDebugCounters;       // [nova] debug counters
+extern fixed_t MotionBob;           // [Immorpher] Motion Bob
 extern int VideoFilters[3];			// [nova] Independent filter select
 extern int TvMode;                  // [nova] interlace/aa
 extern int ScreenAspect;            // [nova] widescreen
@@ -1180,7 +1185,12 @@ enum VID_MSG {
 extern OSTask *vid_task;   // 800A5244
 extern u32 vid_side;       // 800A5248
 
+extern u32 video_hStart;   // 800A524c
+extern u32 video_vStart1;  // 800A5250
+extern u32 video_vStart2;  // 800A5254
+
 extern boolean SramPresent; // [nova] sram support
+extern u32 SramSize;
 
 extern u8 gamepad_bit_pattern; // 800A5260 // one bit for each controller
 
@@ -1205,11 +1215,13 @@ extern s32 FilesUsed;          // 8005A740
 #define MAX_VTX 3072
 #define MAX_MTX 6
 
-extern Gfx *GFX1;	// 800A4A00
-extern Gfx *GFX2;	// 800A4A04
+extern Gfx *GFX1;    // 800A4A00
+extern Gfx *GFX2;    // 800A4A04
+extern u32 GfxIndex; // 800A5258
 
-extern Vtx *VTX1;	// 800A4A08
-extern Vtx *VTX2;	// 800A4A0C
+extern Vtx *VTX1;    // 800A4A08
+extern Vtx *VTX2;    // 800A4A0C
+extern u32 VtxIndex; // 800A525C
 
 extern Mtx *MTX1;	// 800A4A10
 extern Mtx *MTX2;	// 800A4A14
@@ -1246,6 +1258,7 @@ void I_SaveProgress(levelsave_t *save);
 void I_ReadSramSaves(levelsave_t *saves);
 boolean I_IsSaveValid(const levelsave_t *save);
 void I_LoadProgress(const levelsave_t *save);
+void I_SaveDemo(void *buffer, int len);
 void I_QuickSave(void);
 boolean I_QuickLoad(void);
 boolean I_IsQuickSaveAvailable(void);
@@ -1254,7 +1267,8 @@ boolean I_IsQuickLoadAvailable(void);
 extern levelsave_t LevelSaveBuffer;
 extern boolean doLoadSave;
 
-void I_Error(char *error, ...) __attribute__ ((format (printf, 1, 2)));
+void I_Error(const char *error, ...) __attribute__((format (printf, 1, 2))) __attribute__((noreturn));
+
 int I_GetControllerData(void); // 800060D0
 
 void I_CheckGFX(void); // 800060E8
@@ -1272,6 +1286,38 @@ int I_CreatePakFile(void); // 800074D4
 
 void I_WIPE_MeltScreen(void); // 80006964
 void I_WIPE_FadeOutScreen(void); // 80006D34
+
+#ifdef NDEBUG
+
+#define assert(expr)
+#define DEBUG_COUNTER(expr)
+#define DEBUG_CYCLES_START(var)
+#define DEBUG_CYCLES_END(var, diff)
+#define BREAKPOINT()
+
+#else /* NDEBUG */
+
+#define assert(expr) \
+     ((expr) ? ((void)0) : I_Error("tAssertion failed:\n%s\nFile '%s'\nLine %d.\n", #expr, __FILE__, __LINE__))
+
+#define DEBUG_COUNTER(expr)          expr
+#define DEBUG_CYCLES_START(var)      const u32 var = osGetCount()
+#define DEBUG_CYCLES_END(var, diff)  diff = osGetCount() - var
+
+#define BREAKPOINT() asm("break")
+
+#endif /* NDEBUG */
+
+extern u32 LastFrameCycles;
+DEBUG_COUNTER(extern u32 LastWorldCycles);
+DEBUG_COUNTER(extern u32 LastAudioCycles);
+DEBUG_COUNTER(extern u32 LastBspCycles);
+DEBUG_COUNTER(extern u32 LastPhase3Cycles);
+DEBUG_COUNTER(extern u32 LastVisTriangles);
+DEBUG_COUNTER(extern u32 LastVisSubsectors);
+DEBUG_COUNTER(extern u32 LastVisLeaves);
+DEBUG_COUNTER(extern u32 LastVisSegs);
+DEBUG_COUNTER(extern u32 LastVisThings);
 
 /*---------*/
 /* Doom 64 */

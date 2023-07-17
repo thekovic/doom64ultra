@@ -1,6 +1,10 @@
 /* W_wad.c */
 
 #include "doomdef.h"
+#include "config.h"
+#ifdef USB
+#include "i_usb.h"
+#endif
 //#include "r_local.h"
 
 //char str[64];
@@ -71,7 +75,7 @@ void W_Init (void) // 8002BEC0
     //sprintf(str, "identification %s",wadfileptr->identification);
     //printstr(WHITE, 0, 4, str);
 
-	if (D_strncasecmp(wadfileptr->identification, "IWAD", 4))
+	if (bcmp(wadfileptr->identification, "IWAD", 4))
 		I_Error("W_Init: invalid main IWAD id");
 
 	numlumps = LONGSWAP(wadfileptr->numlumps);
@@ -342,26 +346,48 @@ void W_OpenMapWad(int mapnum) // 8002C5B0
 	int lump, size, infotableofs, i;
 	char name [8];
 
-    name[0] = 'M';
-    name[1] = 'A';
-    name[2] = 'P';
-    name[3] = '0' + (char)(mapnum / 10);
-    name[4] = '0' + (char)(mapnum % 10);
-    name[5] = NULL;
+    if (mapnum > 0)
+    {
+        name[0] = 'M';
+        name[1] = 'A';
+        name[2] = 'P';
+        name[3] = '0' + (char)(mapnum / 10);
+        name[4] = '0' + (char)(mapnum % 10);
+        name[5] = NULL;
 
-    lump = W_GetNumForName(name);
-    size = W_LumpLength(lump);
+        lump = W_GetNumForName(name);
+        size = W_LumpLength(lump);
 
-    //sprintf(str, "name %s           ",name);
-    //printstr(WHITE, 0, 7, str);
-    //sprintf(str, "lump %d           ",lump);
-    //printstr(WHITE, 0, 8, str);
-    //sprintf(str, "size %d           ",size);
-    //printstr(WHITE, 0, 9, str);
+        //sprintf(str, "name %s           ",name);
+        //printstr(WHITE, 0, 7, str);
+        //sprintf(str, "lump %d           ",lump);
+        //printstr(WHITE, 0, 8, str);
+        //sprintf(str, "size %d           ",size);
+        //printstr(WHITE, 0, 9, str);
 
-    mapfileptr = Z_Alloc(size, PU_STATIC, NULL);
+        mapfileptr = Z_Alloc(size, PU_STATIC, NULL);
 
-    W_ReadLump(lump, mapfileptr, dec_d64);
+        W_ReadLump(lump, mapfileptr, dec_d64);
+    }
+#ifdef USB
+    else if (PendingUSBOperations & USB_OP_LOADMAP)
+    {
+        PendingUSBOperations &= ~USB_OP_LOADMAP;
+
+        u32 size = I_CmdNextTokenSize();
+        if (size == 0)
+            I_Error("No map provided");
+
+        mapfileptr = Z_Malloc(size, PU_STATIC, NULL);
+        I_CmdGetNextToken(mapfileptr);
+        I_CmdSkipAllTokens();
+        gamemap = 0;
+    }
+#endif
+    else
+    {
+        I_Error("Invalid map %d", mapnum);
+    }
 
     mapnumlumps = LONGSWAP(((wadinfo_t*)mapfileptr)->numlumps);
     infotableofs = LONGSWAP(((wadinfo_t*)mapfileptr)->infotableofs);

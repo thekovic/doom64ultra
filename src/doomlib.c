@@ -158,20 +158,20 @@ void D_strncpy(char *dest, const char *src, int maxcount) // 8000lBB0
 ====================
 */
 
-int D_strncasecmp(const char *s1, const char *s2, int len) // 80001BEC
+int D_strncmp(const char *s1, const char *s2, int len) // 80001BEC
 {
-	while (*s1 && *s2)
-	{
-		if (*s1 != *s2)
-			return 1;
-		s1++;
-		s2++;
-		if (!--len)
-			return 0;
-	}
-	if (*s1 != *s2)
-		return 1;
-	return 0;
+    while (*s1 && *s2)
+    {
+        if (*s1 != *s2)
+            return *s1 < *s2 ? -1 : 1;
+        s1++;
+        s2++;
+        if (!--len)
+            return 0;
+    }
+    if (*s1 != *s2)
+        return *s1 < *s2 ? -1 : 1;
+    return 0;
 }
 
 /*
@@ -202,7 +202,7 @@ void D_strupr(char *s) // 80001C74
 ====================
 */
 
-int D_strlen(char *s) // 80001CC0
+int D_strlen(const char *s) // 80001CC0
 {
     int len = 0;
 

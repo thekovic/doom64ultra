@@ -20,9 +20,6 @@ extern byte *sfontlump;     // 800A81F8
 extern byte *statuslump;   // 800A81FC
 extern int sumbolslump;    // 800A8204
 
-extern int err_text_x;     // 800A8208
-extern int err_text_y;     // 800A820C
-
 #define FIRST_SYMBOL   0x80
 #define LAST_SYMBOL    0x90 // 0x91 for Right arrow
 

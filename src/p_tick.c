@@ -21,8 +21,7 @@ processing
 
 thinker_t	thinkercap;	/* both the head and tail of the thinker list */    //80096378
 mobj_t		mobjhead;	/* head and tail of mobj list */                    //800A8C74,
-//int		    activethinkers;	/* debug count */
-//int		    activemobjs;	/* debug count */
+DEBUG_COUNTER(int activethinkers = 0);
 
 /*
 ===============
@@ -87,12 +86,12 @@ void P_RemoveThinker (thinker_t *thinker) // 8002179C
 
 void P_RunThinkers (void) // 800217C8
 {
-	thinker_t	*currentthinker;
+    thinker_t	*currentthinker;
 
-	//activethinkers = 0;
+    DEBUG_COUNTER(activethinkers = 0);
 
-	currentthinker = thinkercap.next;
-	if (thinkercap.next != &thinkercap)
+    currentthinker = thinkercap.next;
+    if (thinkercap.next != &thinkercap)
     {
         while (currentthinker != &thinkercap)
         {
@@ -108,11 +107,11 @@ void P_RunThinkers (void) // 800217C8
                 {
                     ((void (*)(void *)) currentthinker->function) (currentthinker);
                 }
-                //activethinkers++;
+                DEBUG_COUNTER(activethinkers++);
             }
             currentthinker = currentthinker->next;
         }
-	}
+    }
 }
 
 /*
@@ -176,7 +175,7 @@ void P_CheckCheats (void) // 8002187C
     if (exit)
         M_MenuClearCall();
 
-    if (exit == ga_warped || exit == ga_restart || exit == ga_exitdemo || exit == ga_loadquicksave)
+    if (exit == ga_warped || exit == ga_recorddemo || exit == ga_restart || exit == ga_exitdemo || exit == ga_loadquicksave)
     {
         gameaction = exit;
     }
@@ -214,6 +213,8 @@ int P_Ticker (void)//80021A00
 	//
 	P_CheckCheats();
 
+    DEBUG_CYCLES_START(world_start);
+
 	if ((!gamepaused) && (gamevbls < gametic))
 	{
 	    P_RunThinkers();
@@ -238,6 +239,13 @@ int P_Ticker (void)//80021A00
 
     AM_Control(pl);
     P_PlayerThink(pl);
+
+#ifndef NDEBUG
+    if (!gamepaused)
+        DEBUG_CYCLES_END(world_start, LastWorldCycles);
+    else
+        LastWorldCycles = 0;
+#endif
 
 	return gameaction; // may have been set to ga_died, ga_completed, or ga_secretexit
 }

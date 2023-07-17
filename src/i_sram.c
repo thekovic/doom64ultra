@@ -3,9 +3,11 @@
 #include "p_saveg.h"
 #include "r_local.h"
 #include "st_main.h"
+#include "i_usb.h"
+#include "i_debug.h"
 
 boolean SramPresent = false;
-static u32 SramSize = 0;
+u32 SramSize = 0;
 static boolean SramBanked = false;
 static boolean QuickLoadAvailable = false;
 
@@ -154,16 +156,14 @@ static void I_DetectSramType(void)
             if(I_SramVerifyBanked(3))
                 SramSize = SRAM_PAGE_SIZE*4;
         }
-        // contiguous SRAM checks cause crashes in mupen64plus and derivatives,
-        // disable for now
-        /*
-        else if (I_SramVerify(SRAM_PAGE_SIZE*3))
+        else if (!IsEmulator && I_SramVerify(SRAM_PAGE_SIZE*3))
         {
+            /* contiguous SRAM checks cause crashes in mupen64plus and
+               derivatives, so only check this when real hardware detected */
             SramSize = SRAM_PAGE_SIZE*3;
             if (I_SramVerify(SRAM_PAGE_SIZE*4))
                 SramSize = SRAM_PAGE_SIZE*4;
         }
-        */
     }
     Z_Free(write_buf);
     Z_Free(read_buf);
@@ -457,6 +457,12 @@ void I_LoadProgress(const levelsave_t *save)
     players[0].armortype = save->armortype;
 }
 
+void I_SaveDemo(void *buffer, int len)
+{
+    if (len <= QUICKSAVE_SIZE)
+        I_ReadWriteSram(QUICKSAVE_ADDR, buffer, len, OS_WRITE);
+}
+
 extern int start_time;
 
 typedef struct __attribute__((aligned(8)))
@@ -496,52 +502,48 @@ extern int rndindex;
 extern int prndindex;
 extern int irndindex;
 
-void I_QuickSave(void)
+void I_QuickSaveInternal(quicksaveheader_t *header, u32 limit, void (*write)(u32, const void*, u32))
 {
-    quicksaveheader_t header __attribute__((aligned(16)));
-    byte buf[8192] __attribute__((aligned(16)));
-    savephase_e phase = phase_sectors;
-    u32 addr = QUICKSAVE_ADDR + sizeof header;
-    u32 count;
-    u32 i;
-    mobj_t *mobj;
+    byte                 buf[4096] __attribute__((aligned(16)));
+    register savephase_e phase = phase_sectors;
+    register u32         addr = QUICKSAVE_ADDR + sizeof *header;
+    register u32         count;
+    u32        i;
+    mobj_t    *mobj;
     thinker_t *th;
 
-    if (!SramPresent)
-        return;
+    bzero(&header, sizeof *header);
 
-    bzero(&header, sizeof header);
+    header->magic = QUICKSAVE_MAGIC;
+    header->sectors = numsectors;
+    header->lines = numlines;
+    header->macros = nummacros;
+    header->mobjs = 0;
+    header->thinkers = 0;
+    header->skill = gameskill;
+    header->gametype = gt_single;
+    header->map = gamemap;
+    header->player1 = 1;
+    //header->player1 = playeringame[0];
+    //header->player2 = playeringame[1];
+    //header->player3 = playeringame[2];
+    //header->player4 = playeringame[3];
+    header->leveltime = ticon - start_time;
+    header->rndindex = rndindex;
+    header->prndindex = prndindex;
+    header->irndindex = irndindex;
 
-    header.magic = QUICKSAVE_MAGIC;
-    header.sectors = numsectors;
-    header.lines = numlines;
-    header.macros = nummacros;
-    header.mobjs = 0;
-    header.thinkers = 0;
-    header.skill = gameskill;
-    header.gametype = gt_single;
-    header.map = gamemap;
-    header.player1 = 1;
-    //header.player1 = playeringame[0];
-    //header.player2 = playeringame[1];
-    //header.player3 = playeringame[2];
-    //header.player4 = playeringame[3];
-    header.leveltime = ticon - start_time;
-    header.rndindex = rndindex;
-    header.prndindex = prndindex;
-    header.irndindex = irndindex;
+    P_ArchiveActiveMacro(&header->activemacro);
 
-    P_ArchiveActiveMacro(&header.activemacro);
-
-    header.crc = CRC16_INIT;
-    header.size += sizeof header;
+    header->crc = CRC16_INIT;
+    header->size += sizeof *header;
 
     count = P_ArchivePlayers(buf);
-    I_ReadWriteSram(addr, buf, count, OS_WRITE);
+    write(addr, buf, count);
 
-    Crc16(buf, count, &header.crc);
+    Crc16(buf, count, &header->crc);
     addr += count;
-    header.size += count;
+    header->size += count;
 
     i = 0;
     mobj = mobjhead.next;
@@ -560,10 +562,10 @@ void I_QuickSave(void)
             count = P_ArchiveMacros(buf, sizeof buf, &i);
             break;
         case phase_mobjs:
-            count = P_ArchiveMobjs(buf, sizeof buf, &mobj, &header.mobjs);
+            count = P_ArchiveMobjs(buf, sizeof buf, &mobj, &header->mobjs);
             break;
         case phase_thinkers:
-            count = P_ArchiveThinkers(buf, sizeof buf, &th, &header.thinkers);
+            count = P_ArchiveThinkers(buf, sizeof buf, &th, &header->thinkers);
             break;
         }
         if (count == 0)
@@ -580,63 +582,108 @@ void I_QuickSave(void)
             }
         }
 
-        if (addr + count >= FOOTER_ADDR)
-            I_Error("SRAM overflow");
+        Crc16(buf, count, &header->crc);
+        if (addr + count >= limit)
+            I_Error("Quicksave overflow");
 
-        Crc16(buf, count, &header.crc);
-        I_ReadWriteSram(addr, buf, count, OS_WRITE);
+        write(addr, buf, count);
         addr += count;
-        header.size += count;
+        header->size += count;
     }
+}
 
+static void I_SramWriteFunc(u32 addr, const void* buf, u32 size)
+{
+    I_ReadWriteSram(addr, (void*)buf, size, OS_WRITE);
+}
+
+void I_QuickSave(void)
+{
+    if (!SramPresent)
+        return;
+
+    quicksaveheader_t header __attribute__((aligned(16)));
+
+    I_QuickSaveInternal(&header, FOOTER_ADDR, I_SramWriteFunc);
     // write header last after calculating size and crc
     I_ReadWriteSram(QUICKSAVE_ADDR, &header, sizeof header, OS_WRITE);
     QuickLoadAvailable = true;
 }
 
-void G_DoLoadLevel (void);
+#ifdef USB
 
-boolean I_QuickLoad(void)
+static void I_NoopWriteFunc(u32 addr, const void* buf, u32 size) {}
+
+static void I_USBWriteFunc(u32 addr, const void* buf, u32 size) {
+    UsbFuncWrite(buf, size);
+}
+
+void I_USBQuickSave(void)
 {
     quicksaveheader_t header __attribute__((aligned(16)));
-    thinker_t *currentthinker, *nextthinker;
-    mobj_t    *currentmo, *nextmo;
-    savephase_e phase = phase_sectors;
-    byte buf[8192] __attribute__((aligned(16)));
-    u16        crc = CRC16_INIT;
-    u32        addr = QUICKSAVE_ADDR;
-    u32        count;
-    u32        playercount;
-    u32        left;
-    u32        i;
+    u32 size = P_CurrentQuickSaveSize(MAXINT);
 
-    if (!SramPresent)
-        return false;
+    /* need to run through it twice to calculate CRC */
+    I_QuickSaveInternal(&header, size, I_NoopWriteFunc);
+    UsbFuncWriteStart(DATATYPE_RAWBINARY, size);
+    UsbFuncWrite(&header, sizeof header);
+    I_QuickSaveInternal(&header, size, I_USBWriteFunc);
+    UsbFuncWriteEnd(DATATYPE_RAWBINARY, size);
 
-    I_ReadWriteSram(addr, &header, sizeof header, OS_READ);
+    PendingUSBOperations &= ~USB_OP_QUICKSAVE;
+}
+#endif /* USB */
+
+void G_DoLoadLevel (void);
+
+// only include error messages with USB loading
+#ifdef LOGGING
+#define LOAD_ERROR(s) s
+#else
+#define LOAD_ERROR(s) ""
+#endif
+
+const char *I_QuickLoadInternal(int limit, void (*read)(u32, void*, u32))
+{
+    quicksaveheader_t    header    __attribute__((aligned(16)));
+    byte                 buf[4096] __attribute__((aligned(16)));
+    register savephase_e phase = phase_sectors;
+    thinker_t   *currentthinker, *nextthinker;
+    mobj_t      *currentmo, *nextmo;
+    u32          i;
+    u16          crc = CRC16_INIT;
+    register u32 addr = QUICKSAVE_ADDR;
+    register u32 count;
+    register u32 playercount;
+    register u32 left;
+
+    if (limit < sizeof header)
+        return LOAD_ERROR("Not enough data");
+
+    read(addr, &header, sizeof header);
     addr += sizeof header;
 
-    if (header.magic != QUICKSAVE_MAGIC || header.size < sizeof header || header.size > QUICKSAVE_SIZE)
-        return false;
+    if (header.magic != QUICKSAVE_MAGIC || header.size < sizeof header || header.size > limit)
+        return LOAD_ERROR("Bad header");
 
     left = header.size - sizeof header;
     while (left > 0)
     {
         u32 o = MIN(left, sizeof buf);
-        I_ReadWriteSram(addr, buf, o, OS_READ);
+        read(addr, buf, o);
         Crc16(buf, o, &crc);
         addr += o;
         left -= o;
     }
 
     if (crc != header.crc)
-        return false;
+        return LOAD_ERROR("Bad CRC");
 
     G_InitNew(header.skill, header.map, header.gametype);
-	P_SetupLevel(gamemap, gameskill);
+    P_SetupLevel(gamemap, gameskill);
 
     if (header.sectors != numsectors || header.lines != numlines || header.macros != nummacros)
-        return false;
+        return LOAD_ERROR("Wrong map");
 
     addr = QUICKSAVE_ADDR + sizeof header;
     left = header.size - sizeof header;
@@ -666,12 +713,14 @@ boolean I_QuickLoad(void)
 
     P_UnArchiveActiveMacro(&header.activemacro);
 
+    crc = CRC16_INIT;
+
     playercount = header.player1 + header.player2 + header.player3 + header.player4;
     //playeringame[0] = header.player1;
     //playeringame[1] = header.player2;
     //playeringame[2] = header.player3;
     //playeringame[3] = header.player4;
-    I_ReadWriteSram(addr, buf, ALIGN(sizeof(player_t), 8) * playercount, OS_READ);
+    read(addr, buf, ALIGN(sizeof(player_t), 8) * playercount);
     count = P_UnArchivePlayers (buf);
     addr += count;
     left -= count;
@@ -681,7 +730,7 @@ boolean I_QuickLoad(void)
     {
         u32 o = MIN(left, sizeof buf);
 
-        I_ReadWriteSram(addr, buf, o, OS_READ);
+        read(addr, buf, o);
 
         switch (phase)
         {
@@ -720,17 +769,88 @@ boolean I_QuickLoad(void)
     }
 
     if (header.mobjs > 0 || header.thinkers > 0)
-        return false;
+        return LOAD_ERROR("Wrong map");
 
     P_LinkUnArchivedMobjs();
     P_FinishSetupLevel();
     ST_InitEveryLevel();
     ST_UpdateFlash();
 
+    return NULL;
+}
+
+static void I_SramReadFunc(u32 addr, void* buf, u32 size) {
+    I_ReadWriteSram(addr, buf, size, OS_READ);
+}
+
+static void I_DeleteQuickLoad(void);
+
+static boolean I_QuickLoadSram(void)
+{
+    const char *err;
+    if (!SramPresent)
+        return false;
+
+    err = I_QuickLoadInternal(QUICKSAVE_SIZE, I_SramReadFunc);
+
+    if (err != NULL)
+    {
+        I_DeleteQuickLoad();
+        D_printf("Quick Load Failed: %s", err);
+        return false;
+    }
+
     return true;
 }
 
-void I_DeleteQuickLoad(void)
+#ifdef USB
+static u8 *QuickLoadBuffer = NULL;
+
+static void I_USBReadFunc(u32 addr, void* buf, u32 size) {
+    D_memcpy(buf, QuickLoadBuffer + addr, size);
+}
+
+boolean I_QuickLoad(void)
+{
+    if (!(PendingUSBOperations & USB_OP_QUICKLOAD))
+        return I_QuickLoadSram();
+
+    PendingUSBOperations &= ~USB_OP_QUICKLOAD;
+
+    u32 size;
+    const char *err;
+
+    /* make space for the buffer */
+    Z_FreeTags(mainzone, ~PU_STATIC);
+    Z_CheckZone(mainzone);
+
+    size = I_CmdNextTokenSize();
+    QuickLoadBuffer = Z_Alloc(size, PU_STATIC, NULL);
+    I_CmdGetNextToken(QuickLoadBuffer);
+    I_CmdSkipAllTokens();
+
+    err = I_QuickLoadInternal(size, I_USBReadFunc);
+    Z_Free(QuickLoadBuffer);
+    QuickLoadBuffer = NULL;
+
+    if (err != NULL)
+    {
+        D_printf("Quick Load Failed: %s", err);
+        return false;
+    }
+
+    return true;
+}
+
+#else /* USB */
+boolean I_QuickLoad(void)
+{
+    return I_QuickLoadSram();
+}
+
+#endif /* USB */
+
+static void I_DeleteQuickLoad(void)
 {
     u64 empty = 0;
 

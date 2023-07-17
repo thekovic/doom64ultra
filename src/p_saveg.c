@@ -442,6 +442,17 @@ void P_UnArchiveActiveMacro (const savedmacrosheader_t *header)
         return;
 
     activemacro = macros[0] + header->activemacro;
+#ifndef NDEBUG
+    activemacroidx = -1;
+    for (int i = 0; i < nummacros; i++)
+    {
+        if (activemacro >= macros[i] && (i == nummacros - 1 || activemacro < macros[i+1]))
+        {
+            activemacroidx = i - 1;
+            break;
+        }
+    }
+#endif
     macrointeger = header->macrointeger;
     macrocounter = header->macrocounter;
     if (macrocounter > 0)

@@ -387,6 +387,7 @@ void AM_Drawer (void) // 800009AC
             else
             {
                 gSP1Triangle(GFX1++, 0, 1, 2, 0 /*flag*/);
+                DEBUG_COUNTER(LastVisTriangles += 1);
             }
 		}
 	}
@@ -406,6 +407,7 @@ void AM_Drawer (void) // 800009AC
     else
     {
         gSP1Triangle(GFX1++, 0, 1, 2, 0 /*flag*/);
+        DEBUG_COUNTER(LastVisTriangles += 1);
     }
 
 
@@ -456,6 +458,8 @@ void AM_Drawer (void) // 800009AC
         }
         artflag >>= 1;
     } while (artflag != 0);
+
+    ST_DrawDebug();
 }
 
 

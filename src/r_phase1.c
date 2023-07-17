@@ -32,8 +32,6 @@ boolean R_CheckClipRange(angle_t startAngle, angle_t endAngle);
 void R_AddClipRange(angle_t startangle, angle_t endangle);
 void R_ClipClear(void);
 
-u32 last_bsp_count;
-
 // Kick off the rendering process by initializing the solidsubsectors array and then
 // starting the BSP traversal.
 //
@@ -43,7 +41,7 @@ void R_BSP(void) // 80023F30
     int count;
     subsector_t **sub;
 
-    u32 start_bsp_count = osGetCount();
+    DEBUG_CYCLES_START(bsp_start);
 
     validcount++;
     rendersky = false;
@@ -69,7 +67,7 @@ void R_BSP(void) // 80023F30
         count--;
     }
 
-    last_bsp_count = ((osGetCount() - start_bsp_count) + last_bsp_count) / 2;
+    DEBUG_CYCLES_END(bsp_start, LastBspCycles);
 }
 
 //
@@ -87,7 +85,7 @@ static boolean R_RenderBspSubsector(int bspnum)
 
         return true;
     }
-    return false;	
+    return false;
 }
 
 #define MAX_BSP_DEPTH 128

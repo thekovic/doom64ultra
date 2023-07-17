@@ -1,7 +1,6 @@
 /* R_local.h */
 
-#ifndef __R_LOCAL__
-#define __R_LOCAL__
+#pragma once
 
 #include "doomdef.h"
 
@@ -404,6 +403,4 @@ extern	int firstspritelump, lastspritelump, numspritelumps;
 //extern	short palette[MAX_PALETTES];
 //extern	short palettebase;
 //extern	light_t		*lights;
-
-#endif		/* __R_LOCAL__ */
 

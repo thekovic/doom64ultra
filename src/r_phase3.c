@@ -18,12 +18,10 @@ void R_RenderLaser(mobj_t *thing);
 void R_RenderPSprites(void);
 //-----------------------------------//
 
-u32 last_phase3_count;
-
 void R_RenderAll(void) // 80026590
 {
     subsector_t *sub;
-    u32 start_phase3_count = osGetCount();
+    DEBUG_CYCLES_START(phase3_start);
 
     while (endsubsector--, (endsubsector >= solidsubsectors))
     {
@@ -34,7 +32,7 @@ void R_RenderAll(void) // 80026590
         sub->drawindex = 0x7fff;
     }
 
-    last_phase3_count = ((osGetCount() - start_phase3_count) + last_phase3_count) / 2;
+    DEBUG_CYCLES_END(phase3_start, LastPhase3Cycles);
 }
 
 void R_RenderWorld(subsector_t *sub) // 80026638
@@ -47,6 +45,7 @@ void R_RenderWorld(subsector_t *sub) // 80026638
     int numverts;
     int i;
 
+    DEBUG_COUNTER(LastVisSubsectors += 1);
     I_CheckGFX();
 
     gDPSetPrimColor(GFX1++, 0, frontsector->lightlevel, 0, 0, 0, 255);
@@ -266,6 +265,7 @@ void R_WallPrep(seg_t *seg) // 80026A44
                 upcolor = tmp_lowcolor;
             }
 
+            DEBUG_COUNTER(LastVisSegs += 1);
             R_RenderWall(seg, li->flags, textures[side->toptexture],
                          f_ceilingheight, b_ceilingheight,
                          rowoffs - height, rowoffs,
@@ -378,6 +378,7 @@ void R_WallPrep(seg_t *seg) // 80026A44
         bottomcolor = lowcolor;
     }
 
+    DEBUG_COUNTER(LastVisSegs += 1);
     R_RenderWall(seg, li->flags, textures[side->midtexture],
                  m_top, m_bottom,
                  rowoffs - height, rowoffs,
@@ -481,6 +482,7 @@ void R_RenderWall(seg_t *seg, int flags, int texture, int topHeight, int bottomH
 
         gSPVertex(GFX1++, VTX1, 4, 0);
         gSP1Quadrangle(GFX1++, 0, 1, 2, 3, 1);
+        DEBUG_COUNTER(LastVisTriangles += 2);
 
         v1 = seg->v1;
         v2 = seg->v2;
@@ -579,6 +581,7 @@ void R_RenderSwitch(seg_t *seg, int texture, int topOffset, int color) // 800276
 
     gSPVertex(GFX1++, VTX1, 4, 0);
     gSP1Quadrangle(GFX1++, 0, 1, 2, 3, 1);
+    DEBUG_COUNTER(LastVisTriangles += 2);
 
     v1 = seg->linedef->v1;
     v2 = seg->linedef->v2;
@@ -678,6 +681,8 @@ void R_RenderPlane(leaf_t *leaf, int numverts, int zpos, int texture, int xpos, 
         globallump = texture;
     }
 
+    DEBUG_COUNTER(LastVisLeaves += 1);
+
     vrt = leaf->vertex;
     VTX1[0].v.ob[0] = (vrt->x >> 16);
     VTX1[0].v.ob[1] = zpos;
@@ -699,6 +704,7 @@ void R_RenderPlane(leaf_t *leaf, int numverts, int zpos, int texture, int xpos, 
     {
         idx = 2;
         gSP1Triangle(GFX1++, 0, 1, 2, 0);
+        DEBUG_COUNTER(LastVisTriangles += 1);
     }
     else
     {
@@ -718,6 +724,7 @@ void R_RenderPlane(leaf_t *leaf, int numverts, int zpos, int texture, int xpos, 
             gSP2Triangles(GFX1++,
                           v00, v01, v02, 0, // 0, 1, 2
                           v00, v02, 0, 0);  // 0, 2, 0
+            DEBUG_COUNTER(LastVisTriangles += 2);
 
             v00 += 2;
             v01 += 2;
@@ -915,6 +922,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
                 zpos1 = -(yy) >> 16;
             }
 
+            DEBUG_COUNTER(LastVisThings += 1);
             gSPVertex(GFX1++, VTX1, (tiles+2), 0);
 
             if (compressed < 0)
@@ -1029,6 +1037,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
 
                     gSP2Triangles(GFX1++, v00, v01, v02, 0, // 1, 3, 2
                                           v00, v02, v03, 0); // 1, 2, 0
+                    DEBUG_COUNTER(LastVisTriangles += 2);
 
                     VTX1[0].v.ob[0] = xpos1;
                     VTX1[0].v.ob[1] = ypos;
@@ -1080,6 +1089,7 @@ void R_RenderLaser(mobj_t *thing) // 80028CCC
 
     gSP2Triangles(GFX1++, 0, 3, 5, 2/*flag1*/,
 						  3, 4, 5, 2/*flag2*/);
+    DEBUG_COUNTER(LastVisTriangles += 4);
 
     VTX1[0].v.ob[0] = (laserdata->x1 >> 16);
     VTX1[0].v.ob[1] = (laserdata->z1 >> 16);

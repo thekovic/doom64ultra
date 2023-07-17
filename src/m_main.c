@@ -4,10 +4,12 @@
 #include "p_local.h"
 #include "r_local.h"
 #include "st_main.h"
+#include "i_usb.h"
 
 extern void P_RefreshBrightness(void);
 extern void P_RefreshVideo(void);
 
+static void M_DebugMenuDrawer(void);
 static int M_MenuCreditsTicker(void);
 static void M_IdCreditsDrawer(void);
 static void M_WmsCreditsDrawer(void);
@@ -88,26 +90,26 @@ u8 ControlMappings[] = {
     _F(MTXT_SKILL4, "Watch Me Die!") \
     _F(MTXT_SKILL5, "Be Merciless!") \
     \
-    _F(MTXT_CHEATS, "Cheats") \
+    _F(MTXT_FEATURES, "Features") \
     _F(MTXT_WARP, "WARP TO LEVEL") \
     _F(MTXT_INVULNERABLE, "INVULNERABLE") \
     _F(MTXT_FLY, "FLY MODE") \
     _F(MTXT_KEYS, "SECURITY KEYS") \
     _F(MTXT_WEAPONS, "WEAPONS") \
     _F(MTXT_ARTIFACTS, "ARTIFACTS") \
-    _F(MTXT_EXIT, "Exit") \
-    _F(MTXT_DEBUG, "DEBUG") \
-    _F(MTXT_TEXTURE_TEST, "TEXTURE TEST") \
     _F(MTXT_WALL_BLOCKING, "WALL BLOCKING") \
     _F(MTXT_LOCK_MONSTERS, "LOCK MONSTERS") \
-    _F(MTXT_SCREENSHOT, "SCREENSHOT") \
     _F(MTXT_MAP_EVERYTHING, "MAP EVERYTHING") \
-    _F(MTXT_MACRO_PEEK, "MACRO PEEK") \
     _F(MTXT_MUSIC_TEST, "MUSIC TEST") \
+    _F(MTXT_RECORD_DEMO, "Record Demo") \
+    _F(MTXT_CREDITS, "Show Credits") \
+    \
+    _F(MTXT_DEBUG, "Debug") \
+    _F(MTXT_DEBUG_DISPLAY, "DISPLAY") \
     _F(MTXT_GAMMA_CORRECT, "GAMMA CORRECT") \
     _F(MTXT_SECTOR_COLORS, "SECTOR COLORS") \
     _F(MTXT_FULL_BRIGHT, "FULL BRIGHT") \
-    _F(MTXT_CREDITS, "Show Credits") \
+    _F(MTXT_EXIT, "Exit") \
     \
     _F(MTXT_OPTIONS, "Options") \
     \
@@ -250,7 +252,7 @@ menuitem_t Menu_Game[] =
     { MTXT_LOAD_GAME,  122, 114},
     { MTXT_MAIN_MENU,  122, 132},
     { MTXT_RESTART,    122, 150},
-    { MTXT_CHEATS,     122, 168},
+    { MTXT_FEATURES,     122, 168},
 };
 
 const menuitem_t Menu_Quit[] =
@@ -300,8 +302,7 @@ const menuitem_t Menu_CreateNote[] =
     { MTXT_MANAGE_PAK,   110, 130},
 };
 
-#define MAXFEATURES 14
-const menuitem_t Menu_Features[MAXFEATURES] =
+const menuitem_t Menu_Features[] =
 {
     { MTXT_INVULNERABLE,   40, 50},
     { MTXT_FLY,            40, 60},
@@ -313,11 +314,23 @@ const menuitem_t Menu_Features[MAXFEATURES] =
     { MTXT_LOCK_MONSTERS,  40, 120},
     { MTXT_WARP,           40, 130},
     { MTXT_MUSIC_TEST,     40, 140},
-    { MTXT_SECTOR_COLORS,  40, 150},
-    { MTXT_FULL_BRIGHT,    40, 160},
-    { MTXT_GAMMA_CORRECT,  40, 170},
 
-    { MTXT_CREDITS,        40, 190},
+    { MTXT_CREDITS,        40, 160},
+    { MTXT_DEBUG,          40, 170},
+
+    { MTXT_EXIT,           40, 190},
+};
+
+const menuitem_t Menu_Debug[] =
+{
+    { MTXT_DEBUG_DISPLAY, 40, 120},
+    { MTXT_SECTOR_COLORS, 40, 130},
+    { MTXT_FULL_BRIGHT,   40, 140},
+    { MTXT_GAMMA_CORRECT, 40, 150},
+
+    { MTXT_RECORD_DEMO,   40, 170},
+
+    { MTXT_EXIT,          40, 190},
 };
 
 typedef struct
@@ -384,8 +397,9 @@ int HUDopacity = 255;            // [Immorpher] HUD opacity
 int SfxVolume = 100;             // 8005A7C0
 int MusVolume = 80;              // 8005A7C4
 int brightness = 125;            // 8005A7C8
+int ShowDebugCounters = 0;       // [nova] debug counters
 fixed_t MotionBob = 0x100000;    // [Immorpher] Motion Bob works in hexadecimal
-int VideoFilters[3] = {0, 0, 0}; // [nova] Independent filter select
+int VideoFilters[3] = {0, 1, 0}; // [nova] Independent filter select
 int TvMode = 1;                  // [nova] AA, Interlacing
 int ScreenAspect = 0;            // [nova] select 4:3, 16:10, 16:9
 boolean DitherFilter = false;    // [Immorpher] Dither filter
@@ -396,6 +410,12 @@ boolean StoryText = true;        // [Immorpher] Skip story cut scenes?
 boolean MapStats = false;        // [Immorpher] Enable map statistics for automap?
 int HUDmargin = 20;              // [Immorpher] HUD margin options (default 20)
 boolean ColoredHUD = true;       // [Immorpher] Colored hud
+
+#ifdef NDEBUG
+#define MAXDEBUGCOUNTERS 1
+#else
+#define MAXDEBUGCOUNTERS 6
+#endif
 
 boolean ConfigChanged = false;
 
@@ -539,12 +559,10 @@ int M_RunTitle(void) // 80007630
     I_WIPE_FadeOutScreen();
     S_StopMusic();
 
-#ifndef DEMORECORD
     if (exit == ga_timeout)
         return exit;
     if (exit == ga_loadquicksave)
         gameaction = exit;
-#endif
 
     G_InitNew(startskill, startmap, gt_single);
     G_RunGame();
@@ -1097,6 +1115,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
 
+            case MTXT_EXIT:
             case MTXT_RETURN:
             case MTXT_MRETURN:
             case MTXT_DONT_SAVE:
@@ -1365,7 +1384,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
 
-            case MTXT_CHEATS:
+            case MTXT_FEATURES:
                 if (truebuttons)
                 {
                     int cheats;
@@ -1480,28 +1499,41 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
 
-            case MTXT_EXIT:
-                /* nothing special */
-                break;
-
             case MTXT_DEBUG:
-                /* Not available in the release code */
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons)
                 {
-                    S_StartSound(NULL, sfx_switch2);
-                    players[0].cheats ^= CF_DEBUG;
-                    return ga_nothing;
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    SET_MENU(Menu_Debug);
+                    MenuCall = M_DebugMenuDrawer;
+                    cursorpos = 0;
+
+                    exit = MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
+                    M_RestoreMenuData((exit == ga_exit));
+
+                    if (exit == ga_exit)
+                        return ga_nothing;
+
+                    return exit;
                 }
                 break;
 
-            case MTXT_TEXTURE_TEST:
-                /* Not available in the release code */
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+            case MTXT_DEBUG_DISPLAY:
+                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    players[0].cheats ^= CF_TEX_TEST;
+                    ShowDebugCounters += 1;
+                    if (ShowDebugCounters > MAXDEBUGCOUNTERS)
+                        ShowDebugCounters = 0;
+                    return ga_nothing;
+                }
+                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    ShowDebugCounters -= 1;
+                    if (ShowDebugCounters < 0)
+                        ShowDebugCounters = MAXDEBUGCOUNTERS;
                     return ga_nothing;
                 }
                 break;
@@ -1598,14 +1630,11 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
 
-            case MTXT_SCREENSHOT:
-                /* Not available in the release code */
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+            case MTXT_RECORD_DEMO:
+                if (truebuttons)
                 {
-                    S_StartSound(NULL, sfx_switch2);
-                    players[0].cheats ^= CF_SCREENSHOT;
-                    return ga_nothing;
+                    S_StartSound(NULL, sfx_pistol);
+                    return ga_recorddemo;
                 }
                 break;
 
@@ -1615,17 +1644,6 @@ int M_MenuTicker(void) // 80007E0C
                 {
                     S_StartSound(NULL, sfx_switch2);
                     players[0].cheats ^= CF_ALLMAP;
-                    return ga_nothing;
-                }
-                break;
-
-            case MTXT_MACRO_PEEK:
-                /* Not available in the release code */
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
-                {
-                    S_StartSound(NULL, sfx_switch2);
-                    players[0].cheats ^= CF_MACROPEEK;
                     return ga_nothing;
                 }
                 break;
@@ -2515,7 +2533,7 @@ void M_FeaturesDrawer(void) // 800091C0
     const menuitem_t *item;
     int i;
 
-    ST_DrawString(-1, 20, "Cheats", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Features", text_alpha | 0xc0000000);
     item = MenuItem;
 
     for(i = 0; i < itemlines; i++)
@@ -2555,31 +2573,97 @@ void M_FeaturesDrawer(void) // 800091C0
             case MTXT_WEAPONS:
                 text = (!(players[0].cheats & CF_WEAPONS)) ? "-" : "100%";
                 break;
-            case MTXT_EXIT:
-                break;
-            case MTXT_DEBUG:
-                text = (!(players[0].cheats & CF_DEBUG)) ? "OFF": "ON";
-                break;
-            case MTXT_TEXTURE_TEST:
-                text = (!(players[0].cheats & CF_TEX_TEST)) ? "OFF": "ON";
-                break;
             case MTXT_WALL_BLOCKING:
                 text = (!(players[0].mo->flags & MF_NOCLIP)) ? "ON": "OFF";
                 break;
             case MTXT_LOCK_MONSTERS:
                 text = (!(players[0].cheats & CF_LOCKMONSTERS)) ? "OFF": "ON";
                 break;
-            case MTXT_SCREENSHOT:
-                text = (!(players[0].cheats & CF_SCREENSHOT)) ? "OFF": "ON";
-                break;
             case MTXT_MAP_EVERYTHING:
                 text = (!(players[0].cheats & CF_ALLMAP)) ? "OFF": "ON";
                 break;
-            case MTXT_MACRO_PEEK:
-                text = ((players[0].cheats & CF_MACROPEEK)) ? "ON": "OFF";
-                break;
             case MTXT_MUSIC_TEST:
                 sprintf(textbuff, "%d", MusicID);
+                break;
+            default:
+                text = NULL; // [Immorpher] set to null for credits menu
+                break;
+        }
+
+        if (text)
+            ST_Message(item->x + 130, item->y, text, text_alpha | 0xffffff00);
+        item++;
+    }
+
+    ST_DrawSymbol(MenuItem->x -10, MenuItem[cursorpos].y -1, 78, text_alpha | 0xffffff00);
+}
+
+static const char *BuildFlags = ""
+#ifndef NDEBUG
+"DBG "
+#endif
+#ifdef USB
+"USB "
+#endif
+#ifdef USB_GDB
+"GDB"
+#endif
+;
+
+static void M_DebugMenuDrawer(void) // 800091C0
+{
+    char textbuf[40];
+    const char *text;
+    const menuitem_t *item;
+    int i;
+
+    ST_DrawString(-1, 20, "Debug", text_alpha | 0xc0000000);
+
+    sprintf(textbuf, "Build Flags   %s", *BuildFlags ? BuildFlags : "-");
+    ST_Message(40, 50, textbuf, text_alpha | 0xffffff00);
+
+    sprintf(textbuf, "  Total RAM   %d bytes", osMemSize);
+    ST_Message(40, 70, textbuf, text_alpha | 0xffffff00);
+    sprintf(textbuf, "   Zone Mem   %d bytes", mainzone->size);
+    ST_Message(40, 80, textbuf, text_alpha | 0xffffff00);
+    sprintf(textbuf, "       SRAM   %d bytes", SramSize);
+    ST_Message(40, 90, textbuf, text_alpha | 0xffffff00);
+
+    if (IsEmulator)
+        text = "Emulator";
+    else
+        switch (FlashCart)
+        {
+            case CART_64DRIVE: text = "64Drive"; break;
+            case CART_EVERDRIVE: text = "EverDrive"; break;
+            case CART_SC64: text = "SC64"; break;
+            default: text = "None"; break;
+        }
+    sprintf(textbuf, "   Platform   %s Detected", text);
+    ST_Message(40, 100, textbuf, text_alpha | 0xffffff00);
+
+    item = MenuItem;
+    for(i = 0; i < itemlines; i++)
+    {
+        text = MenuText[item->casepos];
+        ST_Message(item->x, item->y, text, text_alpha | 0xffffff00);
+
+        text = NULL;
+        switch(item->casepos)
+        {
+            case MTXT_DEBUG_DISPLAY:
+                switch (ShowDebugCounters) {
+                    case 0: text = "NONE"; break;
+                    case 1: text = "FPS"; break;
+#ifndef NDEBUG
+                    case 2: text = "CLOCK"; break;
+                    case 3: text = "GFX"; break;
+                    case 4: text = "BSP"; break;
+                    case 5: text = "LEVEL"; break;
+                    case 6: text = "MEMORY"; break;
+#endif
+                    default: text = NULL; break;
+                }
                 break;
             case MTXT_SECTOR_COLORS:
                 text = (!(players[0].cheats & CF_NOCOLORS)) ? "ON": "OFF";
@@ -2591,7 +2675,6 @@ void M_FeaturesDrawer(void) // 800091C0
                 text = (!(players[0].cheats & CF_GAMMA)) ? "OFF": "ON";
                 break;
             default:
-                text = NULL; // [Immorpher] set to null for credits menu
                 break;
         }
 

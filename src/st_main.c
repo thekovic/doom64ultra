@@ -1,7 +1,9 @@
 /* st_main.c -- status bar */
 
 #include "doomdef.h"
+#include "p_local.h"
 #include "st_main.h"
+#include "p_spec.h"
 #include "r_local.h"
 
 extern void P_RefreshBrightness(void);
@@ -12,9 +14,6 @@ boolean tryopen[6]; // 800A81E0
 byte *sfontlump;     // 800A81F8
 byte *statuslump;   // 800A81FC
 int sumbolslump;    // 800A8204
-
-int err_text_x = 20;     // 800A8208
-int err_text_y = 20;     // 800A820C
 
 typedef struct
 {
@@ -223,28 +222,88 @@ void ST_Ticker (void) // 80029C88
 ====================
 */
 
-static char debugbuf[16][256];
+#define DEBUGLINES 16
+#define DEBUGLINELEN (SCREEN_WD/8+1)
+static char *debugbuf = NULL;
 static int debugX = 8, debugY = 8;//80077E5C|uGp00000a4c, 80077E68|uGp00000a58
 static int debugcnt = 0;
 static int debugstart = 0;
 static int debug = 0;
 
 extern memzone_t	*mainzone;
-extern int Z_FreeMemory (memzone_t *mainzone); // 8002D188
-
-extern u32 last_bsp_count;
-extern u32 last_phase3_count;
-extern u32 last_iter_count;
 
 void ST_DrawDebug (void)
 {
+    char buf[20];
+
     if(debug)
     {
         for(int i = 0; i < debugcnt; i++)
         {
-            int index = (i+debugstart)%ARRAYLEN(debugbuf);
-            ST_Message(debugX, (i*8) + debugY, debugbuf[index],0x00ff00ff);
+            int index = (i+debugstart)%DEBUGLINES;
+            ST_Message(debugX, (i*8) + debugY, &debugbuf[index*DEBUGLINELEN],0x00ff00a0);
         }
+    }
+    switch (ShowDebugCounters)
+    {
+    case 1:
+        sprintf(buf, "FPS %d", fround(46875000.0 / (f64) LastFrameCycles));
+        ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
+        break;
+#ifndef NDEBUG
+    case 2:
+        sprintf(buf, "WRL %d", (u32)OS_CYCLES_TO_USEC(LastWorldCycles));
+        ST_Message(16, SCREEN_HT-88, buf, 0x00ff00a0);
+        sprintf(buf, "AUD %d", (u32)OS_CYCLES_TO_USEC(LastAudioCycles));
+        ST_Message(16, SCREEN_HT-80, buf, 0x00ff00a0);
+        sprintf(buf, "BSP %d", (u32)OS_CYCLES_TO_USEC(LastBspCycles));
+        ST_Message(16, SCREEN_HT-72, buf, 0x00ff00a0);
+        sprintf(buf, "RND %d", (u32)OS_CYCLES_TO_USEC(LastPhase3Cycles));
+        ST_Message(16, SCREEN_HT-64, buf, 0x00ff00a0);
+        sprintf(buf, "FRM %d", (u32)OS_CYCLES_TO_USEC(LastFrameCycles));
+        ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
+        break;
+    case 3:
+        sprintf(buf, "GFX %d", ((int)((int)GFX1 - (int)GFX2) / sizeof(Gfx)) + GfxIndex);
+        ST_Message(16, SCREEN_HT-72, buf, 0x00ff00a0);
+        sprintf(buf, "VTX %d", ((int)((int)VTX1 - (int)VTX2) / sizeof(Vtx)) + VtxIndex);
+        ST_Message(16, SCREEN_HT-64, buf, 0x00ff00a0);
+        sprintf(buf, "TRI %d", LastVisTriangles);
+        ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
+        break;
+    case 4:
+        sprintf(buf, "SUBS %d", LastVisSubsectors);
+        ST_Message(16, SCREEN_HT-80, buf, 0x00ff00a0);
+        sprintf(buf, "LEAF %d", LastVisLeaves);
+        ST_Message(16, SCREEN_HT-72, buf, 0x00ff00a0);
+        sprintf(buf, "SEGS %d", LastVisSegs);
+        ST_Message(16, SCREEN_HT-64, buf, 0x00ff00a0);
+        sprintf(buf, "THNG %d", LastVisThings);
+        ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
+        break;
+    case 5:
+        sprintf(buf, "MACRO ");
+        if (activemacroidx >= 0 && activemacro)
+            sprintf(&buf[6], "%d[%d]", activemacroidx, activemacro - macros[activemacroidx]);
+        else
+            sprintf(&buf[6], "-");
+        ST_Message(16, SCREEN_HT-72, buf, 0x00ff00a0);
+        sprintf(buf, "THINK %d", activethinkers);
+        ST_Message(16, SCREEN_HT-64, buf, 0x00ff00a0);
+        sprintf(buf, "MOBJS %d", activemobjs);
+        ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
+        break;
+    case 6:
+        sprintf(buf, "LEV %d", LevelMem);
+        ST_Message(16, SCREEN_HT-72, buf, 0x00ff00a0);
+        sprintf(buf, "USE %7d : %d", UsedMem, mainzone->size - UsedMem);
+        ST_Message(16, SCREEN_HT-64, buf, 0x00ff00a0);
+        sprintf(buf, "OCC %7d : %d", OccupiedMem, mainzone->size - OccupiedMem);
+        ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
+        break;
+#endif
+    default:
+        break;
     }
 }
 
@@ -303,8 +362,6 @@ void ST_Drawer (void) // 80029DC0
             ST_Message(2+HUDmargin, 20+HUDmargin, player->message3, ms_alpha | player->messagecolor3); // display message
         }
     }
-
-    ST_DrawDebug();
 
     if (HUDopacity){
         int crosshair, color, stat;
@@ -483,6 +540,7 @@ void ST_Drawer (void) // 80029DC0
         }
         ST_DrawNumber(298-HUDmargin, 227-HUDmargin, stat, 0, color);
     }
+    ST_DrawDebug();
 }
 
 #define ST_FONTWHSIZE 8
@@ -923,6 +981,8 @@ void ST_DrawSymbol(int xpos, int ypos, int index, int color) // 8002ADEC
 void ST_EnableDebug(void)
 {
     debug = true;
+    if (!debugbuf)
+        debugbuf = Z_Malloc(DEBUGLINES * DEBUGLINELEN, PU_STATIC, NULL);
 }
 
 void ST_DisableDebug(void)
@@ -940,31 +1000,42 @@ void ST_DebugPrint(const char *text, ...)
 {
     if(debug)
     {
-        int index;
+        int index, count;
         va_list args;
+        char buf[256];
+        char *ptr;
 
-        if (debugcnt < ARRAYLEN(debugbuf))
+        if (debugcnt < DEBUGLINES)
             index = debugcnt;
         else
             index = debugstart;
+        ptr = &debugbuf[index*DEBUGLINELEN];
 
         va_start (args, text);
-        D_vsprintf (debugbuf[index], text, args);
+        count = D_vsprintf (buf, text, args);
         va_end (args);
 
-        if (debugcnt < ARRAYLEN(debugbuf))
+        if (count < 0)
+            return;
+
+        count = MIN(count, DEBUGLINELEN - 1);
+        D_memcpy(ptr, buf, count);
+        ptr[count] = '\0';
+
+        if (debugcnt < DEBUGLINES)
             debugcnt += 1;
         else
-            debugstart = debugstart < ARRAYLEN(debugbuf) - 1 ?  debugstart + 1 : 0;
+            debugstart = debugstart < DEBUGLINES - 1 ?  debugstart + 1 : 0;
     }
-
-	//debugY += 8;
 }
 
 void ST_DebugClear(void)
 {
-    debugcnt = 0;
-    debugstart = 0;
-    for (int i = 0; i < ARRAYLEN(debugbuf); i++)
-        debugbuf[i][0] = '\0';
+    if (debug)
+    {
+        debugcnt = 0;
+        debugstart = 0;
+        for (int i = 0; i < DEBUGLINES; i++)
+            debugbuf[i * DEBUGLINELEN] = '\0';
+    }
 }

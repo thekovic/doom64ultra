@@ -1,11 +1,8 @@
 /* P_local.h */
 
-#ifndef __P_LOCAL__
-#define __P_LOCAL__
+#pragma once
 
-#ifndef __R_LOCAL__
 #include "r_local.h"
-#endif
 
 #define	FLOATSPEED		(FRACUNIT*4)
 
@@ -66,7 +63,6 @@ typedef enum
 
 extern	thinker_t	thinkercap;	/* both the head and tail of the thinker list */
 
-
 void P_InitThinkers (void);
 void P_AddThinker (thinker_t *thinker);
 void P_RemoveThinker (thinker_t *thinker);
@@ -107,8 +103,8 @@ void	P_PlayerThink (player_t *player);
 
 extern	mobj_t	mobjhead;
 
-extern	int			activethinkers;	/* debug count */
-extern	int			activemobjs;	/* debug count */
+DEBUG_COUNTER(extern int activethinkers);
+DEBUG_COUNTER(extern int activemobjs);
 
 #define ONFLOORZ	MININT
 #define	ONCEILINGZ	MAXINT
@@ -350,7 +346,4 @@ boolean P_CheckSight(mobj_t *t1, mobj_t *t2);
 boolean PS_CrossBSPNode(int bspnum);
 boolean PS_CrossSubsector(subsector_t *sub);
 fixed_t PS_SightCrossLine (line_t *line);
-
-#endif	/* __P_LOCAL__ */
-
 

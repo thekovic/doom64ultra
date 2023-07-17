@@ -672,62 +672,35 @@ void P_SetMovingCamera(line_t *line) // 8000F2F8
 }
 void P_RefreshVideo(void) // [Immorpher] video refresh
 {
-    // default to silence compiler
-    OSViMode *ViMode = OS_VI_NTSC_LPN1;
+    int modeidx = OS_VI_NTSC_LPN1;
+    int special;
+    OSViMode *ViMode;
 
-    if(TvMode == 3) // interlaced antialiasing
-    {
-        if(osTvType == OS_TV_PAL)
-            ViMode = &osViModeTable[OS_VI_PAL_LAF1];
-        else if(osTvType == OS_TV_NTSC)
-            ViMode = &osViModeTable[OS_VI_NTSC_LAF1];
-        else if(osTvType == OS_TV_MPAL)
-            ViMode = &osViModeTable[OS_VI_MPAL_LAF1];
-    }
-    else if(TvMode == 2) // interlaced
-    {
-        if(osTvType == OS_TV_PAL)
-            ViMode = &osViModeTable[OS_VI_PAL_LPF1];
-        else if(osTvType == OS_TV_NTSC)
-            ViMode = &osViModeTable[OS_VI_NTSC_LPF1];
-        else if(osTvType == OS_TV_MPAL)
-            ViMode = &osViModeTable[OS_VI_MPAL_LPF1];
-    }
-    else if(TvMode == 1) // antialiasing
-    {
-        if(osTvType == OS_TV_PAL)
-            ViMode = &osViModeTable[OS_VI_PAL_LAN1];
-        else if(osTvType == OS_TV_NTSC)
-            ViMode = &osViModeTable[OS_VI_NTSC_LAN1];
-        else if(osTvType == OS_TV_MPAL)
-            ViMode = &osViModeTable[OS_VI_MPAL_LAN1];
-    }
-    else
-    {
-        if(osTvType == OS_TV_PAL)
-            ViMode = &osViModeTable[OS_VI_PAL_LPN1];
-        else if(osTvType == OS_TV_NTSC)
-            ViMode = &osViModeTable[OS_VI_NTSC_LPN1];
-        else if(osTvType == OS_TV_MPAL)
-            ViMode = &osViModeTable[OS_VI_MPAL_LPN1];
-    }
+    if (osTvType == OS_TV_PAL)
+        modeidx += 14;
+    else if (osTvType == OS_TV_MPAL)
+        modeidx += 28;
+
+    if(TvMode & 2) // interlacing
+        modeidx += 1;
+    if(TvMode & 1) // antialising
+        modeidx += 2;
+
+    // if (hires) modeidx += 8;
+
+    ViMode = &osViModeTable[modeidx];
 
     osViSetMode(ViMode);
 
-    if(DitherFilter == true) // [Immorpher] Dither filter option
-    {
-        if (players[0].cheats & CF_GAMMA)
-            osViSetSpecialFeatures(OS_VI_GAMMA_ON|OS_VI_GAMMA_DITHER_OFF|OS_VI_DIVOT_OFF|OS_VI_DITHER_FILTER_ON);	
-        else
-            osViSetSpecialFeatures(OS_VI_GAMMA_OFF|OS_VI_GAMMA_DITHER_OFF|OS_VI_DIVOT_OFF|OS_VI_DITHER_FILTER_ON);	
-    }
-    else {
-        if (players[0].cheats & CF_GAMMA)
-            osViSetSpecialFeatures(OS_VI_GAMMA_ON|OS_VI_GAMMA_DITHER_OFF|OS_VI_DIVOT_OFF|OS_VI_DITHER_FILTER_OFF);	
-        else
-            osViSetSpecialFeatures(OS_VI_GAMMA_OFF|OS_VI_GAMMA_DITHER_OFF|OS_VI_DIVOT_OFF|OS_VI_DITHER_FILTER_OFF);	
-    }
+    special = OS_VI_GAMMA_DITHER_OFF | OS_VI_DIVOT_OFF;
+    special |= DitherFilter ? OS_VI_DITHER_FILTER_ON : OS_VI_DITHER_FILTER_OFF;
+    special |= (players[0].cheats & CF_GAMMA) ? OS_VI_GAMMA_ON : OS_VI_GAMMA_OFF;
 
+    osViSetSpecialFeatures(special);
+
+    video_hStart = ViMode->comRegs.hStart;
+    video_vStart1 = ViMode->fldRegs[0].vStart;
+    video_vStart2 = ViMode->fldRegs[1].vStart;
 }
 
 void P_RefreshBrightness(void) // 8000f410

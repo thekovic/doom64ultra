@@ -12,15 +12,21 @@ DEBUG ?= 0
 DEFINES :=
 OPTIONS :=
 
+ifdef GDB
+    OPTIONS += USB_GDB
+    USB = 1
+    DEBUG = 1
+else
+
+endif
 ifeq ($(DEBUG),0)
   DEFINES += NDEBUG=1
 endif
-
 ifneq ($(REQUIRE_EXPANSION_PAK),0)
   OPTIONS += REQUIRE_EXPANSION_PAK
 endif
-ifdef DEMORECORD
-  OPTIONS += DEMORECORD
+ifdef USB
+    OPTIONS += USB
 endif
 ifdef SKIP_INTRO
   OPTIONS += SKIP_INTRO

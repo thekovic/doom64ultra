@@ -152,6 +152,9 @@ void P_SpawnSpecials (void) // 8001F490
     macrocounter = 0;
     macroidx1 = 0;
     macroidx2 = 0;
+    DEBUG_COUNTER(activemacroidx = -1);
+    DEBUG_COUNTER(activethinkers = 0);
+    DEBUG_COUNTER(activemobjs = 0);
 
 	/* */
 	/*	Init special SECTORs */

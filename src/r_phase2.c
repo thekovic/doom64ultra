@@ -384,6 +384,7 @@ void R_RenderClouds(void) // 80025878
 
     gSPVertex(GFX1++, VTX1, 4, 0);
     gSP2Triangles(GFX1++, 0, 2, 1, 0, 0, 3, 2, 0);
+    DEBUG_COUNTER(LastVisTriangles += 2);
 
     VTX1 += 4;
 
@@ -644,6 +645,7 @@ void R_RenderFireSky(void) // 80025F68
 
     gSPVertex(GFX1++, VTX1, 4, 0);
     gSP2Triangles(GFX1++, 0, 2, 1, 0, 0, 3, 2, 0);
+    DEBUG_COUNTER(LastVisTriangles += 2);
 
     VTX1 += 4;
 

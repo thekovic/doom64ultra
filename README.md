@@ -59,12 +59,12 @@ make WARP=XX SKILL=3              # Warp to map number XX on boot, with the spec
 
 make CHEATS=CF_GODMODE+CF_NOCLIP  # Spawn with cheats enabled (see doomdef.h for more CF_ flags)
 
-make DEMORECORD=1 WARP=XX SKILL=Y # Records a demo on map XX at skill Y
-                                  # The byte size and offset of the demo will be displayed
-                                  # after recording is finished so it can be extracted
-                                  # from a save state.
-```
+make USB=1                        # Enable Flashcart USB Screenshot/Demo transfers
+                                  # Supports EverDrive, 64Drive, SC64
+                                  # When used with DEBUG=1, enables debug logging over USB
 
+make GDB=1                        # Enable GDB debugging over USB (implies DEBUG=1 and USB=1)
+```
 ## Contact
 
 Join the Doom 64 Discord: https://discord.gg/Ktxz8nz

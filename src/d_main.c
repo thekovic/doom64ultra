@@ -2,9 +2,10 @@
 
 #include "i_main.h"
 #include "doomdef.h"
-#include "p_spec.h"
-#include "r_local.h"
 #include "config.h"
+#ifdef USB
+#include "i_usb.h"
+#endif
 
 int gamevbls;		            // 80063130 /* may not really be vbls in multiplayer */
 int gametic;		            // 80063134
@@ -50,7 +51,7 @@ void D_DoomMain(void *arg) // 800027C0
     }
 #endif
 
-#if defined(DEVWARP) || defined(SKIP_INTRO) || defined(DEMORECORD)
+#if defined(DEVWARP) || defined(SKIP_INTRO)
     M_RunTitle();
 #else
     D_SplashScreen();
@@ -58,7 +59,6 @@ void D_DoomMain(void *arg) // 800027C0
 
     while(true)
     {
-#ifndef DEMORECORD
         exit = D_TitleMap();
 
         if(exit != ga_exit)
@@ -91,7 +91,6 @@ void D_DoomMain(void *arg) // 800027C0
                 }
             }
         }
-#endif
 
         do {
             exit = M_RunTitle();
@@ -165,12 +164,11 @@ void M_ClearRandom(void) // 80002980
 =
 ===============
 */
-u32 last_iter_count;
 int MiniLoop(void(*start)(void), void(*stop)(),
              int(*ticker)(void), void(*drawer)(void)) // 80002998
 {
-	int		exit;
-	int		buttons;
+    int	exit;
+    int	buttons;
 
     if (gameaction != ga_loadquicksave)
         gameaction = ga_nothing;
@@ -179,34 +177,33 @@ int MiniLoop(void(*start)(void), void(*stop)(),
     ticon = 0;
     ticsinframe = 0;
 
-	/* */
-	/* setup (cache graphics, etc) */
-	/* */
-	if(start != NULL)
+    /* */
+    /* setup (cache graphics, etc) */
+    /* */
+    if(start != NULL)
         start();
 
-	drawsync1 = 0;
-	drawsync2 = vsync;
+    drawsync1 = 0;
+    drawsync2 = vsync;
 
-	while (true)
-	{
-        u32 start_iter_count = osGetCount();
-		vblsinframe[0] = drawsync1;
+    while (true)
+    {
+        vblsinframe[0] = drawsync1;
 
-		// get buttons for next tic
-		oldticbuttons[0] = ticbuttons[0];
+        // get buttons for next tic
+        oldticbuttons[0] = ticbuttons[0];
 
-		buttons = I_GetControllerData();
-		ticbuttons[0] = buttons;
+        buttons = I_GetControllerData();
+        ticbuttons[0] = buttons;
 
-		//Read|Write demos
-		if (demorecording || demoplayback)
+        //Read|Write demos
+        if (demorecording || demoplayback)
         {
             if (demoplayback)
             {
                 if (buttons & (ALL_JPAD|ALL_BUTTONS))
                 {
-                    exit = ga_exit;
+                    exit = ga_exitdemo;
                     break;
                 }
 
@@ -231,12 +228,12 @@ int MiniLoop(void(*start)(void), void(*stop)(),
             }
         }
 
-		ticon += vblsinframe[0];
-		if (ticsinframe < (ticon >> 1))
-		{
-			gametic += 1;
-			ticsinframe = (ticon >> 1);
-		}
+        ticon += vblsinframe[0];
+        if (ticsinframe < (ticon >> 1))
+        {
+            gametic += 1;
+            ticsinframe = (ticon >> 1);
+        }
 
         if (disabledrawing == false)
         {
@@ -255,16 +252,21 @@ int MiniLoop(void(*start)(void), void(*stop)(),
             I_MoveDisplay(0,0);
         }
 
-		gamevbls = gametic;
-        last_iter_count = ((osGetCount() - start_iter_count) + last_iter_count) / 2;
-	}
+#ifdef USB
+        exit = I_DispatchUSBCommands();
+        if (exit != ga_nothing)
+            break;
+#endif
 
-	I_GetScreenGrab();
+        gamevbls = gametic;
+    }
 
-	if(stop != NULL)
+    I_GetScreenGrab();
+
+    if(stop != NULL)
         stop(exit);
 
-	oldticbuttons[0] = ticbuttons[0];
+    oldticbuttons[0] = ticbuttons[0];
 
-	return exit;
+    return exit;
 }

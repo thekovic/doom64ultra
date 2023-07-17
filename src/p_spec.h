@@ -1,5 +1,7 @@
 /* P_spec.h */
 
+#pragma once
+
 #include "r_local.h"
 
 /*
@@ -648,6 +650,7 @@ extern int         macrocounter;       // 800A60FC
 extern macroactivator_t macroqueue[4]; // 800A6100
 extern int         macroidx1;          // 800A6120
 extern int         macroidx2;          // 800A6124
+DEBUG_COUNTER(extern int activemacroidx);
 
 int P_StartMacro(int macroindex, line_t *line, mobj_t *thing); // 80021088
 int P_SuspendMacro(void); // 80021148

@@ -4,6 +4,11 @@
 #include "p_local.h"
 #include "p_saveg.h"
 #include "config.h"
+#include "i_usb.h"
+#include "st_main.h"
+#ifdef USB
+#include "i_debug.h"
+#endif
 
 #ifdef DEVWARP
 #define DEVWARP_ENABLED 1
@@ -348,7 +353,6 @@ void G_InitSkill (skill_t skill) // [Immorpher] initialize skill
 /*============================================================================  */
 
 void M_QuickLoadFailed(void);
-void I_DeleteQuickLoad(void);
 /*
 =================
 =
@@ -360,10 +364,6 @@ void I_DeleteQuickLoad(void);
 
 void G_RunGame (void) // 80004794
 {
-#ifdef DEMORECORD
-    G_RecordDemo();
-#endif
-
 	while (1)
 	{
         /* load a level */
@@ -371,7 +371,6 @@ void G_RunGame (void) // 80004794
         {
             if (!I_QuickLoad())
             {
-                I_DeleteQuickLoad();
                 M_QuickLoadFailed();
                 gameaction = ga_nothing;
                 return;
@@ -392,8 +391,8 @@ void G_RunGame (void) // 80004794
 		/* run a level until death or completion */
 		MiniLoop (P_Start, P_Stop, P_Ticker, P_Drawer);
 
-        //if (gameaction == ga_recorddemo)
-            //G_RecordDemo();
+        if (gameaction == ga_recorddemo)
+            G_RecordDemo();
 
         if(gameaction == ga_warped || gameaction == ga_loadquicksave)
 			continue; /* skip intermission */
@@ -407,6 +406,11 @@ void G_RunGame (void) // 80004794
         /* run a stats intermission - [Immorpher] Removed Hectic exception */
 		MiniLoop(IN_Start, IN_Stop, IN_Ticker, IN_Drawer);
 
+#ifdef USB
+        /* back to title screen from a custom map */
+        if (gamemap == 0)
+            return;
+#endif
 
         if((((gamemap ==  8) && (nextmap ==  9)) ||
            ((gamemap ==  4) && (nextmap == 29)) ||
@@ -532,9 +536,11 @@ int G_PlayDemoPtr (int skill, int map) // 800049D0
 	return exit;
 }
 
-#ifdef DEMORECORD
 void G_RecordDemo (void)//80013D0C
 {
+    int exit;
+    int demolen;
+
     demosize = 0x8000;
     demo_p = demobuffer = Z_Malloc (demosize, PU_STATIC, NULL);
 
@@ -568,12 +574,26 @@ void G_RecordDemo (void)//80013D0C
     demorecording = true;
     MiniLoop (P_Start, P_Stop, P_Ticker, P_Drawer);
     demorecording = false;
+    demolen = (demobuffer - demo_p) * sizeof(int);
 
-    while (1)
-    {
-        ST_EnableDebug();
-        ST_DebugPrint("Playing Demo\nPos 0x%08lx\nLen 0x%x", (u32) demo_p, (demobuffer - demo_p) * 4);
-        G_PlayDemoPtr (startskill, startmap);
-    }
-}
+#ifdef USB
+    I_USBSendFile(demo_p, demolen);
 #endif
+
+    I_SaveDemo(demo_p, demolen);
+
+    ST_EnableDebug();
+    ST_DebugPrint("Playing Demo");
+    if (IsEmulator)
+        ST_DebugPrint("RAM Pos 0x%08lx Len 0x%x", (u32) demo_p, demolen);
+
+    do {
+        exit = G_PlayDemoPtr (startskill, startmap);
+    } while (exit != ga_exitdemo);
+
+    ST_DebugClear();
+    ST_DisableDebug();
+    Z_Free(demo_p);
+
+    gameaction = exit;
+}

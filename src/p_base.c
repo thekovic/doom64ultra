@@ -15,6 +15,8 @@ static fixed_t testbbox[4];		/* Bounding box for tests */    // 800A55E8
 int testflags;                                           // 800A55D4
 fixed_t testradius;                                      // 800A55E0
 
+DEBUG_COUNTER(int activemobjs = 0);
+
 void P_XYMovement(mobj_t *mo);
 void P_FloatChange(mobj_t *mo);
 void P_ZMovement(mobj_t *mo);
@@ -44,6 +46,8 @@ void P_RunMobjBase(void) // 8000CDE0
     mobj_t *mo;
     mobj_t *next;
 
+    DEBUG_COUNTER(activemobjs = 0);
+
 	for (mo = mobjhead.next; mo != &mobjhead; mo = mo->next)
 	{
 	    /* Based on Doom 64 Ex */
@@ -57,6 +61,7 @@ void P_RunMobjBase(void) // 8000CDE0
 		{
 			mo->latecall = NULL;
 			P_MobjThinker(mo);
+            DEBUG_COUNTER(activemobjs++);
 		}
 	}
 

@@ -18,6 +18,7 @@ macroactivator_t macroqueue[4]; // 800A6100
 int         macroidx1;          // 800A6120
 /* macro queue read pos */
 int         macroidx2;          // 800A6124
+DEBUG_COUNTER(int activemacroidx = -1);
 
 int P_StartMacro(int macroindex, line_t *line, mobj_t *thing) // 80021088
 {
@@ -40,6 +41,8 @@ int P_StartMacro(int macroindex, line_t *line, mobj_t *thing) // 80021088
     macrothinker = NULL;
     macroline = line;
 
+    DEBUG_COUNTER(activemacroidx = macroindex - 256);
+
     D_memcpy(&macrotempline, line, sizeof(line_t));
     P_ChangeSwitchTexture(line, line->special & MLU_REPEAT);
 
@@ -56,6 +59,7 @@ int P_SuspendMacro(void) // 80021148
     macrothinker = NULL;
     macrocounter = 0;
     activemacro = NULL;
+    DEBUG_COUNTER(activemacroidx = -1);
 
     if (!(macroline->special & MLU_REPEAT))
     {

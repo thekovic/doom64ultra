@@ -6,7 +6,6 @@
 #include "st_main.h"
 #include "config.h"
 
-#ifndef DEMORECORD
 int D_RunDemo(char *name, skill_t skill, int map) // 8002B2D0
 {
   int lump;
@@ -38,9 +37,8 @@ int D_TitleMap(void) // 8002B358
 
   return exit;
 }
-#endif
 
-#if !defined(DEVWARP) && !defined(SKIP_INTRO) && !defined(DEMORECORD)
+#if !defined(DEVWARP) && !defined(SKIP_INTRO)
 int D_WarningTicker(void) // 8002B3E8
 {
     if ((gamevbls < gametic) && !(gametic & 7))
