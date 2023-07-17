@@ -1225,7 +1225,7 @@ void I_Init(void); // 80005C50
 typedef struct __attribute__((__packed__)) __attribute__((aligned (8))) {
     u16 crc;
     u32 present: 1;
-    u32 map: 7;
+    u32 map: 9;
     u32 skill: 3;
     u32 artifacts: 3;
     u32 weapons: 8;
