@@ -91,12 +91,18 @@ endef
 CONFIG_H := $(BUILD_DIR)/config.h
 C_OPTIONS = $(foreach d,$(OPTIONS),#define $(subst =, ,$(d))$(nl))
 
+ifeq (,$(wildcard $(CONFIG_H)))
+    $(file > $(CONFIG_H),$(C_OPTIONS))
+endif
 ifneq ($(strip $(file < $(CONFIG_H))),$(strip $(C_OPTIONS)))
     $(file > $(CONFIG_H),$(C_OPTIONS))
 endif
 
 DEFINES_TXT := $(BUILD_DIR)/defines.txt
 
+ifeq (,$(wildcard $(DEFINES_TXT)))
+    $(file > $(DEFINES_TXT),$(DEFINES))
+endif
 ifneq ($(strip $(file < $(DEFINES_TXT))),$(strip $(DEFINES)))
     $(file > $(DEFINES_TXT),$(DEFINES))
 endif
