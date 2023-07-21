@@ -847,7 +847,7 @@ void M_MenuGameDrawer(void) // 80007C48
         gDPSetCycleType(GFX1++, G_CYC_FILL);
         gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
         gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
-        gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,0) << 16 | GPACK_RGBA5551(0,0,0,0));
+        gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,1) << 16 | GPACK_RGBA5551(0,0,0,1));
         gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
 
         if (MenuCall == M_SavePakDrawer || MenuCall == M_SaveGamePakDrawer || MenuItem == Menu_Save
@@ -884,7 +884,7 @@ void M_QuickLoadFailedDrawer(void) // 8002BBE4
     gDPSetCycleType(GFX1++, G_CYC_FILL);
     gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
     gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
-    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,0) << 16 | GPACK_RGBA5551(0,0,0,0));
+    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,1) << 16 | GPACK_RGBA5551(0,0,0,1));
     gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
 
     ST_DrawString(-1,  40, "quick load data", 0xffffffff);
@@ -3024,6 +3024,9 @@ void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
         t += yh;
         y += yh;
     }
+
+    gDPPipeSync(GFX1++);
+    gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
 
     globallump = -1;
 }

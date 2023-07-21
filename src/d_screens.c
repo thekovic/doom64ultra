@@ -94,7 +94,7 @@ void D_DrawLegal(void) // 8002B644
     gDPSetCycleType(GFX1++, G_CYC_FILL);
     gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
     gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
-    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,0) << 16 | GPACK_RGBA5551(0,0,0,0));
+    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,1) << 16 | GPACK_RGBA5551(0,0,0,1));
     gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
 
     M_DrawBackground(27, 74, text_alpha, "USLEGAL");
@@ -289,7 +289,7 @@ void D_CreditDrawer(void) // 8002BBE4
     else if ((cred_next == 3) || (cred_next == 4))
         color = (cred1_alpha * 30) / 255;
 
-    gDPSetFillColor(GFX1++, GPACK_RGBA5551(color,0,0,255) << 16 | GPACK_RGBA5551(color,0,0,255));
+    gDPSetFillColor(GFX1++, GPACK_RGBA5551(color,0,0,1) << 16 | GPACK_RGBA5551(color,0,0,1));
     gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
 
     if (cred_next == 0)
