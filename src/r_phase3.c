@@ -923,7 +923,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
             }
 
             DEBUG_COUNTER(LastVisThings += 1);
-            gSPVertex(GFX1++, VTX1, (tiles+2), 0);
+            gSPVertex(GFX1++, VTX1, MIN(tiles+2, 32), 0);
 
             if (compressed < 0)
             {
@@ -999,6 +999,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
 
             if (tiles > 0)
             {
+                int tilesleft = tiles+2;
                 do
                 {
                     if (compressed < 0)
@@ -1013,8 +1014,6 @@ void R_RenderThings(subsector_t *sub) // 80028248
                         gDPPipeSync(GFX1++);
                         gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_8b, (width >> 3), 0,
                                    G_TX_RENDERTILE , 0, 0, 0, 0, 0, 0, 0);
-
-                        gDPSetTileSize(GFX1++, G_TX_RENDERTILE, 0, tpos << 2, ((width - 1) << 2), (tpos + tileh - 1) << 2);
                     }
                     else
                     {
@@ -1028,8 +1027,18 @@ void R_RenderThings(subsector_t *sub) // 80028248
                         gDPPipeSync(GFX1++);
                         gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_4b, (width >> 4), 0,
                                    G_TX_RENDERTILE , 0, 0, 0, 0, 0, 0, 0);
+                    }
 
-                        gDPSetTileSize(GFX1++, G_TX_RENDERTILE, 0, tpos << 2, ((width - 1) << 2), (tpos + tileh - 1) << 2);
+                    gDPSetTileSize(GFX1++, G_TX_RENDERTILE, 0, tpos << 2, ((width - 1) << 2), (tpos + tileh - 1) << 2);
+
+                    if (v02 >= 32)
+                    {
+                        v03 = 0;
+                        v00 = 1;
+                        v01 = 3;
+                        v02 = 2;
+                        tilesleft -= 30;
+                        gSPVertex(GFX1++, VTX1 - 2, MIN(tilesleft, 32), 0);
                     }
 
                     tpos += tileh;
@@ -1066,7 +1075,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
                     v01 += 2;
                     v02 += 2;
                     v03 += 2;
-                } while (v02 < (tiles+2));
+                } while (v02 < tilesleft);
             }
 
             vissprite_p = vissprite_p->next;
