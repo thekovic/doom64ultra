@@ -414,8 +414,6 @@ void I_SystemTicker(void *arg) // 80005730
                     //printstr(WHITE, 0, 28, str);
 				    disabledrawing = true;
                     S_StopAll();
-                    osViBlack(TRUE);
-                    I_MoveDisplay(0,0);
                 }
 				break;
 
@@ -924,6 +922,8 @@ void I_WIPE_MeltScreen(void) // 80006964
     I_WIPE_FadeOutScreen();
 }
 
+int fadetick = 8;
+
 void I_WIPE_FadeOutScreen(void) // 80006D34
 {
     u32 *fb;
@@ -980,7 +980,7 @@ void I_WIPE_FadeOutScreen(void) // 80006D34
         } while (y1 != SCREEN_HT);
 
         I_DrawFrame();
-        outcnt -= 8;
+        outcnt -= fadetick;
     } while (outcnt >= 0);
 
     I_GetScreenGrab();

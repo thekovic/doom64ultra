@@ -246,6 +246,14 @@ int MiniLoop(void(*start)(void), void(*stop)(),
 
             drawer();
         }
+        else
+        {
+            extern int fadetick;
+            fadetick = 18;
+            I_WIPE_FadeOutScreen();
+            osViBlack(TRUE);
+            I_MoveDisplay(0,0);
+        }
 
 		gamevbls = gametic;
         last_iter_count = ((osGetCount() - start_iter_count) + last_iter_count) / 2;
