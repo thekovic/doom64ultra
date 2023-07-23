@@ -10,6 +10,8 @@
 #include "wessarc.h"
 #include "wessshell.h"
 
+#define AUDIO_HEAP_SIZE	(0x44800)
+
 /*--------------------------------------------------*/
 /*  type define's for structures unique to audiomgr */
 /*--------------------------------------------------*/

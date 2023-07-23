@@ -2,8 +2,8 @@
 #include "doomdef.h"
 #include "p_local.h"
 #include "r_local.h"
+#include "audio.h"
 
-#define AUDIO_HEAP_SIZE	(0x44800)
 extern u64 audio_heap[AUDIO_HEAP_SIZE / sizeof(u64)];//80325800
 
 extern char _doom64_wmdSegmentRomStart[], _doom64_wmdSegmentRomEnd[];
