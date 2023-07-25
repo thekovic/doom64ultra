@@ -47,14 +47,14 @@ int         SkyCloudColor;      // 800A816C
 int         SkyVoidColor;       // 800A8170
 int         SkyFlags;           // 800A8174
 
-void R_RenderSpaceSky(void);
-void R_RenderCloudSky(void);
-void R_RenderVoidSky(void);
-void R_RenderEvilSky(void);
-void R_RenderClouds(void);
-void R_RenderSkyPic(int lump, int yoffset, boolean repeat);
-void R_RenderFireSky(void);
-void R_CloudThunder(void);
+void R_RenderSpaceSky(void) HOT;
+void R_RenderCloudSky(void) HOT;
+void R_RenderVoidSky(void) HOT;
+void R_RenderEvilSky(void) HOT;
+void R_RenderClouds(void) HOT;
+void R_RenderSkyPic(int lump, int yoffset, boolean repeat) HOT;
+void R_RenderFireSky(void) HOT;
+void R_CloudThunder(void) HOT;
 
 void R_SetupSky(void) // 80025060
 {
