@@ -47,7 +47,9 @@ make
 Additional options can be provided to configure or debug the ROM:
 
 ```sh
-make DEBUG=1                      # Don't strip debug symbols
+make DEBUG=1                      # Turn off optimizations and enable extra debugging features
+
+make DEBUGOPT=1                   # Enable extra debugging features but leave optimizations on
 
 make REQUIRE_EXPANSION_PAK=0      # Disable expansion pak requirement screen
 

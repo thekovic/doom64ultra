@@ -16,8 +16,10 @@ ifdef GDB
     OPTIONS += USB_GDB
     USB = 1
     DEBUG = 1
-else
-
+endif
+ifdef DEBUGOPT
+    DEFINES += DEBUGOPT=1
+    DEBUG = 1
 endif
 ifeq ($(DEBUG),0)
   DEFINES += NDEBUG=1
@@ -139,9 +141,10 @@ CFLAGS = -Wall -mno-check-zero-division -march=vr4300 -mtune=vr4300 \
 ASFLAGS := -mno-check-zero-division -march=vr4300 -mabi=32 $(foreach i,$(INCLUDE_DIRS),-I$(i))
 # $(foreach d,$(DEFINES),--defsym $(d))
 #
-ifeq ($(DEBUG),0)
-  #CFLAGS += -Ofast -fno-unroll-loops -fno-peel-loops --param case-values-threshold=20 -fno-inline -finline-functions-called-once --param max-completely-peeled-insns=8
-  CFLAGS += -Os -finline-functions-called-once -ffast-math -falign-functions=32
+ifneq (,$(filter 0,$(DEBUG))$(filter 1,$(DEBUGOPT)))
+    #CFLAGS += -Ofast -fno-unroll-loops -fno-peel-loops --param case-values-threshold=20 \
+    #          -fno-inline -finline-functions-called-once --param max-completely-peeled-insns=8
+    CFLAGS += -Os -finline-functions-called-once -ffast-math -falign-functions=32
 endif
 
 # C preprocessor flags
