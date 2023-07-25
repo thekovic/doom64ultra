@@ -3,12 +3,7 @@
 #include "p_local.h"
 #include "r_local.h"
 #include "audio.h"
-
-extern u64 audio_heap[AUDIO_HEAP_SIZE / sizeof(u64)];//80325800
-
-extern char _doom64_wmdSegmentRomStart[], _doom64_wmdSegmentRomEnd[];
-extern char _doom64_wsdSegmentRomStart[], _doom64_wsdSegmentRomEnd[];
-extern char _doom64_wddSegmentRomStart[], _doom64_wddSegmentRomEnd[];
+#include "i_main.h"
 
 #define SYS_FRAMES_PER_SEC 30
 
@@ -25,7 +20,8 @@ extern void wess_get_tweaks2(WessTweakAttr *attr);
 
 void S_Init(void) // 80029590
 {
-	int audioHeapEnd;
+    u8* const audio_heap = AUDIO_HEAP_ADDR;
+	u32 audioHeapEnd;
 	//int loaded;
 	int modulesize;
 	int seqsize, seqtblsize;
@@ -38,7 +34,7 @@ void S_Init(void) // 80029590
 
 	//PRINTF_D(WHITE, "S_Init: Start");
 
-	alHeapInit(&sys_aheap, (u8 *)audio_heap, AUDIO_HEAP_SIZE);
+	alHeapInit(&sys_aheap, audio_heap, AUDIO_HEAP_SIZE);
 
 	//PRINTF_D(WHITE, "base %x", (int)&sys_aheap.base);
 	//PRINTF_D(WHITE, "cur %x", (int)&sys_aheap.cur);
@@ -106,7 +102,7 @@ void S_Init(void) // 80029590
 	//this call may result in decompression callbacks
 	wess_seq_range_load(0, wess_seq_loader_count(), seqptr);
 
-	audioHeapEnd = (int)alHeapAlloc(&sys_aheap, 1, 4) - (int)&audio_heap;
+	audioHeapEnd = (u32)alHeapAlloc(&sys_aheap, 1, 4) - (u32)audio_heap;
 	audioHeapEnd += 16;
 
 	//PRINTF_D(WHITE, "audioHeapEnd %x", audioHeapEnd);

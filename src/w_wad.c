@@ -2,6 +2,7 @@
 
 #include "doomdef.h"
 #include "config.h"
+#include "i_main.h"
 #ifdef USB
 #include "i_usb.h"
 #endif
@@ -39,7 +40,6 @@ static byte         *mapfileptr;			//800B2238 psxdoom/doom64
 /*=========*/
 
 extern OSMesgQueue romcopy_msgque;
-extern char _doom64_wadSegmentRomStart[], _doom64_wadSegmentRomEnd[];
 
 /*
 ============================================================================

@@ -69,7 +69,7 @@ BOOT		:= /usr/lib/n64/PR/bootcode/boot.6102
 BOOT_OBJ	:= $(BUILD_DIR)/boot.6102.o
 
 # Directories containing source files
-SRC_DIRS += src src/buffers src/asm
+SRC_DIRS += src src/asm
 ALL_DIRS := $(BUILD_DIR) $(addprefix $(BUILD_DIR)/,$(SRC_DIRS))
 
 C_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c))
@@ -136,7 +136,7 @@ CFLAGS = -Wall -mno-check-zero-division -march=vr4300 -mtune=vr4300 \
          -D_LANGUAGE_C -D_ULTRA64 -D__EXTENSIONS__ \
          -fno-common -G0 -D_MIPS_SZLONG=32 -D_MIPS_SZINT=32 -g -mabi=32 \
          -ffreestanding -mfix4300 $(DEF_INC_CFLAGS)
-ASFLAGS     := -mno-check-zero-division -march=vr4300 -mabi=32 $(foreach i,$(INCLUDE_DIRS),-I$(i))
+ASFLAGS := -mno-check-zero-division -march=vr4300 -mabi=32 $(foreach i,$(INCLUDE_DIRS),-I$(i))
 # $(foreach d,$(DEFINES),--defsym $(d))
 #
 ifeq ($(DEBUG),0)

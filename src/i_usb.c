@@ -1811,7 +1811,7 @@ static boolean I_RunUSBCommand(void)
         break;
     case 's':
         I_CmdSkipAllTokens();
-        I_USBSendImage(cfb[vid_side], SCREEN_WD, SCREEN_HT, 2);
+        I_USBSendImage(CFB(vid_side), SCREEN_WD, SCREEN_HT, 2);
         break;
 #ifdef USB_GDB
     case 'G':

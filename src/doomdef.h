@@ -29,8 +29,6 @@
 /* SYSTEM IO */
 /*-----------*/
 
-extern u16 cfb[2][SCREEN_WD*SCREEN_HT]; // 8036A000
-
 /*============================================================================= */
 
 /* Fixes and Version Update Here*/
@@ -573,7 +571,6 @@ typedef struct player_s
 {
 	mobj_t		*mo;
 	playerstate_t	playerstate;
-
 
 	fixed_t		viewz;					/* focal origin above r.z */
 	fixed_t		viewheight;				/* base height above floor for viewz */

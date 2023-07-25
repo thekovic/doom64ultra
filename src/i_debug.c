@@ -103,7 +103,7 @@ void I_Error(const char *error, ...) // 80005F30
     gDPPipeSync(GFX1++);
     gDPSetCycleType(GFX1++, G_CYC_FILL);
     gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
+    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, CFB_SPADDR);
     gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,0) << 16 | GPACK_RGBA5551(0,0,0,0)) ;
     gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
 
@@ -482,8 +482,8 @@ static int I_GetCallStack(void **addresses, u64 sp_val, u64 ra_val) {
     return i; /* stack size */
 }
 
-#define FAULT_MSG_BUFFER ((char *)cfb[0])
-#define FAULT_BT_BUFFER ((void **)cfb[1])
+#define FAULT_MSG_BUFFER ((char *)CFB(0))
+#define FAULT_BT_BUFFER ((void **)CFB(1))
 
 static inline __attribute__((nonnull(1, 2)))
 char *I_PrintFault(OSThread *curr, char *out)
@@ -1832,9 +1832,9 @@ void I_TakeGDBPacket(void)
 
 static void I_ShowDebugScreen(const char *text)
 {
-    D_memset(cfb[0], 0, sizeof cfb[0]);
-    blit32_TextExplicit(cfb[0], 0xffff, 1, SCREEN_WD, SCREEN_HT, blit_Clip, 16, 16, text);
-    osViSwapBuffer(cfb[0]);
+    D_memset(cfb, 0, CFB_SIZE);
+    blit32_TextExplicit(cfb, 0xffff, 1, SCREEN_WD, SCREEN_HT, blit_Clip, 16, 16, text);
+    osViSwapBuffer(cfb);
     __osViSwapContext();
 }
 

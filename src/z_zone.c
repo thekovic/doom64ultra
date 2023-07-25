@@ -3,6 +3,8 @@
 #include "doomdef.h"
 #include "i_debug.h"
 
+#include <stdalign.h>
+
 /*
 ==============================================================================
 
@@ -27,8 +29,6 @@ DEBUG_COUNTER(u32 OccupiedMem = 0);
 DEBUG_COUNTER(u32 UsedMem = 0);
 DEBUG_COUNTER(u32 LevelMem = 0);
 
-extern u8 _bss_end;
-
 /*
 ========================
 =
@@ -40,14 +40,9 @@ extern u8 _bss_end;
 
 void Z_Init (void) // 8002C8F0
 {
-    byte    *mem;
-    int        size;
 
-    mem = (void*) ALIGN(&_bss_end, 16);
-    size = (byte*)K0BASE + osMemSize - mem;
-
-    /* mars doesn't have a refzone */
-    mainzone = Z_InitZone(mem, size);
+	/* mars doesn't have a refzone */
+	mainzone = Z_InitZone(MAIN_HEAP_ADDR, MAIN_HEAP_SIZE);
 
     //PRINTF_D2(WHITE, 0, 25, "%d", (u32)size);
     //while(1){}
@@ -100,6 +95,7 @@ void Z_SetAllocBase(memzone_t *mainzone) // 8002C970
 =
 = Z_Malloc2
 =
+= Allocates block starting from the beginning of the heap
 = You can pass a NULL user if the tag is < PU_PURGELEVEL
 ========================
 */
@@ -235,14 +231,15 @@ backtostart:
 
 
 /*
-   ========================
-   =
-   = Z_Alloc2
-   =
-   = You can pass a NULL user if the tag is < PU_PURGELEVEL
-   = Exclusive Psx Doom
-   ========================
-   */
+========================
+=
+= Z_Alloc2
+=
+= Allocates block starting from the end of the heap
+= You can pass a NULL user if the tag is < PU_PURGELEVEL
+= Exclusive Psx Doom
+========================
+*/
 
 void *Z_Alloc2(register memzone_t *mainzone, register int size, register int tag, register void *user) // 8002CBE0
 {

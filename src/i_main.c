@@ -1,4 +1,3 @@
-
 #include <ultra64.h>
 #include <PR/ramrom.h>	/* needed for argument passing into the app */
 #include <os_internal.h>
@@ -27,10 +26,11 @@ extern char _codeSegmentEnd[];
  * Stacks for the threads as well as message queues for synchronization.
  */
 
-extern u16 cfb[2][SCREEN_WD*SCREEN_HT]; // 8036A000
 /* this stack size is in bytes */
 #define	BOOT_STACKSIZE	0x100
 u64	bootStack[BOOT_STACKSIZE/sizeof(u64)];
+
+u16 *cfb;
 
 extern int globallump; // 800A68f8 r_local.h
 extern int globalcm;   // 800A68fC r_local.h
@@ -409,7 +409,7 @@ void I_SystemTicker(void *arg) // 80005730
 				    SystemTickerStatus &= ~STF_RDP_PENDING;
 				    SystemTickerStatus |= STF_RDP_DONE;
 
-                    osViSwapBuffer(cfb[vidside]);
+                    osViSwapBuffer(CFB(vidside));
 				}
 				break;
 
@@ -550,7 +550,9 @@ void I_Init(void) // 80005C50
     P_RefreshVideo();
     osViBlack(TRUE);
 
-    D_memset(cfb, 0, ((SCREEN_WD*SCREEN_HT)*sizeof(u16))*2);
+    cfb = (u16*)CFBS_ADDR;
+    D_memset(cfb, 0, CFBS_SIZE);
+
     osViSwapBuffer(cfb);
 
     if (osViGetCurrentFramebuffer() != cfb) {
@@ -726,9 +728,7 @@ void I_ClearFrame(void) // 8000637C
     vid_task->t.ucode = (u64 *) gspF3DEX2_NoN_fifoTextStart;
     vid_task->t.ucode_data = (u64 *) gspF3DEX2_NoN_fifoDataStart;
 
-    gMoveWd(GFX1++, G_MW_SEGMENT, G_MWO_SEGMENT_0, 0);
-
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, OS_K0_TO_PHYSICAL(cfb[vid_side]));
+    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, CFB_SPADDR);
     gDPSetScissor(GFX1++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WD, SCREEN_HT);
 
     gDPSetTextureFilter(GFX1++, G_TF_POINT);
@@ -820,16 +820,16 @@ void I_WIPE_MeltScreen(void) // 80006964
     int yscroll;
     int height;
 
-    fb = Z_Malloc((SCREEN_WD*SCREEN_HT)*sizeof(u16), PU_STATIC, NULL);
+    fb = Z_Malloc(CFB_SIZE, PU_STATIC, NULL);
 
     I_GetScreenGrab();
-    D_memcpy(&cfb[vid_side][0], &cfb[vid_side ^ 1][0], (SCREEN_WD*SCREEN_HT)*sizeof(u16));
+    D_memcpy(CFB(vid_side), CFB(vid_side ^ 1), CFB_SIZE);
 
     yscroll = 1;
     while( true )
     {
         y1 = 0;
-        D_memcpy(fb, &cfb[vid_side ^ 1][0], (SCREEN_WD*SCREEN_HT)*sizeof(u16));
+        D_memcpy(fb, CFB(vid_side ^ 1), CFB_SIZE);
 
         I_ClearFrame();
 
@@ -896,7 +896,7 @@ void I_WIPE_FadeOutScreen(void) // 80006D34
     fb = Z_Malloc((SCREEN_WD*SCREEN_HT)*sizeof(u32), PU_STATIC, NULL);
 
     I_GetScreenGrab();
-    D_memcpy(fb, &cfb[vid_side ^ 1][0], (SCREEN_WD*SCREEN_HT)*sizeof(u16));
+    D_memcpy(fb, CFB(vid_side ^ 1), CFB_SIZE);
 
     outcnt = 248;
     do
