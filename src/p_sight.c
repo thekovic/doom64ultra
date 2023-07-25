@@ -1,13 +1,13 @@
 #include "doomdef.h"
 #include "p_local.h"
 
-fixed_t sightzstart;            //800A5F20 // eye z of looker
-fixed_t topslope, bottomslope;	//800A5F24 ,800A5F28 // slopes to top and bottom of target
+SDATA fixed_t sightzstart;            //800A5F20 // eye z of looker
+SDATA fixed_t topslope, bottomslope;	//800A5F24 ,800A5F28 // slopes to top and bottom of target
 
-divline_t strace;				//800A5F30 // from t1 to t2
-fixed_t t2x, t2y;				//800A5F40, 800A5F44
+SDATA divline_t strace;				//800A5F30 // from t1 to t2
+SDATA fixed_t t2x, t2y;				//800A5F40, 800A5F44
 
-int t1xs,t1ys,t2xs,t2ys;        //800A5F48,800A5F4C,800A5F50,800A5F54
+SDATA int t1xs,t1ys,t2xs,t2ys;        //800A5F48,800A5F4C,800A5F50,800A5F54
 
 
 /*
@@ -24,7 +24,7 @@ void P_CheckSights(void) // 8001EB00
 {
 	mobj_t *mobj;
 
-	for (mobj = mobjhead.next; mobj != &mobjhead; mobj = mobj->next)
+	for (mobj = mobjhead.next; mobj != (void*) &mobjhead; mobj = mobj->next)
 	{
 		// must be killable
 		if (!(mobj->flags & MF_COUNTKILL))

@@ -1699,6 +1699,8 @@ static void I_USBTicker(void)
 
 static void I_USBThread(void *arg)
 {
+    SET_GP();
+
     // Create the message queue for the USB message
     osCreateMesgQueue(&usbMessageQ, &usbMessageBuf, 1);
 

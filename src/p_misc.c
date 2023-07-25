@@ -51,7 +51,7 @@ int P_SetAimCamera(line_t *line, boolean aim) // 8000DF20
 
     if (demorecording == false)
     {
-        for (mo = mobjhead.next; mo != &mobjhead; mo = mo->next)
+        for (mo = mobjhead.next; mo != (void*) &mobjhead; mo = mo->next)
         {
             if((line->tag != mo->tid))
                 continue;   /* not matching the tid */
@@ -95,7 +95,7 @@ int EV_SpawnTrapMissile(line_t *line, mobj_t *target, mobjtype_t type) // 8000E0
     fixed_t x, y;
 
     ok = 0;
-    for(mo = mobjhead.next; mo != &mobjhead; mo = mo->next)
+    for(mo = mobjhead.next; mo != (void*) &mobjhead; mo = mo->next)
     {
         if(mo->type != MT_DEST_PROJECTILE)
             continue;   /* not a dart projector */
@@ -491,7 +491,7 @@ int EV_FadeOutMobj(int tag) // 8000ED08
 
     rtn = 0;
 
-    for (mo=mobjhead.next ; mo != &mobjhead ; mo=mo->next)
+    for (mo=mobjhead.next ; mo != (void*) &mobjhead ; mo=mo->next)
     {
         if(tag != mo->tid)
             continue;   /* not matching the tid */
@@ -620,7 +620,7 @@ void T_MoveCamera(movecamera_t *camera) // 8000F014
     }
 
     /* jump to next camera spot */
-    for(mo = mobjhead.next; mo != &mobjhead; mo = mo->next)
+    for(mo = mobjhead.next; mo != (void*) &mobjhead; mo = mo->next)
     {
         if(camera->current != mo->tid)
             continue; /* must match tid */
@@ -647,7 +647,7 @@ void P_SetMovingCamera(line_t *line) // 8000F2F8
     P_AddThinker (&camera->thinker);
     camera->thinker.function = T_MoveCamera;
 
-    for(mo = mobjhead.next; mo != &mobjhead; mo = mo->next)
+    for(mo = mobjhead.next; mo != (void*) &mobjhead; mo = mo->next)
     {
         if(mo->tid != line->tag)
             continue; /* not matching the tid */
@@ -670,6 +670,7 @@ void P_SetMovingCamera(line_t *line) // 8000F2F8
         return;
     }
 }
+
 void P_RefreshVideo(void) // [Immorpher] video refresh
 {
     int modeidx = OS_VI_NTSC_LPN1;
@@ -826,7 +827,7 @@ int P_ModifyMobjFlags(int tid, int flags) // 8000F674
     int ok;
 
     ok = 0;
-    for(mo = mobjhead.next; mo != &mobjhead; mo = mo->next)
+    for(mo = mobjhead.next; mo != (void*) &mobjhead; mo = mo->next)
     {
         if(mo->tid != tid)
             continue; /* not matching the tid */
@@ -845,7 +846,7 @@ int P_AlertTaggedMobj(int tid, mobj_t *activator) // 8000F6C4
     int     ok;
 
     ok = 0;
-    for(mo = mobjhead.next; mo != &mobjhead; mo = mo->next)
+    for(mo = mobjhead.next; mo != (void*) &mobjhead; mo = mo->next)
     {
         if(mo->tid != tid)
             continue; /* not matching the tid */

@@ -6,16 +6,16 @@
 //
 // Height if not aiming up or down
 // ???: use slope for monsters?
-mobj_t*         shootthing;     // 800A5700
-fixed_t         shootz;         // 800A571C
+SDATA mobj_t*         shootthing;     // 800A5700
+SDATA fixed_t         shootz;         // 800A571C
 
-fixed_t         attackrange;    // 800A5704
+SDATA fixed_t         attackrange;    // 800A5704
 
-fixed_t         aimslope;       // 800A5710
+SDATA fixed_t         aimslope;       // 800A5710
 
 // For P_PathTraverse
-fixed_t         tx2;             // 800A5714
-fixed_t         ty2;             // 800A5718
+SDATA fixed_t         tx2;             // 800A5714
+SDATA fixed_t         ty2;             // 800A5718
 
 // slopes to top and bottom of target
 extern fixed_t  topslope;       // 800A5708
@@ -153,7 +153,7 @@ boolean PTR_AimTraverse(intercept_t* in) // 80017508
 */
 
 boolean spawnpuff = true;
-hit_t hittarget;
+SDATA hit_t hittarget;
 
 boolean PTR_ShootTraverse(intercept_t* in) // 800177A8
 {

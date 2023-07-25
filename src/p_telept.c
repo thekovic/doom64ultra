@@ -17,7 +17,7 @@ void P_Telefrag (mobj_t *thing, fixed_t x, fixed_t y) // 8000E29C
 	int		size;
 	mobj_t	*m;
 
-	for (m=mobjhead.next ; m != &mobjhead ; m=m->next)
+	for (m=mobjhead.next ; m != (void*) &mobjhead ; m=m->next)
 	{
 		if (!(m->flags & MF_SHOOTABLE) )
 			continue;		/* not shootable */
@@ -65,7 +65,7 @@ int	EV_Teleport( line_t *line, mobj_t *thing ) // 8000E3A0
 		return 0;		/* so you can get out of teleporter */
 
 	tag = line->tag;
-    for (m=mobjhead.next ; m != &mobjhead ; m=m->next)
+    for (m=mobjhead.next ; m != (void*) &mobjhead ; m=m->next)
     {
         if (m->type != MT_DEST_TELEPORT )
             continue;		/* not a teleportman */
@@ -126,7 +126,7 @@ int	EV_SilentTeleport( line_t *line, mobj_t *thing ) // 8000E5C0
 	mobj_t		*m;
 
 	tag = line->tag;
-    for (m=mobjhead.next ; m != &mobjhead ; m=m->next)
+    for (m=mobjhead.next ; m != (void*) &mobjhead ; m=m->next)
     {
         if (m->type != MT_DEST_TELEPORT )
             continue;		/* not a teleportman */

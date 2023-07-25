@@ -703,13 +703,13 @@ const char *I_QuickLoadInternal(int limit, void (*read)(u32, void*, u32))
     thinkercap.prev = thinkercap.next = &thinkercap;
 
     currentmo = mobjhead.next;
-    while (currentmo != &mobjhead)
+    while (currentmo != (void*) &mobjhead)
     {
         nextmo = currentmo->next;
         P_RemoveMobj (currentmo);
         currentmo = nextmo;
     }
-    mobjhead.next = mobjhead.prev = &mobjhead;
+    mobjhead.next = mobjhead.prev = (void*) &mobjhead;
 
     P_UnArchiveActiveMacro(&header.activemacro);
 

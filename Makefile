@@ -77,7 +77,9 @@ ALL_DIRS := $(BUILD_DIR) $(addprefix $(BUILD_DIR)/,$(SRC_DIRS))
 C_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c))
 S_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.s))
 
+# Files compiled with -Ofast
 FAST_C_FILES      := src/i_sram.c
+# Files compiled with -Os
 SIZE_C_FILES      := $(filter-out $(FAST_C_FILES),$(C_FILES))
 
 # Object files

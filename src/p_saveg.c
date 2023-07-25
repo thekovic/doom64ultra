@@ -126,7 +126,7 @@ static u16 MobjIndex(mobj_t *mo)
     if (!mo)
         return INVALID_MOBJ;
 
-    for (mobj_t *i = mobjhead.next; i != &mobjhead; i = i->next, index++)
+    for (mobj_t *i = mobjhead.next; i != (void*) &mobjhead; i = i->next, index++)
         if (i == mo)
             return index;
 
@@ -140,7 +140,7 @@ static mobj_t *MobjByIndex(u16 index)
     if (index == INVALID_MOBJ)
         return NULL;
 
-    for (mobj_t *i = mobjhead.next; i != &mobjhead; i = i->next, j++)
+    for (mobj_t *i = mobjhead.next; i != (void*) &mobjhead; i = i->next, j++)
         if (j == index)
             return i;
 
@@ -574,7 +574,7 @@ u32 P_ArchiveMobjs (u8 *savep, u32 savepsize, mobj_t **start, u32 *counter)
     u32     written = 0;
     u32 c = *counter;
 
-    for (mo = *start ; mo != &mobjhead; mo=mo->next)
+    for (mo = *start ; mo != (void*) &mobjhead; mo=mo->next)
     {
         u32 size = sizeof *put;
 
@@ -724,7 +724,7 @@ u32 P_UnArchiveMobjs (const u8 *savep, u32 savepsize, u32 *counter)
         P_SetThingPosition (mobj);
 
         mobjhead.prev->next = mobj;
-        mobj->next = &mobjhead;
+        mobj->next = (void*) &mobjhead;
         mobj->prev = mobjhead.prev;
         mobjhead.prev = mobj;
 
@@ -753,7 +753,7 @@ void P_LinkUnArchivedMobjs(void)
     {
         sectors[i].soundtarget = MobjByIndex((u32) sectors[i].soundtarget);
     }
-    for (mobj_t *mo = mobjhead.next; mo != &mobjhead; mo=mo->next)
+    for (mobj_t *mo = mobjhead.next; mo != (void*) &mobjhead; mo=mo->next)
     {
         mo->target = MobjByIndex((u32) mo->target);
         mo->tracer = MobjByIndex((u32) mo->tracer);
@@ -1253,7 +1253,7 @@ u32 P_CurrentQuickSaveSize(u32 max)
             return size;
     }
 
-    for (mobj_t *mo = mobjhead.next ; mo != &mobjhead; mo=mo->next)
+    for (mobj_t *mo = mobjhead.next ; mo != (void*) &mobjhead; mo=mo->next)
     {
         size += sizeof(savedmobj_t);
         if (mo->flags & MF_RENDERLASER)

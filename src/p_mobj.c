@@ -68,7 +68,7 @@ mobj_t *P_SpawnMobj (fixed_t x, fixed_t y, fixed_t z, mobjtype_t type) // 80018a
 	/* link into the mobj list */
 	/* */
 	mobjhead.prev->next = mobj;
-	mobj->next = &mobjhead;
+	mobj->next = (void*) &mobjhead;
 	mobj->prev = mobjhead.prev;
 	mobjhead.prev = mobj;
 

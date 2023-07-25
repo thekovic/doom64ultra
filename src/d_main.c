@@ -7,21 +7,23 @@
 #include "i_usb.h"
 #endif
 
-int gamevbls;		            // 80063130 /* may not really be vbls in multiplayer */
-int gametic;		            // 80063134
+SDATA int gamevbls;		            // 80063130 /* may not really be vbls in multiplayer */
+SDATA int gametic;		            // 80063134
 int ticsinframe;                // 80063138 /* how many tics since last drawer */
 int ticon;			            // 8006313C
 int lastticon;                  // 80063140
-int vblsinframe[MAXPLAYERS];	// 80063144 /* range from 4 to 8 */
-int ticbuttons[MAXPLAYERS];		// 80063148
-int oldticbuttons[MAXPLAYERS];	// 8006314C
+SDATA int vblsinframe[MAXPLAYERS];	// 80063144 /* range from 4 to 8 */
+SDATA int ticbuttons[MAXPLAYERS];		// 80063148
+SDATA int oldticbuttons[MAXPLAYERS];	// 8006314C
 
-extern boolean run_hectic_demo;
+//extern boolean run_hectic_demo;
 
 extern void ST_Init(void);
 
 void D_DoomMain(void *arg) // 800027C0
 {
+    SET_GP();
+
     int exit;
 
     Z_Init();
@@ -72,11 +74,11 @@ void D_DoomMain(void *arg) // 800027C0
                     exit = D_RunDemo("DEMO3LMP", sk_medium, 17);
                     if(exit != ga_exit)
                     {
-                        if(run_hectic_demo)
-                        {
-                            run_hectic_demo = false;
+                        //if(run_hectic_demo)
+                        //{
+                            //run_hectic_demo = false;
                             exit = D_RunDemo("DEMO4LMP", sk_medium, 32);
-                        }
+                        //}
 
                         if(exit != ga_exit)
                         {
@@ -130,9 +132,9 @@ unsigned char rndtable[256] = { // 8005A190
 	120, 163, 236, 249
 };
 
-int	rndindex = 0;   // 8005A18C
-int prndindex = 0;  // 8005A188
-int irndindex = 0;  // [Immorpher] New random index
+SDATA int	rndindex = 0;   // 8005A18C
+SDATA int prndindex = 0;  // 8005A188
+SDATA int irndindex = 0;  // [Immorpher] New random index
 
 int P_Random(void) // 80002928
 {

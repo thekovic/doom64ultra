@@ -4,11 +4,11 @@
 #include "r_local.h"
 #include "p_local.h"
 
-int			firsttex;				// 800A632C
+SDATA int			firsttex;				// 800A632C
 int			lasttex;				// 800A6330
 int			numtextures;			// 800A6334
 int			firstswx;				// 800A6338
-int    	    *textures;				// 800A633C
+SDATA int    	    *textures;				// 800A633C
 
 int			firstspritelump;			// 800A6320
 int			lastspritelump;				// 800A6324

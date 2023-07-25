@@ -81,7 +81,7 @@ typedef struct clipnode_s
 static clipnode_t clipnodes[MAXCLIPNODES];
 static int numclipnodes;
 static clipnode_t *freelist;
-static clipnode_t *cliphead;
+SDATA static clipnode_t *cliphead = NULL;
 
 static clipnode_t *R_ClipNodeGetNew(void)
 {

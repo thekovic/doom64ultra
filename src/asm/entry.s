@@ -8,7 +8,8 @@
 .section .start, "ax"
 
 glabel __start
-	la $t0, _codeSegmentBssStart
+    la      $gp, _gp
+    la $t0, _codeSegmentBssStart
     la $t1, _codeSegmentBssSize
 bss_clear:
     addi $t1, $t1, -8

@@ -356,7 +356,7 @@ void AM_Drawer (void) // 800009AC
     /* SHOW ALL MAP THINGS (CHEAT) */
 	if (p->cheats & CF_ALLMAP)
 	{
-		for (mo = mobjhead.next; mo != &mobjhead; mo = next)
+		for (mo = mobjhead.next; mo != (void*) &mobjhead; mo = next)
 		{
 		    I_CheckGFX();
 			next = mo->next;

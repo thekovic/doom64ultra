@@ -175,7 +175,7 @@ void P_GiveAllKeys (player_t *player)
     mobj_t *m;
     int i;
 
-    for (m = mobjhead.next; m != &mobjhead; m = m->next)
+    for (m = mobjhead.next; m != (void*)&mobjhead; m = m->next)
     {
         switch (m->type)
         {

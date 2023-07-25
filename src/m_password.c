@@ -8,8 +8,8 @@
 char *passwordChar = "bcdfghjklmnpqrstvwxyz0123456789?";    // 8005AC60
 int passwordTable[10] = { 1, 8, 9, 5, 6, 2, 7, 0, 4, 3 };   // 8005AC80
 
-char *hectic_demo = "rvnh3ct1cd3m0???"; // 8005ACA8
-boolean run_hectic_demo = false;        // 8005A7A0
+//char *hectic_demo = "rvnh3ct1cd3m0???"; // 8005ACA8
+//boolean run_hectic_demo = false;        // 8005A7A0
 
 byte Passwordbuff[16];  // 800A55B0
 int PassCodePos;        // 800A55C0
@@ -507,8 +507,8 @@ void M_PasswordStop(void) // 8000C744
 
 int M_PasswordTicker(void) // 8000C774
 {
-    byte *passbuf;
-    char *hpassbuf;
+    //byte *passbuf;
+    //char *hpassbuf;
     unsigned int buttons;
     unsigned int oldbuttons;
     boolean playsound;
@@ -623,6 +623,7 @@ int M_PasswordTicker(void) // 8000C774
 
                 if (CurPasswordSlot > 15)
                 {
+                    /*
                     hpassbuf = hectic_demo;
                     passbuf = Passwordbuff;
                     do
@@ -637,6 +638,7 @@ int M_PasswordTicker(void) // 8000C774
                         run_hectic_demo = true;
                         return ga_exit;
                     }
+                    */
 
                     if (M_DecodePassword(Passwordbuff, &levelnum, &skill, NULL) == 0)
                     {

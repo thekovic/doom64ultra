@@ -5,17 +5,17 @@
 
 //completo y revisado
 
-mobj_t *checkthing;		/* Used for PB_CheckThing */    // 800A55D0
-fixed_t testx, testy;                                    // 800A55D8, 800A55DC
-static fixed_t testfloorz, testceilingz, testdropoffz;          // 800A5604, 800A5608, 800A560C
-static subsector_t *testsubsec;                                 // 800A55F8
-static line_t *hitline;                                     // 800A5600
-static mobj_t *hitthing;                                        // 800A55fC
-static fixed_t testbbox[4];		/* Bounding box for tests */    // 800A55E8
-int testflags;                                           // 800A55D4
-fixed_t testradius;                                      // 800A55E0
+SDATA mobj_t *checkthing;		/* Used for PB_CheckThing */    // 800A55D0
+SDATA fixed_t testx, testy;                                    // 800A55D8, 800A55DC
+SDATA static fixed_t testfloorz, testceilingz, testdropoffz;          // 800A5604, 800A5608, 800A560C
+SDATA static subsector_t *testsubsec;                                 // 800A55F8
+SDATA static line_t *hitline;                                     // 800A5600
+SDATA static mobj_t *hitthing;                                        // 800A55fC
+SDATA static fixed_t testbbox[4];		/* Bounding box for tests */    // 800A55E8
+SDATA int testflags;                                           // 800A55D4
+SDATA fixed_t testradius;                                      // 800A55E0
 
-DEBUG_COUNTER(int activemobjs = 0);
+DEBUG_COUNTER(SDATA int activemobjs = 0);
 
 void P_XYMovement(mobj_t *mo);
 void P_FloatChange(mobj_t *mo);
@@ -48,7 +48,7 @@ void P_RunMobjBase(void) // 8000CDE0
 
     DEBUG_COUNTER(activemobjs = 0);
 
-	for (mo = mobjhead.next; mo != &mobjhead; mo = mo->next)
+	for (mo = mobjhead.next; mo != (void*) &mobjhead; mo = mo->next)
 	{
 	    /* Based on Doom 64 Ex */
 	    /*-----------------------------------------------------------------------------------*/
@@ -66,7 +66,7 @@ void P_RunMobjBase(void) // 8000CDE0
 	}
 
     //P_RunMobjLate();
-	for (mo = mobjhead.next; mo != &mobjhead; mo = next)
+	for (mo = mobjhead.next; mo != (void*) &mobjhead; mo = next)
 	{
 	    next = mo->next;	/* in case mo is removed this time */
 

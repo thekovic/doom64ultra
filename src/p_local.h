@@ -101,7 +101,11 @@ void	P_PlayerThink (player_t *player);
 ===============================================================================
 */
 
-extern	mobj_t	mobjhead;
+typedef struct {
+    mobj_t *prev, *next;
+} mobjhead_t;
+
+extern	mobjhead_t	mobjhead;
 
 DEBUG_COUNTER(extern int activethinkers);
 DEBUG_COUNTER(extern int activemobjs);

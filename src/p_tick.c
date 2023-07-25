@@ -19,9 +19,9 @@ processing
 ===============================================================================
 */
 
-thinker_t	thinkercap;	/* both the head and tail of the thinker list */    //80096378
-mobj_t		mobjhead;	/* head and tail of mobj list */                    //800A8C74,
-DEBUG_COUNTER(int activethinkers = 0);
+SDATA thinker_t	thinkercap;	/* both the head and tail of the thinker list */    //80096378
+SDATA mobjhead_t mobjhead;	/* head and tail of mobj list */                    //800A8C74,
+DEBUG_COUNTER(SDATA int activethinkers = 0);
 
 /*
 ===============
@@ -128,7 +128,7 @@ void P_RunMobjLate (void)
 	mobj_t	*mo;
 	mobj_t	*next;
 
-	for (mo=mobjhead.next ; mo != &mobjhead ; mo=next)
+	for (mo=mobjhead.next ; mo != (void*) &mobjhead ; mo=next)
 	{
 		next = mo->next;	/* in case mo is removed this time */
 		if (mo->latecall)

@@ -23,11 +23,11 @@ automatically if needed
 
 extern u32 NextFrameIdx;
 
-memzone_t    *mainzone;
+SDATA memzone_t    *mainzone;
 
-DEBUG_COUNTER(u32 OccupiedMem = 0);
-DEBUG_COUNTER(u32 UsedMem = 0);
-DEBUG_COUNTER(u32 LevelMem = 0);
+DEBUG_COUNTER(SDATA u32 OccupiedMem = 0);
+DEBUG_COUNTER(SDATA u32 UsedMem = 0);
+DEBUG_COUNTER(SDATA u32 LevelMem = 0);
 
 /*
 ========================

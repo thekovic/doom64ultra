@@ -7,44 +7,44 @@
 
 extern void P_SpawnPlayer(/*mapthing_t *mthing*/);
 
-int			numvertexes;	//80077E44|uGp00000a34
-vertex_t	*vertexes;		//8007800C|puGp00000bfc
+SDATA int			numvertexes;	//80077E44|uGp00000a34
+SDATA vertex_t	*vertexes;		//8007800C|puGp00000bfc
 
-int			numsegs;		//80077ECC
-seg_t		*segs;			//8007805C
+SDATA int			numsegs;		//80077ECC
+SDATA seg_t		*segs;			//8007805C
 
-int			numsectors;		//80077D80
-sector_t	*sectors;		//80077ED0
+SDATA int			numsectors;		//80077D80
+SDATA sector_t	*sectors;		//80077ED0
 
-int			numsubsectors;	//80078048
-subsector_t	*subsectors;	//80077D6C
+SDATA int			numsubsectors;	//80078048
+SDATA subsector_t	*subsectors;	//80077D6C
 
-int			numnodes;		//80077FE0
-node_t		*nodes;			//80077CD0
+SDATA int			numnodes;		//80077FE0
+SDATA node_t		*nodes;			//80077CD0
 
-int			numlines;		//80077FF0
-line_t		*lines;			//80077CDC
+SDATA int			numlines;		//80077FF0
+SDATA line_t		*lines;			//80077CDC
 
-int			numsides;		//80077FDC
-side_t		*sides;			//80077CCC
+SDATA int			numsides;		//80077FDC
+SDATA side_t		*sides;			//80077CCC
 
-int			numleafs;		//80077D90
-leaf_t		*leafs;			//80077F34
+SDATA int			numleafs;		//80077D90
+SDATA leaf_t		*leafs;			//80077F34
 
-int         numlights;      // 800A5EFC
-light_t     *lights;        // 800A5E9C
-maplights_t *maplights;     // 800A5EA4
+SDATA int         numlights;      // 800A5EFC
+SDATA light_t     *lights;        // 800A5E9C
+SDATA maplights_t *maplights;     // 800A5EA4
 
 int         nummacros;      // 800A5F00
 macro_t     **macros;       // 800A5EA0
 
-short		*blockmaplump;			//80077EEC /* offsets in blockmap are from here */
-short		*blockmap;
-int			bmapwidth, bmapheight;	/* in mapblocks */ //800780A8, 80077CE4
-fixed_t		bmaporgx, bmaporgy;		/* origin of block map */ //80077FB4,80077FBC
-mobj_t		**blocklinks;			/* for thing chains */ //80077D08
+SDATA short		*blockmaplump;			//80077EEC /* offsets in blockmap are from here */
+SDATA short		*blockmap;
+SDATA int			bmapwidth, bmapheight;	/* in mapblocks */ //800780A8, 80077CE4
+SDATA fixed_t		bmaporgx, bmaporgy;		/* origin of block map */ //80077FB4,80077FBC
+SDATA mobj_t		**blocklinks;			/* for thing chains */ //80077D08
 
-byte		*rejectmatrix;			/* for fast sight rejection */
+SDATA byte		*rejectmatrix;			/* for fast sight rejection */
 
 mapthing_t  *spawnlist;     // 800A5D74
 int         spawncount;     // 800A5D78
@@ -783,7 +783,7 @@ void P_SetupLevel(int map, skill_t skill) // 8001E974
 
 	//P_InitThinkers();
 	thinkercap.prev = thinkercap.next = &thinkercap;
-	mobjhead.next = mobjhead.prev = &mobjhead;
+	mobjhead.next = mobjhead.prev = (void*) &mobjhead;
 
 	spawncount = 0;
 

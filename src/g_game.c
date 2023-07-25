@@ -29,13 +29,13 @@ int             gamemap;                    // 80063238
 int				nextmap;				    // 8006323C /* the map to go to after the stats */
 
 //boolean         playeringame[MAXPLAYERS]; //
-player_t        players[MAXPLAYERS];        // 80063240
+SDATA player_t        players[MAXPLAYERS];        // 80063240
 
 int             consoleplayer;          /* player taking events and displaying  */
 int             displayplayer;          /* view being displayed  */
 int             totalkills, totalitems, totalsecret;    /* for intermission  */
 
-playerconfig_t  playerconfigs[MAXPLAYERS] = {
+SDATA playerconfig_t  playerconfigs[MAXPLAYERS] = {
     { .autoaim = 0, .autorun = 1, .verticallook = -1, .crosshair = 2 }
 };
 //char            demoname[32];

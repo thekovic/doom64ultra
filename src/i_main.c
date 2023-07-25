@@ -207,20 +207,20 @@ u32 NextFrameIdx = 0;       // 8005A730
 s32 ControllerPakStatus = 1; // 8005A738
 s32 gamepad_system_busy = 0; // 8005A73C
 s32 FilesUsed = -1;                 // 8005A740
-u32 SystemTickerStatus = 0;  // 8005a744
+SDATA u32 SystemTickerStatus = 0;  // 8005a744
 
 Gfx Gfx_base[2][MAX_GFX];    // 800653E0
 Mtx Mtx_base[2][MAX_MTX];    // 800793E0
 Vtx Vtx_base[2][MAX_VTX];    // 800795E0
 
-Gfx *GFX1;	// 800A4A00
-Gfx *GFX2;	// 800A4A04
+SDATA Gfx *GFX1;	// 800A4A00
+SDATA Gfx *GFX2;	// 800A4A04
 
-Vtx *VTX1;	// 800A4A08
-Vtx *VTX2;	// 800A4A0C
+SDATA Vtx *VTX1;	// 800A4A08
+SDATA Vtx *VTX2;	// 800A4A0C
 
-Mtx *MTX1;	// 800A4A10
-Mtx *MTX2;	// 800A4A14
+SDATA Mtx *MTX1;	// 800A4A10
+SDATA Mtx *MTX2;	// 800A4A14
 
 Gfx *GfxBlocks[8] = {0,0,0,0,0,0,0,0}; // 8005A748
 Vtx *VtxBlocks[8] = {0,0,0,0,0,0,0,0}; // 8005A768
@@ -231,11 +231,11 @@ DEBUG_COUNTER(u32 LastWorldCycles = 0);
 DEBUG_COUNTER(u32 LastAudioCycles = 0);
 DEBUG_COUNTER(u32 LastBspCycles = 0);
 DEBUG_COUNTER(u32 LastPhase3Cycles = 0);
-DEBUG_COUNTER(u32 LastVisTriangles = 0);
-DEBUG_COUNTER(u32 LastVisSubsectors = 0);
-DEBUG_COUNTER(u32 LastVisLeaves = 0);
-DEBUG_COUNTER(u32 LastVisSegs = 0);
-DEBUG_COUNTER(u32 LastVisThings = 0);
+DEBUG_COUNTER(SDATA u32 LastVisTriangles = 0);
+DEBUG_COUNTER(SDATA u32 LastVisSubsectors = 0);
+DEBUG_COUNTER(SDATA u32 LastVisLeaves = 0);
+DEBUG_COUNTER(SDATA u32 LastVisSegs = 0);
+DEBUG_COUNTER(SDATA u32 LastVisThings = 0);
 
 void S_Init(void);
 void P_RefreshVideo(void);
@@ -256,6 +256,8 @@ void I_Start(void)  // 80005620
 
 void I_IdleGameThread(void *arg) // 8000567C
 {
+    SET_GP();
+
     /* Create and start the PI and VI managers... */
     osCreatePiManager((OSPri)OS_PRIORITY_PIMGR, &msgque_Pi, msgbuf_Pi, SYS_MSGBUF_SIZE_PI);
     osCreateViManager(OS_PRIORITY_VIMGR);
@@ -286,6 +288,8 @@ void I_IdleGameThread(void *arg) // 8000567C
 
 void I_SystemTicker(void *arg) // 80005730
 {
+    SET_GP();
+
     int vbi_msg;
     int vidside;
     int side, ret;

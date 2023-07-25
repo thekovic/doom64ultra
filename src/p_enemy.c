@@ -346,7 +346,7 @@ boolean P_LookForPlayers (mobj_t *actor, boolean allaround) // 8001115C
         {
             dist2 = MAXINT;
 
-            for(mobj = mobjhead.next; mobj != &mobjhead; mobj = mobj->next)
+            for(mobj = mobjhead.next; mobj != (void*) &mobjhead; mobj = mobj->next)
             {
 
                 if((mobj->flags & MF_COUNTKILL) == 0 ||
@@ -688,7 +688,7 @@ void A_OnDeathTrigger (mobj_t *mo) // 80011894
     if(!(mo->flags & MF_TRIGDEATH))
         return;
 
-    for(mo2 = mobjhead.next; mo2 != &mobjhead; mo2 = mo2->next)
+    for(mo2 = mobjhead.next; mo2 != (void*) &mobjhead; mo2 = mo2->next)
     {
         if((mo2->tid == mo->tid) && (mo2->health > 0))
             return;
@@ -1325,7 +1325,7 @@ void A_PainShootSkull(mobj_t *actor, angle_t angle) // 8001267C
 
 	// count total number of skull currently on the level
 	count = 0;
-	for (mo=mobjhead.next ; mo != &mobjhead ; mo=mo->next)
+	for (mo=mobjhead.next ; mo != (void*) &mobjhead ; mo=mo->next)
 	{
 		if (mo->type == MT_SKULL)
         {
@@ -1483,7 +1483,7 @@ void A_RectMissile(mobj_t* actor) // 80012B1C
         return;
 
     A_FaceTarget(actor);
-    for(mo = mobjhead.next; mo != &mobjhead; mo = mo->next)
+    for(mo = mobjhead.next; mo != (void*) &mobjhead; mo = mo->next)
     {
         // not a rect projectile
         if(mo->type == MT_PROJ_RECT)
@@ -1654,7 +1654,7 @@ void A_TargetCamera(mobj_t* actor) // 80012FEC
 
     actor->threshold = MAXINT;
 
-    for(mo = mobjhead.next; mo != &mobjhead; mo = mo->next)
+    for(mo = mobjhead.next; mo != (void*) &mobjhead; mo = mo->next)
     {
         if(actor->tid+1 == mo->tid)
         {

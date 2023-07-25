@@ -34,36 +34,36 @@
 
 /*===================================== */
 
-fixed_t		viewx, viewy, viewz;    // 800A6890, 800A6894, 800A6898
+SDATA fixed_t		viewx, viewy, viewz;    // 800A6890, 800A6894, 800A6898
 angle_t		viewangle;              // 800A689C
-fixed_t		viewcos, viewsin;       // 800A68A0,
-angle_t		viewpitch;
-fixed_t		viewpitchsin, viewpitchcos;
-angle_t		viewmaxhalffov;
+SDATA fixed_t		viewcos, viewsin;       // 800A68A0,
+SDATA angle_t		viewpitch;
+SDATA fixed_t		viewpitchsin, viewpitchcos;
+SDATA angle_t		viewmaxhalffov;
 fixed_t 	viewhcot, viewvcot; // cotangents of the horizontal and vertical fov half angles
 fixed_t 	viewinvhcot, viewinvvcot;
 player_t	*viewplayer;            // 800A688C, 800a68a4
 
-int			validcount;		/* increment every time a check is made */ // 800A6900
+SDATA int			validcount;		/* increment every time a check is made */ // 800A6900
 //int			framecount;		    /* incremented every frame */
 
 /* */
 /* sky mapping */
 /* */
-boolean     rendersky; // 800A68A8
+boolean     rendersky = false; // 800A68A8
 
 subsector_t *solidsubsectors[MAXSUBSECTORS];	// 800A6488  /* List of valid ranges to scan through */
-subsector_t **endsubsector;				        // 800A6888    /* Pointer to the first free entry */
-int numdrawsubsectors;                          // 800A68AC
+SDATA subsector_t **endsubsector;				        // 800A6888    /* Pointer to the first free entry */
+SDATA int numdrawsubsectors;                          // 800A68AC
 
 vissprite_t	vissprites[MAXVISSPRITES];          // 800A6908
-vissprite_t	*visspritehead;                     // 800A8108
-int numdrawvissprites;                          // 800A68B0
+SDATA vissprite_t	*visspritehead;                     // 800A8108
+SDATA int numdrawvissprites;                          // 800A68B0
 
-int globallump;                                 // 800A68f8
-int globalcm;                                   // 800A68FC
+SDATA int globallump;                                 // 800A68f8
+SDATA int globalcm;                                   // 800A68FC
 
-Mtx R_ProjectionMatrix;                         // 800A68B8
+Mtx R_ProjectionMatrix = { 0, };                     // 800A68B8
 /*Mtx R_ProjectionMatrix =                          // 800A68B8
 {
     0x00010000,	0x00000000,
@@ -100,8 +100,8 @@ fixed_t     quakeviewy;     // 800A8114
 mobj_t      *cameratarget;  // 800A5D70
 angle_t     camviewpitch;   // 800A811C
 
-fixed_t     scrollfrac;     // 800A812C
-sector_t    *frontsector;	// 800A6340
+SDATA fixed_t     scrollfrac;     // 800A812C
+SDATA sector_t    *frontsector;	// 800A6340
 
 /*============================================================================= */
 
@@ -464,7 +464,7 @@ angle_t R_PointToAngle2(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2) // 80023
 	}
 }
 
-static int cur_filter = -1;
+SDATA static int cur_filter = -1;
 // [GEC and Immorpher] Set texture render options
 void R_RenderFilter(filtertype_t type)
 {
@@ -483,7 +483,7 @@ void R_RenderFilter(filtertype_t type)
     gDPSetTextureFilter(GFX1++, filter);
 }
 
-static rendermode_t lastrender = -1;
+SDATA static rendermode_t lastrender = -1;
 
 void R_RenderModes(rendermode_t mode)
 {

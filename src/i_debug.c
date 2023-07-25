@@ -565,6 +565,8 @@ static void I_DebugSetHiRes(void)
 
 static void __attribute__((noreturn)) I_DebuggerThread(void *arg)
 {
+    SET_GP();
+
     OSMesg msg;
     u16 *fb;
     int mask;
@@ -1770,6 +1772,8 @@ pkt_error:
 
 static void I_DebuggerThread(void *arg)
 {
+    SET_GP();
+
     OSMesg msg;
 
     while (1)

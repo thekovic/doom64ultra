@@ -25,6 +25,8 @@
 #include "wessapi.h"
 #include "wessint_s.h"
 
+#define DATA __attribute__((section(".data")))
+#define SDATA __attribute__((section(".sdata")))
 #define HOT __attribute__((hot))
 #define COLD __attribute__((cold))
 
@@ -241,6 +243,7 @@ void D_strupr(char *s);
 int D_strlen(const char *s);
 
 #define MEMORY_BARRIER() asm volatile ("" : : : "memory")
+#define SET_GP()         asm volatile("la $gp, _gp");
 
 /*
 ===============================================================================
@@ -268,6 +271,7 @@ struct player_s;
 
 typedef struct mobj_s
 {
+	struct mobj_s	*prev, *next;
 /* info for drawing */
 	fixed_t			x,y,z;
 
@@ -276,7 +280,6 @@ typedef struct mobj_s
 	int				flags;
 	struct player_s	*player;		/* only valid if type == MT_PLAYER */
 
-	struct mobj_s	*prev, *next;
 	struct mobj_s	*snext, *sprev;	/* links in sector (if needed) */
 	struct mobj_s	*bnext, *bprev;	/* links in blocks (if needed) */
 

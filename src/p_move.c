@@ -17,22 +17,22 @@ extern	boolean  checkposonly;	// 800A56C8
 /* */
 /*================== */
 
-boolean trymove2;		// 800A5D80	/* Result from P_TryMove2 */
-boolean floatok;		// 800A5D84	/* if true, move would be ok if within tmfloorz - tmceilingz */
-fixed_t tmfloorz;		// 800A5D88	/* Current floor z for P_TryMove2 */
-fixed_t tmceilingz;		// 800A5D8C	/* Current ceiling z for P_TryMove2 */
-mobj_t *movething;		// 800A5D98  /* Either a skull/missile target or a special pickup */
-line_t *blockline;		// 800A5D9C	/* Might be a door that can be opened */
+SDATA boolean trymove2;		// 800A5D80	/* Result from P_TryMove2 */
+SDATA boolean floatok;		// 800A5D84	/* if true, move would be ok if within tmfloorz - tmceilingz */
+SDATA fixed_t tmfloorz;		// 800A5D88	/* Current floor z for P_TryMove2 */
+SDATA fixed_t tmceilingz;		// 800A5D8C	/* Current ceiling z for P_TryMove2 */
+SDATA mobj_t *movething;		// 800A5D98  /* Either a skull/missile target or a special pickup */
+SDATA line_t *blockline;		// 800A5D9C	/* Might be a door that can be opened */
 
-fixed_t		oldx, oldy;	// 800A5DA0, 800A5DA4
-fixed_t		tmbbox[4];  //
-int			tmflags;	// 800A5DB8
-fixed_t		tmdropoffz;	// 800A5D90 /* Lowest point contacted */
-subsector_t	*newsubsec;	// 800A5D94 /* Dest subsector */
+SDATA fixed_t		oldx, oldy;	// 800A5DA0, 800A5DA4
+SDATA fixed_t		tmbbox[4];  //
+SDATA int			tmflags;	// 800A5DB8
+SDATA fixed_t		tmdropoffz;	// 800A5D90 /* Lowest point contacted */
+SDATA subsector_t	*newsubsec;	// 800A5D94 /* Dest subsector */
 
 //PSX NEW
-line_t *thingspec[8];		// 800A5DE0
-int		numthingspec;		// 800A5DE0
+SDATA line_t *thingspec[8];		// 800A5DE0
+SDATA int		numthingspec;		// 800A5DE0
 
 /*
 ===================

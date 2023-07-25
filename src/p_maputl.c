@@ -100,8 +100,8 @@ void P_MakeDivline (line_t *li, divline_t *dl)//L8001C68C()
 ==================
 */
 
-fixed_t opentop, openbottom, openrange; // 800A5740, 800A5744, 800A5748
-fixed_t	lowfloor; // 800A574C
+SDATA fixed_t opentop, openbottom, openrange; // 800A5740, 800A5744, 800A5748
+SDATA fixed_t	lowfloor; // 800A574C
 
 void P_LineOpening (line_t *linedef) // 80017F40
 {

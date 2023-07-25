@@ -220,7 +220,7 @@ void P_SpawnSpecials (void) // 8001F490
     MapBlueKeyType   = it_bluecard;
     MapYellowKeyType = it_yellowcard;
     MapRedKeyType    = it_redcard;
-    for (mo = mobjhead.next ; mo != &mobjhead ; mo = mo->next)
+    for (mo = mobjhead.next ; mo != (void*) &mobjhead ; mo = mo->next)
     {
         if((mo->type == MT_ITEM_BLUESKULLKEY) ||
            (mo->type == MT_ITEM_YELLOWSKULLKEY) ||
