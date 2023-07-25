@@ -139,12 +139,14 @@ CFLAGS = -Wall -mno-check-zero-division -march=vr4300 -mtune=vr4300 \
          -fno-common -G0 -D_MIPS_SZLONG=32 -D_MIPS_SZINT=32 -g -mabi=32 \
          -ffreestanding -mfix4300 $(DEF_INC_CFLAGS)
 ASFLAGS := -mno-check-zero-division -march=vr4300 -mabi=32 $(foreach i,$(INCLUDE_DIRS),-I$(i))
+LDFLAGS :=
 # $(foreach d,$(DEFINES),--defsym $(d))
 #
 ifneq (,$(filter 0,$(DEBUG))$(filter 1,$(DEBUGOPT)))
-    #CFLAGS += -Ofast -fno-unroll-loops -fno-peel-loops --param case-values-threshold=20 \
+    #CFLAGS += -Ofast -fno-unroll-loops -fno-peel-loops -flto=auto --param case-values-threshold=20 \
     #          -fno-inline -finline-functions-called-once --param max-completely-peeled-insns=8
-    CFLAGS += -Os -finline-functions-called-once -ffast-math -falign-functions=32
+    CFLAGS += -Os -finline-functions-called-once -ffast-math -falign-functions=32 -flto=auto
+    LDFLAGS += -Wl,--gc-sections
 endif
 
 # C preprocessor flags
@@ -209,8 +211,8 @@ $(BOOT_OBJ): $(BOOT)
 # Link final ELF file
 $(ELF): $(O_FILES) $(BUILD_DIR)/$(LD_SCRIPT)
 	@$(PRINT) "$(GREEN)Linking ELF file: $(BLUE)$@ $(NO_COL)\n"
-	$(V)$(LD) -L $(BUILD_DIR) -T $(BUILD_DIR)/$(LD_SCRIPT) -Map $(BUILD_DIR)/$(TARGET).map -o $@ $(O_FILES) \
-        --no-check-sections -L/usr/lib/n64 -lultra_rom -L$(N64_LIBGCCDIR) -lgcc
+	$(V)$(CC) $(LDFLAGS) "-L$(BUILD_DIR)" "-Wl,-T,$(BUILD_DIR)/$(LD_SCRIPT)" "-Wl,-Map,$(BUILD_DIR)/$(TARGET).map" -o $@ $(O_FILES) \
+        -L/usr/lib/n64 -lultra_rom -L$(N64_LIBGCCDIR) -lgcc
 
 # Build ROM
 $(ROM): $(ELF)
