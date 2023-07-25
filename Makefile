@@ -77,12 +77,17 @@ ALL_DIRS := $(BUILD_DIR) $(addprefix $(BUILD_DIR)/,$(SRC_DIRS))
 C_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c))
 S_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.s))
 
+FAST_C_FILES      := src/i_sram.c
+SIZE_C_FILES      := $(filter-out $(FAST_C_FILES),$(C_FILES))
+
 # Object files
-O_FILES := $(foreach file,$(C_FILES),$(BUILD_DIR)/$(file:.c=.o)) \
+FAST_O_FILES  := $(foreach file,$(FAST_C_FILES),$(BUILD_DIR)/$(file:.c=.o))
+SIZE_O_FILES  := $(foreach file,$(SIZE_C_FILES),$(BUILD_DIR)/$(file:.c=.o))
+O_FILES := $(FAST_O_FILES) $(SIZE_O_FILES) \
            $(foreach file,$(S_FILES),$(BUILD_DIR)/$(file:.s=.o)) \
-		   $(BUILD_DIR)/DOOM64.WAD.o $(BUILD_DIR)/DOOM64.WDD.o \
-			 $(BUILD_DIR)/DOOM64.WMD.o $(BUILD_DIR)/DOOM64.WSD.o \
-		   $(BOOT_OBJ)
+           $(BUILD_DIR)/DOOM64.WAD.o $(BUILD_DIR)/DOOM64.WDD.o \
+           $(BUILD_DIR)/DOOM64.WMD.o $(BUILD_DIR)/DOOM64.WSD.o \
+           $(BOOT_OBJ)
 
 # Automatic dependency files
 DEP_FILES := $(O_FILES:.o=.d) $(ASM_O_FILES:.o=.d)  $(BUILD_DIR)/$(LD_SCRIPT).d
@@ -140,14 +145,20 @@ CFLAGS = -Wall -mno-check-zero-division -march=vr4300 -mtune=vr4300 \
          -ffreestanding -mfix4300 $(DEF_INC_CFLAGS)
 ASFLAGS := -mno-check-zero-division -march=vr4300 -mabi=32 $(foreach i,$(INCLUDE_DIRS),-I$(i))
 LDFLAGS :=
+
+SIZE_CFLAGS :=
+FAST_CFLAGS :=
+
 # $(foreach d,$(DEFINES),--defsym $(d))
 #
 ifneq (,$(filter 0,$(DEBUG))$(filter 1,$(DEBUGOPT)))
-    #CFLAGS += -Ofast -fno-unroll-loops -fno-peel-loops -flto=auto --param case-values-threshold=20 \
-    #          -fno-inline -finline-functions-called-once --param max-completely-peeled-insns=8
-    CFLAGS += -Os -finline-functions-called-once -ffast-math -falign-functions=32 -flto=auto
-    LDFLAGS += -Wl,--gc-sections
+    FAST_CFLAGS += -Ofast -fno-unroll-loops -fno-peel-loops -flto=auto --param case-values-threshold=20 \
+                   -fno-inline -finline-functions-called-once --param max-completely-peeled-insns=8
+    SIZE_CFLAGS += -Os -finline-functions-called-once -ffast-math -falign-functions=32 -flto=auto
+    LDFLAGS += -Wl,--gc-sections -flto=auto
 endif
+
+OPT_CFLAGS :=
 
 # C preprocessor flags
 CPPFLAGS := -P -Wno-trigraphs $(DEF_INC_CFLAGS)
@@ -188,12 +199,16 @@ $(BUILD_DIR)/DOOM64.%.o: data/DOOM64.%
 	$(V)$(LD) -r -b binary $< -o $@
 
 # Compile C code
+
+$(FAST_O_FILES): OPT_CFLAGS := $(FAST_CFLAGS)
+$(SIZE_O_FILES): OPT_CFLAGS := $(SIZE_CFLAGS)
+
 $(BUILD_DIR)/%.o: %.c $(DEFINES_TXT)
 	$(call print,Compiling:,$<,$@)
-	$(V)$(CC) -c $(CFLAGS) -MMD -MF $(BUILD_DIR)/$*.d  -o $@ $<
+	$(V)$(CC) -c $(CFLAGS) $(OPT_CFLAGS) -MMD -MF $(BUILD_DIR)/$*.d  -o $@ $<
 $(BUILD_DIR)/%.o: $(BUILD_DIR)/%.c $(DEFINES_TXT)
 	$(call print,Compiling:,$<,$@)
-	$(V)$(CC) -c $(CFLAGS) -MMD -MF $(BUILD_DIR)/$*.d  -o $@ $<
+	$(V)$(CC) -c $(CFLAGS) $(FAST_CFLAGS) -MMD -MF $(BUILD_DIR)/$*.d  -o $@ $<
 
 # Assemble assembly code
 $(BUILD_DIR)/%.o: %.s $(DEFINES_TXT)
