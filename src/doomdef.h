@@ -1126,7 +1126,6 @@ void D_OpenControllerPak(void); // 8002BE28
 void R_RotateCameraMatrix (void);
 void R_RenderPlayerView (void);
 void R_Init (void) COLD;
-angle_t R_PointToPseudoAngle (fixed_t x, fixed_t y) HOT;
 angle_t R_PointToAngle2 (fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2) HOT;
 struct subsector_s *R_PointInSubsector (fixed_t x, fixed_t y) HOT;
 

@@ -26,8 +26,6 @@ void    R_Subsector(int num) HOT;
 void    R_AddLine(seg_t *line) HOT;
 void    R_AddSprite(subsector_t *sub) HOT;
 void	R_RenderFilter(filtertype_t type) HOT; // [Immorpher] Rendering function to set filter
-
-angle_t R_PointToPseudoAngle(fixed_t x, fixed_t y) HOT;
 boolean R_CheckClipRange(angle_t startAngle, angle_t endAngle) HOT;
 void R_AddClipRange(angle_t startangle, angle_t endangle) HOT;
 void R_ClipClear(void);
@@ -54,7 +52,7 @@ void R_BSP(void) // 80023F30
     endsubsector = solidsubsectors; /* Init the free memory pointer */
     R_ClipClear();
     if (viewmaxhalffov > 0)
-        R_AddClipRange(viewmaxhalffov, -((int)viewmaxhalffov));
+        R_AddClipRange(viewmaxhalffov + ANG90, -((int)viewmaxhalffov) + ANG90);
 
     R_RenderBSPNode(numnodes - 1);  /* Begin traversing the BSP tree for all walls in render range */
 
@@ -262,8 +260,8 @@ boolean R_CheckBBox(fixed_t bspcoord[4]) // 80024170
     POINT_UNPACK(R_PointToViewSpace(x1, y1), x1, y1);
     POINT_UNPACK(R_PointToViewSpace(x2, y2), x2, y2);
 
-    angle1 = R_PointToPseudoAngle(x1, y1);
-    angle2 = R_PointToPseudoAngle(x2, y2);
+    angle1 = R_PointToAngle2(0, 0, x1, y1);
+    angle2 = R_PointToAngle2(0, 0, x2, y2);
     return R_CheckClipRange(angle2, angle1);
 }
 
@@ -353,8 +351,8 @@ void R_AddLine(seg_t *line) // 80024604
         y2 = vrt2->vy;
     }
 
-    angle1 = R_PointToPseudoAngle(x1, y1);
-    angle2 = R_PointToPseudoAngle(x2, y2);
+    angle1 = R_PointToAngle2(0, 0, x1, y1);
+    angle2 = R_PointToAngle2(0, 0, x2, y2);
 
     // Back side, i.e. backface culling	- read: endAngle >= startAngle!
     if (angle2 - angle1 < ANG180)
@@ -459,8 +457,8 @@ void R_AddSprite(subsector_t *sub) // 80024A98
             // frustum clipping
             if (viewmaxhalffov)
             {
-                ang = R_PointToPseudoAngle(tx, ty);
-                ang2 = R_PointToPseudoAngle(tx2, ty);
+                ang = R_PointToAngle2(0, 0, tx, ty);
+                ang2 = R_PointToAngle2(0, 0, tx2, ty);
                 if (((int)ang) < -(int)viewmaxhalffov || ((int)ang2) > (int)viewmaxhalffov)
                     continue;
             }

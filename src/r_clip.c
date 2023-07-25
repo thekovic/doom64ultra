@@ -293,31 +293,3 @@ void R_ClipClear(void)
     freelist = NULL;
     cliphead = NULL;
 }
-
-//-----------------------------------------------------------------------------
-//
-// ! Returns the pseudoangle between the line p1 to (infinity, p1.y) and the
-// line from p1 to p2. The pseudoangle has the property that the ordering of
-// points by true angle around p1 and ordering of points by pseudoangle are the
-// same.
-//
-// For clipping exact angles are not needed. Only the ordering matters.
-// This is about as fast as the fixed point R_PointToAngle2 but without
-// the precision issues associated with that function.
-//
-//-----------------------------------------------------------------------------
-
-angle_t R_PointToPseudoAngle (fixed_t x, fixed_t y)
-{
-    // Note: float won't work here as it's less precise than the BAM values being passed as parameters
-    double vecx = (double)x;
-    double vecy = (double)y;
-
-    if (vecx == 0 && vecy == 0)
-        return 0;
-    double result = vecy / (fabs(vecx) + fabs(vecy));
-    if (vecx < 0)
-        result = 2.0 - result;
-    result = result - 1.0;
-    return fround(result * (1 << 30));
-}
