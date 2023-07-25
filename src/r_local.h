@@ -280,7 +280,7 @@ typedef enum {
     rm_nightmaresprite,
 } rendermode_t;
 
-extern void R_RenderModes(rendermode_t mode);
+extern void R_RenderModes(rendermode_t mode) HOT;
 
 typedef enum
 {
@@ -289,18 +289,18 @@ typedef enum
     filt_skies = 2,
 } filtertype_t;
 
-extern void R_RenderFilter(filtertype_t type);
+extern void R_RenderFilter(filtertype_t type) HOT;
 
 /*------*/
 /*R_data*/
 /*------*/
-void	R_InitData (void);
+void	R_InitData (void) COLD;
 
 /*--------*/
 /*r_phase1*/
 /*--------*/
-void	R_BSP (void);
-void	R_RenderBSPNode (int bspnum);
+void	R_BSP (void) HOT;
+void	R_RenderBSPNode (int bspnum) HOT;
 
 /*--------*/
 /*r_phase2*/
@@ -320,9 +320,9 @@ void R_SetupSky(void);
 /*--------*/
 /*r_phase3*/
 /*--------*/
-void R_RenderAll(void);
-void R_RenderPSprites(void);
-void R_RenderPlane(leaf_t *leaf, int numverts, int zpos, int texture, int xpos, int ypos, int color);
+void R_RenderAll(void) HOT;
+void R_RenderPSprites(void) HOT;
+void R_RenderPlane(leaf_t *leaf, int numverts, int zpos, int texture, int xpos, int ypos, int color) HOT;
 
 /* to get a global angle from cartesian coordinates, the coordinates are */
 /* flipped until they are in the first octant of the coordinate system, then */

@@ -155,7 +155,7 @@ ifneq (,$(filter 0,$(DEBUG))$(filter 1,$(DEBUGOPT)))
     FAST_CFLAGS += -Ofast -fno-unroll-loops -fno-peel-loops -flto=auto --param case-values-threshold=20 \
                    -fno-inline -finline-functions-called-once --param max-completely-peeled-insns=8
     SIZE_CFLAGS += -Os -finline-functions-called-once -ffast-math -falign-functions=32 -flto=auto
-    LDFLAGS += -Wl,--gc-sections -flto=auto
+    LDFLAGS += -Wl,--gc-sections -flto=auto -Os
 endif
 
 OPT_CFLAGS :=

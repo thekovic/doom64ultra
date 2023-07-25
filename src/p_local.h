@@ -64,8 +64,8 @@ typedef enum
 extern	thinker_t	thinkercap;	/* both the head and tail of the thinker list */
 
 void P_InitThinkers (void);
-void P_AddThinker (thinker_t *thinker);
-void P_RemoveThinker (thinker_t *thinker);
+void P_AddThinker (thinker_t *thinker) HOT;
+void P_RemoveThinker (thinker_t *thinker) HOT;
 
 /*
 ===============================================================================
@@ -109,22 +109,22 @@ DEBUG_COUNTER(extern int activemobjs);
 #define ONFLOORZ	MININT
 #define	ONCEILINGZ	MAXINT
 
-mobj_t *P_SpawnMobj (fixed_t x, fixed_t y, fixed_t z, mobjtype_t type);
+mobj_t *P_SpawnMobj (fixed_t x, fixed_t y, fixed_t z, mobjtype_t type) HOT;
 
-void 	P_RemoveMobj (mobj_t *th);
+void 	P_RemoveMobj (mobj_t *th) HOT;
 mobj_t* P_SubstNullMobj (mobj_t* th);
 boolean	P_SetMobjState (mobj_t *mobj, statenum_t state);
-void 	P_MobjThinker (mobj_t *mobj);
+void 	P_MobjThinker (mobj_t *mobj) HOT;
 
 void	P_SpawnPuff (fixed_t x, fixed_t y, fixed_t z);
 void 	P_SpawnBlood (fixed_t x, fixed_t y, fixed_t z, int damage);
 //mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, mobjtype_t type);
-mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yoffs, fixed_t heightoffs, mobjtype_t type);
+mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yoffs, fixed_t heightoffs, mobjtype_t type) HOT;
 
-void	P_SpawnPlayerMissile (mobj_t *source, mobjtype_t type);
+void	P_SpawnPlayerMissile (mobj_t *source, mobjtype_t type) HOT;
 
-void	P_RunMobjBase (void);//P_RunMobjBase2 (void);
-void	P_RunMobjExtra (void);
+void	P_RunMobjBase (void) HOT;//P_RunMobjBase2 (void);
+void	P_RunMobjExtra (void) HOT;
 
 void L_SkullBash (mobj_t *mo);
 void L_MissileHit (mobj_t *mo);
@@ -169,20 +169,20 @@ typedef struct
 typedef boolean(*traverser_t)(intercept_t *in);
 
 
-fixed_t P_AproxDistance (fixed_t dx, fixed_t dy);
-int 	P_PointOnLineSide (fixed_t x, fixed_t y, line_t *line);
-int 	P_PointOnDivlineSide (fixed_t x, fixed_t y, divline_t *line);
-void 	P_MakeDivline (line_t *li, divline_t *dl);
-fixed_t P_InterceptVector (divline_t *v2, divline_t *v1);
-int 	P_BoxOnLineSide (fixed_t *tmbox, line_t *ld);
+fixed_t P_AproxDistance (fixed_t dx, fixed_t dy) HOT;
+int 	P_PointOnLineSide (fixed_t x, fixed_t y, line_t *line) HOT;
+int 	P_PointOnDivlineSide (fixed_t x, fixed_t y, divline_t *line) HOT;
+void 	P_MakeDivline (line_t *li, divline_t *dl) HOT;
+fixed_t P_InterceptVector (divline_t *v2, divline_t *v1) HOT;
+int 	P_BoxOnLineSide (fixed_t *tmbox, line_t *ld) HOT;
 boolean P_CheckUseHeight(line_t *line);
 
 extern	fixed_t opentop, openbottom, openrange;//,,800A5748
 extern	fixed_t	lowfloor;
 void 	P_LineOpening (line_t *linedef);
 
-boolean P_BlockLinesIterator (int x, int y, boolean(*func)(line_t*) );
-boolean P_BlockThingsIterator (int x, int y, boolean(*func)(mobj_t*) );
+boolean P_BlockLinesIterator (int x, int y, boolean(*func)(line_t*) ) HOT;
+boolean P_BlockThingsIterator (int x, int y, boolean(*func)(mobj_t*) ) HOT;
 
 extern	divline_t 	trace;  // 800A5D58
 
@@ -192,11 +192,11 @@ extern	divline_t 	trace;  // 800A5D58
 
 #define MAXINTERCEPTS       128
 
-boolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2, int flags, boolean(*trav)(intercept_t *));
-boolean PIT_AddLineIntercepts(line_t* ld); // 80018574
-boolean PIT_AddThingIntercepts(mobj_t* thing); // 8001860C
-fixed_t P_InterceptLine(line_t *line, divline_t *trace); // 8001872C
-boolean P_TraverseIntercepts(traverser_t func, fixed_t maxfrac);
+boolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2, int flags, boolean(*trav)(intercept_t *)) HOT;
+boolean PIT_AddLineIntercepts(line_t* ld) HOT; // 80018574
+boolean PIT_AddThingIntercepts(mobj_t* thing) HOT; // 8001860C
+fixed_t P_InterceptLine(line_t *line, divline_t *trace) HOT; // 8001872C
+boolean P_TraverseIntercepts(traverser_t func, fixed_t maxfrac) HOT;
 
 /*
 ===============================================================================
@@ -213,14 +213,14 @@ extern	line_t	*specialline;//80077dc8
 extern	mobj_t	*movething;
 
 
-boolean P_CheckPosition (mobj_t *thing, fixed_t x, fixed_t y);
-boolean P_TryMove (mobj_t *thing, fixed_t x, fixed_t y);
-boolean P_CheckSight (mobj_t *t1, mobj_t *t2);
+boolean P_CheckPosition (mobj_t *thing, fixed_t x, fixed_t y) HOT;
+boolean P_TryMove (mobj_t *thing, fixed_t x, fixed_t y) HOT;
+boolean P_CheckSight (mobj_t *t1, mobj_t *t2) HOT;
 void 	P_UseLines (player_t *player);
 
 boolean P_ChangeSector (sector_t *sector, boolean crunch);
 
-fixed_t P_AimSlope (player_t *player);
+fixed_t P_AimSlope (player_t *player) HOT;
 
 typedef enum
 {
@@ -280,7 +280,7 @@ extern	int		clipammo[NUMAMMO];
 
 void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher);
 
-void P_DamageMobj (mobj_t *target, mobj_t *inflictor, mobj_t *source, int damage);
+void P_DamageMobj (mobj_t *target, mobj_t *inflictor, mobj_t *source, int damage) HOT;
 
 void P_GiveAllWeapons (player_t *player);
 void P_GiveAllKeys (player_t *player);
@@ -304,16 +304,16 @@ extern mobj_t  *tmthing;
 extern fixed_t  tmx, tmy;
 extern boolean  checkposonly;
 
-void	P_TryMove2(void);
+void	P_TryMove2(void) HOT;
 int     PM_PointOnLineSide(fixed_t x, fixed_t y, line_t *line);
-void 	P_UnsetThingPosition (mobj_t *thing);
-void	P_SetThingPosition (mobj_t *thing);
-void	PM_CheckPosition(void);
-boolean PM_BoxCrossLine(line_t *ld);
-boolean PIT_CheckLine(line_t *ld);
-boolean PIT_CheckThing(mobj_t *thing);
-boolean PM_BlockLinesIterator(int x, int y);
-boolean PM_BlockThingsIterator(int x, int y);
+void 	P_UnsetThingPosition (mobj_t *thing) HOT;
+void	P_SetThingPosition (mobj_t *thing) HOT;
+void	PM_CheckPosition(void) HOT;
+boolean PM_BoxCrossLine(line_t *ld) HOT;
+boolean PIT_CheckLine(line_t *ld) HOT;
+boolean PIT_CheckThing(mobj_t *thing) HOT;
+boolean PM_BlockLinesIterator(int x, int y) HOT;
+boolean PM_BlockThingsIterator(int x, int y) HOT;
 
 
 /*
@@ -341,9 +341,9 @@ boolean PA_CrossBSPNode(int bspnum);
 ===============================================================================
 */
 
-void P_CheckSights(void);
-boolean P_CheckSight(mobj_t *t1, mobj_t *t2);
-boolean PS_CrossBSPNode(int bspnum);
-boolean PS_CrossSubsector(subsector_t *sub);
-fixed_t PS_SightCrossLine (line_t *line);
+void P_CheckSights(void) HOT;
+boolean P_CheckSight(mobj_t *t1, mobj_t *t2) HOT;
+boolean PS_CrossBSPNode(int bspnum) HOT;
+boolean PS_CrossSubsector(subsector_t *sub) HOT;
+fixed_t PS_SightCrossLine (line_t *line) HOT;
 

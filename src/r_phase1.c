@@ -20,16 +20,16 @@ static const int checkcoord[12][4] =                // 8005B110
     { 0, 0, 0, 0 }
 };
 
-void    R_RenderBSPNode(int bspnum);
-boolean R_CheckBBox(fixed_t bspcoord[4]);
-void    R_Subsector(int num);
-void    R_AddLine(seg_t *line);
-void    R_AddSprite(subsector_t *sub);
-void	R_RenderFilter(filtertype_t type); // [Immorpher] Rendering function to set filter
+void    R_RenderBSPNode(int bspnum) HOT;
+boolean R_CheckBBox(fixed_t bspcoord[4]) HOT;
+void    R_Subsector(int num) HOT;
+void    R_AddLine(seg_t *line) HOT;
+void    R_AddSprite(subsector_t *sub) HOT;
+void	R_RenderFilter(filtertype_t type) HOT; // [Immorpher] Rendering function to set filter
 
-angle_t R_PointToPseudoAngle(fixed_t x, fixed_t y);
-boolean R_CheckClipRange(angle_t startAngle, angle_t endAngle);
-void R_AddClipRange(angle_t startangle, angle_t endangle);
+angle_t R_PointToPseudoAngle(fixed_t x, fixed_t y) HOT;
+boolean R_CheckClipRange(angle_t startAngle, angle_t endAngle) HOT;
+void R_AddClipRange(angle_t startangle, angle_t endangle) HOT;
 void R_ClipClear(void);
 
 // Kick off the rendering process by initializing the solidsubsectors array and then

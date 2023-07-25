@@ -43,8 +43,10 @@ SECTIONS
    BEGIN_SEG(code, 0x80000400) SUBALIGN(16)
    {
       KEEP(BUILD_DIR/src/asm/entry.o(.start));
+      KEEP(*.o(.text.hot));
       *.ltrans.o(.text);
       BUILD_DIR/src*.o(.text);
+      KEEP(*.o(.text.unlikely));
 
       */libultra_rom.a:*.o(.text);
       */libgcc.a:*.o(.text);
