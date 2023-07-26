@@ -684,7 +684,7 @@ void P_RefreshVideo(void) // [Immorpher] video refresh
 
     if(TvMode & 2) // interlacing
         modeidx += 1;
-    if(TvMode & 1) // antialising
+    if(TvMode & 1) // antialiasing
         modeidx += 2;
 
     // if (hires) modeidx += 8;
@@ -693,9 +693,11 @@ void P_RefreshVideo(void) // [Immorpher] video refresh
 
     osViSetMode(ViMode);
 
-    special = OS_VI_GAMMA_DITHER_OFF | OS_VI_DIVOT_OFF;
+    special = (TvMode & 1) ? OS_VI_DIVOT_ON : OS_VI_DIVOT_OFF;
     special |= DitherFilter ? OS_VI_DITHER_FILTER_ON : OS_VI_DITHER_FILTER_OFF;
-    special |= (players[0].cheats & CF_GAMMA) ? OS_VI_GAMMA_ON : OS_VI_GAMMA_OFF;
+    special |= (players[0].cheats & CF_GAMMA)
+        ? OS_VI_GAMMA_ON | OS_VI_GAMMA_DITHER_ON
+        : OS_VI_GAMMA_OFF |  OS_VI_GAMMA_DITHER_OFF;
 
     osViSetSpecialFeatures(special);
 
