@@ -199,7 +199,7 @@ int spritelump[NUMSPRITES];	/* no rotations, so just add frame num... */
 
 typedef struct
 {
-	boolean		rotate;		/* if false use 0 for any position */
+	int		rotate;		/* if false use 0 for any position */
 	int			lump[8];	/* lump to use for view angles 0-7 */
 	byte		flip[8];	/* flip (1 = flip) to use for view angles 0-7 */
 } spriteframe_t;

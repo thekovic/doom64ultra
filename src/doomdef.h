@@ -10,6 +10,7 @@
 #include <PR/ramrom.h>	/* needed for argument passing into the app */
 #include <libaudio.h>
 #include <stdarg.h>
+#include <stdbool.h>
 
 // silence gcc warnings
 #undef OS_K0_TO_PHYSICAL

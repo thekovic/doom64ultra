@@ -22,7 +22,7 @@
 ==============================================================================
 */
 
-static boolean  crushchange;// 800A5690
+static u8  crushchange;// 800A5690
 static boolean  nofit;      // 800A5694
 
 /*
