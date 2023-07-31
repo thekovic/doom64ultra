@@ -5,6 +5,7 @@
 #include "r_local.h"
 #include "st_main.h"
 #include "i_usb.h"
+#include "config.h"
 
 extern void P_RefreshBrightness(void);
 extern void I_RefreshVideo(void);
@@ -391,6 +392,10 @@ int EnableExpPak;       // 800A55A8
 
 //-----------------------------------------
 
+#ifndef DEBUG_DISPLAY
+#define DEBUG_DISPLAY 0
+#endif
+
 int MenuIdx = 0;                 // 8005A7A4
 int text_alpha = 255;            // 8005A7A8
 int ConfgNumb[MAXPLAYERS] = {0}; // 8005A7AC
@@ -401,7 +406,7 @@ int HUDopacity = 255;            // [Immorpher] HUD opacity
 int SfxVolume = 100;             // 8005A7C0
 int MusVolume = 80;              // 8005A7C4
 int brightness = 125;            // 8005A7C8
-int ShowDebugCounters = 0;       // [nova] debug counters
+int ShowDebugCounters = DEBUG_DISPLAY; // [nova] debug counters
 fixed_t MotionBob = 0x100000;    // [Immorpher] Motion Bob works in hexadecimal
 int VideoFilters[3] = {0, 1, 0}; // [nova] Independent filter select
 int TvMode = 1;                  // [nova] AA, Interlacing
@@ -418,9 +423,9 @@ s8 VideoResolution = VIDEO_RES_LOW;
 u8 BitDepth = BITDEPTH_16;
 
 #ifdef NDEBUG
-#define MAXDEBUGCOUNTERS 1
+#define MAXDEBUGCOUNTERS 2
 #else
-#define MAXDEBUGCOUNTERS 6
+#define MAXDEBUGCOUNTERS 7
 #endif
 
 boolean ConfigChanged = false;
@@ -2698,12 +2703,13 @@ static void M_DebugMenuDrawer(void) // 800091C0
                 switch (ShowDebugCounters) {
                     case 0: text = "NONE"; break;
                     case 1: text = "FPS"; break;
-#ifndef NDEBUG
                     case 2: text = "CLOCK"; break;
-                    case 3: text = "GFX"; break;
-                    case 4: text = "BSP"; break;
-                    case 5: text = "LEVEL"; break;
-                    case 6: text = "MEMORY"; break;
+#ifndef NDEBUG
+                    case 3: text = "CPU"; break;
+                    case 4: text = "GFX"; break;
+                    case 5: text = "BSP"; break;
+                    case 6: text = "LEVEL"; break;
+                    case 7: text = "MEMORY"; break;
 #endif
                     default: text = NULL; break;
                 }

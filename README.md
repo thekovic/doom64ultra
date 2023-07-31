@@ -53,6 +53,8 @@ make DEBUG=1                      # Turn off optimizations and enable extra debu
 
 make DEBUGOPT=1                   # Enable extra debugging features but leave optimizations on
 
+make DEBUG_DISPLAY=2              # Show debug frame counter by default
+
 make REQUIRE_EXPANSION_PAK=0      # Disable expansion pak requirement screen
 
 make SKIP_INTRO=1                 # Skip the intro screens on boot and go straight to the menu

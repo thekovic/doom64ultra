@@ -21,6 +21,10 @@ ifdef DEBUGOPT
     DEFINES += DEBUGOPT=1
     DEBUG = 1
 endif
+ifdef DEBUG_DISPLAY
+    DEBUG = 1
+    OPTIONS += DEBUG_DISPLAY=$(DEBUG_DISPLAY)
+endif
 ifeq ($(DEBUG),0)
   DEFINES += NDEBUG=1
 endif
