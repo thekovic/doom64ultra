@@ -93,7 +93,6 @@ void G_PlayerFinishLevel (int player) // 80004598
 	D_memset (p->powers, 0, sizeof (p->powers));
 	D_memset (p->cards, 0, sizeof (p->cards));
 	p->mo->flags &= ~MF_SHADOW; /* cancel invisibility  */
-	p->extralight = 0;                      /* cancel gun flashes  */
 	p->damagecount = 0;                     /* no palette changes  */
 	p->bonuscount = 0;
     p->bfgcount = 0;
@@ -123,7 +122,7 @@ void G_PlayerReborn (int player) // 80004630
 	p = &players[player];
 	D_memset(p, 0, sizeof(*p));
 
-	p->usedown = p->attackdown = true; // don't do anything immediately
+	p->usedown = true; // don't do anything immediately
 	p->playerstate = PST_LIVE;
 	p->health = MAXHEALTH;
 	p->readyweapon = p->pendingweapon = wp_pistol;

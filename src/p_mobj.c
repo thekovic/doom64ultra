@@ -257,7 +257,6 @@ void P_SpawnPlayer(/*mapthing_t *mthing*/) // 80018F94
 	p->messagetic2 = 0;  // [Immorpher] reset messages
 	p->damagecount = 0;
 	p->bonuscount = 0;
-	p->extralight = 0;
 	p->bfgcount = 0;
 	p->viewheight = VIEWHEIGHT;
 	p->automapscale = 850;

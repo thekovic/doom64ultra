@@ -109,6 +109,10 @@ typedef unsigned angle_t;
 #undef MAX
 #define MAX(a, b) ({ typeof(a) _a = (a); typeof(b) _b = (b); _a > _b ? _a : _b; })
 #define MIN(a, b) ({ typeof(a) _a = (a); typeof(b) _b = (b); _a < _b ? _a : _b; })
+#define CLAMP(a, min, max)  ({ \
+        typeof(a) _a = (a); typeof(min) _min = (min); typeof(max) _max = (max); \
+        _a < _min ? _min : (_a > _max ? _max : _a); \
+    })
 
 //extern	fixed_t		finesine(5*FINEANGLES/4);
 //extern	fixed_t		*finecosine;
@@ -272,60 +276,51 @@ struct player_s;
 
 typedef struct mobj_s
 {
-	struct mobj_s	*prev, *next;
+    struct mobj_s      *prev, *next;
 /* info for drawing */
-	fixed_t			x,y,z;
+    fixed_t             x,y,z;
 
-	struct subsector_s	*subsector;
+    struct subsector_s *subsector;
 
-	int				flags;
-	struct player_s	*player;		/* only valid if type == MT_PLAYER */
+    u32                flags;
+    struct player_s   *player;          /* only valid if type == MT_PLAYER */
 
-	struct mobj_s	*snext, *sprev;	/* links in sector (if needed) */
-	struct mobj_s	*bnext, *bprev;	/* links in blocks (if needed) */
+    struct mobj_s     *snext, *sprev;   /* links in sector (if needed) */
+    struct mobj_s     *bnext, *bprev;   /* links in blocks (if needed) */
 
-	struct mobj_s	*target;		/* thing being chased/attacked (or NULL) */
-	struct mobj_s   *tracer;        /* Thing being chased/attacked for tracers. */
+    struct mobj_s     *target;          /* thing being chased/attacked (or NULL) */
+    struct mobj_s     *tracer;          /* Thing being chased/attacked for tracers. */
 
-	angle_t			angle;
-	VINT			sprite;				/* used to find patch_t and flip value */
-	VINT			frame;				/* might be ord with FF_FULLBRIGHT */
-	fixed_t			floorz, ceilingz;	/* closest together of contacted secs */
-	fixed_t			radius, height;		/* for movement checking */
-	fixed_t			momx, momy, momz;	/* momentums */
+    angle_t           angle;
+    VINT              sprite;           /* used to find patch_t and flip value */
+    VINT              frame;            /* might be ord with FF_FULLBRIGHT */
+    fixed_t           floorz, ceilingz; /* closest together of contacted secs */
+    fixed_t           radius, height;   /* for movement checking */
+    fixed_t           momx, momy, momz; /* momentums */
 
-	mobjtype_t		type;
-	mobjinfo_t		*info;				/* &mobjinfo[mobj->type] */
-	VINT			tics;				/* state tic counter	 */
-	state_t			*state;
+    mobjtype_t        type;
+    mobjinfo_t       *info;             /* &mobjinfo[mobj->type] */
+    VINT              tics;             /* state tic counter     */
+    state_t          *state;
 
-	VINT			health;
-	VINT			movedir;		/* 0-7 */
-	VINT			movecount;		/* when 0, select a new dir */
+    VINT              health;
+    VINT              movedir;          /* 0-7 */
+    VINT              movecount;        /* when 0, select a new dir */
 
-									/* also the originator for missiles */
-	VINT			reactiontime;	/* if non 0, don't attack yet */
-									/* used by player to freeze a bit after */
-									/* teleporting */
-	VINT			threshold;		/* if >0, the target will be chased */
-									/* no matter what (even if shot) */
+                                        /* also the originator for missiles */
+    VINT              reactiontime;     /* if non 0, don't attack yet */
+                                        /* used by player to freeze a bit after */
+                                        /* teleporting */
+    VINT              threshold;        /* if >0, the target will be chased */
+                                        /* no matter what (even if shot) */
 
-    int             alpha;          /* [D64] alpha value */
+    void             *extradata;        /* for latecall functions */
 
-	void            *extradata;     /* for latecall functions */
+    latecall_t        latecall;         /* set in p_base if more work needed */
 
-	latecall_t		latecall;		/* set in p_base if more work needed */
-
-	int             tid;            /* [D64] tid value */
+    u16               tid;              /* [D64] tid value */
+    u8               alpha;             /* [D64] alpha value */
 } mobj_t;
-
-/* each sector has a degenmobj_t in it's center for sound origin purposes */
-struct subsector_s;
-typedef struct
-{
-	fixed_t			x,y,z;
-    struct subsector_s	*subsec;	// Psx Doom / Doom 64 New
-} degenmobj_t;
 
 typedef struct laserdata_s
 {
@@ -558,11 +553,11 @@ typedef struct
 
 typedef struct
 {
-    int         crosshair;
-    int         sensitivity;
-    int         verticallook;
-    boolean     autorun;
-    boolean     autoaim;
+    s8  crosshair;
+    s8  sensitivity;
+    s8  verticallook;
+    bool autorun;
+    bool autoaim;
 }
 playerconfig_t;
 
@@ -576,68 +571,70 @@ playerconfig_t;
 
 typedef struct player_s
 {
-	mobj_t		*mo;
-	playerstate_t	playerstate;
+    mobj_t        *mo;
+    playerstate_t  playerstate;
 
-	fixed_t		viewz;					/* focal origin above r.z */
-	fixed_t		viewheight;				/* base height above floor for viewz */
-	fixed_t		deltaviewheight;		/* squat speed */
-	fixed_t		bob;					/* bounded/scaled total momentum */
-	fixed_t     recoilpitch;            /* [D64] new*/
+    fixed_t        viewz;                    /* focal origin above r.z */
+    fixed_t        viewheight;                /* base height above floor for viewz */
+    fixed_t        deltaviewheight;        /* squat speed */
+    fixed_t        bob;                    /* bounded/scaled total momentum */
+    fixed_t        recoilpitch;            /* [D64] new*/
 
-	int			health;					/* only used between levels, mo->health */
-										/* is used during levels	 */
-	int			armorpoints, armortype;	/* armor type is 0-2 */
+    s16            health;                    /* only used between levels, mo->health */
+                                        /* is used during levels     */
+    s16            armorpoints;
+    u8             armortype;    /* armor type is 0-2 */
+    s8             bfgcount;               /* for bfg screen flashing */
 
-	int			powers[NUMPOWERS];		/* invinc and invis are tic counters	 */
-	boolean		cards[NUMCARDS];
-	int         artifacts;              /* [d64]*/
-	boolean		backpack;
-	int			frags;					/* kills of other player */
-	weapontype_t	readyweapon;
-	weapontype_t	pendingweapon;		/* wp_nochange if not changing */
-	boolean		weaponowned[NUMWEAPONS];
-	int			ammo[NUMAMMO];
-	int			maxammo[NUMAMMO];
-	int			attackdown, usedown;	/* true if button down last tic */
-	int			cheats;					/* bit flags */
+    u16            powers[NUMPOWERS];        /* invinc and invis are tic counters     */
+    bool           cards[NUMCARDS];
+    u8             artifacts;              /* [d64]*/
+    bool           backpack;
+    u16            frags;                    /* kills of other player */
+    u8             readyweapon;
+    u8             pendingweapon;        /* wp_nochange if not changing */
+    bool           weaponowned[NUMWEAPONS];
+    u16            ammo[NUMAMMO];
+    u16            maxammo[NUMAMMO];
+    bool           usedown;    /* true if button down last tic */
+    u32            cheats;                    /* bit flags */
 
-	int			refire;					/* refired shots are less accurate */
+    u32            refire;                    /* refired shots are less accurate */
 
-	int			killcount, itemcount, secretcount;		/* for intermission */
-	char		*message;				/* hint messages */
-	char		*message1;				// [Immorpher] additional message levels
-	char		*message2;				// [Immorpher] additional message levels
-	char		*message3;				// [Immorpher] additional message levels
-	int         messagetic;             /* messages tic countdown*/
-	int         messagetic1;            // [Immorpher] message tic buffer
-	int         messagetic2;            // [Immorpher] message tic buffer
-	int         messagetic3;            // [Immorpher] message tic buffer
-	unsigned int		messagecolor;			// [Immorpher] message color
-	unsigned int		messagecolor1;			// [Immorpher] message color 1
-	unsigned int		messagecolor2;			// [Immorpher] message color 2
-	unsigned int		messagecolor3;			// [Immorpher] message color 3
-	int			damagecount, bonuscount;/* for screen flashing */
-	int			bfgcount;               /* for bfg screen flashing */
-	mobj_t		*attacker;				/* who did damage (NULL for floors) */
-	int			extralight;				/* so gun flashes light up areas */
-	pspdef_t	psprites[NUMPSPRITES];	/* view sprites (gun, etc) */
+    u16            killcount, itemcount, secretcount;        /* for intermission */
+    char          *message;                /* hint messages */
+    char          *message1;                // [Immorpher] additional message levels
+    char          *message2;                // [Immorpher] additional message levels
+    char          *message3;                // [Immorpher] additional message levels
+    s16            messagetic;             /* messages tic countdown*/
+    s16            messagetic1;            // [Immorpher] message tic buffer
+    s16            messagetic2;            // [Immorpher] message tic buffer
+    s16            messagetic3;            // [Immorpher] message tic buffer
+    u32            messagecolor;            // [Immorpher] message color
+    u32            messagecolor1;            // [Immorpher] message color 1
+    u32            messagecolor2;            // [Immorpher] message color 2
+    u32            messagecolor3;            // [Immorpher] message color 3
+    s32            damagecount, bonuscount;/* for screen flashing */
+    mobj_t        *attacker;                /* who did damage (NULL for floors) */
+    pspdef_t       psprites[NUMPSPRITES];    /* view sprites (gun, etc) */
 
-	void		*lastsoundsector;		/* don't flood noise every time */
+    void          *lastsoundsector;        /* don't flood noise every time */
 
-	int			automapx, automapy, automapscale, automapflags;
+    fixed_t        automapx, automapy;
+    u16            automapscale;
+    u8             automapflags;
 
-	int			turnheld;				/* for accelerative turning */
-	int         onground;               /* [d64] */
-    int         pitch;			// [Immorpher] Player vertical look information
-	int			pitchheld;				/* for accelerative vlook */
-    fixed_t     lookspring;
+    u8             turnheld;                /* for accelerative turning */
+    bool           onground;               /* [d64] */
+    u8             pitchheld;                /* for accelerative vlook */
+    u8             falltimer;                /* for jump grace period */
+    s8             crouchtimer;                /* for crouch easing */
 
-	int			falltimer;				/* for jump grace period */
-	int			crouchtimer;				/* for crouch easing */
-    int         addfov;
+    int            pitch;            // [Immorpher] Player vertical look information
+    int            addfov;
+    fixed_t        lookspring;
 
-    controls_t *controls;
+    controls_t    *controls;
     playerconfig_t *config;
 } player_t;
 
@@ -1172,6 +1169,8 @@ void M_AddToBox (fixed_t *box, fixed_t x, fixed_t y) HOT;
 /* header generated by Dave's sound utility */
 #include "sounds.h"
 
+typedef struct sector_s sector_t;
+
 void S_Init(void) COLD;
 void S_SetSoundVolume(int volume);
 void S_SetMusicVolume(int volume);
@@ -1182,8 +1181,9 @@ void S_ResumeSound(void);
 void S_StopSound(mobj_t *origin,int seqnum);
 void S_StopAll(void);
 int S_SoundStatus(int seqnum);
-void S_StartSound(mobj_t *origin, int sound_id);
-int S_AdjustSoundParams(mobj_t *listener, mobj_t *origin, int* vol, int* pan);
+void S_StartSound(mobj_t *origin, int sound_id) HOT;
+void S_StartSectorSound(sector_t *origin, int sound_id) HOT;
+void S_StartSoundAt(void *key, fixed_t x, fixed_t y, fixed_t z, int flags, int sound_id) HOT;
 
 /*--------*/
 /* I_MAIN */

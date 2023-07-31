@@ -29,20 +29,20 @@ void T_VerticalDoor (vldoor_t *door) // 800104A0
 				{
 					case BlazeRaise:
 						door->direction = -1; /* time to go back down */
-						S_StartSound((mobj_t *)&door->sector->soundorg,80/*sfx_bdcls*/);
+						S_StartSectorSound(door->sector,sfx_door2dwn);
 						break;
 					case Normal:
 						door->direction = -1; /* time to go back down */
-						S_StartSound((mobj_t *)&door->sector->soundorg,18/*sfx_dorcls*/);
+						S_StartSectorSound(door->sector,sfx_doordown);
 						break;
 					case Close30ThenOpen:
 						door->direction = 1;
-						S_StartSound((mobj_t *)&door->sector->soundorg,17/*sfx_doropn*/);
+						S_StartSectorSound(door->sector,sfx_doorup);
 						break;
                     //case RaiseIn5Mins: // [D64] moved here?
 						//door->direction = 1;
 						//door->type = Normal;
-						//S_StartSound((mobj_t *)&door->sector->soundorg,17/*sfx_doropn*/);
+						//S_StartSectorSound(door->sector,17/*sfx_doropn*/);
 						//break;
 					default:
 						break;
@@ -58,7 +58,7 @@ void T_VerticalDoor (vldoor_t *door) // 800104A0
 					case RaiseIn5Mins:
 						door->direction = 1;
 						door->type = Normal;
-						S_StartSound((mobj_t *)&door->sector->soundorg,17/*sfx_doropn*/);
+						S_StartSectorSound(door->sector,sfx_doorup);
 						break;
 				default:
 					break;
@@ -102,7 +102,7 @@ void T_VerticalDoor (vldoor_t *door) // 800104A0
 
 				default:
 					door->direction = 1;
-					S_StartSound((mobj_t *)&door->sector->soundorg, 17/*sfx_doropn*/);
+					S_StartSectorSound(door->sector, 17/*sfx_doropn*/);
 					break;
 				}
 			}
@@ -175,18 +175,18 @@ int EV_DoDoor (line_t *line, vldoor_e  type) // 80010750
 				door->topheight -= 4 * FRACUNIT;
 				door->direction = -1;
 				door->speed = VDOORSPEED * 4;
-				S_StartSound((mobj_t *)&door->sector->soundorg, 80/*sfx_bdcls*/);
+				S_StartSectorSound(door->sector, sfx_door2dwn);
 				break;
 			case DoorClose:
 				door->topheight = P_FindLowestCeilingSurrounding(sec);
 				door->topheight -= 4*FRACUNIT;
 				door->direction = -1;
-				S_StartSound((mobj_t *)&door->sector->soundorg,18/*sfx_dorcls*/);
+				S_StartSectorSound(door->sector, sfx_doordown);
 				break;
 			case Close30ThenOpen:
 				door->topheight = sec->ceilingheight;
 				door->direction = -1;
-				S_StartSound((mobj_t *)&door->sector->soundorg,18/*sfx_dorcls*/);
+				S_StartSectorSound(door->sector,sfx_doordown);
 				break;
 			case BlazeRaise:
 			case BlazeOpen:
@@ -195,7 +195,7 @@ int EV_DoDoor (line_t *line, vldoor_e  type) // 80010750
 				door->topheight -= 4 * FRACUNIT;
 				door->speed = VDOORSPEED * 4;
 				if (door->topheight != sec->ceilingheight) {
-					S_StartSound((mobj_t *)&door->sector->soundorg, 79/*sfx_bdopn*/);
+					S_StartSectorSound(door->sector, sfx_door2up);
 				}
 				break;
 			case Normal:
@@ -204,7 +204,7 @@ int EV_DoDoor (line_t *line, vldoor_e  type) // 80010750
 				door->topheight = P_FindLowestCeilingSurrounding(sec);
 				door->topheight -= 4*FRACUNIT;
 				if (door->topheight != sec->ceilingheight){
-					S_StartSound((mobj_t *)&door->sector->soundorg,17/*sfx_doropn*/);
+					S_StartSectorSound(door->sector,sfx_doorup);
 				}
 				break;
 			default:
@@ -214,6 +214,20 @@ int EV_DoDoor (line_t *line, vldoor_e  type) // 80010750
 	return rtn;
 }
 
+void P_PlayDoorSound(line_t *line, sector_t *sec, boolean open)
+{
+    /* for proper sound */
+    switch(SPECIALMASK(line->special))
+    {
+        case 117:	/* BLAZING DOOR RAISE */
+        case 118:	/* BLAZING DOOR OPEN */
+            S_StartSectorSound(sec, open ? sfx_door2up : sfx_door2dwn);
+            break;
+        default:	/* LOCKED DOOR SOUND */
+            S_StartSectorSound(sec, open ? sfx_doorup : sfx_doordown);
+            break;
+    }
+}
 
 /*================================================================== */
 /* */
@@ -238,28 +252,22 @@ void EV_VerticalDoor (line_t *line, mobj_t *thing) // 80010998
 			case 1:		/* ONLY FOR "RAISE" DOORS, NOT "OPEN"s */
 			case 117:
 				if (door->direction == -1)
+				{
 					door->direction = 1;	/* go back up */
+					P_PlayDoorSound(line, sec, true);
+				}
 				else
 				{
 					if (!thing->player)
 						return;				/* JDC: bad guys never close doors */
 					door->direction = -1;	/* start going down immediately */
+					P_PlayDoorSound(line, sec, false);
 				}
 				return;
 		}
 	}
 
-	/* for proper sound */
-	switch(SPECIALMASK(line->special))
-	{
-		case 117:	/* BLAZING DOOR RAISE */
-		case 118:	/* BLAZING DOOR OPEN */
-			S_StartSound((mobj_t *)&sec->soundorg,79/*sfx_bdopn*/);
-			break;
-		default:	/* LOCKED DOOR SOUND */
-			S_StartSound((mobj_t *)&sec->soundorg,17/*sfx_doropn*/);
-			break;
-	}
+	P_PlayDoorSound(line, sec, true);
 
 	/* */
 	/* new door thinker */

@@ -145,7 +145,7 @@ void T_MoveFloor(floormove_t *floor) // 80013920
     {
         if (!(gametic&3))
         {
-            S_StartSound((mobj_t *)&floor->sector->soundorg,sfx_secmove);//sfx_stnmov
+            S_StartSectorSound(floor->sector,sfx_secmove);//sfx_stnmov
         }
     }
 

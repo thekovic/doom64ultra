@@ -32,7 +32,7 @@ void T_MoveCeiling (ceiling_t *ceiling) // 8000F880
 			{
 			    if (!(gametic & 7))
                 {
-                    S_StartSound((mobj_t *)&ceiling->sector->soundorg, sfx_secmove);
+                    S_StartSectorSound(ceiling->sector, sfx_secmove);
                 }
 			}
 
@@ -66,7 +66,7 @@ void T_MoveCeiling (ceiling_t *ceiling) // 8000F880
 			{
 			    if (!(gametic & 7))
                 {
-                    S_StartSound((mobj_t *)&ceiling->sector->soundorg, sfx_secmove);
+                    S_StartSectorSound(ceiling->sector, sfx_secmove);
                 }
 			}
 

@@ -275,16 +275,11 @@ void R_WallPrep(seg_t *seg) // 80026A44
             if ((li->flags & (ML_CHECKFLOORHEIGHT|ML_SWITCHX08)) == ML_SWITCHX08)
             {
                 if (SWITCHMASK(li->flags) == ML_SWITCHX04)
-                {
                     pic = side->bottomtexture;
-                    rowoffs = side->rowoffset >> 16;
-                }
                 else
-                {
                     pic = side->midtexture;
-                    rowoffs = side->rowoffset >> 16;
-                }
 
+                rowoffs = side->rowoffset >> 16;
                 R_RenderSwitch(seg, pic, b_ceilingheight + rowoffs + 48, thingcolor);
             }
         }
@@ -336,16 +331,11 @@ void R_WallPrep(seg_t *seg) // 80026A44
             if ((li->flags & (ML_CHECKFLOORHEIGHT|ML_SWITCHX08)) == ML_CHECKFLOORHEIGHT)
             {
                 if (SWITCHMASK(li->flags) == ML_SWITCHX02)
-                {
                     pic = side->toptexture;
-                    rowoffs = side->rowoffset >> 16;
-                }
                 else
-                {
                     pic = side->midtexture;
-                    rowoffs = side->rowoffset >> 16;
-                }
 
+                rowoffs = side->rowoffset >> 16;
                 R_RenderSwitch(seg, pic, b_floorheight + rowoffs - 16, thingcolor);
             }
         }
@@ -387,16 +377,11 @@ void R_WallPrep(seg_t *seg) // 80026A44
     if ((li->flags & (ML_CHECKFLOORHEIGHT|ML_SWITCHX08)) == (ML_CHECKFLOORHEIGHT|ML_SWITCHX08))
     {
         if (SWITCHMASK(li->flags) == ML_SWITCHX02)
-        {
             pic = side->toptexture;
-            rowoffs = side->rowoffset >> 16;
-        }
         else
-        {
             pic = side->bottomtexture;
-            rowoffs = side->rowoffset >> 16;
-        }
 
+        rowoffs = side->rowoffset >> 16;
         R_RenderSwitch(seg, pic, m_bottom + rowoffs + 48, thingcolor);
     }
 }

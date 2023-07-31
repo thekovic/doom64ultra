@@ -62,7 +62,7 @@ typedef struct
 struct line_s;
 struct subsector_s;
 
-typedef	struct
+typedef	struct sector_s
 {
 	fixed_t		floorheight, ceilingheight;
 	VINT		floorpic, ceilingpic;	/* if ceilingpic == -1,draw sky */
@@ -77,7 +77,7 @@ typedef	struct
 
 	VINT	    flags;	            // Psx Doom / Doom 64 New
 	VINT		blockbox[4];		/* mapblock bounding box for height changes */
-	degenmobj_t	soundorg;			/* for any sounds played by the sector */
+    fixed_t     center_x, center_y; // [nova] remove degenmobj_t
 
 	int			validcount;			/* if == validcount, already checked */
 	mobj_t		*thinglist;			/* list of mobjs in sector */

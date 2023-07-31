@@ -655,7 +655,7 @@ void P_UpdateSpecials (void) // 8001FEC0
 					buttonlist[i].side->bottomtexture = buttonlist[i].btexture;
 					break;
 				}
-				S_StartSound((mobj_t *)buttonlist[i].soundorg, sfx_switch1);
+				P_StartSwitchSound(buttonlist[i].line, sfx_switch1);
 				D_memset(&buttonlist[i], 0, sizeof(button_t)); // ? Doom 64 elimina esta linea
 			}
 		}

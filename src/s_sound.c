@@ -4,6 +4,7 @@
 #include "r_local.h"
 #include "audio.h"
 #include "i_main.h"
+#include <stddef.h>
 
 #define SYS_FRAMES_PER_SEC 30
 
@@ -17,6 +18,8 @@ extern int MusVolume;
 
 extern void wess_set_tweaks2(WessTweakAttr *attr);
 extern void wess_get_tweaks2(WessTweakAttr *attr);
+
+int S_AdjustSoundParams(mobj_t *listener, fixed_t x, fixed_t y, fixed_t z, u8* vol, u8* pan) HOT; // 80029A48
 
 void S_Init(void) // 80029590
 {
@@ -179,48 +182,64 @@ int S_SoundStatus(int seqnum) // 8002993C
         return SND_INACTIVE;
 }
 
+HOT void S_StartGlobalSound(int sound_id)
+{
+    TriggerPlayAttr attr;
+
+    if (disabledrawing == false)
+    {
+        attr.mask = (TRIGGER_VOLUME | TRIGGER_PAN | TRIGGER_REVERB);
+        attr.volume = 127;
+        attr.pan = 64;
+        attr.reverb = 0;
+
+        wess_seq_trigger_type_special(sound_id, 0, &attr);
+    }
+}
+
+void S_StartSoundAt(void *key, fixed_t x, fixed_t y, fixed_t z, int flags, int sound_id)
+{
+    TriggerPlayAttr attr;
+
+    if (disabledrawing == false)
+    {
+        if (key != cameratarget)
+        {
+            if (!S_AdjustSoundParams(cameratarget, x, y, z, &attr.volume, &attr.pan))
+                return;
+        }
+        else
+        {
+            attr.volume = 127;
+            attr.pan = 64;
+        }
+
+        attr.mask = (TRIGGER_VOLUME | TRIGGER_PAN | TRIGGER_REVERB);
+
+        if (flags & MS_REVERBHEAVY)
+            attr.reverb = 32;
+        else if (flags & MS_REVERB)
+            attr.reverb = 16;
+        else
+            attr.reverb = 0;
+
+        wess_seq_trigger_type_special(sound_id, (unsigned long) key, &attr);
+    }
+}
+
 void S_StartSound(mobj_t *origin, int sound_id) // 80029970
 {
-	int flags;
-	int vol;
-	int pan;
-	TriggerPlayAttr attr;
+    if (origin)
+        S_StartSoundAt(origin, origin->x, origin->y, origin->z, origin->subsector->sector->flags, sound_id);
+    else
+        S_StartGlobalSound(sound_id);
+}
 
-	if (disabledrawing == false)
-	{
-		if (origin && (origin != cameratarget))
-		{
-			if (!S_AdjustSoundParams(cameratarget, origin, &vol, &pan))
-			{
-				return;
-			}
-		}
-		else
-		{
-			vol = 127;
-			pan = 64;
-		}
-
-		attr.mask = (TRIGGER_VOLUME | TRIGGER_PAN | TRIGGER_REVERB);
-		attr.volume = (char)vol;
-		attr.pan = (char)pan;
-
-		attr.reverb = 0;
-
-		if (origin)
-		{
-			flags = origin->subsector->sector->flags;
-
-			if (flags & MS_REVERB) {
-				attr.reverb = 16;
-			}
-			else if (flags & MS_REVERBHEAVY) {
-				attr.reverb = 32;
-			}
-		}
-
-		wess_seq_trigger_type_special(sound_id, (unsigned long)origin, &attr);
-	}
+void S_StartSectorSound(sector_t *origin, int sound_id)
+{
+    S_StartSoundAt(origin, origin->center_x, origin->center_y,
+                   (origin->floorheight >> 1) + (origin->ceilingheight >> 1),
+                   origin->flags, sound_id);
 }
 
 #define S_CLIPPING_DIST     (1700)
@@ -229,22 +248,23 @@ void S_StartSound(mobj_t *origin, int sound_id) // 80029970
 #define S_ATTENUATOR        (S_CLIPPING_DIST - S_CLOSE_DIST)
 #define S_STEREO_SWING      (96)
 
-int S_AdjustSoundParams(mobj_t *listener, mobj_t *origin, int* vol, int* pan) // 80029A48
+int S_AdjustSoundParams(mobj_t *listener, fixed_t x, fixed_t y, fixed_t z, u8* vol, u8* pan) // 80029A48
 {
 	fixed_t approx_dist;
 	angle_t angle;
 
-	approx_dist = P_AproxDistance(listener->x - origin->x, listener->y - origin->y);
+	approx_dist = P_AproxDistance(listener->x - x, listener->y - y);
+	approx_dist = P_AproxDistance(approx_dist, listener->z - z);
 	approx_dist >>= FRACBITS;
 
 	if (approx_dist > S_CLIPPING_DIST) {
 		return 0;
 	}
 
-	if (listener->x != origin->x || listener->y != origin->y)
+	if (listener->x != x || listener->y != y)
 	{
 		/* angle of source to listener */
-		angle = R_PointToAngle2(listener->x, listener->y, origin->x, origin->y);
+		angle = R_PointToAngle2(listener->x, listener->y, x, y);
 
 		if (angle <= listener->angle) {
 			angle += 0xffffffff;
@@ -268,7 +288,7 @@ int S_AdjustSoundParams(mobj_t *listener, mobj_t *origin, int* vol, int* pan) //
 	{
 		/* distance effect */
 		approx_dist = -approx_dist; /* set neg */
-		*vol = (((approx_dist << 7) - approx_dist) + S_MAX_DIST) / S_ATTENUATOR;
+		*vol = MIN((((approx_dist << 7) - approx_dist) + S_MAX_DIST) / S_ATTENUATOR, 127);
 	}
 
 	return (*vol > 0);

@@ -338,11 +338,11 @@ typedef enum
 
 typedef struct
 {
-	side_t      *side;  //old line_t		*line;
+	side_t      *side;
 	bwhere_e	where;
 	int			btexture;
 	int			btimer;
-	mobj_t		*soundorg;
+    line_t      *line;
 } button_t;
 
 #define	MAXSWITCHES	50		/* max # of wall switches in a level */
@@ -353,6 +353,8 @@ extern	button_t	buttonlist[MAXBUTTONS];
 
 void	P_ChangeSwitchTexture(line_t *line,int useAgain);
 void 	P_InitSwitchList(void);
+void    P_StartSwitchSound(line_t *line, int sound_id);
+
 
 /*
 ===============================================================================

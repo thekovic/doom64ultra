@@ -731,13 +731,9 @@ void P_GroupLines (void) // 8001E614
 		if (linebuffer - sector->lines != sector->linecount)
 			I_Error ("P_GroupLines: miscounted");
 
-		/* set the degenmobj_t to the middle of the bounding box */
-		sector->soundorg.x = (bbox[BOXRIGHT]+bbox[BOXLEFT])/2;
-		sector->soundorg.y = (bbox[BOXTOP]+bbox[BOXBOTTOM])/2;
-		//sector->soundorg.z = (sector->floorheight + sector->ceilingheight) / 2;
-
-		/* link into subsector */
-		sector->soundorg.subsec = R_PointInSubsector(sector->soundorg.x, sector->soundorg.y);
+		/* set to the middle of the bounding box */
+		sector->center_x = (bbox[BOXRIGHT]+bbox[BOXLEFT])/2;
+		sector->center_y = (bbox[BOXTOP]+bbox[BOXBOTTOM])/2;
 
 		/* adjust bounding box to map blocks */
 		block = (bbox[BOXTOP]-bmaporgy+MAXRADIUS)>>MAPBLOCKSHIFT;

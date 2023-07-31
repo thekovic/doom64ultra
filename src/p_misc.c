@@ -389,7 +389,7 @@ void T_FadeThinker(fade_t *fade) // 8000EACC
     mobj_t *mo;
 
     mo = fade->mobj;
-    mo->alpha += fade->amount;
+    mo->alpha = CLAMP(((int)mo->alpha) + fade->amount, 0, 255);
 
     if (fade->amount > 0)
     {

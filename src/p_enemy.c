@@ -1828,7 +1828,7 @@ void A_FadeAlpha(mobj_t *mobj) // 8001333C
         fade = fade + 3;
     }
 
-    mobj->alpha = (fade >> 2);
+    mobj->alpha = MIN(fade >> 2, 0xff);
 }
 
 /*
@@ -1841,7 +1841,7 @@ void A_FadeAlpha(mobj_t *mobj) // 8001333C
 
 void A_PainDeathEvent(mobj_t* actor) // 80013364
 {
-    actor->alpha -= 0x40;
+    actor->alpha = MAX(((int) actor->alpha) - 0x40, 0);
 }
 
 /*

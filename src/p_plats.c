@@ -27,7 +27,7 @@ void	T_PlatRaise(plat_t	*plat) // 8001A890
 			if (plat->type == raiseAndChange || plat->type == raiseToNearestAndChange)
             {
 				if (!(gametic&7))
-					S_StartSound((mobj_t *)&plat->sector->soundorg,sfx_secmove);
+					S_StartSectorSound(plat->sector,sfx_secmove);
             }
 
 			//if (res == crushed && (!plat->crush))
@@ -39,7 +39,7 @@ void	T_PlatRaise(plat_t	*plat) // 8001A890
 			{
 				plat->count = plat->wait;
 				plat->status = down;
-				S_StartSound((mobj_t *)&plat->sector->soundorg,sfx_pstart);
+				S_StartSectorSound(plat->sector,sfx_pstart);
 			}
 			else
             {
@@ -47,7 +47,7 @@ void	T_PlatRaise(plat_t	*plat) // 8001A890
                 {
                     plat->count = plat->wait;
                     plat->status = waiting;
-                    S_StartSound((mobj_t *)&plat->sector->soundorg,sfx_pstop);
+                    S_StartSectorSound(plat->sector,sfx_pstop);
                     switch(plat->type)
                     {
                         case raiseAndChange:
@@ -70,7 +70,7 @@ void	T_PlatRaise(plat_t	*plat) // 8001A890
 			{
 			    plat->count = plat->wait;
                 plat->status = waiting;
-                S_StartSound((mobj_t *)&plat->sector->soundorg,sfx_pstop);
+                S_StartSectorSound(plat->sector,sfx_pstop);
 			    switch(plat->type)
                 {
                     case upWaitDownStay:
@@ -91,7 +91,7 @@ void	T_PlatRaise(plat_t	*plat) // 8001A890
 					plat->status = up;
 				else
 					plat->status = down;
-				S_StartSound((mobj_t *)&plat->sector->soundorg,sfx_pstart);
+				S_StartSectorSound(plat->sector,sfx_pstart);
 			}
 		case	in_stasis:
 			break;
@@ -154,7 +154,7 @@ int	EV_DoPlat(line_t *line,plattype_e type,int amount) // 8001AA94
 				plat->wait = 0;
 				plat->status = up;
 				sec->special = 0;		/* NO MORE DAMAGE, IF APPLICABLE */
-				S_StartSound((mobj_t *)&sec->soundorg,sfx_secmove);
+				S_StartSectorSound(sec,sfx_secmove);
 				break;
 			case raiseAndChange:
 				plat->speed = PLATSPEED/2;
@@ -162,7 +162,7 @@ int	EV_DoPlat(line_t *line,plattype_e type,int amount) // 8001AA94
 				plat->high = sec->floorheight + amount*FRACUNIT;
 				plat->wait = 0;
 				plat->status = up;
-				S_StartSound((mobj_t *)&sec->soundorg,sfx_secmove);
+				S_StartSectorSound(sec,sfx_secmove);
 				break;
             case downWaitUpStay:
 			case blazeDWUS:
@@ -176,7 +176,7 @@ int	EV_DoPlat(line_t *line,plattype_e type,int amount) // 8001AA94
 				plat->high = sec->floorheight;
 				plat->wait = 30*PLATWAIT;
 				plat->status = down;
-				S_StartSound((mobj_t *)&sec->soundorg,sfx_pstart);
+				S_StartSectorSound(sec,sfx_pstart);
 				break;
             case upWaitDownStay:
 			case blazeUWDS:
@@ -188,7 +188,7 @@ int	EV_DoPlat(line_t *line,plattype_e type,int amount) // 8001AA94
 				plat->high = P_FindHighestFloorSurrounding(sec);
 				plat->wait = 30*PLATWAIT;
 				plat->status = up;
-				S_StartSound((mobj_t *)&sec->soundorg,sfx_pstart);
+				S_StartSectorSound(sec,sfx_pstart);
 				break;
             case customDownUp:
 			case customDownUpFast:
@@ -200,7 +200,7 @@ int	EV_DoPlat(line_t *line,plattype_e type,int amount) // 8001AA94
 				plat->high = sec->floorheight;
 				plat->wait = 30*PLATWAIT;
 				plat->status = down;
-				S_StartSound((mobj_t *)&sec->soundorg,sfx_pstart);
+				S_StartSectorSound(sec,sfx_pstart);
 				break;
             case customUpDown:
 			case customUpDownFast:
@@ -212,7 +212,7 @@ int	EV_DoPlat(line_t *line,plattype_e type,int amount) // 8001AA94
 				plat->high = sec->floorheight + (macrointeger * FRACUNIT);
 				plat->wait = 30*PLATWAIT;
 				plat->status = up;
-				S_StartSound((mobj_t *)&sec->soundorg,sfx_pstart);
+				S_StartSectorSound(sec,sfx_pstart);
 				break;
 			case perpetualRaise:
 				plat->speed = PLATSPEED;
@@ -224,7 +224,7 @@ int	EV_DoPlat(line_t *line,plattype_e type,int amount) // 8001AA94
 					plat->high = sec->floorheight;
 				plat->wait = 30*PLATWAIT;
 				plat->status = ((P_Random()&1) << 1) + down;
-				S_StartSound((mobj_t *)&sec->soundorg,sfx_pstart);
+				S_StartSectorSound(sec,sfx_pstart);
 				break;
 		}
 		P_AddActivePlat(plat);
