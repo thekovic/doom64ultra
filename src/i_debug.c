@@ -475,8 +475,10 @@ static int I_GetCallStack(void **addresses, u64 sp_val, u64 ra_val) {
     return i; /* stack size */
 }
 
-#define FAULT_MSG_BUFFER ((char *)CFB(0))
-#define FAULT_BT_BUFFER ((void **)CFB(1))
+#define ERROR_FB_SIZE (640*480*sizeof(u16))
+#define HIRES_FB_ADDR ((u16*)(AUDIO_HEAP_ADDR - ERROR_FB_SIZE))
+#define FAULT_MSG_BUFFER (((char *)HIRES_FB_ADDR) - 0x4000)
+#define FAULT_BT_BUFFER ((void **)(FAULT_MSG_BUFFER - MAX_STACK_TRACE*4))
 
 static inline __attribute__((nonnull(1, 2)))
 char *I_PrintFault(OSThread *curr, char *out)
@@ -534,12 +536,10 @@ char *I_PrintFault(OSThread *curr, char *out)
     return out;
 }
 
-#define ERROR_FB_SIZE (640*480*sizeof(u16))
-
-static void I_DebugSetHiRes(void)
+static void I_DebugSetHiRes(u16 *fb)
 {
     OSViMode *mode;
-    u16 *fb = (u16*)((char*)K0BASE + osMemSize - ERROR_FB_SIZE);
+
     D_memset(fb, 0, ERROR_FB_SIZE);
 
     switch(osTvType)
@@ -548,6 +548,10 @@ static void I_DebugSetHiRes(void)
         case OS_TV_MPAL: mode = &osViModeTable[OS_VI_MPAL_HPF1]; break;
         default: mode = &osViModeTable[OS_VI_NTSC_HPF1]; break;
     }
+    mode->comRegs.xScale = 1024;
+    mode->comRegs.width = 640;
+    mode->fldRegs[0].origin = 320 * 4;
+    mode->fldRegs[1].origin = 320 * 8;
 
     osViSwapBuffer(fb);
     osViSetMode(mode);
@@ -571,11 +575,11 @@ static void __attribute__((noreturn)) I_DebuggerThread(void *arg)
     I_StopAppThreads();
 
     /* take over memory at the end of the heap for a hires framebuffer */
-    fb = (u16*)((char*)K0BASE + osMemSize - ERROR_FB_SIZE);
+    fb = HIRES_FB_ADDR;
 
     mask = __osDisableInt();
 
-    I_DebugSetHiRes();
+    I_DebugSetHiRes(fb);
     buf = FAULT_MSG_BUFFER;
 
     thread = I_FaultedThread((int) msg);
@@ -596,12 +600,13 @@ static void __attribute__((noreturn)) I_DebuggerThread(void *arg)
         }
     }
 
-    D_print(FAULT_MSG_BUFFER, buf - FAULT_MSG_BUFFER);
     blit32_TextExplicit(fb, 0xffff, 1, 640, 480, blit_Clip, 16, 16, FAULT_MSG_BUFFER);
 
     osInvalDCache(fb, 640*480*2);
 
     __osRestoreInt(mask);
+
+    D_print(FAULT_MSG_BUFFER, buf - FAULT_MSG_BUFFER);
 
     while (1)
         osYieldThread();
