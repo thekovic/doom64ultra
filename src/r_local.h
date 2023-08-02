@@ -277,6 +277,7 @@ typedef enum {
     rm_switch,
     rm_laser,
     rm_sprite,
+    rm_transparentsprite,
     rm_nightmaresprite,
 } rendermode_t;
 

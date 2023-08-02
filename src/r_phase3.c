@@ -860,15 +860,13 @@ void R_RenderThings(subsector_t *sub) // 80028248
                 R_RenderModes(rm_nightmaresprite);
                 color = PACKRGBA(64, 255, 0, 255);
             }
-            else if (thing->frame & FF_FULLBRIGHT)
-            {
-                R_RenderModes(rm_sprite);
-                color = PACKRGBA(255, 255, 255, 255);//0xffffffff;
-            }
             else
             {
-                R_RenderModes(rm_sprite);
-                color = lights[vissprite_p->sector->colors[2]].rgba;
+                R_RenderModes(thing->alpha == 255 ? rm_sprite : rm_transparentsprite);
+                if (thing->frame & FF_FULLBRIGHT)
+                    color = PACKRGBA(255, 255, 255, 0);//0xffffffff;
+                else
+                    color = lights[vissprite_p->sector->colors[2]].rgba;
             }
 
             gDPSetPrimColorD64(GFX1++, 0, vissprite_p->sector->lightlevel, thing->alpha);

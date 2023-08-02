@@ -543,18 +543,34 @@ void R_RenderModes(rendermode_t mode)
     }
     else if (mode == rm_sprite)
     {
+#define G_CC_D64COMB07_NOPRIM 1, 0, PRIM_LOD_FRAC, TEXEL0, 1, 0, TEXEL0, 0
+        gDPSetCombineMode(GFX1++, G_CC_D64COMB07_NOPRIM, G_CC_D64COMB08);
+        if (lastrender != rm_switch) {
+            gSPTexture(GFX1++, (512 << 6), (512 << 6), 0, G_TX_RENDERTILE, G_ON);
+        }
+        if (lastrender != rm_transparentsprite)
+        {
+            gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_XLU_SURF2_CLAMP);
+        }
+        R_RenderFilter(filt_sprites);
+    }
+    else if (mode == rm_transparentsprite)
+    {
         if (lastrender != rm_nightmaresprite) {
             gDPSetCombineMode(GFX1++, G_CC_D64COMB07, G_CC_D64COMB08);
             if (lastrender != rm_switch) {
                 gSPTexture(GFX1++, (512 << 6), (512 << 6), 0, G_TX_RENDERTILE, G_ON);
             }
         }
-        gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_XLU_SURF2_CLAMP);
+        if (lastrender != rm_sprite)
+        {
+            gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_XLU_SURF2_CLAMP);
+        }
         R_RenderFilter(filt_sprites);
     }
     else if (mode == rm_nightmaresprite)
     {
-        if (lastrender != rm_sprite) {
+        if (lastrender != rm_transparentsprite) {
             gDPSetCombineMode(GFX1++, G_CC_D64COMB07, G_CC_D64COMB08);
             if (lastrender != rm_switch) {
                 gSPTexture(GFX1++, (512 << 6), (512 << 6), 0, G_TX_RENDERTILE, G_ON);
