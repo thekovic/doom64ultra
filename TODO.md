@@ -2,7 +2,6 @@
 
 - GUI tool for generating ROMs and modding
 - High res mode
-- Rumble pak support
 - Walking over/under things
 - More specials/properties from boom/zdoom
   - Translucent walls/flats

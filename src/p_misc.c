@@ -534,6 +534,14 @@ void P_SpawnQuake(int tics) // 8000EE7C
     quake->thinker.function = T_Quake;
     quake->tics = tics;
 
+    /*
+    for (int i = 0; i < MAXCONTROLLERS; i++)
+        if (playeringame[i])
+            I_RumbleQuake(i, tics);
+    */
+
+    I_RumbleQuake(0, tics);
+
     S_StopSound(NULL, sfx_quake);
 }
 

@@ -933,6 +933,7 @@ void P_DamageMobj (mobj_t *target, mobj_t *inflictor, mobj_t *source, int damage
 		player->attacker = source;
 
         player->damagecount += (damage/*>>1*/);	/* add damage after armor / invuln */
+        I_RumbleDamage(player - players, damage);
 	}
 
 	/* */

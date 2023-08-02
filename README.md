@@ -6,6 +6,7 @@ A fork of [Doom 64-RE] with the goal of creating a base for enhanced mods.
 
 - Jumping/Crouching
 - Freelook
+- Rumble pak support
 - Autoaim option
 - Fly mode cheat
 - Widescreen support

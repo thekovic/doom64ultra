@@ -1285,6 +1285,11 @@ int I_SavePakFile(int filenumb, int flag, byte *data, int size); // 80007308
 int I_ReadPakFile(void); // 800073B8
 int I_CreatePakFile(void); // 800074D4
 
+void I_RumbleQuake(int pad, int time);
+void I_RumbleDamage(int pad, int damage);
+void I_StopRumble(void);
+void I_CheckControllerStatus(void);
+
 void I_WIPE_MeltScreen(void); // 80006964
 void I_WIPE_FadeOutScreen(void); // 80006D34
 

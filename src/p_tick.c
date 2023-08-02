@@ -183,6 +183,7 @@ void P_CheckCheats (void) // 8002187C
     {
         gamepaused = false;
         S_ResumeSound();
+        I_CheckControllerStatus();
         ticon = lastticon;
         ticsinframe = lastticon >> 2;
     }
@@ -310,6 +311,8 @@ void P_Start (void) // 80021C50
 {
     fadebright_t *fb;
 
+    I_CheckControllerStatus();
+
     DrawerStatus = 1;
 
         if (gamemap == 33) {  /* Add by default God Mode in player  */
@@ -374,5 +377,6 @@ void P_Stop (int exit) // 80021D58
         I_WIPE_MeltScreen();
 
     S_StopAll();
+    I_StopRumble();
 }
 
