@@ -1329,6 +1329,10 @@ void I_WIPE_FadeOutScreen(void); // 80006D34
 #endif /* NDEBUG */
 
 extern u32 LastFrameCycles;
+extern u32 LastCpuCycles;
+extern u32 LastGfxRspCycles;
+extern u32 LastAudioRspCycles;
+extern u32 LastRdpCycles;
 DEBUG_COUNTER(extern u32 LastWorldCycles);
 DEBUG_COUNTER(extern u32 LastAudioCycles);
 DEBUG_COUNTER(extern u32 LastBspCycles);

@@ -247,57 +247,95 @@ void ST_DrawDebug (void)
     switch (ShowDebugCounters)
     {
     case 1:
-        sprintf(buf, "FPS %d", fround(46875000.0 / (f64) LastFrameCycles));
+        sprintf(buf, "FPS %d", LastFrameCycles ? fround(46875000.0 / (f64) LastFrameCycles) : 0);
         ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
         break;
-#ifndef NDEBUG
     case 2:
-        sprintf(buf, "WRL %d", (u32)OS_CYCLES_TO_USEC(LastWorldCycles));
+        // total time taken to complete tick/drawing
+        sprintf(buf, "CPU %d", (u32)OS_CYCLES_TO_USEC(LastCpuCycles));
         ST_Message(16, SCREEN_HT-88, buf, 0x00ff00a0);
-        sprintf(buf, "AUD %d", (u32)OS_CYCLES_TO_USEC(LastAudioCycles));
+        // time for GFX RSP
+        sprintf(buf, "RSP %d", (u32)OS_CYCLES_TO_USEC(LastGfxRspCycles));
         ST_Message(16, SCREEN_HT-80, buf, 0x00ff00a0);
-        sprintf(buf, "BSP %d", (u32)OS_CYCLES_TO_USEC(LastBspCycles));
+        // time for RSP + RDP
+        sprintf(buf, "RDP %d", (u32)OS_CYCLES_TO_USEC(LastRdpCycles));
         ST_Message(16, SCREEN_HT-72, buf, 0x00ff00a0);
-        sprintf(buf, "RND %d", (u32)OS_CYCLES_TO_USEC(LastPhase3Cycles));
+        // time for Audio RSP
+        sprintf(buf, "ASP %d", (u32)OS_CYCLES_TO_USEC(LastAudioRspCycles));
         ST_Message(16, SCREEN_HT-64, buf, 0x00ff00a0);
+        // total time taken to complete tick/drawing/RCP
         sprintf(buf, "FRM %d", (u32)OS_CYCLES_TO_USEC(LastFrameCycles));
         ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
         break;
+#ifndef NDEBUG
     case 3:
-        sprintf(buf, "GFX %d", ((int)((int)GFX1 - (int)GFX2) / sizeof(Gfx)) + GfxIndex);
+        // time to tick all mobjs and thinkers
+        sprintf(buf, "WRL %d", (u32)OS_CYCLES_TO_USEC(LastWorldCycles));
+        ST_Message(16, SCREEN_HT-96, buf, 0x00ff00a0);
+        // time to run audio on CPU
+        sprintf(buf, "AUD %d", (u32)OS_CYCLES_TO_USEC(LastAudioCycles));
+        ST_Message(16, SCREEN_HT-88, buf, 0x00ff00a0);
+        // time to traverse BSP
+        sprintf(buf, "BSP %d", (u32)OS_CYCLES_TO_USEC(LastBspCycles));
+        ST_Message(16, SCREEN_HT-80, buf, 0x00ff00a0);
+        // time to build RSP command lists
+        sprintf(buf, "RND %d", (u32)OS_CYCLES_TO_USEC(LastPhase3Cycles));
         ST_Message(16, SCREEN_HT-72, buf, 0x00ff00a0);
-        sprintf(buf, "VTX %d", ((int)((int)VTX1 - (int)VTX2) / sizeof(Vtx)) + VtxIndex);
+        // total time taken to complete tick/drawing
+        sprintf(buf, "CPU %d", (u32)OS_CYCLES_TO_USEC(LastCpuCycles));
         ST_Message(16, SCREEN_HT-64, buf, 0x00ff00a0);
-        sprintf(buf, "TRI %d", LastVisTriangles);
+        // total time taken to complete tick/drawing/RCP
+        sprintf(buf, "FRM %d", (u32)OS_CYCLES_TO_USEC(LastFrameCycles));
         ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
         break;
     case 4:
-        sprintf(buf, "SUBS %d", LastVisSubsectors);
-        ST_Message(16, SCREEN_HT-80, buf, 0x00ff00a0);
-        sprintf(buf, "LEAF %d", LastVisLeaves);
+        // number of rendered RSP commands
+        sprintf(buf, "GFX %d", ((int)((int)GFX1 - (int)GFX2) / sizeof(Gfx)) + GfxIndex);
         ST_Message(16, SCREEN_HT-72, buf, 0x00ff00a0);
-        sprintf(buf, "SEGS %d", LastVisSegs);
+        // number of rendered vertexes
+        sprintf(buf, "VTX %d", ((int)((int)VTX1 - (int)VTX2) / sizeof(Vtx)) + VtxIndex);
         ST_Message(16, SCREEN_HT-64, buf, 0x00ff00a0);
-        sprintf(buf, "THNG %d", LastVisThings);
+        // number of rendered triangles
+        sprintf(buf, "TRI %d", LastVisTriangles);
         ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
         break;
     case 5:
+        // number of rendered subsectors
+        sprintf(buf, "SUBS %d", LastVisSubsectors);
+        ST_Message(16, SCREEN_HT-80, buf, 0x00ff00a0);
+        // number of rendered leafs
+        sprintf(buf, "LEAF %d", LastVisLeaves);
+        ST_Message(16, SCREEN_HT-72, buf, 0x00ff00a0);
+        // number of rendered segs
+        sprintf(buf, "SEGS %d", LastVisSegs);
+        ST_Message(16, SCREEN_HT-64, buf, 0x00ff00a0);
+        // number of rendered things
+        sprintf(buf, "THNG %d", LastVisThings);
+        ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
+        break;
+    case 6:
+        // macro id [ index in macro ]
         sprintf(buf, "MACRO ");
         if (activemacroidx >= 0 && activemacro)
             sprintf(&buf[6], "%d[%d]", activemacroidx, activemacro - macros[activemacroidx]);
         else
             sprintf(&buf[6], "-");
         ST_Message(16, SCREEN_HT-72, buf, 0x00ff00a0);
+        // current number of thinkers
         sprintf(buf, "THINK %d", activethinkers);
         ST_Message(16, SCREEN_HT-64, buf, 0x00ff00a0);
+        // current number of mobjs
         sprintf(buf, "MOBJS %d", activemobjs);
         ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
         break;
-    case 6:
+    case 7:
+        // memory used by PU_LEVEL and PU_LEVSPEC
         sprintf(buf, "LEV %d", LevelMem);
         ST_Message(16, SCREEN_HT-72, buf, 0x00ff00a0);
+        // non-cached memory usage
         sprintf(buf, "USE %7d : %d", UsedMem, mainzone->size - UsedMem);
         ST_Message(16, SCREEN_HT-64, buf, 0x00ff00a0);
+        // all memory usage incl. PU_CACHE
         sprintf(buf, "OCC %7d : %d", OccupiedMem, mainzone->size - OccupiedMem);
         ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
         break;
