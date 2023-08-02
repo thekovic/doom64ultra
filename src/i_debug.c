@@ -133,7 +133,7 @@ void I_Error(const char *error, ...) // 80005F30
 
 #define LoggingEnabled() (D_print != I_PrintNoop)
 
-void I_InitDebugging()
+COLD void I_InitDebugging()
 {
 #ifdef USB
     if (FlashCart)
@@ -1770,7 +1770,7 @@ pkt_error:
     }
 }
 
-static void I_DebuggerThread(void *arg)
+static void __attribute__((noreturn)) I_DebuggerThread(void *arg)
 {
     SET_GP();
 

@@ -54,7 +54,9 @@ OSThread	idle_thread;                        // 800A4A18
 OSThread	main_thread;                        // 800A4BC8
 u64	main_stack[SYS_MAIN_STACKSIZE/sizeof(u64)]; // 80099A00
 
+#define	JOY_STACKSIZE	0x150
 OSThread	joy_thread;
+u64	joy_stack[JOY_STACKSIZE/sizeof(u64)];
 
 #define SYS_TICKER_STACKSIZE 0x800
 OSThread	sys_ticker_thread;                          // 800A4D78
@@ -256,7 +258,11 @@ DEBUG_COUNTER(SDATA u32 LastVisThings = 0);
 void S_Init(void);
 void P_RefreshVideo(void);
 void I_InitSram(void);
-void I_ControllerThread(void *);
+
+void I_Start(void) COLD;  // 80005620
+__attribute__((noreturn)) void I_IdleGameThread(void *arg) COLD; // 8000567C
+__attribute__((noreturn)) void I_SystemTicker(void *arg) HOT; // 80005730
+__attribute__((noreturn)) void I_ControllerThread(void *) HOT;
 
 OSTask * wess_work(void);
 
@@ -269,6 +275,13 @@ void I_Start(void)  // 80005620
     osCreateThread(&idle_thread, SYS_THREAD_ID_IDLE, I_IdleGameThread, (void *)0,
                    bootStack + BOOT_STACKSIZE/sizeof(u64), 100);
     osStartThread(&idle_thread);
+}
+
+static HOT __attribute__((noreturn, noinline)) void I_IdleLoop(void)
+{
+    do {
+        osYieldThread();
+    } while(TRUE);
 }
 
 void I_IdleGameThread(void *arg) // 8000567C
@@ -290,10 +303,7 @@ void I_IdleGameThread(void *arg) // 8000567C
 
     osSetThreadPri(&idle_thread, OS_PRIORITY_IDLE);
 
-    /* Idle loop... */
-    do {
-        osYieldThread();
-    } while(TRUE);
+    I_IdleLoop();
 }
 
 #define STF_GFX_PENDING 1
@@ -615,7 +625,7 @@ void I_Init(void) // 80005C50
     osCreateMesgQueue(&joy_done_msgque, &joy_done_msg, 1);
 
     osCreateThread(&joy_thread, SYS_THREAD_ID_JOY, I_ControllerThread, (void *)0,
-                   bootStack + BOOT_STACKSIZE/sizeof(u64), 11);
+                   joy_stack + JOY_STACKSIZE/sizeof(u64), 11);
     osStartThread(&joy_thread);
 
     S_Init();
@@ -1090,8 +1100,8 @@ void I_RumbleDamage(int pad, int damage)
 
 void I_StopRumble(void)
 {
-    D_memset(MotorDamageTimers, sizeof MotorDamageTimers, 0);
-    D_memset(MotorQuakeTimers, sizeof MotorQuakeTimers, 0);
+    D_memset(MotorDamageTimers, 0, sizeof MotorDamageTimers);
+    D_memset(MotorQuakeTimers, 0, sizeof MotorQuakeTimers);
 }
 
 void I_CheckControllerStatus(void)
@@ -1100,8 +1110,159 @@ void I_CheckControllerStatus(void)
     osRecvMesg(&joy_done_msgque, NULL, OS_MESG_BLOCK);
 }
 
+static COLD __attribute__((noinline))
+void I_HandlePfsMessage(pfsmsg_t *msg)
+{
+    /* fallthrough to handle pfs message */
+    if (!(gamepad_bit_pattern & 1))
+    {
+        Pak_Memory = 0;
+        osSendMesg(&joy_done_msgque, (OSMesg) PFS_ERR_CONTRFAIL, OS_MESG_NOBLOCK);
+        return;
+    }
+
+    switch (((pfsmsg_t *)msg)->type)
+    {
+    case PFS_MSG_CHECK:
+        {
+            register int ret, file;
+            register OSPfsState *fState;
+            s32 MaxFiles [2];
+            u8 validpaks;
+
+            ret = PFS_ERR_NOPACK;
+
+            osPfsIsPlug(&sys_msgque_joy, &validpaks);
+
+            /* does the current controller have a memory pak? */
+            if (validpaks & 1)
+            {
+                ret = osPfsInit(&sys_msgque_joy, &ControllerPak, NULL);
+
+                if ((ret != PFS_ERR_NOPACK) &&
+                    (ret != PFS_ERR_ID_FATAL) &&
+                    (ret != PFS_ERR_DEVICE) &&
+                    (ret != PFS_ERR_CONTRFAIL))
+                {
+                    ret = osPfsNumFiles(&ControllerPak, MaxFiles, &FilesUsed);
+
+                    if (ret == PFS_ERR_INCONSISTENT)
+                        ret = osPfsChecker(&ControllerPak);
+
+                    if (ret == 0)
+                    {
+                        Pak_Memory = 123;
+                        fState = FileState;
+                        file = 0;
+                        do
+                        {
+                            ret = osPfsFileState(&ControllerPak, file, fState);
+                            file += 1;
+
+                            if (ret != 0)
+                              fState->file_size = 0;
+
+                            Pak_Memory -= (fState->file_size >> 8);
+                            fState += 1;
+                        } while (file != 16);
+                        ret = 0;
+                    }
+                }
+            }
+            osSendMesg(&joy_done_msgque, (OSMesg) ret, OS_MESG_NOBLOCK);
+        }
+
+        break;
+    case PFS_MSG_DELETE:
+        {
+            register int filenumb = ((pfsmsg_t *)msg)->delete.file;
+            register int ret;
+            register OSPfsState *fState;
+
+            fState = &FileState[filenumb];
+
+            if (fState->file_size == 0) {
+                ret = 0;
+            }
+            else
+            {
+                ret = osPfsDeleteFile(&ControllerPak,
+                    FileState[filenumb].company_code,
+                    FileState[filenumb].game_code,
+                    (u8*)FileState[filenumb].game_name,
+                    (u8*)FileState[filenumb].ext_name);
+
+                if (ret == PFS_ERR_INCONSISTENT)
+                    ret = osPfsChecker(&ControllerPak);
+
+                if (ret == 0)
+                {
+                    Pak_Memory += (fState->file_size >> 8);
+                    fState->file_size = 0;
+                }
+            }
+
+            osSendMesg(&joy_done_msgque, (OSMesg) ret, OS_MESG_NOBLOCK);
+        }
+
+        break;
+    case PFS_MSG_SAVE:
+        {
+            register int ret;
+
+            ret = osPfsReadWriteFile(&ControllerPak,
+                                     ((pfsmsg_t *)msg)->save.file,
+                                     ((pfsmsg_t *)msg)->save.flag,
+                                     0,
+                                     ((pfsmsg_t *)msg)->save.size,
+                                     ((pfsmsg_t *)msg)->save.data);
+
+            if (ret == PFS_ERR_INCONSISTENT)
+                ret = osPfsChecker(&ControllerPak);
+
+            osSendMesg(&joy_done_msgque, (OSMesg) ret, OS_MESG_NOBLOCK);
+        }
+        break;
+    case PFS_MSG_READ:
+        {
+            register int ret;
+
+            ret = osPfsFindFile(&ControllerPak, COMPANY_CODE, GAME_CODE, (u8*)Game_Name, NULL, &File_Num);
+
+            if (ret == 0)
+            {
+                Pak_Size = FileState[File_Num].file_size;
+                Pak_Data = (byte *)Z_Malloc(Pak_Size, PU_STATIC, NULL);
+                ret = osPfsReadWriteFile(&ControllerPak, File_Num, PFS_READ, 0, Pak_Size, Pak_Data);
+            }
+
+            osSendMesg(&joy_done_msgque, (OSMesg) ret, OS_MESG_NOBLOCK);
+        }
+        break;
+    case PFS_MSG_CREATE:
+        {
+            register int ret;
+            u8 ExtName [8];
+
+            *(int*)ExtName = 0;
+
+            ret = osPfsAllocateFile(&ControllerPak, COMPANY_CODE, GAME_CODE, (u8*)Game_Name, ExtName, Pak_Size, &File_Num);
+
+            if (ret == PFS_ERR_INCONSISTENT)
+                ret = osPfsChecker(&ControllerPak);
+
+            if (ret == 0)
+                ret = osPfsReadWriteFile(&ControllerPak, File_Num, PFS_WRITE, 0, Pak_Size, Pak_Data);
+
+            osSendMesg(&joy_done_msgque, (OSMesg) ret, OS_MESG_NOBLOCK);
+        }
+        break;
+    }
+}
 void I_ControllerThread(void *arg)
 {
+    SET_GP();
+
     while (1)
     {
         OSMesg msg;
@@ -1160,150 +1321,6 @@ void I_ControllerThread(void *arg)
             continue;
         }
 
-        /* fallthrough to handle pfs message */
-        if (!(gamepad_bit_pattern & 1))
-        {
-            Pak_Memory = 0;
-            osSendMesg(&joy_done_msgque, (OSMesg) PFS_ERR_CONTRFAIL, OS_MESG_NOBLOCK);
-            continue;
-        }
-
-        switch (((pfsmsg_t *)msg)->type)
-        {
-        case PFS_MSG_CHECK:
-            {
-                register int ret, file;
-                register OSPfsState *fState;
-                s32 MaxFiles [2];
-                u8 validpaks;
-
-                ret = PFS_ERR_NOPACK;
-
-                osPfsIsPlug(&sys_msgque_joy, &validpaks);
-
-                /* does the current controller have a memory pak? */
-                if (validpaks & 1)
-                {
-                    ret = osPfsInit(&sys_msgque_joy, &ControllerPak, NULL);
-
-                    if ((ret != PFS_ERR_NOPACK) &&
-                        (ret != PFS_ERR_ID_FATAL) &&
-                        (ret != PFS_ERR_DEVICE) &&
-                        (ret != PFS_ERR_CONTRFAIL))
-                    {
-                        ret = osPfsNumFiles(&ControllerPak, MaxFiles, &FilesUsed);
-
-                        if (ret == PFS_ERR_INCONSISTENT)
-                            ret = osPfsChecker(&ControllerPak);
-
-                        if (ret == 0)
-                        {
-                            Pak_Memory = 123;
-                            fState = FileState;
-                            file = 0;
-                            do
-                            {
-                                ret = osPfsFileState(&ControllerPak, file, fState);
-                                file += 1;
-
-                                if (ret != 0)
-                                  fState->file_size = 0;
-
-                                Pak_Memory -= (fState->file_size >> 8);
-                                fState += 1;
-                            } while (file != 16);
-                            ret = 0;
-                        }
-                    }
-                }
-                osSendMesg(&joy_done_msgque, (OSMesg) ret, OS_MESG_NOBLOCK);
-            }
-
-            break;
-        case PFS_MSG_DELETE:
-            {
-                register int filenumb = ((pfsmsg_t *)msg)->delete.file;
-                register int ret;
-                register OSPfsState *fState;
-
-                fState = &FileState[filenumb];
-
-                if (fState->file_size == 0) {
-                    ret = 0;
-                }
-                else
-                {
-                    ret = osPfsDeleteFile(&ControllerPak,
-                        FileState[filenumb].company_code,
-                        FileState[filenumb].game_code,
-                        (u8*)FileState[filenumb].game_name,
-                        (u8*)FileState[filenumb].ext_name);
-
-                    if (ret == PFS_ERR_INCONSISTENT)
-                        ret = osPfsChecker(&ControllerPak);
-
-                    if (ret == 0)
-                    {
-                        Pak_Memory += (fState->file_size >> 8);
-                        fState->file_size = 0;
-                    }
-                }
-
-                osSendMesg(&joy_done_msgque, (OSMesg) ret, OS_MESG_NOBLOCK);
-            }
-
-            break;
-        case PFS_MSG_SAVE:
-            {
-                register int ret;
-
-                ret = osPfsReadWriteFile(&ControllerPak,
-                                         ((pfsmsg_t *)msg)->save.file,
-                                         ((pfsmsg_t *)msg)->save.flag,
-                                         0,
-                                         ((pfsmsg_t *)msg)->save.size,
-                                         ((pfsmsg_t *)msg)->save.data);
-
-                if (ret == PFS_ERR_INCONSISTENT)
-                    ret = osPfsChecker(&ControllerPak);
-
-                osSendMesg(&joy_done_msgque, (OSMesg) ret, OS_MESG_NOBLOCK);
-            }
-            break;
-        case PFS_MSG_READ:
-            {
-                register int ret;
-
-                ret = osPfsFindFile(&ControllerPak, COMPANY_CODE, GAME_CODE, (u8*)Game_Name, NULL, &File_Num);
-
-                if (ret == 0)
-                {
-                    Pak_Size = FileState[File_Num].file_size;
-                    Pak_Data = (byte *)Z_Malloc(Pak_Size, PU_STATIC, NULL);
-                    ret = osPfsReadWriteFile(&ControllerPak, File_Num, PFS_READ, 0, Pak_Size, Pak_Data);
-                }
-
-                osSendMesg(&joy_done_msgque, (OSMesg) ret, OS_MESG_NOBLOCK);
-            }
-            break;
-        case PFS_MSG_CREATE:
-            {
-                register int ret;
-                u8 ExtName [8];
-
-                *(int*)ExtName = 0;
-
-                ret = osPfsAllocateFile(&ControllerPak, COMPANY_CODE, GAME_CODE, (u8*)Game_Name, ExtName, Pak_Size, &File_Num);
-
-                if (ret == PFS_ERR_INCONSISTENT)
-                    ret = osPfsChecker(&ControllerPak);
-
-                if (ret == 0)
-                    ret = osPfsReadWriteFile(&ControllerPak, File_Num, PFS_WRITE, 0, Pak_Size, Pak_Data);
-
-                osSendMesg(&joy_done_msgque, (OSMesg) ret, OS_MESG_NOBLOCK);
-            }
-            break;
-        }
+        I_HandlePfsMessage(msg);
     }
 }

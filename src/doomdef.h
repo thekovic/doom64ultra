@@ -1228,9 +1228,6 @@ extern u32 VtxIndex; // 800A525C
 extern Mtx *MTX1;	// 800A4A10
 extern Mtx *MTX2;	// 800A4A14
 
-void I_Start(void) COLD;  // 80005620
-void I_IdleGameThread(void *arg) HOT; // 8000567C
-void I_SystemTicker(void *arg) HOT; // 80005730
 void I_Init(void) COLD; // 80005C50
 
 #define MAXSRAMSAVES 16
