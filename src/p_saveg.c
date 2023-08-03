@@ -697,6 +697,10 @@ u32 P_UnArchiveMobjs (const u8 *savep, u32 savepsize, u32 *counter)
             mobj->player = &players[get->player - 1];
             mobj->player->mo = mobj;
         }
+        else
+        {
+            mobj->player = NULL;
+        }
         if (mobj->flags & MF_RENDERLASER)
         {
             const savedlaserdata_t *lget = (void*)(savep + sizeof *get);

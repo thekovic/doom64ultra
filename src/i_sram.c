@@ -512,7 +512,7 @@ void I_QuickSaveInternal(quicksaveheader_t *header, u32 limit, void (*write)(u32
     mobj_t    *mobj;
     thinker_t *th;
 
-    bzero(&header, sizeof *header);
+    bzero(header, sizeof *header);
 
     header->magic = QUICKSAVE_MAGIC;
     header->sectors = numsectors;
