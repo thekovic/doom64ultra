@@ -55,7 +55,7 @@ OSThread	idle_thread;                        // 800A4A18
 OSThread	main_thread;                        // 800A4BC8
 u64	main_stack[SYS_MAIN_STACKSIZE/sizeof(u64)]; // 80099A00
 
-#define	JOY_STACKSIZE	0x150
+#define	JOY_STACKSIZE	0x300
 OSThread	joy_thread;
 u64	joy_stack[JOY_STACKSIZE/sizeof(u64)];
 
@@ -1296,7 +1296,7 @@ void I_HandlePfsMessage(pfsmsg_t *msg)
             /* does the current controller have a memory pak? */
             if (validpaks & 1)
             {
-                ret = osPfsInit(&sys_msgque_joy, &ControllerPak, NULL);
+                ret = osPfsInitPak(&sys_msgque_joy, &ControllerPak, NULL);
 
                 if ((ret != PFS_ERR_NOPACK) &&
                     (ret != PFS_ERR_ID_FATAL) &&
