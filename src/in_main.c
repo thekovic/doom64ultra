@@ -298,13 +298,7 @@ void IN_Drawer(void) // 80005164
 
 	I_ClearFrame();
 
-	gDPPipeSync(GFX1++);
-	gDPSetCycleType(GFX1++, G_CYC_FILL);
-	gDPSetRenderMode(GFX1++, G_RM_NOOP, G_RM_NOOP2);
-	gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, CFB_SPADDR);
-	// Fill borders with black
-    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,1) << 16 | GPACK_RGBA5551(0,0,0,1));
-    gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+    I_ClearFB(0x000000ff);
 
 	M_DrawBackground(63, 25, 128, "EVIL");
 

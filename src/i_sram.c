@@ -249,6 +249,8 @@ typedef struct __attribute__((__packed__)) __attribute__((aligned (8))) {
     u32 skyfilter: 1;
     u32 tvmode: 2;
     u32 screenaspect: 2;
+    u32 videoresolution: 2;
+    u32 bitdepth: 1;
     u32 ditherfilter: 1;
     u32 colordither: 2;
     u32 flashbrightness: 6;
@@ -296,6 +298,8 @@ void I_SaveConfig(void)
     config.skyfilter = VideoFilters[2];
     config.tvmode = TvMode;
     config.screenaspect = ScreenAspect;
+    config.videoresolution = VideoResolution;
+    config.bitdepth = BitDepth;
     config.ditherfilter = DitherFilter;
     config.colordither = ColorDither;
     config.flashbrightness = FlashBrightness;
@@ -317,7 +321,6 @@ void I_SaveConfig(void)
 }
 
 extern void P_RefreshBrightness(void);
-extern void P_RefreshVideo(void);
 
 static boolean I_LoadConfig(void)
 {
@@ -338,6 +341,8 @@ static boolean I_LoadConfig(void)
     VideoFilters[2] = config.skyfilter;
     TvMode = config.tvmode;
     ScreenAspect = config.screenaspect % 3;
+    VideoResolution = config.videoresolution % 3;
+    BitDepth = config.bitdepth;
     DitherFilter = config.ditherfilter;
     ColorDither = config.colordither;
     FlashBrightness = config.flashbrightness % 33;
@@ -354,7 +359,7 @@ static boolean I_LoadConfig(void)
     P_UnArchivePlayerConfig(0, &config.player);
 
     P_RefreshBrightness();
-    P_RefreshVideo();
+    I_RefreshVideo();
     I_MoveDisplay(Display_X, Display_Y);
     S_SetSoundVolume(SfxVolume);
     S_SetMusicVolume(MusVolume);

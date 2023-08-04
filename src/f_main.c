@@ -436,14 +436,7 @@ void F_DrawerIntermission(void) // 80002F14
 {
     int i, ypos;
     I_ClearFrame();
-
-    gDPPipeSync(GFX1++);
-    gDPSetCycleType(GFX1++, G_CYC_FILL);
-    gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, CFB_SPADDR);
-    // Fill borders with black
-    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,1) << 16 | GPACK_RGBA5551(0,0,0,1)) ;
-    gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+    I_ClearFB(0x000000ff);
 
     M_DrawBackground(63, 25, 128, "EVIL");
 
@@ -467,7 +460,7 @@ void F_DrawerIntermission(void) // 80002F14
 
     if (MenuCall)
     {
-        M_DrawOverlay(0, 0, 320, 240, 96);
+        M_DrawOverlay(0, 0, XResolution, YResolution, 96);
         MenuCall();
     }
 
@@ -828,14 +821,7 @@ void F_Drawer(void) // 800039DC
 	int i, type, alpha, ypos;
 
 	I_ClearFrame();
-
-    gDPPipeSync(GFX1++);
-    gDPSetCycleType(GFX1++, G_CYC_FILL);
-    gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, CFB_SPADDR);
-    // Fill borders with black
-    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,0) << 16 | GPACK_RGBA5551(0,0,0,0)) ;
-    gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+    I_ClearFB(0x000000ff);
 
     switch(finalestage)
     {
@@ -882,7 +868,7 @@ void F_Drawer(void) // 800039DC
 
 	if (MenuCall)
     {
-        M_DrawOverlay(0, 0, 320, 240, 96);
+        M_DrawOverlay(0, 0, XResolution, YResolution, 96);
         MenuCall();
     }
 
@@ -1006,20 +992,20 @@ void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int x
 
     if (!flip)
     {
-        x1 = (xpos - xoffs) << 2;
-        xh = (x1 + (width << 2));
+        x1 = (xpos - xoffs) << hudxshift;
+        xh = (x1 + (width << hudxshift));
         spos = 0;
         dsdx = 1;
     }
     else
     {
-        xh = (xpos + xoffs) << 2;
-        x1 = (xh - (width << 2));
+        xh = (xpos + xoffs) << hudxshift;
+        x1 = (xh - (width << hudxshift));
         spos = (width - 1);
         dsdx = 63;
     }
 
-    y1 = (ypos - yoffs) << 2;
+    y1 = (ypos - yoffs) << hudyshift;
 
     if (tiles > 0)
     {
@@ -1061,14 +1047,14 @@ void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int x
                 gDPSetTileSize(GFX1++, G_TX_RENDERTILE, 0, 0, ((width2 - 1) << 2), (tpos - 1) << 2);
             }
 
-            yh = (y1 + (tpos << 2));
+            yh = (y1 + (tpos << hudyshift));
 
             gSPTextureRectangle(GFX1++,
                                 x1, y1,
                                 xh, yh,
                                 G_TX_RENDERTILE,
                                 (spos << 5), (0 << 5),
-                                (dsdx << 10), (1 << 10));
+                                (dsdx << 12 >> hudxshift), (1 << 12 >> hudyshift));
 
             height -= tpos;
 

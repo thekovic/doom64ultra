@@ -190,7 +190,7 @@ static int R_ProjectSkyHorizon(void)
 
     w = -viewpitchcos * 3808;                            // rotate z
     y = FixedMul(viewvcot, -viewpitchsin * 3808);        // scale by vfov
-    y = ((FixedDiv(y, w) * (SCREEN_HT/2)) >> FRACBITS);  // convert to screen space
+    y = ((FixedDiv(y, w) * (YResolution/2)) >> FRACBITS);  // convert to screen space
 
     return y;
 }
@@ -205,7 +205,7 @@ void R_RenderSpaceSky(void) // 80025440
     gDPSetRenderMode(GFX1++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
     gDPSetPrimColor(GFX1++, 0, (lights[255].rgba >> 8), 0, 0, 0, 255);
 
-    R_RenderSkyPic(SkyPicSpace, pitchoffset - SCREEN_HT/2, true);
+    R_RenderSkyPic(SkyPicSpace, pitchoffset - YResolution/2, true);
 
     if (SkyFlags & SKF_MOUNTAIN)
     {
@@ -214,31 +214,34 @@ void R_RenderSpaceSky(void) // 80025440
         gDPSetCombineMode(GFX1++, G_CC_D64COMB10, G_CC_D64COMB10);
         gDPSetRenderMode(GFX1++, G_RM_TEX_EDGE, G_RM_TEX_EDGE2);
 
-        R_RenderSkyPic(SkyPicMount, pitchoffset + SCREEN_HT/2 + 50, false);
+        R_RenderSkyPic(SkyPicMount, pitchoffset + YResolution/2 + 50, false);
     }
 }
-
-#define RGBATO551(c) (((((u32)(c))&0xf8000000)>>16) | (((c)&0xf80000)>>13) | (((c)&0xf800)>>10) | (((c)&0xff) > 0))
 
 void R_RenderCloudSky(void) // 800255B8
 {
     int pitchoffset;
+    int cloudoff = 50<<(hudyshift-2);
 
     pitchoffset = R_ProjectSkyHorizon();
-    pitchoffset += SCREEN_HT/2 - 50;
+    pitchoffset += YResolution/2 - cloudoff;
 
     if (SkyFlags & SKF_MOUNTAIN)
-        pitchoffset += 100;     // don't clear where the mountain would be drawn
+        pitchoffset += cloudoff<<1;     // don't clear where the mountain would be drawn
 
-    if (pitchoffset < SCREEN_HT)
+    if (pitchoffset < YResolution)
     {
-        int color = FlashEnvColor;
+        u32 color = FlashEnvColor;
 
         gDPSetCycleType(GFX1++, G_CYC_FILL);
         gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-        color = RGBATO551(color);
-        gDPSetFillColor(GFX1++, (color << 16) | color);
-        gDPFillRectangle(GFX1++, 0, MAX(pitchoffset, 0), SCREEN_WD-1, SCREEN_HT-1);
+        if (BitDepth == BITDEPTH_16)
+        {
+            color = RGBATO551(color);
+            color |= (color << 16);
+        }
+        gDPSetFillColor(GFX1++, color);
+        gDPFillRectangle(GFX1++, 0, MAX(pitchoffset, 0), XResolution-1, YResolution-1);
     }
 
     if (SkyFlags & SKF_CLOUD)
@@ -288,17 +291,21 @@ static u32 R_MultColor(u32 c, u8 fac)
 
 void R_RenderVoidSky(void) // 800256B4
 {
-    int color = SkyVoidColor;
+    u32 color = SkyVoidColor;
 
     color = R_MultColor(color, lights[255].rgba >> 8);
     color = R_AddColors(color, FlashEnvColor & 0xffffff00);
-    color = RGBATO551(color);
     gDPSetCycleType(GFX1++, G_CYC_FILL);
     gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
 
     // Fill borders with SkyVoidColor
-    gDPSetFillColor(GFX1++, (color << 16) | color);
-    gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+    if (BitDepth == BITDEPTH_16)
+    {
+        color = RGBATO551(color);
+        color |= (color << 16);
+    }
+    gDPSetFillColor(GFX1++, color);
+    gDPFillRectangle(GFX1++, 0, 0, XResolution-1, YResolution-1);
 
     gDPPipeSync(GFX1++);
     gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
@@ -315,7 +322,7 @@ void R_RenderEvilSky(void) // 80025738
     gDPSetRenderMode(GFX1++,G_RM_OPA_SURF,G_RM_OPA_SURF2);
 
     pitchoffset = R_ProjectSkyHorizon();
-    R_RenderSkyPic(SkyPicSpace, pitchoffset - SCREEN_HT/2, true);
+    R_RenderSkyPic(SkyPicSpace, pitchoffset - YResolution/2, true);
 
     if (Skyfadeback)
     {
@@ -407,9 +414,9 @@ void R_RenderSkyPic(int lump, int yoffset, boolean repeat) // 80025BDC
 
     data = W_CacheLumpNum(lump, PU_CACHE, dec_jag);
 
-    ang = (((SCREEN_WD/2*-viewinvhcot)>>FRACBITS) - (viewangle >> 22)) & 255;
+    ang = (((XResolution/2*-viewinvhcot)>>FRACBITS) - (viewangle >> 22)) & 255;
     tileh = ((spriteN64_t*)data)->tileheight;
-    dsdx = viewinvhcot >> 6;
+    dsdx = viewinvhcot >> 4 >> hudxshift;
 
     src = data + sizeof(spriteN64_t);
     paldata = (src + ((spriteN64_t*)data)->cmpsize);
@@ -440,7 +447,7 @@ void R_RenderSkyPic(int lump, int yoffset, boolean repeat) // 80025BDC
 
     for(i = 0; i < ((spriteN64_t*)data)->tiles; i++)
     {
-        nextyh = yh + (tileh << 2);
+        nextyh = yh + (tileh << hudyshift);
 
         if (!repeat && yl + spriteh <= 0)
             continue;
@@ -455,7 +462,7 @@ void R_RenderSkyPic(int lump, int yoffset, boolean repeat) // 80025BDC
         gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_8b, 32, 0, G_TX_RENDERTILE, 0, 0, 0, 0, 0, 8, 0);
         gDPSetTileSize(GFX1++, 0, 0, 0, ((256-1) << 2), ((tileh - 1) << 2));
 
-        for (int tyl = yl; tyl < (SCREEN_HT<<2); tyl += spriteh)
+        for (int tyl = yl; tyl < (YResolution<<2); tyl += spriteh)
         {
             int ly = tyl + nextyh;
             if (ly > 0)
@@ -469,11 +476,11 @@ void R_RenderSkyPic(int lump, int yoffset, boolean repeat) // 80025BDC
                     uy = 0;
                 }
 
-                gSPTextureRectangle(GFX1++, (0 << 2), uy,
-                                            (320 << 2), ly,
+                gSPTextureRectangle(GFX1++, 0, uy,
+                                            SCREEN_WD << hudxshift, ly,
                                             G_TX_RENDERTILE,
                                             (ang << 5), t,
-                                            dsdx, (1 << 10));
+                                            dsdx, (1 << 12 >> hudyshift));
             }
             if (!repeat)
                 break;
@@ -493,32 +500,40 @@ void R_RenderFireSky(void) // 80025F68
     int width, height, rand;
     int pixel, randIdx;
     int ang, t, t2;
-    int color;
+    u32 color;
     int pitchoffset, topoffset;
 
     gDPSetCycleType(GFX1++, G_CYC_FILL);
     gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
 
     pitchoffset = R_ProjectSkyHorizon();
-    pitchoffset += SCREEN_HT/2;
+    pitchoffset += YResolution/2;
     topoffset = pitchoffset - 120;
     if (topoffset > 0)
     {
         color = FlashEnvColor;
-        color = RGBATO551(color);
-        gDPSetFillColor(GFX1++, (color << 16) | color);
-        gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, topoffset-1);
+        if (BitDepth == BITDEPTH_16)
+        {
+            color = RGBATO551(color);
+            color |= (color << 16);
+        }
+        gDPSetFillColor(GFX1++, color);
+        gDPFillRectangle(GFX1++, 0, 0, XResolution-1, topoffset-1);
     }
-    if (pitchoffset < SCREEN_HT)
+    if (pitchoffset < YResolution)
     {
         color = *(int*)SkyFireVertex[2].v.cn;
         color = R_MultColor(color, lights[255].rgba >> 8);
         color = R_AddColors(color, FlashEnvColor & 0xffffff00);
-        color = RGBATO551(color);
-        gDPSetFillColor(GFX1++, (color << 16) | color);
-        gDPFillRectangle(GFX1++, 0, MAX(pitchoffset, 0), SCREEN_WD-1, SCREEN_HT-1);
+        if (BitDepth == BITDEPTH_16)
+        {
+            color = RGBATO551(color);
+            color |= (color << 16);
+        }
+        gDPSetFillColor(GFX1++, color);
+        gDPFillRectangle(GFX1++, 0, MAX(pitchoffset, 0), XResolution-1, YResolution-1);
     }
-    pitchoffset -= SCREEN_HT/2;
+    pitchoffset -= YResolution/2;
 
     gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
     gDPSetTexturePersp(GFX1++, G_TP_PERSP);

@@ -679,41 +679,6 @@ void P_SetMovingCamera(line_t *line) // 8000F2F8
     }
 }
 
-void P_RefreshVideo(void) // [Immorpher] video refresh
-{
-    int modeidx = OS_VI_NTSC_LPN1;
-    int special;
-    OSViMode *ViMode;
-
-    if (osTvType == OS_TV_PAL)
-        modeidx += 14;
-    else if (osTvType == OS_TV_MPAL)
-        modeidx += 28;
-
-    if(TvMode & 2) // interlacing
-        modeidx += 1;
-    if(TvMode & 1) // antialiasing
-        modeidx += 2;
-
-    // if (hires) modeidx += 8;
-
-    ViMode = &osViModeTable[modeidx];
-
-    osViSetMode(ViMode);
-
-    special = (TvMode & 1) ? OS_VI_DIVOT_ON : OS_VI_DIVOT_OFF;
-    special |= DitherFilter ? OS_VI_DITHER_FILTER_ON : OS_VI_DITHER_FILTER_OFF;
-    special |= (players[0].cheats & CF_GAMMA)
-        ? OS_VI_GAMMA_ON | OS_VI_GAMMA_DITHER_ON
-        : OS_VI_GAMMA_OFF |  OS_VI_GAMMA_DITHER_OFF;
-
-    osViSetSpecialFeatures(special);
-
-    video_hStart = ViMode->comRegs.hStart;
-    video_vStart1 = ViMode->fldRegs[0].vStart;
-    video_vStart2 = ViMode->fldRegs[1].vStart;
-}
-
 void P_RefreshBrightness(void) // 8000f410
 {
     int factor;

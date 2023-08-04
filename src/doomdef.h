@@ -1000,6 +1000,19 @@ extern boolean StoryText; 			// [Immorpher] Enable story text
 extern boolean MapStats; 			// [Immorpher] Enable automap statistics
 extern int HUDmargin; 				// [Immorpher] HUD margin options
 extern boolean ColoredHUD;     		// [Immorpher] Colored hud
+extern u8 BitDepth;
+extern s8 VideoResolution;
+extern u16 XResolution;
+extern u16 YResolution;
+extern u8 hudxshift;
+extern u8 hudyshift;
+
+#define BITDEPTH_16 0
+#define BITDEPTH_32 1
+
+#define VIDEO_RES_LOW 0
+#define VIDEO_RES_HI_VERT 1
+#define VIDEO_RES_HI_HORIZ 2
 
 int M_RunTitle(void); // 80007630
 void M_PauseMenu(void);
@@ -1273,6 +1286,9 @@ void I_CheckGFX(void) HOT; // 800060E8
 void I_ClearFrame(void) HOT; // 8000637C
 void I_DrawFrame(void) HOT;  // 80006570
 void I_GetScreenGrab(void); // 800066C0
+void I_RefreshVideo(void);
+void I_BlankScreen(u8 vbls);
+void I_ClearFB(register u32 color) HOT;
 
 void I_MoveDisplay(int x,int y); // 80006790
 
@@ -1384,6 +1400,8 @@ DEBUG_COUNTER(extern u32 LastVisThings);
             gDPSetColor(pkt, G_SETFOGCOLOR, rgba)
 
 #define PACKRGBA(r,g,b,a)       (((r)<<24)|((g)<<16)|((b)<<8)|(a))
+
+#define RGBATO551(c) (((((u32)(c))&0xf8000000)>>16) | (((c)&0xf80000)>>13) | (((c)&0xf800)>>10) | (((c)&0xff) > 0))
 
 /*
 U_JPAD  0x08000000

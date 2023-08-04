@@ -1158,7 +1158,7 @@ void R_RenderPSprites(void) // 80028f20
 	int             width2;
 	int             yh;
 	int             x, y;
-	int             dsdx = 1 << 10;
+	int             dsdx;
 
 	I_CheckGFX();
 
@@ -1205,18 +1205,22 @@ draw:
             height = sprite->height;
             src = ((byte*)sprite) + sizeof(spriteN64_t);
 
-            x = (((psp->sx >> 16) - sprite->xoffs) + 160) << 2;
-            y = (((psp->sy >> 16) - sprite->yoffs) + 239) << 2;
+            x = (((psp->sx >> 16) - sprite->xoffs) + 160) << hudxshift;
+            y = (((psp->sy >> 16) - sprite->yoffs) + 239) << hudyshift;
             if (viewplayer->onground)
             {
-                x += (quakeviewx >> 20);
-                y += (quakeviewy >> 14);
+                x += (quakeviewx << hudxshift) >> 22;
+                y += (quakeviewy << hudyshift) >> 16;
             }
             if (ScreenAspect)
             {
-                x += (sprite->xoffs - FixedMul(aspectscale[ScreenAspect], sprite->xoffs)) << 2;
+                x += (sprite->xoffs - FixedMul(aspectscale[ScreenAspect], sprite->xoffs)) << hudxshift;
                 width = FixedMul(aspectscale[ScreenAspect], width);
-                dsdx = invaspectscale[ScreenAspect] >> 6;
+                dsdx = invaspectscale[ScreenAspect] >> 4 >> hudxshift;
+            }
+            else
+            {
+                dsdx = 1 << 12 >> hudxshift;
             }
 
 			if (psp->state->frame & FF_FULLBRIGHT)
@@ -1288,14 +1292,14 @@ draw:
 
                     gDPSetTileSize(GFX1++, G_TX_RENDERTILE, 0, 0, ((width2 - 1) << 2), (tileh - 1) << 2);
 
-                    yh = (tileh << 2) + y;
+                    yh = (tileh << hudyshift) + y;
 
                     gSPTextureRectangle(GFX1++,
                                     x, y,
-                                    (width << 2) + x, yh,
+                                    (width << hudxshift) + x, yh,
                                     0,
                                     0, 0,
-                                    dsdx, (1 << 10));
+                                    dsdx, (1 << 12 >> hudyshift));
 
                     height -= tileh;
                     if (height < tileh) {

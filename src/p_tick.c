@@ -296,7 +296,7 @@ void P_Drawer (void) // 80021AC8
 
     if (MenuCall)
     {
-        M_DrawOverlay(0, 0, 320, 240, 96);
+        M_DrawOverlay(0, 0, XResolution, YResolution, 96);
         MenuCall();
     }
 

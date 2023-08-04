@@ -125,7 +125,7 @@ static const symboldata_t symboldata[] = // 8005B260
     {134, 96,   7, 13}, // Right arrow
 };
 
-static int card_x[6] = {(78 << 2), (89 << 2), (100 << 2), (78 << 2), (89 << 2), (100 << 2)};      // 8005b870
+static int card_x[6] = {78, 89, 100, 78, 89, 100};      // 8005b870
 
 void ST_Init(void) // 80029BA0
 {
@@ -412,20 +412,20 @@ void ST_Drawer (void) // 80029DC0
         /* */
         /* Health */
         /* */
-        gSPTextureRectangle(GFX1++, ((2+HUDmargin) << 2), ((218 - HUDmargin) << 2),
-                                    ((42 + HUDmargin) << 2), ((224 - HUDmargin)  << 2),
+        gSPTextureRectangle(GFX1++, ((2+HUDmargin) << hudxshift), ((SCREEN_HT - 22 - HUDmargin) << hudyshift),
+                                    ((42 + HUDmargin) << hudxshift), ((SCREEN_HT - 16 - HUDmargin)  << hudyshift),
                                     G_TX_RENDERTILE,
                                     (0 << 5), (0 << 5),
-                                    (1 << 10), (1 << 10));
+                                    (1 << 12 >> hudxshift), (1 << 12 >> hudyshift));
 
         /* */
         /* Armor */
         /* */
-        gSPTextureRectangle(GFX1++, ((280-HUDmargin) << 2), ((218 - HUDmargin) << 2),
-                                    ((316-HUDmargin) << 2), ((224 - HUDmargin) << 2),
+        gSPTextureRectangle(GFX1++, ((SCREEN_WD - 40 - HUDmargin) << hudxshift), ((SCREEN_HT - 22 - HUDmargin) << hudyshift),
+                                    ((SCREEN_WD - 4 - HUDmargin) << hudxshift), ((SCREEN_HT - 16 - HUDmargin) << hudyshift),
                                     G_TX_RENDERTILE,
                                     (40 << 5), (0 << 5),
-                                    (1 << 10), (1 << 10));
+                                    (1 << 12 >> hudxshift), (1 << 12 >> hudyshift));
 
         stat = player->health;
         if (!ColoredHUD) {
@@ -442,27 +442,38 @@ void ST_Drawer (void) // 80029DC0
         crosshair = player->config->crosshair;
         if (crosshair > 0)
         {
+            register int cx = XResolution<<1;
+            register int cy = YResolution<<1;
             gDPSetPrimColorD64(GFX1++, 0, 0, color);
             if (crosshair == 1) { // Dot
-                gSPTextureRectangle(GFX1++, 159 << 2, 120 << 2, 160 << 2, 121 << 2,
+                gSPTextureRectangle(GFX1++,
+                        cx-(1<<hudxshift), cy,
+                        cx, cy+(1<<hudyshift),
                         G_TX_RENDERTILE,
                         (39 << 5), (5 << 5),
                         0, 0);
             } else if (crosshair == 2) { // Cross
-                gSPTextureRectangle(GFX1++, 159 << 2, 119 << 2, 160 << 2, 122 << 2,
+                gSPTextureRectangle(GFX1++,
+                        cx-(1<<hudxshift), cy-(1<<hudyshift),
+                        cx, cy+(2<<hudyshift),
                         G_TX_RENDERTILE,
                         (40 << 5), (3 << 5),
                         (1 << 10), (1 << 10)); // vertical
-                gSPTextureRectangle(GFX1++, 158 << 2, 120 << 2, 161 << 2, 121 << 2,
+                gSPTextureRectangle(GFX1++,
+                        cx-(2<<hudxshift), cy,
+                        cx+(1<<hudxshift), cy+(1<<hudyshift),
                         G_TX_RENDERTILE,
                         (23 << 5), (5 << 5),
                         (1 << 10), (1 << 10)); // horizontal
             } else if (crosshair == 3) { // Vertical
-                gSPTextureRectangle(GFX1++, 157 << 2, 120 << 2, 162 << 2, 121 << 2,
+                gSPTextureRectangle(GFX1++,
+                        cx-(3<<hudxshift), cy,
+                        cx+(2<<hudxshift), cy+(1<<hudyshift),
                         G_TX_RENDERTILE,
                         (55 << 5), (4 << 5),
                         (1 << 10), (1 << 10)); // horizontal
-                gSPTextureRectangle(GFX1++, 159 << 2, 119 << 2, 160 << 2, 122 << 2,
+                gSPTextureRectangle(GFX1++, cx-(1<<hudxshift),
+                        cy-(1<<hudyshift), cx, cy+(2<<hudyshift),
                         G_TX_RENDERTILE,
                         (40 << 5), (3 << 5),
                         (1 << 10), (1 << 10)); // vertical
@@ -481,21 +492,22 @@ void ST_Drawer (void) // 80029DC0
         {
             if (player->cards[ind] || (flashCards[ind].active && flashCards[ind].doDraw))
             {
+                register int cx = card_x[ind] << hudxshift;
                 /* */
                 /* Draw Keys Graphics */
                 /* */
-                gSPTextureRectangle(GFX1++, card_x[ind], ((230-HUDmargin) << 2),
-                                            card_x[ind]+(9 << 2), ((240-HUDmargin) << 2),
+                gSPTextureRectangle(GFX1++, cx, ((SCREEN_HT-10-HUDmargin) << hudyshift),
+                                            cx+(9 << hudxshift), ((SCREEN_HT-HUDmargin) << hudyshift),
                                             G_TX_RENDERTILE,
                                             ((ind * 9) << 5), (6 << 5),
-                                            (1 << 10), (1 << 10));
+                                            (1 << 12 >> hudxshift), (1 << 12 >> hudyshift));
             }
         }
 
         /* */
         /* Health */
         /* */
-        ST_DrawNumber(22+HUDmargin, 227-HUDmargin, player->health, 0, color);
+        ST_DrawNumber(22+HUDmargin, SCREEN_HT-13-HUDmargin, player->health, 0, color);
 
         /* */
         /* Ammo */
@@ -524,7 +536,7 @@ void ST_Drawer (void) // 80029DC0
             } else {
                 color = PACKRGBA(164,96,0,HUDopacity);
             }
-            ST_DrawNumber(160, 227-HUDmargin, stat, 0, color);
+            ST_DrawNumber(SCREEN_WD/2, SCREEN_HT-13-HUDmargin, stat, 0, color);
         }
 
         /* */
@@ -538,7 +550,7 @@ void ST_Drawer (void) // 80029DC0
         } else {
             color = PACKRGBA(0,64,128,HUDopacity);
         }
-        ST_DrawNumber(298-HUDmargin, 227-HUDmargin, stat, 0, color);
+        ST_DrawNumber(SCREEN_WD-22-HUDmargin, SCREEN_HT-13-HUDmargin, stat, 0, color);
     }
     ST_DrawDebug();
 }
@@ -620,11 +632,11 @@ void ST_Message(int x,int y,const char *text,int color) // 8002A36C
                 s = ((c - '!') & ~32) * ST_FONTWHSIZE;
 
                 gSPTextureRectangle(GFX1++,
-                                    (xpos << 2), (ypos << 2),
-                                    ((xpos + ST_FONTWHSIZE) << 2), ((ypos + ST_FONTWHSIZE) << 2),
+                                    (xpos << hudxshift), (ypos << hudyshift),
+                                    ((xpos + ST_FONTWHSIZE) << hudxshift), ((ypos + ST_FONTWHSIZE) << hudyshift),
                                     G_TX_RENDERTILE,
                                     (s << 5), (t << 5),
-                                    (1 << 10), (1 << 10));
+                                    (1 << 12 >> hudxshift), (1 << 12 >> hudyshift));
             }
             xpos += ST_FONTWHSIZE;
         }
@@ -969,11 +981,11 @@ void ST_DrawSymbol(int xpos, int ypos, int index, int color) // 8002ADEC
                  ((symbol->x + symbol->w) << 2), ((symbol->y + symbol->h) << 2));
 
     gSPTextureRectangle(GFX1++,
-                (xpos << 2), (ypos << 2),
-                ((xpos + symbol->w) << 2), ((ypos + symbol->h) << 2),
+                (xpos << hudxshift), (ypos << hudyshift),
+                ((xpos + symbol->w) << hudxshift), ((ypos + symbol->h) << hudyshift),
                 G_TX_RENDERTILE,
                 (symbol->x << 5), (symbol->y << 5),
-                (1 << 10), (1 << 10));
+                (1 << 12 >> hudxshift), (1 << 12 >> hudyshift));
 }
 
 #include "stdarg.h"

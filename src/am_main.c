@@ -245,16 +245,7 @@ void AM_Drawer (void) // 800009AC
     R_ProjectionMatrix.m[0][2] = (vcot >> 16) & 0xffff;
     R_ProjectionMatrix.m[2][2] = vcot & 0xffff;
 
-    gDPPipeSync(GFX1++);
-    gDPSetCycleType(GFX1++, G_CYC_FILL);
-    gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, CFB_SPADDR);
-
-    /* Fill borders with black */
-    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,1) << 16 | GPACK_RGBA5551(0,0,0,1));
-    gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
-    gDPSetRenderMode(GFX1++, G_RM_OPA_CI, G_RM_AA_OPA_SURF2);
+    I_ClearFB(0x000000ff);
 
     R_RenderFilter(filt_textures);
     gSPTexture(GFX1++, (1024 << 6)-1, (1024 << 6)-1, 0, G_TX_RENDERTILE, G_ON);
@@ -402,7 +393,7 @@ void AM_Drawer (void) // 800009AC
         gSPLine3D(GFX1++, 2, 0, 0 /*flag*/);
 
         gDPPipeSync(GFX1++);
-        gDPSetScissor(GFX1++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WD, SCREEN_HT);
+        gDPSetScissor(GFX1++, G_SC_NON_INTERLACE, 0, 0, XResolution, YResolution);
     }
     else
     {

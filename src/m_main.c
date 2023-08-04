@@ -7,7 +7,7 @@
 #include "i_usb.h"
 
 extern void P_RefreshBrightness(void);
-extern void P_RefreshVideo(void);
+extern void I_RefreshVideo(void);
 
 static void M_DebugMenuDrawer(void);
 static int M_MenuCreditsTicker(void);
@@ -129,6 +129,8 @@ u8 ControlMappings[] = {
     _F(MTXT_VIDEO, "Video") \
     _F(MTXT_BRIGHTNESS, "Brightness") \
     _F(MTXT_FLASH_BRIGHTNESS, "Flash Brightness") \
+    _F(MTXT_RESOLUTION, "Resolution") \
+    _F(MTXT_COLOR_DEPTH, "Color Depth") \
     _F(MTXT_ASPECT_RATIO, "Aspect Ratio") \
     _F(MTXT_TEXTURE_FILTER, "Texture Filter") \
     _F(MTXT_SPRITE_FILTER, "Sprite Filter") \
@@ -211,16 +213,18 @@ const menuitem_t Menu_Video[] =
 {
     { MTXT_BRIGHTNESS,       42, 60},
     { MTXT_FLASH_BRIGHTNESS, 42, 70},
-    { MTXT_ASPECT_RATIO,     42, 80},
-    { MTXT_TEXTURE_FILTER,   42, 90},
-    { MTXT_SPRITE_FILTER,    42, 100},
-    { MTXT_SKY_FILTER,       42, 110},
-    { MTXT_DITHER_FILTER,    42, 120},
-    { MTXT_COLOR_DITHER,     42, 130},
-    { MTXT_ANTIALIASING,     42, 140},
-    { MTXT_INTERLACING,      42, 150},
-    { MTXT_CENTER_DISPLAY,   42, 160},
-    { MTXT_MRETURN,          42, 180},
+    { MTXT_RESOLUTION,       42, 80},
+    { MTXT_COLOR_DEPTH,      42, 90},
+    { MTXT_ASPECT_RATIO,     42, 100},
+    { MTXT_TEXTURE_FILTER,   42, 110},
+    { MTXT_SPRITE_FILTER,    42, 120},
+    { MTXT_SKY_FILTER,       42, 130},
+    { MTXT_DITHER_FILTER,    42, 140},
+    { MTXT_COLOR_DITHER,     42, 150},
+    { MTXT_ANTIALIASING,     42, 160},
+    { MTXT_INTERLACING,      42, 170},
+    { MTXT_CENTER_DISPLAY,   42, 180},
+    { MTXT_MRETURN,          42, 200},
 };
 
 const menuitem_t Menu_StatusHUD[] =
@@ -410,6 +414,8 @@ boolean StoryText = true;        // [Immorpher] Skip story cut scenes?
 boolean MapStats = false;        // [Immorpher] Enable map statistics for automap?
 int HUDmargin = 20;              // [Immorpher] HUD margin options (default 20)
 boolean ColoredHUD = true;       // [Immorpher] Colored hud
+s8 VideoResolution = VIDEO_RES_LOW;
+u8 BitDepth = BITDEPTH_16;
 
 #ifdef NDEBUG
 #define MAXDEBUGCOUNTERS 1
@@ -690,6 +696,18 @@ static boolean M_AdjustLoadMenu(void)
 
 static boolean M_ItemIsDisabled(menuentry_t casepos)
 {
+    if (osMemSize < 0x800000)
+    {
+        if (casepos == MTXT_COLOR_DEPTH || casepos == MTXT_RESOLUTION)
+            return true;
+    }
+    if (casepos == MTXT_ANTIALIASING)
+    {
+        if (VideoResolution == VIDEO_RES_HI_VERT)
+            return true;
+        if (VideoResolution == VIDEO_RES_HI_HORIZ && BitDepth == BITDEPTH_32)
+            return true;
+    }
     return casepos == MTXT_CONTROLLER_PAK_DISABLED
         || casepos == MTXT_GAME_PAK_DISABLED
         || casepos == MTXT_QUICK_LOAD_DISABLED
@@ -760,7 +778,7 @@ int M_AlphaInOutTicker(void) // 80007A14
         MenuAnimationTic = (MenuAnimationTic + 1) & 7;
     }
 
-    text_alpha += text_alpha_change_value;
+    text_alpha += (text_alpha_change_value * vblsinframe[0]) >> 1;
     if (text_alpha_change_value < 0)
     {
         if (text_alpha < 0)
@@ -860,13 +878,7 @@ void M_MenuGameDrawer(void) // 80007C48
     else
     {
         I_ClearFrame();
-
-        gDPPipeSync(GFX1++);
-        gDPSetCycleType(GFX1++, G_CYC_FILL);
-        gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-        gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, CFB_SPADDR);
-        gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,1) << 16 | GPACK_RGBA5551(0,0,0,1));
-        gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+        I_ClearFB(0x000000ff);
 
         if (MenuCall == M_SavePakDrawer || MenuCall == M_SaveGamePakDrawer || MenuItem == Menu_Save
                 || (MenuIdx > 0 && MenuData[0].menu_item == Menu_Save))
@@ -875,7 +887,7 @@ void M_MenuGameDrawer(void) // 80007C48
             M_DrawBackground(56, 57, 80, "TITLE");
 
         if (MenuItem != Menu_Title) {
-            M_DrawOverlay(0, 0, 320, 240, 96);
+            M_DrawOverlay(0, 0, XResolution, YResolution, 96);
         }
 
         ST_DrawDebug();
@@ -897,13 +909,7 @@ int M_QuickLoadFailedTicker(void) // 8002BA88
 void M_QuickLoadFailedDrawer(void) // 8002BBE4
 {
     I_ClearFrame();
-
-    gDPPipeSync(GFX1++);
-    gDPSetCycleType(GFX1++, G_CYC_FILL);
-    gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, CFB_SPADDR);
-    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,1) << 16 | GPACK_RGBA5551(0,0,0,1));
-    gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+    I_ClearFB(0x000000ff);
 
     ST_DrawString(-1,  40, "quick load data", 0xffffffff);
     ST_DrawString(-1,  60, "is corrupted.", 0xffffffff);
@@ -1744,7 +1750,7 @@ int M_MenuTicker(void) // 80007E0C
                     }
                     I_MoveDisplay(0,0);
                     P_RefreshBrightness();
-                    P_RefreshVideo();
+                    I_RefreshVideo();
                     S_SetMusicVolume(MusVolume);
                     S_SetSoundVolume(SfxVolume);
 
@@ -1884,6 +1890,43 @@ int M_MenuTicker(void) // 80007E0C
                     }
                 }
                 break;
+            case MTXT_RESOLUTION:
+                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    VideoResolution += 1;
+                    if (VideoResolution > 2)
+                        VideoResolution = 0;
+                    I_BlankScreen(2);
+                    I_RefreshVideo();
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    VideoResolution -= 1;
+                    if (VideoResolution < 0)
+                        VideoResolution = 2;
+                    I_BlankScreen(2);
+                    I_RefreshVideo();
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_COLOR_DEPTH:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    BitDepth ^= 1;
+                    I_BlankScreen(2);
+                    I_RefreshVideo();
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
 
             case MTXT_ASPECT_RATIO:
                 if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
@@ -1912,7 +1955,7 @@ int M_MenuTicker(void) // 80007E0C
                 {
                     S_StartSound(NULL, sfx_switch2);
                     DitherFilter ^= true;
-                    P_RefreshVideo();
+                    I_RefreshVideo();
                     ConfigChanged = true;
                     return ga_nothing;
                 }
@@ -1924,7 +1967,7 @@ int M_MenuTicker(void) // 80007E0C
                 {
                     S_StartSound(NULL, sfx_switch2);
                     TvMode ^= 1;
-                    P_RefreshVideo();
+                    I_RefreshVideo();
                     ConfigChanged = true;
                     return ga_nothing;
                 }
@@ -1936,7 +1979,7 @@ int M_MenuTicker(void) // 80007E0C
                 {
                     S_StartSound(NULL, sfx_switch2);
                     TvMode ^= 2;
-                    P_RefreshVideo();
+                    I_RefreshVideo();
                     ConfigChanged = true;
                     return ga_nothing;
                 }
@@ -2043,7 +2086,7 @@ int M_MenuTicker(void) // 80007E0C
                     }
                     I_MoveDisplay(0,0);
                     P_RefreshBrightness();
-                    P_RefreshVideo();
+                    I_RefreshVideo();
                     S_SetMusicVolume(MusVolume);
                     S_SetSoundVolume(SfxVolume);
                     ConfigChanged = true;
@@ -2096,7 +2139,7 @@ int M_MenuTicker(void) // 80007E0C
                     }
                     I_MoveDisplay(0,0);
                     P_RefreshBrightness();
-                    P_RefreshVideo();
+                    I_RefreshVideo();
                     S_SetMusicVolume(MusVolume);
                     S_SetSoundVolume(SfxVolume);
                     ConfigChanged = true;
@@ -2148,7 +2191,7 @@ int M_MenuTicker(void) // 80007E0C
                     }
                     I_MoveDisplay(0,0);
                     P_RefreshBrightness();
-                    P_RefreshVideo();
+                    I_RefreshVideo();
                     S_SetMusicVolume(MusVolume);
                     S_SetSoundVolume(SfxVolume);
                     ConfigChanged = true;
@@ -2250,7 +2293,7 @@ int M_MenuTicker(void) // 80007E0C
                     S_StartSound(NULL, sfx_switch2);
                     players[0].cheats ^= CF_GAMMA;
                     globalcheats ^= CF_GAMMA;
-                    P_RefreshVideo();
+                    I_RefreshVideo();
                     return ga_nothing;
                 }
                 break;
@@ -2832,7 +2875,7 @@ void M_VideoDrawer(void) // 80009884
 {
     char *text;
     const menuitem_t *item;
-    int i;
+    int i, alpha;
     menuentry_t casepos;
 
     ST_DrawString(-1, 20, "Video", text_alpha | 0xc0000000);
@@ -2841,7 +2884,11 @@ void M_VideoDrawer(void) // 80009884
 
     for(i = 0; i < itemlines; i++)
     {
+        alpha = text_alpha;
         casepos = item->casepos;
+
+        if (M_ItemIsDisabled(casepos))
+            alpha = (alpha * 96) >> 8;
 
         if (casepos == MTXT_TEXTURE_FILTER || casepos == MTXT_SPRITE_FILTER || casepos == MTXT_SKY_FILTER)
         {
@@ -2850,6 +2897,22 @@ void M_VideoDrawer(void) // 80009884
                 text = "Bilinear";
             else
                 text = "Off";
+        }
+        else if (casepos == MTXT_RESOLUTION)
+        {
+            if (VideoResolution == VIDEO_RES_HI_HORIZ)
+                text = "640 x 240";
+            else if (VideoResolution == VIDEO_RES_HI_VERT)
+                text = "320 x 480";
+            else
+                text = "320 x 240";
+        }
+        else if (casepos == MTXT_COLOR_DEPTH)
+        {
+            if (BitDepth == BITDEPTH_32)
+                text = "32-Bit";
+            else
+                text = "16-Bit";
         }
         else if (casepos == MTXT_ASPECT_RATIO)
         {
@@ -2862,7 +2925,7 @@ void M_VideoDrawer(void) // 80009884
         }
         else if (casepos == MTXT_ANTIALIASING)
         {
-            if (TvMode & 1)
+            if ((TvMode & 1) && VideoResolution != VIDEO_RES_HI_VERT)
                 text = "On";
             else
                 text = "Off";
@@ -2897,19 +2960,24 @@ void M_VideoDrawer(void) // 80009884
 
         if (casepos == MTXT_BRIGHTNESS)
         {
-            ST_DrawSymbol(item->x + 140, item->y, 68, text_alpha | 0xffffff00);
-            ST_DrawSymbol(item->x + 141 + brightness/2, item->y, 69, text_alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 140, item->y, 68, alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 141 + brightness/2, item->y, 69, alpha | 0xffffff00);
         }
         else if (casepos == MTXT_FLASH_BRIGHTNESS)
         {
-            ST_DrawSymbol(item->x + 140, item->y, 68, text_alpha | 0xffffff00);
-            ST_DrawSymbol(item->x + 141 + 100*FlashBrightness/32, item->y, 69, text_alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 140, item->y, 68, alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 141 + 100*FlashBrightness/32, item->y, 69, alpha | 0xffffff00);
         }
 
         if (text)
-            ST_Message(item->x + 140, item->y, text, text_alpha | 0xc0000000);
+            ST_Message(item->x + 140, item->y, text, alpha | 0xc0000000);
 
-        ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+        if (casepos == MTXT_INTERLACING && VideoResolution == VIDEO_RES_HI_VERT)
+            text = "Deflickering";
+        else
+            text = MenuText[casepos];
+
+        ST_Message(item->x, item->y, text, alpha | 0xc0000000);
 
         item++;
     }
@@ -3097,11 +3165,11 @@ void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
                        ((width - 1) << 2), (((t + yh) - 1) << 2));
 
         gSPTextureRectangle(GFX1++,
-            (x << 2), (y << 2),
-            ((width + x) << 2), ((yh + y) << 2),
+            (x << hudxshift), (y << hudyshift),
+            ((width + x) << hudxshift), ((yh + y) << hudyshift),
             G_TX_RENDERTILE,
             (0 << 5), (t << 5),
-            (1 << 10), (1 << 10));
+            (1 << 12 >> hudxshift), (1 << 12 >> hudyshift));
 
         height -= yh;
         t += yh;

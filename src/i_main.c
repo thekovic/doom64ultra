@@ -30,7 +30,7 @@ extern char _codeSegmentEnd[];
 #define	BOOT_STACKSIZE	0x100
 u64	bootStack[BOOT_STACKSIZE/sizeof(u64)];
 
-u16 *cfb;
+u8 *cfb;
 
 extern int globallump; // 800A68f8 r_local.h
 extern int globalcm;   // 800A68fC r_local.h
@@ -119,11 +119,11 @@ OSTask vid_rsptask[2] = // 8005A590
     } }
 };
 
-Vp vid_viewport = // 8005A610
-{ .vp = {
-    {SCREEN_WD*2, SCREEN_HT*2, G_MAXZ,   0},		/* scale */
-    {SCREEN_WD*2, SCREEN_HT*2,      0,   0},		/* translate */
-} };
+Vp vid_viewport = { // 8005A610
+    .vp = {
+        {0, 0, G_MAXZ,   0},		/* scale */
+        {0, 0,      0,   0},		/* translate */
+    } };
 
 OSMesgQueue romcopy_msgque; // 800A4F70
 OSMesg		romcopy_msgbuf; // 800A51D0
@@ -219,6 +219,13 @@ char Game_Name[16] = // 8005A790
 
 boolean disabledrawing = false; // 8005A720
 
+SDATA u16 XResolution;
+SDATA u16 YResolution;
+SDATA u8 hudxshift;
+SDATA u8 hudyshift;
+
+static u8 blanktimer;
+
 s32 vsync = 0;              // 8005A724
 s32 drawsync2 = 0;          // 8005A728
 s32 drawsync1 = 0;          // 8005A72C
@@ -256,7 +263,6 @@ DEBUG_COUNTER(SDATA u32 LastVisSegs = 0);
 DEBUG_COUNTER(SDATA u32 LastVisThings = 0);
 
 void S_Init(void);
-void P_RefreshVideo(void);
 void I_InitSram(void);
 
 void I_Start(void) COLD;  // 80005620
@@ -579,10 +585,15 @@ void I_Init(void) // 80005C50
     osCreateMesgQueue(&audio_task_queue, audio_task_msgbuf, SYS_MSGBUF_SIZE_VID2);//&sys_msgque_tmr, sys_msgbuf_tmr
 
     // Init the video mode...
-    P_RefreshVideo();
+    I_RefreshVideo();
     osViBlack(TRUE);
 
-    cfb = (u16*)CFBS_ADDR;
+    if (osMemSize >= 0x800000)
+        BitDepth = BITDEPTH_32;
+    else
+        BitDepth = BITDEPTH_16;
+
+    cfb = CFBS_ADDR;
     D_memset(cfb, 0, CFBS_SIZE);
 
     osViSwapBuffer(cfb);
@@ -610,7 +621,12 @@ void I_Init(void) // 80005C50
     osContInit(&sys_msgque_joy, &gamepad_bit_pattern, gamepad_status);
 
     I_InitSram();
-    P_RefreshVideo(); // set vid mode again after loading settings
+    if (osMemSize < 0x800000)
+    {
+        VideoResolution = VIDEO_RES_LOW;
+        BitDepth = BITDEPTH_16;
+    }
+    I_RefreshVideo(); // set vid mode again after loading settings
 
     gamepad_data = (OSContPad *)bootStack;
 
@@ -767,12 +783,14 @@ void I_ClearFrame(void) // 8000637C
     vid_task->t.ucode = (u64 *) gspF3DEX2_NoN_fifoTextStart;
     vid_task->t.ucode_data = (u64 *) gspF3DEX2_NoN_fifoDataStart;
 
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, CFB_SPADDR);
-    gDPSetScissor(GFX1++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WD, SCREEN_HT);
+    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, BitDepth + G_IM_SIZ_16b, XResolution, CFB_SPADDR);
+    gDPSetScissor(GFX1++, G_SC_NON_INTERLACE, 0, 0, XResolution, YResolution);
 
     gDPSetTextureFilter(GFX1++, G_TF_POINT);
     gDPSetColorDither(GFX1++, G_CD_DISABLE);
 
+    vid_viewport.vp.vscale[0] = vid_viewport.vp.vtrans[0] = XResolution * 2;
+    vid_viewport.vp.vscale[1] = vid_viewport.vp.vtrans[1] = YResolution * 2;
     gSPViewport(GFX1++, &vid_viewport);
 
     gSPClearGeometryMode(GFX1++, -1);
@@ -804,6 +822,13 @@ void I_DrawFrame(void)  // 80006570
     osRecvMesg(&rdp_done_queue, NULL, OS_MESG_BLOCK);//retraceMessageQ
     vid_side ^= 1;
 
+    if (blanktimer)
+    {
+        blanktimer--;
+        if (!blanktimer)
+            osViBlack(FALSE);
+    }
+
     if (LastFrameStart)
         LastFrameCycles = osGetCount() - LastFrameStart;
     LastFrameStart = osGetCount();
@@ -815,6 +840,114 @@ void I_GetScreenGrab(void) // 800066C0
         osRecvMesg(&rdp_done_queue, (OSMesg *)0, OS_MESG_BLOCK);
         osJamMesg(&rdp_done_queue, (OSMesg)VID_MSG_KICKSTART, OS_MESG_NOBLOCK);
     }
+}
+
+void I_RefreshVideo(void) // [Immorpher] video refresh
+{
+    int modeidx = OS_VI_NTSC_LPN1;
+    int special;
+    OSViMode *ViMode;
+
+    if (osTvType == OS_TV_PAL)
+        modeidx += 14;
+    else if (osTvType == OS_TV_MPAL)
+        modeidx += 28;
+
+    if(TvMode & 2) // interlacing
+        modeidx += 1;
+
+    if (BitDepth == BITDEPTH_32)
+        modeidx += 4;
+
+    if (VideoResolution == VIDEO_RES_HI_VERT)
+        modeidx += 8;
+    else if((TvMode & 1) && (VideoResolution == VIDEO_RES_LOW || BitDepth == BITDEPTH_16))
+        modeidx += 2; // antialiasing
+
+    ViMode = &osViModeTable[modeidx];
+
+    if (VideoResolution == VIDEO_RES_HI_HORIZ)
+    {
+        ViMode->comRegs.width = 640;
+        ViMode->comRegs.xScale = 1024;
+        ViMode->fldRegs[0].origin = ViMode->fldRegs[1].origin = 640*(BitDepth?4:2);
+    }
+    else
+    {
+        ViMode->comRegs.xScale = 512;
+        ViMode->fldRegs[0].origin = ViMode->fldRegs[1].origin = 320*(BitDepth?4:2);
+        if (VideoResolution == VIDEO_RES_HI_VERT)
+        {
+            ViMode->comRegs.width = 640;
+            ViMode->fldRegs[1].origin <<= 1;
+            if(TvMode & 2) // deflickering
+                ViMode->comRegs.width = 320;
+        }
+        else
+        {
+            ViMode->comRegs.width = 320;
+        }
+    }
+
+    osViSetMode(ViMode);
+
+    if (blanktimer)
+        osViBlack(TRUE);
+
+    special = (TvMode & 1) ? OS_VI_DIVOT_ON : OS_VI_DIVOT_OFF;
+    special |= DitherFilter ? OS_VI_DITHER_FILTER_ON : OS_VI_DITHER_FILTER_OFF;
+    special |= (players[0].cheats & CF_GAMMA)
+        ? OS_VI_GAMMA_ON | OS_VI_GAMMA_DITHER_ON
+        : OS_VI_GAMMA_OFF |  OS_VI_GAMMA_DITHER_OFF;
+
+    osViSetSpecialFeatures(special);
+
+    switch (VideoResolution)
+    {
+    case VIDEO_RES_LOW:
+        XResolution = 320;
+        YResolution = 240;
+        hudxshift = 2;
+        hudyshift = 2;
+        break;
+    case VIDEO_RES_HI_HORIZ:
+        XResolution = 640;
+        YResolution = 240;
+        hudxshift = 3;
+        hudyshift = 2;
+        break;
+    case VIDEO_RES_HI_VERT:
+        XResolution = 320;
+        YResolution = 480;
+        hudxshift = 2;
+        hudyshift = 3;
+        break;
+    }
+
+    video_hStart = ViMode->comRegs.hStart;
+    video_vStart1 = ViMode->fldRegs[0].vStart;
+    video_vStart2 = ViMode->fldRegs[1].vStart;
+}
+
+void I_BlankScreen(u8 vbls)
+{
+    blanktimer = vbls;
+    osViBlack(TRUE);
+}
+
+void I_ClearFB(register u32 color)
+{
+    if (BitDepth == BITDEPTH_16)
+    {
+        color = RGBATO551(color);
+        color |= (color << 16);
+    }
+
+    gDPPipeSync(GFX1++);
+    gDPSetCycleType(GFX1++, G_CYC_FILL);
+    gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
+    gDPSetFillColor(GFX1++, color);
+    gDPFillRectangle(GFX1++, 0, 0, XResolution-1, YResolution-1);
 }
 
 long LongSwap(long dat) // 80006724
@@ -855,20 +988,28 @@ void I_WIPE_MeltScreen(void) // 80006964
 {
     u16 *fb;
     int y1;
-    int tpos;
     int yscroll;
     int height;
+    int size;
+    int tileheight;
+    int fbsize;
 
-    fb = Z_Malloc(CFB_SIZE, PU_STATIC, NULL);
+    {
+        int pixelsize = BitDepth == BITDEPTH_32 ? sizeof(u32) : sizeof(u16);
 
-    I_GetScreenGrab();
-    D_memcpy(CFB(vid_side), CFB(vid_side ^ 1), CFB_SIZE);
+        size = BitDepth + G_IM_SIZ_16b;
+        tileheight = 4096/(XResolution*pixelsize);
+        fbsize = XResolution*YResolution*pixelsize;
+        fb = Z_Malloc(fbsize, PU_STATIC, NULL);
+        I_GetScreenGrab();
+        D_memcpy(fb, CFB(vid_side ^ 1), fbsize);
+    }
 
     yscroll = 1;
     while( true )
     {
         y1 = 0;
-        D_memcpy(fb, CFB(vid_side ^ 1), CFB_SIZE);
+        D_memcpy(fb, CFB(vid_side ^ 1), fbsize);
 
         I_ClearFrame();
 
@@ -882,41 +1023,39 @@ void I_WIPE_MeltScreen(void) // 80006964
         gDPSetPrimColor(GFX1++, 0, 0, 15, 0, 0, 22); // 0x0f000016
 
         height = SCREEN_HT - (yscroll >> 2);
-        tpos = 0;
         if (height > 0)
         {
             do
             {
-                gDPSetTextureImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b , SCREEN_WD, fb);
-                gDPSetTile(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b,
-                           (SCREEN_WD >> 2), 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
+                gDPSetTextureImage(GFX1++, G_IM_FMT_RGBA, size , XResolution, fb);
+                gDPSetTile(GFX1++, G_IM_FMT_RGBA, size,
+                           (XResolution >> 2), 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
 
                 gDPLoadSync(GFX1++);
                 gDPLoadTile(GFX1++, G_TX_LOADTILE,
-                            (0 << 2), (tpos << 2),
-                            ((SCREEN_WD-1) << 2), (((tpos+3)-1) << 2));
+                            (0 << 2), (y1 << 2),
+                            ((XResolution-1) << 2), ((y1+tileheight-1) << 2));
 
                 gDPPipeSync(GFX1++);
-                gDPSetTile(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b,
-                           (SCREEN_WD >> 2), 0, G_TX_RENDERTILE, 0, 0, 0, 0, 0, 0, 0);
+                gDPSetTile(GFX1++, G_IM_FMT_RGBA, size,
+                           (XResolution >> 2), 0, G_TX_RENDERTILE, 0, 0, 0, 0, 0, 0, 0);
 
                 gDPSetTileSize(GFX1++, G_TX_RENDERTILE,
-                               (0 << 2), (tpos << 2),
-                               ((SCREEN_WD-1) << 2), (((tpos+3)-1) << 2));
+                               (0 << 2), (y1 << 2),
+                               ((XResolution-1) << 2), ((y1+tileheight-1) << 2));
 
                 gSPTextureRectangle(GFX1++,
-                                    (0 << 2), (y1 << 2) + yscroll,
-                                    (SCREEN_WD << 2), ((y1 + 3) << 2) + yscroll,
+                                    (0 << 2), (y1 << 2) + (yscroll<<(hudyshift-2)),
+                                    (XResolution << 2), ((y1 + tileheight) << 2) + (yscroll<<(hudyshift-2)),
                                     G_TX_RENDERTILE,
-                                    (0 << 5), (tpos << 5),
+                                    (0 << 5), (y1 << 5),
                                     (1 << 10), (1 << 10));
 
-                y1 += 2;
-                tpos += 2;
+                y1 += tileheight;
             } while (y1 < height);
         }
 
-        yscroll += 2;
+        yscroll += vblsinframe[0];
         if (yscroll >= 160) break;
         I_DrawFrame();
     }
@@ -930,12 +1069,21 @@ int fadetick = 8;
 void I_WIPE_FadeOutScreen(void) // 80006D34
 {
     u32 *fb;
-    int y1, tpos, outcnt;
+    int y1, outcnt;
+    int size;
+    int tileheight;
+    int fbsize;
 
-    fb = Z_Malloc((SCREEN_WD*SCREEN_HT)*sizeof(u32), PU_STATIC, NULL);
+    {
+        int pixelsize = BitDepth == BITDEPTH_32 ? sizeof(u32) : sizeof(u16);
 
-    I_GetScreenGrab();
-    D_memcpy(fb, CFB(vid_side ^ 1), CFB_SIZE);
+        size = BitDepth + G_IM_SIZ_16b;
+        tileheight = 4096/(XResolution*pixelsize);
+        fbsize = XResolution*YResolution*pixelsize;
+        fb = Z_Malloc(fbsize, PU_STATIC, NULL);
+        I_GetScreenGrab();
+        D_memcpy(fb, CFB(vid_side ^ 1), fbsize);
+    }
 
     outcnt = 248;
     do
@@ -950,40 +1098,38 @@ void I_WIPE_FadeOutScreen(void) // 80006D34
         gDPSetRenderMode(GFX1++,G_RM_OPA_SURF,G_RM_OPA_SURF2);
         gDPSetPrimColor(GFX1++, 0, 0, outcnt, outcnt, outcnt, 0);
 
-        tpos = 0;
         y1 = 0;
         do
         {
-            gDPSetTextureImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b , SCREEN_WD, fb);
-            gDPSetTile(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b,
-                       (SCREEN_WD >> 2), 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
+            gDPSetTextureImage(GFX1++, G_IM_FMT_RGBA, size , XResolution, fb);
+            gDPSetTile(GFX1++, G_IM_FMT_RGBA, size,
+                       (XResolution >> 2), 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
 
             gDPLoadSync(GFX1++);
             gDPLoadTile(GFX1++, G_TX_LOADTILE,
-                        (0 << 2), (tpos << 2),
-                        ((SCREEN_WD-1) << 2), (((tpos+3)-1) << 2));
+                        (0 << 2), (y1 << 2),
+                        ((XResolution-1) << 2), (((y1+tileheight)-1) << 2));
 
             gDPPipeSync(GFX1++);
-            gDPSetTile(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b,
-                       (SCREEN_WD >> 2), 0, G_TX_RENDERTILE, 0, 0, 0, 0, 0, 0, 0);
+            gDPSetTile(GFX1++, G_IM_FMT_RGBA, size,
+                       (XResolution >> 2), 0, G_TX_RENDERTILE, 0, 0, 0, 0, 0, 0, 0);
 
             gDPSetTileSize(GFX1++, G_TX_RENDERTILE,
-                           (0 << 2), (tpos << 2),
-                           ((SCREEN_WD-1) << 2), (((tpos+3)-1) << 2));
+                           (0 << 2), (y1 << 2),
+                           ((XResolution-1) << 2), (((y1+tileheight)-1) << 2));
 
             gSPTextureRectangle(GFX1++,
                                 (0 << 2), (y1 << 2),
-                                (SCREEN_WD << 2), ((y1+3) << 2),
+                                (XResolution << 2), ((y1+tileheight) << 2),
                                 G_TX_RENDERTILE,
-                                (0 << 5), (tpos << 5),
+                                (0 << 5), (y1 << 5),
                                 (1 << 10), (1 << 10));
 
-            tpos += 3;
-            y1 += 3;
-        } while (y1 != SCREEN_HT);
+            y1 += tileheight;
+        } while (y1 < YResolution);
 
         I_DrawFrame();
-        outcnt -= fadetick;
+        outcnt -= (fadetick * vblsinframe[0]) >> 1;
     } while (outcnt >= 0);
 
     I_GetScreenGrab();

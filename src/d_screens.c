@@ -49,13 +49,7 @@ int D_WarningTicker(void) // 8002B3E8
 void D_DrawWarning(void) // 8002B430
 {
     I_ClearFrame();
-
-    gDPPipeSync(GFX1++);
-    gDPSetCycleType(GFX1++, G_CYC_FILL);
-    gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, CFB_SPADDR);
-    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,0) << 16 | GPACK_RGBA5551(0,0,0,0));
-    gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+    I_ClearFB(0x000000ff);
 
     if (MenuAnimationTic & 1)
         ST_DrawString(-1,  30, "WARNING!", 0xc00000ff);
@@ -88,12 +82,7 @@ void D_DrawLegal(void) // 8002B644
 {
     I_ClearFrame();
 
-    gDPPipeSync(GFX1++);
-    gDPSetCycleType(GFX1++, G_CYC_FILL);
-    gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, CFB_SPADDR);
-    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,1) << 16 | GPACK_RGBA5551(0,0,0,1));
-    gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+    I_ClearFB(0x000000ff);
 
     M_DrawBackground(27, 74, text_alpha, "USLEGAL");
 
@@ -115,13 +104,7 @@ int D_NoPakTicker(void) // 8002B7A0
 void D_DrawNoPak(void) // 8002B7F4
 {
     I_ClearFrame();
-
-    gDPPipeSync(GFX1++);
-    gDPSetCycleType(GFX1++, G_CYC_FILL);
-    gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, CFB_SPADDR);
-    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,0) << 16 | GPACK_RGBA5551(0,0,0,0));
-    gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+    I_ClearFB(0x000000ff);
 
     ST_DrawString(-1,  40, "no controller pak.", 0xffffffff);
     ST_DrawString(-1,  60, "your game cannot", 0xffffffff);
@@ -138,13 +121,7 @@ void D_DrawNoPak(void) // 8002B7F4
 void D_DrawNoMemory(void)
 {
     I_ClearFrame();
-
-    gDPPipeSync(GFX1++);
-    gDPSetCycleType(GFX1++, G_CYC_FILL);
-    gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, CFB_SPADDR);
-    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,0) << 16 | GPACK_RGBA5551(0,0,0,0));
-    gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+    I_ClearFB(0x000000ff);
 
     ST_DrawString(-1,  20, "no expansion pak.", 0xffffffff);
     ST_DrawString(-1,  40, "complex levels outside", 0xffffffff);
@@ -277,18 +254,12 @@ void D_CreditDrawer(void) // 8002BBE4
 
     I_ClearFrame();
 
-    gDPPipeSync(GFX1++);
-    gDPSetCycleType(GFX1++, G_CYC_FILL);
-    gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, CFB_SPADDR);
-
     if (cred_next == 2)
         color = (cred1_alpha * 16) / 255;
     else if ((cred_next == 3) || (cred_next == 4))
         color = (cred1_alpha * 30) / 255;
 
-    gDPSetFillColor(GFX1++, GPACK_RGBA5551(color,0,0,1) << 16 | GPACK_RGBA5551(color,0,0,1));
-    gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+    I_ClearFB(PACKRGBA(color, 0, 0, 255));
 
     if (cred_next == 0)
     {

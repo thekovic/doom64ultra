@@ -99,14 +99,7 @@ void I_Error(const char *error, ...) // 80005F30
 #ifdef NDEBUG
 
     I_ClearFrame();
-
-    gDPPipeSync(GFX1++);
-    gDPSetCycleType(GFX1++, G_CYC_FILL);
-    gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, CFB_SPADDR);
-    gDPSetFillColor(GFX1++, GPACK_RGBA5551(0,0,0,0) << 16 | GPACK_RGBA5551(0,0,0,0)) ;
-    gDPFillRectangle(GFX1++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
-
+    I_ClearFB(0x000000ff);
     ST_Message(16, 16, buffer, 0xffffffff);
     I_DrawFrame();
 
@@ -164,7 +157,7 @@ COLD void I_InitDebugging()
 
 #ifdef USB_GDB
     I_ShowDebugScreen("Waiting for gdb connection...");
-    P_RefreshVideo();
+    I_RefreshVideo();
     BREAKPOINT();
 #endif
 }
