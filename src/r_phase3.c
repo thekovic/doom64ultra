@@ -1158,7 +1158,8 @@ void R_RenderPSprites(void) // 80028f20
 	int             width2;
 	int             yh;
 	int             x, y;
-	int             dsdx;
+	int             dsdx, dsdy;
+	int             stileh;
 
 	I_CheckGFX();
 
@@ -1186,6 +1187,16 @@ void R_RenderPSprites(void) // 80028f20
 draw:
     palloaded = false;
 
+    if (ScreenAspect)
+        dsdx = invaspectscale[ScreenAspect] >> 4 >> hudxshift;
+    else
+        dsdx = 1 << 12 >> hudxshift;
+
+    if (osTvType == OS_TV_PAL)
+        dsdy = 0xd555 >> 4 >> hudyshift;
+    else
+        dsdy = 1 << 12 >> hudyshift;
+
     for (i = 0; i < NUMPSPRITES; i++, psp++)
 	{
 		if ((state = psp->state) != 0) /* a null state means not active */
@@ -1205,8 +1216,8 @@ draw:
             height = sprite->height;
             src = ((byte*)sprite) + sizeof(spriteN64_t);
 
-            x = (((psp->sx >> 16) - sprite->xoffs) + 160) << hudxshift;
-            y = (((psp->sy >> 16) - sprite->yoffs) + 239) << hudyshift;
+            x = (((psp->sx >> 16) - sprite->xoffs) + SCREEN_WD/2) << hudxshift;
+            y = (((psp->sy >> 16) - sprite->yoffs) + SCREEN_HT - 1) << hudyshift;
             if (viewplayer->onground)
             {
                 x += (quakeviewx << hudxshift) >> 22;
@@ -1216,11 +1227,16 @@ draw:
             {
                 x += (sprite->xoffs - FixedMul(aspectscale[ScreenAspect], sprite->xoffs)) << hudxshift;
                 width = FixedMul(aspectscale[ScreenAspect], width);
-                dsdx = invaspectscale[ScreenAspect] >> 4 >> hudxshift;
+            }
+            if (osTvType == OS_TV_PAL)
+            {
+                y += (sprite->yoffs - FixedMul(0x13333, sprite->yoffs)) << hudyshift;
+                height = FixedMul(0x13333, height);
+                stileh = FixedMul(0x13333, tileh << 16) >> 14;
             }
             else
             {
-                dsdx = 1 << 12 >> hudxshift;
+                stileh = tileh << 2;
             }
 
 			if (psp->state->frame & FF_FULLBRIGHT)
@@ -1292,14 +1308,14 @@ draw:
 
                     gDPSetTileSize(GFX1++, G_TX_RENDERTILE, 0, 0, ((width2 - 1) << 2), (tileh - 1) << 2);
 
-                    yh = (tileh << hudyshift) + y;
+                    yh = stileh + y;
 
                     gSPTextureRectangle(GFX1++,
                                     x, y,
                                     (width << hudxshift) + x, yh,
                                     0,
                                     0, 0,
-                                    dsdx, (1 << 12 >> hudyshift));
+                                    dsdx, dsdy);
 
                     height -= tileh;
                     if (height < tileh) {

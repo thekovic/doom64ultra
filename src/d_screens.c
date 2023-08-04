@@ -87,7 +87,7 @@ void D_DrawLegal(void) // 8002B644
     M_DrawBackground(27, 74, text_alpha, "USLEGAL");
 
     if (FilesUsed > -1) {
-        ST_DrawString(-1, 200, "hold \x8d to manage pak", text_alpha | 0xffffff00);
+        ST_DrawString(-1, SCREEN_HT-40, "hold \x8d to manage pak", text_alpha | 0xffffff00);
     }
 
     I_DrawFrame();

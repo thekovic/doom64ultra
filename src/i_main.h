@@ -1,5 +1,5 @@
 #define SCREEN_WD 320
-#define SCREEN_HT 240
+extern unsigned short SCREEN_HT;
 
 #define BASE_RAM_ADDR ((byte*)K0BASE)
 #define BASE_RAM_END (BASE_RAM_ADDR + osMemSize)
@@ -12,7 +12,7 @@ extern char _doom64_wddSegmentRomStart[], _doom64_wddSegmentRomEnd[];
 extern char _bssSegmentEnd[];
 
 #define BASEPROG_SIZE (ALIGN(_bssSegmentEnd, 16) - (u32)BASE_RAM_ADDR)
-#define CFB_SIZE (osMemSize >= 0x800000 ? 320*240*2*sizeof(u32) : 320*240*sizeof(u16))
+#define CFB_SIZE (osMemSize >= 0x800000 ? SCREEN_WD*SCREEN_HT*2*sizeof(u32) : SCREEN_WD*SCREEN_HT*sizeof(u16))
 #define CFBS_SIZE (CFB_SIZE*2)
 #define AUDIO_HEAP_SIZE	( \
         0x25000 \

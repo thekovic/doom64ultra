@@ -31,6 +31,7 @@ extern char _codeSegmentEnd[];
 u64	bootStack[BOOT_STACKSIZE/sizeof(u64)];
 
 u8 *cfb;
+SDATA u16 SCREEN_HT = 240;
 
 extern int globallump; // 800A68f8 r_local.h
 extern int globalcm;   // 800A68fC r_local.h
@@ -297,6 +298,9 @@ void I_IdleGameThread(void *arg) // 8000567C
     /* Create and start the PI and VI managers... */
     osCreatePiManager((OSPri)OS_PRIORITY_PIMGR, &msgque_Pi, msgbuf_Pi, SYS_MSGBUF_SIZE_PI);
     osCreateViManager(OS_PRIORITY_VIMGR);
+
+    if (osTvType == OS_TV_PAL)
+        SCREEN_HT = 288;
 
     /* Init debugger/USB support after PI */
     I_InitFlashCart();
@@ -849,9 +853,9 @@ void I_RefreshVideo(void) // [Immorpher] video refresh
     OSViMode *ViMode;
 
     if (osTvType == OS_TV_PAL)
-        modeidx += 14;
+        modeidx += 14*3;
     else if (osTvType == OS_TV_MPAL)
-        modeidx += 28;
+        modeidx += 14*2;
 
     if(TvMode & 2) // interlacing
         modeidx += 1;
@@ -906,19 +910,28 @@ void I_RefreshVideo(void) // [Immorpher] video refresh
     {
     case VIDEO_RES_LOW:
         XResolution = 320;
-        YResolution = 240;
+        if (osTvType == OS_TV_PAL)
+            YResolution = 288;
+        else
+            YResolution = 240;
         hudxshift = 2;
         hudyshift = 2;
         break;
     case VIDEO_RES_HI_HORIZ:
         XResolution = 640;
-        YResolution = 240;
+        if (osTvType == OS_TV_PAL)
+            YResolution = 288;
+        else
+            YResolution = 240;
         hudxshift = 3;
         hudyshift = 2;
         break;
     case VIDEO_RES_HI_VERT:
         XResolution = 320;
-        YResolution = 480;
+        if (osTvType == OS_TV_PAL)
+            YResolution = 576;
+        else
+            YResolution = 480;
         hudxshift = 2;
         hudyshift = 3;
         break;

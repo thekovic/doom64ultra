@@ -915,7 +915,7 @@ void M_QuickLoadFailedDrawer(void) // 8002BBE4
     ST_DrawString(-1,  60, "is corrupted.", 0xffffffff);
 
     if ((ticon - last_ticon) >= 60)
-        ST_DrawString(-1, 120, "press any button to return.", 0xffffffff);
+        ST_DrawString(-1, SCREEN_HT/2, "press any button to return.", 0xffffffff);
 
     I_DrawFrame();
 }
@@ -2500,7 +2500,7 @@ void M_MenuTitleDrawer(void) // 80008E7C
     if (MenuItem == Menu_Game)
     {
         ST_DrawString(-1, 20, "Pause", text_alpha | 0xc0000000);
-        ST_DrawString(-1, 210, "press \x8b to resume", text_alpha | 0xffffff00);
+        ST_DrawString(-1, SCREEN_HT - 30, "press \x8b to resume", text_alpha | 0xffffff00);
     }
     else if (MenuItem == Menu_Skill)
     {
@@ -2900,12 +2900,24 @@ void M_VideoDrawer(void) // 80009884
         }
         else if (casepos == MTXT_RESOLUTION)
         {
-            if (VideoResolution == VIDEO_RES_HI_HORIZ)
-                text = "640 x 240";
-            else if (VideoResolution == VIDEO_RES_HI_VERT)
-                text = "320 x 480";
+            if (osTvType == OS_TV_PAL)
+            {
+                if (VideoResolution == VIDEO_RES_HI_HORIZ)
+                    text = "640 x 288";
+                else if (VideoResolution == VIDEO_RES_HI_VERT)
+                    text = "320 x 576";
+                else
+                    text = "320 x 288";
+            }
             else
-                text = "320 x 240";
+            {
+                if (VideoResolution == VIDEO_RES_HI_HORIZ)
+                    text = "640 x 240";
+                else if (VideoResolution == VIDEO_RES_HI_VERT)
+                    text = "320 x 480";
+                else
+                    text = "320 x 240";
+            }
         }
         else if (casepos == MTXT_COLOR_DEPTH)
         {
@@ -3320,7 +3332,7 @@ void M_ControllerPakDrawer(void) // 8000A3E4
         if ((MenuAnimationTic & 2) != 0)
             ST_DrawString(-1, 114, "Controller Pak removed!", text_alpha | 0xc0000000);
 
-        ST_DrawString(-1, 210, "press \x8b to exit", text_alpha | 0xffffff00);
+        ST_DrawString(-1, SCREEN_HT - 30, "press \x8b to exit", text_alpha | 0xffffff00);
     }
     else
     {
@@ -3377,8 +3389,8 @@ void M_ControllerPakDrawer(void) // 8000A3E4
         ST_DrawString(-1, 170, buffer, text_alpha | 0xc0000000);
         ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 51, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
-        ST_DrawString(-1, 200, "press \x8b to exit", text_alpha | 0xffffff00);
-        ST_DrawString(-1, 215, "press \x84\x85 to delete", text_alpha | 0xffffff00);
+        ST_DrawString(-1, SCREEN_HT - 40, "press \x8b to exit", text_alpha | 0xffffff00);
+        ST_DrawString(-1, SCREEN_HT - 25, "press \x84\x85 to delete", text_alpha | 0xffffff00);
     }
 }
 
@@ -3569,7 +3581,7 @@ void M_SavePakDrawer(void) // 8000AB44
             ST_DrawString(-1, 120, "Game cannot be saved.", 0xc00000ff);
         }
 
-        ST_DrawString(-1, 210, "press \x8b to exit", text_alpha | 0xffffff00);
+        ST_DrawString(-1, SCREEN_HT - 30, "press \x8b to exit", text_alpha | 0xffffff00);
     }
     else
     {
@@ -4126,8 +4138,8 @@ void M_CenterDisplayDrawer(void) // 8000B604
 {
     ST_DrawString(-1, 20, "Center Display", text_alpha | 0xc0000000);
     ST_DrawString(-1, 114, "use gamepad to adjust", text_alpha | 0xffffff00);
-    ST_DrawString(-1, 190, "press \x8a to reset", text_alpha | 0xffffff00);
-    ST_DrawString(-1, 210, "press \x8b to exit", text_alpha | 0xffffff00);
+    ST_DrawString(-1, SCREEN_HT - 50, "press \x8a to reset", text_alpha | 0xffffff00);
+    ST_DrawString(-1, SCREEN_HT - 30, "press \x8b to exit", text_alpha | 0xffffff00);
 }
 
 #define CONTROLCOLSIZE ((ARRAYLEN(ControlText) - 2) / 2)
@@ -4410,5 +4422,5 @@ void M_ControlPadDrawer(void) // 8000B988
     else
         ST_DrawSymbol(276, (cursorpos - 2) % CONTROLCOLSIZE * 16 + 70 , 78, text_alpha | 0x90600000);
 
-    ST_DrawString(-1, 220, "press \x8d to exit", text_alpha | 0xffffff00);
+    ST_DrawString(-1, SCREEN_HT - 20, "press \x8d to exit", text_alpha | 0xffffff00);
 }

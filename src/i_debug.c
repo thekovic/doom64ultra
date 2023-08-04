@@ -1830,7 +1830,7 @@ void I_TakeGDBPacket(void)
 static void I_ShowDebugScreen(const char *text)
 {
     D_memset(cfb, 0, CFB_SIZE);
-    blit32_TextExplicit(cfb, 0xffff, 1, SCREEN_WD, SCREEN_HT, blit_Clip, 16, 16, text);
+    blit32_TextExplicit(cfb, 0xffff, 1, XResolution, YResolution, blit_Clip, 16, 16, text);
     osViSwapBuffer(cfb);
     __osViSwapContext();
 }
