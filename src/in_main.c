@@ -137,8 +137,11 @@ void IN_Start(void) // 80004AF0
 
     if ((nextmap >= 0) && (nextmap < LASTLEVEL))
 	{
-		M_EncodePassword(Passwordbuff);
-        CurPasswordSlot = 16;
+        PasswordPresent = M_EncodePassword(Passwordbuff);
+        if (PasswordPresent)
+            CurPasswordSlot = 16;
+        else
+            CurPasswordSlot = 0;
 	}
 
 	S_StartMusic(114);
@@ -154,7 +157,7 @@ void IN_Stop(void) // 80004DB0
     {
         MenuAnimationTic = 0;
         MenuIdx = 0;
-        if (SramPresent && I_CheckControllerPak() == 0)
+        if (SramPresent && I_CheckControllerPak() == 0 && !customskill.permadeath)
         {
             MenuItem = Menu_Save;
             itemlines = ARRAYLEN(Menu_Save);
@@ -169,7 +172,7 @@ void IN_Stop(void) // 80004DB0
         }
         else
         {
-            if (!EnableExpPak)
+            if (!EnableExpPak && !customskill.permadeath)
                 EnableExpPak = (M_ControllerPak() == 0);
 
             if (EnableExpPak)
@@ -333,7 +336,7 @@ void IN_Drawer(void) // 80005164
         ST_DrawString(210, 120, timetext, PACKRGBA(192, 0, 0, text_alpha));
     }
 
-	if ((nextstage > 4) && (nextmap < LASTLEVEL))
+	if ((nextstage > 4) && (nextmap < LASTLEVEL) && PasswordPresent)
 	{
         ST_DrawString(-1, 145, "Entering", PACKRGBA(255, 255, 255, text_alpha));
         ST_DrawString(-1, 161, MapInfo[nextmap].name, PACKRGBA(255, 255, 255, text_alpha));

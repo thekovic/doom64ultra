@@ -49,6 +49,9 @@ SDATA byte		*rejectmatrix;			/* for fast sight rejection */
 mapthing_t  *spawnlist;     // 800A5D74
 int         spawncount;     // 800A5D78
 
+mapthing_t  *nightmarerespawnlist;
+int         nightmarerespawncount;
+
 //mapthing_t	deathmatchstarts[10], *deathmatch_p;//80097e4c, 80077E8C
 //mapthing_t	playerstarts[MAXPLAYERS];//800a8c60
 
@@ -271,40 +274,58 @@ SEC_STARTUP void P_LoadNodes (void) // 8001D64C
 
 SEC_STARTUP void P_LoadThings (void) // 8001D864
 {
-	int				i;
-	mapthing_t		*mt, *mts;
-	int				numthings;
-	int				spawncnt;
+    int				i;
+    mapthing_t		*mt, *mts;
+    int				numthings;
+    int				spawncnt;
+    int				nightmarerespawncnt;
 
-	numthings = W_MapLumpLength(ML_THINGS) / sizeof(mapthing_t);
+    numthings = W_MapLumpLength(ML_THINGS) / sizeof(mapthing_t);
 
-	mts = (mapthing_t *)W_GetMapLump(ML_THINGS);
-	for (i=0, spawncnt=0; i<numthings ; i++, mts++)
+    mts = (mapthing_t *)W_GetMapLump(ML_THINGS);
+    mt = mts;
+    for (i=0, spawncnt=0, nightmarerespawncnt=0; i<numthings ; i++, mt++)
     {
-        if(LITTLESHORT(mts->options) & MTF_SPAWN)
+        if(LITTLESHORT(mt->options) & MTF_SPAWN)
         {
             spawncnt++;
+        }
+        else if (customskill.monster_respawns)
+        {
+            int ednum = LITTLESHORT(mt->type);
+            int type;
+
+            for (type = 0; type < NUMMOBJTYPES; type++)
+            {
+                if (ednum == mobjinfo[type].doomednum)
+                    break;
+            }
+            if (type < NUMMOBJTYPES && (mobjinfo[type].flags & MF_COUNTKILL))
+                nightmarerespawncnt++;
         }
     }
 
     if (spawncnt != 0)
         spawnlist = (mapthing_t *)Z_Malloc(spawncnt * sizeof(mapthing_t),PU_LEVEL,0);
 
-    mt = (mapthing_t *)W_GetMapLump(ML_THINGS);
-	for (i=0 ; i<numthings ; i++, mt++)
-	{
-		mt->x = LITTLESHORT(mt->x);
-		mt->y = LITTLESHORT(mt->y);
-		mt->z = LITTLESHORT(mt->z);
-		mt->angle = LITTLESHORT(mt->angle);
-		mt->type = LITTLESHORT(mt->type);
-		mt->options = LITTLESHORT(mt->options);
-		mt->tid = LITTLESHORT(mt->tid);
-		P_SpawnMapThing (mt);
+    if (nightmarerespawncnt != 0)
+        nightmarerespawnlist = (mapthing_t *)Z_Malloc(nightmarerespawncnt * sizeof(mapthing_t),PU_LEVEL,0);
 
-		//if (mt->type >= 4096)
-		//	I_Error("P_LoadThings: doomednum:%d >= 4096", mt->type);
-	}
+    mt = mts;
+    for (i=0 ; i<numthings ; i++, mt++)
+    {
+        mt->x = LITTLESHORT(mt->x);
+        mt->y = LITTLESHORT(mt->y);
+        mt->z = LITTLESHORT(mt->z);
+        mt->angle = LITTLESHORT(mt->angle);
+        mt->type = LITTLESHORT(mt->type);
+        mt->options = LITTLESHORT(mt->options);
+        mt->tid = LITTLESHORT(mt->tid);
+        P_SpawnMapThing (mt);
+
+        //if (mt->type >= 4096)
+        //	I_Error("P_LoadThings: doomednum:%d >= 4096", mt->type);
+    }
 }
 
 /*
@@ -764,7 +785,7 @@ SEC_STARTUP void P_GroupLines (void) // 8001E614
 =================
 */
 
-void P_SetupLevel(int map, skill_t skill) // 8001E974
+void P_SetupLevel(int map) // 8001E974
 {
 	/* free all tags except the PU_STATIC tag */
 	Z_FreeTags(mainzone, ~PU_STATIC); // (PU_LEVEL | PU_LEVSPEC | PU_CACHE)
@@ -782,6 +803,7 @@ void P_SetupLevel(int map, skill_t skill) // 8001E974
 	mobjhead.next = mobjhead.prev = (void*) &mobjhead;
 
 	spawncount = 0;
+    nightmarerespawncount = 0;
 
 	W_OpenMapWad(map);
 

@@ -18,6 +18,7 @@ SDATA fixed_t testradius;                                      // 800A55E0
 DEBUG_COUNTER(SDATA int activemobjs = 0);
 
 void P_XYMovement(mobj_t *mo) HOT;
+void P_NightmareRespawn(mobj_t* mobj);
 void P_FloatChange(mobj_t *mo);
 void P_ZMovement(mobj_t *mo) HOT;
 void P_MobjThinker(mobj_t *mobj) HOT;
@@ -96,54 +97,79 @@ void P_RunMobjBase(void) // 8000CDE0
 
 void P_MobjThinker(mobj_t *mobj) // 8000CE74
 {
-	state_t *st;
-	statenum_t state;
+    state_t *st;
+    statenum_t state;
 
-	checkthing = mobj;
+    checkthing = mobj;
 
-	// momentum movement
-	if (mobj->momx || mobj->momy)
+    // momentum movement
+    if (mobj->momx || mobj->momy)
     {
-		P_XYMovement(mobj);
+        P_XYMovement(mobj);
 
         // removed or has a special action to perform?
         if (mobj->latecall)
             return;
     }
 
-	if (mobj->z != mobj->floorz || mobj->momz)
+    if (mobj->z != mobj->floorz || mobj->momz)
     {
-		P_ZMovement(mobj);
+        P_ZMovement(mobj);
 
         // removed or has a special action to perform?
         if (mobj->latecall)
             return;
     }
 
-	// cycle through states
-	if (mobj->tics != -1)
-	{
-		mobj->tics--;
+    // cycle through states
+    if (mobj->tics != -1)
+    {
+        mobj->tics--;
 
-		// you can cycle through multiple states in a tic
+        // you can cycle through multiple states in a tic
         if (mobj->tics <= 0)
-		{
-			state = mobj->state->nextstate;
-			if (state == S_NULL)
-			{
-				mobj->latecall = P_RemoveMobj;
-			}
-			else
-			{
-				st = &states[state];
-				mobj->state = st;
-				mobj->tics = st->tics;
-				mobj->sprite = st->sprite;
-				mobj->frame = st->frame;
-				mobj->latecall = st->action;
-			}
-		}
-	}
+        {
+            state = mobj->state->nextstate;
+            if (state == S_NULL)
+            {
+                mobj->latecall = P_RemoveMobj;
+            }
+            else
+            {
+                st = &states[state];
+                mobj->state = st;
+                mobj->tics = st->tics;
+                mobj->sprite = st->sprite;
+                mobj->frame = st->frame;
+                mobj->latecall = st->action;
+            }
+        }
+    }
+    else
+    {
+        if (!customskill.monster_respawns)
+            return;
+
+        // check for nightmare respawn
+        if (! (mobj->flags & MF_COUNTKILL))
+            return;
+
+        if (!mobj->spawnpoint)
+            return;
+
+        mobj->movecount++;
+
+        if (mobj->movecount < 12*35)
+            return;
+
+        if ( gametic&31 )
+            return;
+
+        if (P_Random () > 4)
+            return;
+
+        P_NightmareRespawn (mobj);
+    }
 }
 
 
@@ -262,6 +288,58 @@ void P_XYMovement(mobj_t *mo) // 8000CF98
 		mo->momx = (mo->momx >> 8) * (FRICTION >> 8);
 		mo->momy = (mo->momy >> 8) * (FRICTION >> 8);
 	}
+}
+
+void
+P_NightmareRespawn (mobj_t* mobj)
+{
+    fixed_t      x;
+    fixed_t      y;
+    fixed_t      z;
+    mobj_t*      mo;
+    mapthing_t*  mthing;
+
+    x = mobj->spawnpoint->x << FRACBITS;
+    y = mobj->spawnpoint->y << FRACBITS;
+
+    // somthing is occupying it's position?
+    if (!P_CheckPosition (mobj, x, y) )
+        return;	// no respwan
+
+    // spawn a teleport fog at old spot
+    // because of removal of the body?
+    mo = P_SpawnMobj (mobj->x, mobj->y, mobj->z + (mobj->info->height>>1), MT_TELEPORTFOG);
+    // initiate teleport sound
+    S_StartSound (mo, sfx_telept);
+
+    // spawn it
+    if (mobj->info->flags & MF_SPAWNCEILING)
+        z = ONCEILINGZ;
+    else
+        z = ONFLOORZ;
+
+    mo = P_SpawnMobj (x, y, z, MT_TELEPORTFOG);
+    mo->z += (mobj->spawnpoint->z << FRACBITS);
+    z = mo->z;
+    mo->z += mobj->info->height>>1;
+
+    S_StartSound (mo, sfx_telept);
+
+    // spawn the new monster
+    mthing = mobj->spawnpoint;
+
+    // inherit attributes from deceased one
+    mo = P_SpawnMobj (x,y,z, mobj->type);
+    mo->spawnpoint = mobj->spawnpoint;
+    mo->angle = ANG45 * (mthing->angle/45);
+
+    if (mthing->options & MTF_AMBUSH)
+        mo->flags |= MF_AMBUSH;
+
+    mo->reactiontime = 18;
+
+    // remove the old monster,
+    P_RemoveMobj (mobj);
 }
 
 /*

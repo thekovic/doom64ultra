@@ -14,8 +14,13 @@ A fork of [Doom 64-RE] with the goal of creating a base for enhanced mods.
 - Persistent saves to SRAM (no more controller pak requirement)
 - Quick saves (for saving/loading during a level)
 - Lots of bugfixes and optimizations
+- Expanded difficulty settings
+  - "Hardcore!" from Complete Edition
+  - "Nightmare!" from PC Doom
+  - "Ultra-Nightmare!" inspired by Doom 2016
+  - "Be Merciless!" from Merciless Edition
+  - Custom difficulty menu for further options
 - Many additional enhancements from [Merciless], [eXpanded] and [Complete] editions
-  - "Be Merciless!" Difficulty
   - Autorun option
   - Map stats option
   - Options to toggle bilinear filtering, dithering, interlacing, anti-aliasing

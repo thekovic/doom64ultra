@@ -73,7 +73,7 @@ boolean P_CheckMissileRange (mobj_t *actor) // 80010C10
 		return true;
 	}
 	
-    if (gameskill >= sk_nightmare && I_Random() < 16) // [Immorpher] Early attack on nightmare
+    if (customskill.monster_reactions && I_Random() < 16) // [Immorpher] Early attack on nightmare
     {
         return true;        // super sneak attack mofo!
     }
@@ -520,11 +520,11 @@ void A_Chase (mobj_t *actor) // 8001146C
 	/* */
 	/* check for missile attack */
 	/* */
-	if ((gameskill >= sk_nightmare || !actor->movecount) && actor->info->missilestate
+	if ((customskill.monster_reactions || !actor->movecount) && actor->info->missilestate
 	&& P_CheckMissileRange (actor))
 	{
 		P_SetMobjState (actor, actor->info->missilestate);
-		if (gameskill < sk_nightmare)
+		if (!customskill.monster_reactions)
 			actor->flags |= MF_JUSTATTACKED;
 		else if (I_Random() < 16) // [Immorpher] slim chance in nightmare mode to break attack for unpredictability
 			actor->flags |= MF_JUSTATTACKED;

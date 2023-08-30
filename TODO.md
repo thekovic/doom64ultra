@@ -5,7 +5,6 @@
 - Walking over/under things
 - Splitscreen multiplayer
 - 3D models as things (via [fast64](https://github.com/Fast-64/fast64))
-- Custom difficulties
 - GUI tool for generating ROMs and modding
 - More specials/properties from boom/zdoom
   - Translucent walls/flats

@@ -12,6 +12,8 @@ extern void ST_UpdateFlash(void);
 extern mobj_t *cameratarget;    // 800A5D70
 extern mapthing_t *spawnlist;   // 800A5D74
 extern int spawncount;          // 800A5D78
+extern mapthing_t  *nightmarerespawnlist;
+extern int nightmarerespawncount;
 
 /*
 ===============
@@ -111,12 +113,7 @@ mobj_t *P_SpawnMapThing (mapthing_t *mthing) // 80018C24
 		return NULL;
 	}
 
-	if (gameskill == sk_baby || gameskill == sk_easy)
-		bit = 1;
-	else if (gameskill == sk_medium)
-		bit = 2;
-	else if (gameskill >= sk_hard)
-		bit = 4;
+    bit = (1 << customskill.monster_counts) & 0x7;
 
 	if (!(mthing->options & bit) )
 		return NULL;
@@ -167,10 +164,26 @@ mobj_t *P_SpawnMapThing (mapthing_t *mthing) // 80018C24
 	else
 		z = ONFLOORZ;
 
-	mobj = P_SpawnMobj (x,y,z, i);
-	mobj->z += (mthing->z << FRACBITS);
-	mobj->angle = ANG45 * (mthing->angle/45);
-	mobj->tid = mthing->tid;
+    mobj = P_SpawnMobj (x,y,z, i);
+    mobj->z += (mthing->z << FRACBITS);
+    mobj->angle = ANG45 * (mthing->angle/45);
+    mobj->tid = mthing->tid;
+
+    if (customskill.monster_respawns
+            && (mobjinfo[i].flags & MF_COUNTKILL))
+    {
+        if ((mthing >= spawnlist && mthing < &spawnlist[spawncount])
+                || (mthing >= nightmarerespawnlist && mthing < &nightmarerespawnlist[nightmarerespawncount]))
+        {
+            mobj->spawnpoint = mthing;
+        }
+        else
+        {
+            D_memcpy(&nightmarerespawnlist[nightmarerespawncount], mthing, sizeof(mapthing_t));
+            mobj->spawnpoint = &nightmarerespawnlist[nightmarerespawncount];
+            nightmarerespawncount += 1;
+        }
+    }
 
 	if (mobj->tics > 0)
 		mobj->tics = 1 + (P_Random () % mobj->tics);
@@ -195,7 +208,7 @@ mobj_t *P_SpawnMapThing (mapthing_t *mthing) // 80018C24
 		totalsecret++;
     }
 
-    if (mthing->options & MTF_NOINFIGHTING || gameskill == sk_nightmare) // [Immorpher] No infighting on merciless difficulty!
+    if ((mthing->options & MTF_NOINFIGHTING) || customskill.monster_infighting == infighting_never) // [Immorpher] No infighting on merciless difficulty!
 		mobj->flags |= MF_NOINFIGHTING;
 
     return mobj;
@@ -485,7 +498,7 @@ mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yof
 		an += ((rnd2 - rnd1) << 20);
         }
 	
-	if (gameskill >= sk_nightmare && type != MT_PROJ_DART) { // [Immorpher] randomize projectiles a bit for merciless
+	if (customskill.monster_random_aim && type != MT_PROJ_DART) { // [Immorpher] randomize projectiles a bit for merciless
 		
 		vertspread = I_Random() % 3; // [Immorpher] Randomize vertical
 		

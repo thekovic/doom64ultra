@@ -44,6 +44,7 @@ void D_DoomMain(void *arg) // 800027C0
     ticon = 0;
     ticbuttons[0] = 0;
     oldticbuttons[0] = 0;
+    customskill = SkillPresets[1].skill;
 
     D_DoomLoop();
 }
@@ -57,9 +58,9 @@ static void D_DoomLoop(void)
         const char map[] = DEVWARP;
         startmap = MIN(((u32) map[1]) - '0' + (((u32) map[0]) - '0') * 10, TOTALMAPS);
 #ifdef DEVSKILL
-        startskill = MIN((DEVSKILL)-1, sk_nightmare);
+        startskill = SkillPresets[MIN((DEVSKILL)-1, 8)].skill;
 #else
-        startskill = sk_medium;
+        startskill = SkillPresets[2].skill;
 #endif
         G_InitNew(startskill, startmap, gt_single);
         G_RunGame();
@@ -78,19 +79,19 @@ static void D_DoomLoop(void)
 
         if(exit != ga_exit)
         {
-            exit = D_RunDemo("DEMO1LMP", sk_medium, 3);
+            exit = D_RunDemo("DEMO1LMP", SkillPresets[2].skill, 3);
             if(exit != ga_exit)
             {
-                exit = D_RunDemo("DEMO2LMP", sk_medium, 9);
+                exit = D_RunDemo("DEMO2LMP", SkillPresets[2].skill, 9);
                 if(exit != ga_exit)
                 {
-                    exit = D_RunDemo("DEMO3LMP", sk_medium, 17);
+                    exit = D_RunDemo("DEMO3LMP", SkillPresets[2].skill, 17);
                     if(exit != ga_exit)
                     {
                         //if(run_hectic_demo)
                         //{
                             //run_hectic_demo = false;
-                            exit = D_RunDemo("DEMO4LMP", sk_medium, 32);
+                            exit = D_RunDemo("DEMO4LMP", SkillPresets[2].skill, 32);
                         //}
 
                         if(exit != ga_exit)

@@ -6,7 +6,7 @@
 #include "st_main.h"
 #include "config.h"
 
-int D_RunDemo(char *name, skill_t skill, int map) // 8002B2D0
+int D_RunDemo(char *name, customskill_t skill, int map) // 8002B2D0
 {
   int lump;
   int exit;
@@ -32,7 +32,7 @@ int D_TitleMap(void) // 8002B358
   demo_p = Z_Alloc(demosize, PU_STATIC, NULL);
   D_memset(demo_p, 0, demosize);
   D_memcpy(demo_p, DefaultControlSetups[1].BUTTONS, sizeof(int)*13);
-  exit = G_PlayDemoPtr(sk_medium, 33);
+  exit = G_PlayDemoPtr(SkillPresets[2].skill, 33);
   Z_Free(demo_p);
 
   return exit;

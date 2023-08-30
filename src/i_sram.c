@@ -378,7 +378,7 @@ void I_SaveProgress(levelsave_t *save)
 
     save->present = 1;
     save->map = nextmap;
-    save->skill = gameskill;
+    save->skill = customskill;
     for(int i = 0; i < NUMWEAPONS; i++)
     {
         if(i != wp_fist && i != wp_pistol)
@@ -408,6 +408,16 @@ void I_SaveProgressToSram(u8 index, const levelsave_t *save)
         I_Error("Save index out of range");
 
     I_ReadWriteSram(SAVE_ADDR + index * sizeof *save, (void*)save, sizeof *save, OS_WRITE);
+}
+
+void I_DeleteSramSave(u8 index)
+{
+    if (index > MAXSRAMSAVES)
+        I_Error("Save index out of range");
+
+    levelsave_t save = { .present = 0 };
+
+    I_ReadWriteSram(SAVE_ADDR + index * sizeof save, (void*)&save, sizeof save, OS_WRITE);
 }
 
 void I_ReadSramSaves(levelsave_t *saves)
@@ -483,8 +493,8 @@ typedef struct ALIGNED(8)
     u32 macros;
     u32 mobjs;
     u32 thinkers;
+    customskill_t skill;
     u32 map: 15;
-    u32 skill: 3;
     u32 gametype: 2;
     u32 player1: 1;
     u32 player2: 1;
@@ -528,7 +538,7 @@ void I_QuickSaveInternal(quicksaveheader_t *header, u32 limit, void (*write)(u32
     header->macros = nummacros;
     header->mobjs = 0;
     header->thinkers = 0;
-    header->skill = gameskill;
+    header->skill = customskill;
     header->gametype = gt_single;
     header->map = gamemap;
     header->player1 = 1;
@@ -688,7 +698,7 @@ const char *I_QuickLoadInternal(int limit, void (*read)(u32, void*, u32))
         return LOAD_ERROR("Bad CRC");
 
     G_InitNew(header.skill, header.map, header.gametype);
-    P_SetupLevel(gamemap, gameskill);
+    P_SetupLevel(gamemap);
 
     if (header.sectors != numsectors || header.lines != numlines || header.macros != nummacros)
         return LOAD_ERROR("Wrong map");
@@ -807,6 +817,9 @@ static boolean I_QuickLoadSram(void)
         D_printf("Quick Load Failed: %s", err);
         return false;
     }
+
+    if (customskill.permadeath)
+        I_DeleteQuickLoad();
 
     return true;
 }

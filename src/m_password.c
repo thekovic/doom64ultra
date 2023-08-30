@@ -12,6 +12,7 @@ int passwordTable[10] = { 1, 8, 9, 5, 6, 2, 7, 0, 4, 3 };   // 8005AC80
 //boolean run_hectic_demo = false;        // 8005A7A0
 
 byte Passwordbuff[16];  // 800A55B0
+boolean PasswordPresent;
 int PassCodePos;        // 800A55C0
 int PassInvalidTic;     // 800A55C4
 
@@ -25,24 +26,20 @@ int CurPasswordSlot = 0;    // 8005ACBC
 #define PW_ARMORMASK 0x03
 #define PW_ARTIMASK  0x1c
 
-void M_PrintSaveTitle(char *buf, skill_t skill, int map)
+void M_PrintSaveTitle(char *buf, customskill_t skill, int map)
 {
-    if (skill == sk_baby) {
-        sprintf(buf, "level %2.2d - be gentle", map);
-    } else if (skill == sk_easy) {
-        sprintf(buf, "level %2.2d - bring it on", map);
-    } else if (skill == sk_medium) {
-        sprintf(buf, "level %2.2d - i own doom", map);
-    } else if (skill == sk_hard) {
-        sprintf(buf, "level %2.2d - watch me die", map);
-    } else if (skill == sk_nightmare) {
-        sprintf(buf, "level %2.2d - be merciless", map);
-    } else {
-        sprintf(buf, "level %2.2d", map);
+    for (int i = 0; i < 9; i++) {
+        if (memcmp(&skill, (void*) &SkillPresets[i].skill, sizeof skill) == 0) {
+            int count = sprintf(buf, "level %2.2d - %s", map, SkillPresets[i].name);
+            if (buf[count - 1] == '!')
+                buf[count - 1] = '\0';
+            return;
+        }
     }
+    sprintf(buf, "level %2.2d", map);
 }
 
-void M_EncodePassword(byte *buff) // 8000BC10
+bool M_EncodePassword(byte *buff) // 8000BC10
 {
     byte encode[10];
     int i;
@@ -52,17 +49,26 @@ void M_EncodePassword(byte *buff) // 8000BC10
     int xbit1, xbit2, xbit3;
     int maxclip, maxshell, maxcell, maxmisl;
     player_t* player;
-	int skillnightmare; // [GEC] new nightmare skill
+    int gameskill;
+    bool skillnightmare; // [GEC] new nightmare skill
 
     player = &players[0];
     D_memset(encode, 0, sizeof(encode));
 
-	//Check the nightmare difficulty
-	skillnightmare = 0;
-	if(gameskill == sk_nightmare)
-    {
-        skillnightmare = sk_nightmare;
+    //Check the nightmare difficulty
+    skillnightmare = false;
+    for (gameskill = 0; gameskill < 5; gameskill++) {
+        if (memcmp(&customskill, (void*) &SkillPresets[gameskill].skill, sizeof customskill) == 0) {
+            break;
+        }
     }
+    if(gameskill == 5)
+    {
+        D_memset(buff, 0, 16);
+        return false;
+    }
+    if(gameskill == 4)
+        skillnightmare = true;
 
     //
     // Map and Skill
@@ -160,7 +166,7 @@ void M_EncodePassword(byte *buff) // 8000BC10
     encode[5] |= (player->artifacts << 2);
 
     // [GEC] I used the ArmorType space to add the 0x40 flag to identify that the difficulty is nightmare
-    if(skillnightmare != 0)
+    if(skillnightmare)
         encode[5] |= PW_NIGHTMARE;
     if (nextmap >= 64)
         encode[5] |= PW_MAPUP;
@@ -237,6 +243,7 @@ void M_EncodePassword(byte *buff) // 8000BC10
 
         buff[((bit - 1) / 5)] = passBit;
     }
+    return true;
 }
 
 int M_DecodePassword(byte *inbuff, int *levelnum, int *skill, player_t *player) // 8000C194
@@ -353,13 +360,13 @@ int M_DecodePassword(byte *inbuff, int *levelnum, int *skill, player_t *player) 
     if (decode[5] & PW_NIGHTMARE)
     {
         decode[5] &= ~PW_NIGHTMARE;
-        *skill = sk_nightmare;
+        *skill = 4;
     }
 
     //
     // Verify Skill
     //
-    if(*skill > sk_nightmare)
+    if(*skill > 4)
     {
         return false;
     }
@@ -648,7 +655,7 @@ int M_PasswordTicker(void) // 8000C774
                     {
                         doPassword = true;
                         startmap = gamemap = levelnum;
-                        startskill = gameskill = skill;
+                        startskill = customskill = SkillPresets[skill].skill;
                         last_ticon = ticon;
                     }
                 }

@@ -236,7 +236,12 @@ int P_Ticker (void)//80021A00
 	pl = players;
 
 	if (pl->playerstate == PST_REBORN)
-        gameaction = ga_died;
+    {
+        if (customskill.permadeath)
+            gameaction = ga_exitdemo;
+        else
+            gameaction = ga_died;
+    }
 
     AM_Control(pl);
     P_PlayerThink(pl);

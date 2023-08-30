@@ -182,12 +182,39 @@ static inline HOT angle_t tantoangle(int x) {
 
 typedef enum
 {
-	sk_baby,
-	sk_easy,
-	sk_medium,
-	sk_hard,
-	sk_nightmare
-} skill_t;
+	sk_easy = 0,
+	sk_medium = 1,
+	sk_hard = 2,
+} mapskill_t;
+
+typedef enum {
+    infighting_map = 0,
+    infighting_always = 1,
+    infighting_never = 2,
+} infightmode_t;
+
+typedef struct
+{
+    u16 player_damage: 2;
+    u16 player_ammo: 2;
+    u16 player_switch_speed: 1;
+    u16 monster_counts: 2;
+    u16 monster_speed: 2;
+    u16 monster_respawns: 1;
+    u16 monster_infighting: 2;
+    u16 monster_reactions: 1;
+    u16 monster_shrink: 1;
+    u16 monster_reduced_pain: 1;
+    u16 monster_random_aim: 1;
+    u16 pistol_start: 1;
+    u16 permadeath: 1;
+} customskill_t;
+
+typedef struct
+{
+    const char *name;
+    customskill_t skill;
+} skillpreset_t;
 
 typedef enum
 {
@@ -275,6 +302,7 @@ typedef struct mobj_s
                                         /* no matter what (even if shot) */
 
     void             *extradata;        /* for latecall functions */
+    mapthing_t       *spawnpoint;       /* for nightmare respawn */
 
     latecall_t        latecall;         /* set in p_base if more work needed */
 
@@ -623,9 +651,9 @@ extern const controls_t DefaultControlSetups[MAXCONTROLSETUPS];
 typedef struct ALIGNED(4) {
     u32 magic;
     u32 size;
+    customskill_t skill;
     u32 version: 8;
     u32 map: 15;
-    u32 skill: 3;
     u32 gametype: 2;
     u32 player1: 1;
     u32 player2: 1;
@@ -687,7 +715,8 @@ extern	player_t	players[MAXPLAYERS];
 
 extern	playerconfig_t	playerconfigs[MAXPLAYERS];
 
-extern	skill_t		gameskill;
+extern const skillpreset_t SkillPresets[];
+extern	customskill_t		customskill;
 extern	int			gamemap;
 extern	int			nextmap;
 extern	int			totalkills, totalitems, totalsecret;	/* for intermission *///80077d4c,80077d58,80077E18
@@ -864,18 +893,18 @@ extern int demosize;
 
 #define DEMO_MAGIC 0xFF443634 // '\xffD64'
 
-void G_InitNew (skill_t skill, int map, gametype_t gametype);
-void G_InitSkill(skill_t skill); // [Immorpher] skill initialize
+void G_InitNew (customskill_t skill, int map, gametype_t gametype);
+void G_InitSkill(customskill_t skill); // [Immorpher] skill initialize
 void G_CompleteLevel (void);
 void G_RecordDemo (void);
-int G_PlayDemoPtr (int skill, int map);
+int G_PlayDemoPtr (customskill_t skill, int map);
 
 /*------*/
 /* PLAY */
 /*------*/
 
 mobj_t *P_SpawnMapThing (mapthing_t *mthing) SEC_GAME;
-void P_SetupLevel (int map, skill_t skill) SEC_STARTUP;
+void P_SetupLevel (int map) SEC_STARTUP;
 void P_FinishSetupLevel (void) SEC_STARTUP;
 void P_Init (void) SEC_STARTUP;
 
@@ -928,7 +957,8 @@ extern int MusicID;                 // 800A5590
 extern int m_actualmap;             // 800A5594
 extern int last_ticon;              // 800a5598
 
-extern skill_t startskill;          // 800A55A0
+extern s8 SkillPreset;
+extern customskill_t startskill;
 extern int startmap;                // 800A55A4
 extern int EnableExpPak;            // 800A55A8
 
@@ -1040,16 +1070,17 @@ void M_ControlPadDrawer(void) SEC_MENU; // 8000B988
 
 extern char *passwordChar;      // 8005AC60
 extern byte Passwordbuff[16];   // 800A55B0
+extern boolean PasswordPresent;
 extern boolean doPassword;      // 8005ACB8
 extern int CurPasswordSlot;     // 8005ACBC
 
-void M_PrintSaveTitle(char *buf, skill_t skill, int map) SEC_MENU;
-void M_EncodePassword(byte *buff) SEC_MENU;//8000BC10
-int M_DecodePassword(byte *inbuff, int *levelnum, int *skill, player_t *player) SEC_MENU; // 8000C194
-void M_PasswordStart(void) SEC_MENU; // 8000C710
-void M_PasswordStop(void) SEC_MENU; // 8000C744
-int M_PasswordTicker(void) SEC_MENU; // 8000C774
-void M_PasswordDrawer(void) SEC_MENU; // 8000CAF0
+void M_PrintSaveTitle(char *buf, customskill_t skill, int map);
+bool M_EncodePassword(byte *buff);//8000BC10
+int M_DecodePassword(byte *inbuff, int *levelnum, int *skill, player_t *player); // 8000C194
+void M_PasswordStart(void); // 8000C710
+void M_PasswordStop(void); // 8000C744
+int M_PasswordTicker(void); // 8000C774
+void M_PasswordDrawer(void); // 8000CAF0
 
 /*--------*/
 /* F_MAIN */
@@ -1079,7 +1110,7 @@ void AM_Drawer (void);
 /* D_SCREENS */
 /*-----------*/
 
-int D_RunDemo(char *name, skill_t skill, int map); // 8002B2D0
+int D_RunDemo(char *name, customskill_t skill, int map); // 8002B2D0
 int D_TitleMap(void);           // 8002B358
 int D_WarningTicker(void) SEC_MENU;      // 8002B3E8
 void D_DrawWarning(void) SEC_MENU;       // 8002B430
@@ -1207,7 +1238,6 @@ typedef struct __attribute__((__packed__)) ALIGNED(8)  {
     u16 crc;
     u32 present: 1;
     u32 map: 9;
-    u32 skill: 3;
     u32 artifacts: 3;
     u32 weapons: 8;
     u32 health: 8;
@@ -1218,12 +1248,14 @@ typedef struct __attribute__((__packed__)) ALIGNED(8)  {
     u32 misl: 6;
     u32 backpack: 1;
     u32 armortype: 2;
+    customskill_t skill;
 } levelsave_t;
 
 void I_InitSram(void) SEC_STARTUP;
 void I_SaveConfig(void);
 void I_SaveProgressToSram(u8 index, const levelsave_t *save);
 void I_SaveProgress(levelsave_t *save);
+void I_DeleteSramSave(u8 index);
 void I_ReadSramSaves(levelsave_t *saves);
 boolean I_IsSaveValid(const levelsave_t *save);
 void I_LoadProgress(const levelsave_t *save);

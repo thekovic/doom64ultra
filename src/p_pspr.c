@@ -558,7 +558,7 @@ void A_CheckReload(player_t *player, pspdef_t *psp) // 8001B9A0
 
 void A_Lower (player_t *player, pspdef_t *psp) // 8001B9C0
 {
-	if (gameskill == sk_nightmare) // [Immorpher] double weapon lower speed on nightmare
+	if (customskill.player_switch_speed) // [Immorpher] double weapon lower speed on nightmare
 	{
 		psp->sy += 2*LOWERSPEED;
 	}
@@ -614,7 +614,7 @@ void A_Raise (player_t *player, pspdef_t *psp) // 8001BA84
 {
 	statenum_t	new;
 	
-	if (gameskill == sk_nightmare) // [Immorpher] double weapon raise speed on nightmare
+	if (customskill.player_switch_speed) // [Immorpher] double weapon raise speed on nightmare
 	{
 		psp->sy -= 2*RAISESPEED;
 	}

@@ -57,9 +57,9 @@ boolean P_GiveAmmo (player_t *player, ammotype_t ammo, int num) // 800143E0
     }
 
     // [GEC] Like PC Doom / Doom 64 EX
-    if (gameskill == sk_baby) {
+    if (customskill.player_ammo == 1) {
 		num <<= 1;			// give double ammo in very easy mode
-	} else if (gameskill == sk_nightmare) {
+	} else if (customskill.player_ammo == 2) {
 		num = 1.5*num; // [Immorpher] for nightmare give a boost but not a crazy one
 	}
 
@@ -449,9 +449,9 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
 	case MT_AMMO_SHELL:
 		if (!P_GiveAmmo (player, am_shell,1))
 			return;
-        if (gameskill == sk_baby)
+        if (customskill.player_ammo == 1)
             message = "Picked up 8 shotgun shells.";
-        else if (gameskill == sk_nightmare) // [Immorpher and GEC] Nightmare ammo boost!
+        else if (customskill.player_ammo == 2) // [Immorpher and GEC] Nightmare ammo boost!
             message = "Picked up 6 shotgun shells.";
 		else
             message = "Picked up 4 shotgun shells.";
@@ -865,8 +865,13 @@ void P_DamageMobj (mobj_t *target, mobj_t *inflictor, mobj_t *source, int damage
 	}
 
 	player = target->player;
-	if (player && gameskill == sk_baby)
-		damage >>= 1;				/* take half damage in trainer mode */
+	if (player)
+    {
+        if(customskill.player_damage == 0)
+            damage >>= 1;				/* take half damage in trainer mode */
+        else if(customskill.player_damage >= 2)
+            damage <<= (customskill.player_damage - 1);
+    }
 
 	/* */
 	/* kick away unless using the chainsaw */

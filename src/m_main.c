@@ -15,6 +15,9 @@ static int M_MenuCreditsTicker(void);
 static void M_IdCreditsDrawer(void);
 static void M_WmsCreditsDrawer(void);
 
+static void M_CustomSkillDrawer(void);
+static void M_UpdateSkillPreset(void);
+
 static levelsave_t *GamePak_Data = NULL;
 levelsave_t LevelSaveBuffer;
 boolean doLoadSave = false;
@@ -89,7 +92,23 @@ u8 ControlMappings[] = {
     _F(MTXT_SKILL2, "Bring It On!") \
     _F(MTXT_SKILL3, "I Own Doom!") \
     _F(MTXT_SKILL4, "Watch Me Die!") \
-    _F(MTXT_SKILL5, "Be Merciless!") \
+    _F(MTXT_SKILL5, "Hardcore!") \
+    _F(MTXT_CUSTOM_SKILL, "Custom") \
+    \
+    _F(MTXT_PRESET, "Preset") \
+    _F(MTXT_PLAYER_DAMAGE, "Player Damage") \
+    _F(MTXT_PLAYER_AMMO, "Player Ammo") \
+    _F(MTXT_MONSTER_COUNTS, "Monster Counts") \
+    _F(MTXT_MONSTER_SPEED, "Monster Speed") \
+    _F(MTXT_MONSTER_RESPAWNS, "Monster Respawns") \
+    _F(MTXT_MONSTER_INFIGHTING, "Monster Infighting") \
+    _F(MTXT_MONSTER_REACTIONS, "Monster Reactions") \
+    _F(MTXT_MONSTER_COLLISION, "Monster Collision") \
+    _F(MTXT_MONSTER_PAIN, "Monster Pain") \
+    _F(MTXT_MONSTER_AIM, "Monster Aim") \
+    _F(MTXT_PISTOL_START, "Pistol Start") \
+    _F(MTXT_PERMA_DEATH, "Perma-Death") \
+    _F(MTXT_START_GAME, "Start Game") \
     \
     _F(MTXT_FEATURES, "Features") \
     _F(MTXT_WARP, "WARP TO LEVEL") \
@@ -175,12 +194,34 @@ const menuitem_t Menu_Title[] =
 
 const menuitem_t Menu_Skill[] =
 {
-    { MTXT_SKILL1, 102, 70 },
-    { MTXT_SKILL2, 102, 90},
-    { MTXT_SKILL3, 102, 110},
-    { MTXT_SKILL4, 102, 130},
-    { MTXT_SKILL5, 102, 150},
-    { MTXT_RETURN, 102, 180},
+    { MTXT_SKILL1,       102, 70 },
+    { MTXT_SKILL2,       102, 90},
+    { MTXT_SKILL3,       102, 110},
+    { MTXT_SKILL4,       102, 130},
+    { MTXT_SKILL5,       102, 150},
+    { MTXT_CUSTOM_SKILL, 102, 170},
+    { MTXT_RETURN,       102, 200},
+};
+
+const menuitem_t Menu_Custom_Skill[] =
+{
+    { MTXT_PRESET,             32, 50},
+
+    { MTXT_PLAYER_DAMAGE,      32, 70},
+    { MTXT_PLAYER_AMMO,        32, 80},
+    { MTXT_MONSTER_COUNTS,     32, 90},
+    { MTXT_MONSTER_SPEED,      32, 100},
+    { MTXT_MONSTER_RESPAWNS,   32, 110},
+    { MTXT_MONSTER_INFIGHTING, 32, 120},
+    { MTXT_MONSTER_REACTIONS,  32, 130},
+    { MTXT_MONSTER_COLLISION,  32, 140},
+    { MTXT_MONSTER_PAIN,       32, 150},
+    { MTXT_MONSTER_AIM,        32, 160},
+    { MTXT_PISTOL_START,       32, 170},
+    { MTXT_PERMA_DEATH,        32, 180},
+
+    { MTXT_START_GAME,         32, 200},
+    { MTXT_MRETURN,            32, 210},
 };
 
 const menuitem_t Menu_Options[] =
@@ -388,7 +429,7 @@ int MusicID;            // 800A5590
 int m_actualmap;        // 800A5594
 int last_ticon;         // 800A5598
 
-skill_t startskill;     // 800A55A0
+customskill_t startskill;     // 800A55A0
 int startmap;           // 800A55A4
 int EnableExpPak;       // 800A55A8
 
@@ -432,6 +473,34 @@ u8 BitDepth = BITDEPTH_16;
 #endif
 
 boolean ConfigChanged = false;
+
+s8 SkillPreset = 1;
+static s8 skillpresetsetup;
+static customskill_t skillsetup;
+
+const skillpreset_t SkillPresets[] = {
+    { "Be Gentle!", { .monster_counts = sk_easy, .player_damage = 0, .player_ammo = 1, } },
+    { "Bring It On!", { .monster_counts = sk_easy, .player_damage = 1 } },
+    { "I Own Doom!", { .monster_counts = sk_medium, .player_damage = 1 } },
+    { "Watch Me Die!", { .monster_counts = sk_hard, .player_damage = 1 } },
+    { "Hardcore!", { .monster_counts = sk_hard, .player_damage = 1,
+                       .player_ammo = 1, .monster_speed = 1 } },
+    { "Be Merciless!", { .monster_counts = sk_hard, .player_damage = 1,
+                         .player_ammo = 2, .monster_speed = 2,
+                         .monster_shrink = 1, .monster_reduced_pain = 1,
+                         .monster_random_aim = 1, } },
+    { "Nightmare!", { .monster_counts = sk_hard, .player_damage = 1,
+                      .player_ammo = 1, .monster_speed = 1, .monster_respawns = 1,
+                      .monster_reactions = 1, } },
+    { "Ultra-Nightmare!", { .monster_counts = sk_hard, .player_damage = 1,
+                            .player_ammo = 1, .monster_speed = 1, .monster_reactions = 1,
+                            .monster_respawns = 1, .permadeath = 1, } },
+    { "Impossible!", { .monster_counts = sk_hard, .player_damage = 3,
+                       .player_ammo = 1, .monster_speed = 2, .monster_shrink = 1,
+                       .monster_reduced_pain = 1, .monster_respawns = 1,
+                       .monster_random_aim = 1, .monster_reactions = 1,
+                       .permadeath = 1, .pistol_start = 1 } },
+};
 
 controls_t CurrentControls[MAXPLAYERS] ALIGNED(16) = {
 {
@@ -558,7 +627,7 @@ int M_RunTitle(void) // 80007630
     int exit;
 
     DrawerStatus = 0;
-    startskill = sk_easy;
+    startskill = SkillPresets[1].skill;
     startmap = 1;
     MenuIdx = 0;
     SET_MENU(Menu_Title);
@@ -1108,9 +1177,20 @@ int M_MenuTicker(void) // 80007E0C
                     S_StartSound(NULL, sfx_pistol);
                     M_SaveMenuData();
 
-                    SET_MENU(Menu_Skill);
-                    MenuCall = M_MenuTitleDrawer;
-                    cursorpos = gameskill;  // Set default to current difficulty
+                    skillsetup = customskill;
+                    M_UpdateSkillPreset();
+                    if (SkillPreset >= 0 && SkillPreset <= 4)
+                    {
+                        SET_MENU(Menu_Skill);
+                        MenuCall = M_MenuTitleDrawer;
+                        cursorpos = SkillPreset;  // Set default to current difficulty
+                    }
+                    else
+                    {
+                        SET_MENU(Menu_Custom_Skill);
+                        MenuCall = M_CustomSkillDrawer;
+                        cursorpos = 0;
+                    }
 
                     exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
 
@@ -1119,11 +1199,10 @@ int M_MenuTicker(void) // 80007E0C
                         return ga_nothing;
                     }
 
-                    gameskill = cursorpos;
-
+                    SkillPreset = skillpresetsetup;
+                    startskill = customskill = skillsetup;
                     startmap = gamemap;
-                    startskill = gameskill;
-                    G_InitSkill (gameskill); // [Immorpher] initialize new skill
+                    G_InitSkill (customskill); // [Immorpher] initialize new skill
 
                     return ga_warped;
                 }
@@ -1313,6 +1392,8 @@ int M_MenuTicker(void) // 80007E0C
 
                     M_SaveMenuData();
 
+                    skillsetup = customskill;
+                    M_UpdateSkillPreset();
                     SET_MENU(Menu_Skill);
                     MenuCall = M_MenuTitleDrawer;
                     cursorpos = 1;  // Set Default Bring it on!
@@ -1328,7 +1409,8 @@ int M_MenuTicker(void) // 80007E0C
                     nextmap = 1; // [Immorpher] For running introduction text"
                     runintroduction = true; // [Immorpher] turn introduction on
 
-                    startskill = cursorpos;
+                    SkillPreset = skillpresetsetup;
+                    startskill = skillsetup;
 
                     if (!SramPresent)
                     {
@@ -1353,6 +1435,239 @@ int M_MenuTicker(void) // 80007E0C
             case MTXT_SKILL4:
             case MTXT_SKILL5:
 
+                if (truebuttons)
+                {
+                    skillsetup = SkillPresets[casepos - MTXT_SKILL1].skill;
+                    S_StartSound(NULL, sfx_pistol);
+                    return ga_warped;
+                }
+                break;
+
+            case MTXT_CUSTOM_SKILL:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+
+                    M_SaveMenuData();
+
+                    SET_MENU(Menu_Custom_Skill);
+                    MenuCall = M_CustomSkillDrawer;
+                    cursorpos = 0;
+                    linepos = 0;
+
+                    exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
+
+                    if (exit == ga_exit) {
+                        M_RestoreMenuData(true);
+                        return ga_nothing;
+                    }
+                    if (exit == ga_warped)
+                        return exit;
+                }
+                break;
+            case MTXT_PRESET:
+                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    if (skillpresetsetup == ARRAYLEN(SkillPresets) - 1)
+                        skillpresetsetup = 0;
+                    else
+                        skillpresetsetup++;
+                    skillsetup = SkillPresets[skillpresetsetup].skill;
+                    return ga_nothing;
+                }
+                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    if (skillpresetsetup <= 0)
+                        skillpresetsetup = ARRAYLEN(SkillPresets) - 1;
+                    else
+                        skillpresetsetup--;
+                    skillsetup = SkillPresets[skillpresetsetup].skill;
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_PLAYER_DAMAGE:
+                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    if (skillsetup.player_damage == 3)
+                        skillsetup.player_damage = 0;
+                    else
+                        skillsetup.player_damage++;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    if (skillsetup.player_damage == 0)
+                        skillsetup.player_damage = 3;
+                    else
+                        skillsetup.player_damage--;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_PLAYER_AMMO:
+                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    if (skillsetup.player_ammo == 2)
+                        skillsetup.player_ammo = 0;
+                    else
+                        skillsetup.player_ammo++;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    if (skillsetup.player_ammo == 0)
+                        skillsetup.player_ammo = 2;
+                    else
+                        skillsetup.player_ammo--;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_MONSTER_COUNTS:
+                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    if (skillsetup.monster_counts == 2)
+                        skillsetup.monster_counts = 0;
+                    else
+                        skillsetup.monster_counts++;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    if (skillsetup.monster_counts == 0)
+                        skillsetup.monster_counts = 2;
+                    else
+                        skillsetup.monster_counts--;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_MONSTER_SPEED:
+                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    if (skillsetup.monster_speed == 2)
+                        skillsetup.monster_speed = 0;
+                    else
+                        skillsetup.monster_speed++;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    if (skillsetup.monster_speed == 0)
+                        skillsetup.monster_speed = 2;
+                    else
+                        skillsetup.monster_speed--;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_MONSTER_RESPAWNS:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    skillsetup.monster_respawns ^= 1;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_MONSTER_INFIGHTING:
+                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    if (skillsetup.monster_infighting == 2)
+                        skillsetup.monster_infighting = 0;
+                    else
+                        skillsetup.monster_infighting++;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    if (skillsetup.monster_infighting == 0)
+                        skillsetup.monster_infighting = 2;
+                    else
+                        skillsetup.monster_infighting--;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_MONSTER_REACTIONS:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    skillsetup.monster_reactions ^= 1;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_MONSTER_COLLISION:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    skillsetup.monster_shrink ^= 1;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_MONSTER_PAIN:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    skillsetup.monster_reduced_pain ^= 1;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_MONSTER_AIM:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    skillsetup.monster_random_aim ^= 1;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_PISTOL_START:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    skillsetup.pistol_start ^= 1;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_PERMA_DEATH:
+                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    skillsetup.permadeath ^= 1;
+                    M_UpdateSkillPreset();
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_START_GAME:
                 if (truebuttons)
                 {
                     S_StartSound(NULL, sfx_pistol);
@@ -2447,6 +2762,8 @@ int M_MenuTicker(void) // 80007E0C
                     {
                         S_StartSound(NULL, sfx_pistol);
                         I_QuickSave();
+                        if (customskill.permadeath)
+                            return ga_exitdemo;
                         Menu_Game[1].casepos = MTXT_GAME_SAVED;
                         Menu_Game[2].casepos = MTXT_QUICK_LOAD_DISABLED;
                     }
@@ -3958,9 +4275,15 @@ int M_LoadPakTicker(void) // 8000AFE4
         LevelSaveBuffer = *M_PakDataIndex(cursorpos);
 
         startmap = gamemap = LevelSaveBuffer.map;
-        startskill = gameskill = LevelSaveBuffer.skill;
+        startskill = customskill = LevelSaveBuffer.skill;
 
-        G_InitSkill (gameskill);
+        G_InitSkill (customskill);
+        if (customskill.permadeath) {
+            if (I_DeletePakFile(cursorpos) == 0)
+                FileState[cursorpos].file_size = 0;
+            else
+                FilesUsed = -1;
+        }
         exit = ga_warped;
     }
     else
@@ -4113,9 +4436,13 @@ int M_LoadGamePakTicker(void)
         LevelSaveBuffer = GamePak_Data[cursorpos];
 
         startmap = gamemap = LevelSaveBuffer.map;
-        startskill = gameskill = LevelSaveBuffer.skill;
+        startskill = customskill = LevelSaveBuffer.skill;
 
-        G_InitSkill (gameskill);
+        G_InitSkill (customskill);
+        if (customskill.permadeath) {
+            GamePak_Data[cursorpos].present = 0;
+            I_DeleteSramSave(cursorpos);
+        }
         exit = ga_warped;
     }
     else
@@ -4511,4 +4838,140 @@ void M_ControlPadDrawer(void) // 8000B988
         ST_DrawSymbol(276, (cursorpos - 2) % CONTROLCOLSIZE * 16 + 70 , 78, text_alpha | 0x90600000);
 
     ST_DrawString(-1, SCREEN_HT - 20, "press \x8d to exit", text_alpha | 0xffffff00);
+}
+
+void M_UpdateSkillPreset(void)
+{
+    for (int i = 0; i < ARRAYLEN(SkillPresets); i++)
+    {
+        if (memcmp(&skillsetup, (void*) &SkillPresets[i].skill, sizeof skillsetup) == 0) {
+            skillpresetsetup = i;
+            return;
+        }
+    }
+    skillpresetsetup = -1;
+}
+
+void M_CustomSkillDrawer(void)
+{
+    const char *text;
+    const menuitem_t *item;
+    int i;
+
+    ST_DrawString(-1, 20, "Custom Difficulty", text_alpha | 0xc0000000);
+
+    item = MenuItem;
+    for(i = 0; i < itemlines; i++)
+    {
+        menuentry_t casepos;
+        text = NULL;
+
+        casepos = item->casepos;
+
+        switch (casepos)
+        {
+        case MTXT_PRESET:
+            if (skillpresetsetup < 0)
+                text = "Custom";
+            else
+                text = SkillPresets[skillpresetsetup].name;
+            break;
+        case MTXT_PLAYER_DAMAGE:
+            if (skillsetup.player_damage == 0)
+                text = "Half";
+            else if (skillsetup.player_damage == 1)
+                text = "Normal";
+            else if (skillsetup.player_damage == 2)
+                text = "Double";
+            else if (skillsetup.player_damage == 3)
+                text = "Quadruple";
+            break;
+        case MTXT_PLAYER_AMMO:
+            if (skillsetup.player_ammo == 0)
+                text = "Normal";
+            else if (skillsetup.player_ammo == 1)
+                text = "Double";
+            else if (skillsetup.player_ammo == 2)
+                text = "150%";
+            break;
+        case MTXT_MONSTER_COUNTS:
+            if (skillsetup.monster_counts == sk_easy)
+                text = "Less";
+            else if (skillsetup.monster_counts == sk_medium)
+                text = "Normal";
+            else if (skillsetup.monster_counts == sk_hard)
+                text = "More";
+            break;
+        case MTXT_MONSTER_SPEED:
+            if (skillsetup.monster_speed == 0)
+                text = "Normal";
+            else if (skillsetup.monster_speed == 1)
+                text = "Fast";
+            else if (skillsetup.monster_speed == 2)
+                text = "Very Fast";
+            break;
+        case MTXT_MONSTER_RESPAWNS:
+            if (skillsetup.monster_respawns)
+                text = "On";
+            else
+                text = "Off";
+            break;
+        case MTXT_MONSTER_INFIGHTING:
+            if (skillsetup.monster_infighting == infighting_map)
+                text = "Map-Defined";
+            else if (skillsetup.monster_infighting == infighting_always)
+                text = "Always";
+            else if (skillsetup.monster_infighting == infighting_never)
+                text = "Never";
+            break;
+        case MTXT_MONSTER_REACTIONS:
+            if (skillsetup.monster_reactions)
+                text = "Instant";
+            else
+                text = "Normal";
+            break;
+        case MTXT_MONSTER_COLLISION:
+            if (skillsetup.monster_shrink)
+                text = "Smaller";
+            else
+                text = "Normal";
+            break;
+        case MTXT_MONSTER_PAIN:
+            if (skillsetup.monster_reduced_pain)
+                text = "Reduced";
+            else
+                text = "Normal";
+            break;
+        case MTXT_MONSTER_AIM:
+            if (skillsetup.monster_random_aim)
+                text = "Randomized";
+            else
+                text = "Normal";
+            break;
+        case MTXT_PISTOL_START:
+            if (skillsetup.pistol_start)
+                text = "On";
+            else
+                text = "Off";
+            break;
+        case MTXT_PERMA_DEATH:
+            if (skillsetup.permadeath)
+                text = "On";
+            else
+                text = "Off";
+            break;
+        default:
+            text = NULL;
+            break;
+        }
+
+        if (text)
+            ST_Message(item->x + 152, item->y, text, text_alpha | 0xc0000000);
+
+        ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+        item++;
+    }
+
+
+    ST_DrawSymbol(MenuItem->x -10, MenuItem[cursorpos].y -2, 78, text_alpha | 0x90600000);
 }

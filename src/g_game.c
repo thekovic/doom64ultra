@@ -24,7 +24,7 @@ void G_DoLoadLevel (void);
 
 
 gameaction_t    gameaction;                 // 80063230
-skill_t         gameskill;                  // 80063234
+SDATA customskill_t   customskill;
 int             gamemap;                    // 80063238
 int				nextmap;				    // 8006323C /* the map to go to after the stats */
 
@@ -57,10 +57,10 @@ mapthing_t	playerstarts[MAXPLAYERS];   // 800a8c60
 
 void G_DoLoadLevel (void) // 80004530
 {
-	if (((gameaction == ga_restart) || (gameaction == ga_warped)) || (players[0].playerstate == PST_DEAD))
+	if (customskill.pistol_start || ((gameaction == ga_restart) || (gameaction == ga_warped)) || (players[0].playerstate == PST_DEAD))
 		players[0].playerstate = PST_REBORN;
 
-	P_SetupLevel(gamemap, gameskill);
+	P_SetupLevel(gamemap);
     P_FinishSetupLevel();
 	gameaction = ga_nothing;
 }
@@ -165,7 +165,7 @@ void G_CompleteLevel (void) // 800046E4
 
 mobj_t emptymobj; // 80063158
 
-void G_InitNew (skill_t skill, int map, gametype_t gametype) // 800046F4
+void G_InitNew (customskill_t skill, int map, gametype_t gametype) // 800046F4
 {
 	//printf ("G_InitNew, skill %d, map %d\n", skill, map);
 
@@ -178,7 +178,7 @@ void G_InitNew (skill_t skill, int map, gametype_t gametype) // 800046F4
     players[0].playerstate = PST_REBORN;
 
 /* these may be reset by I_NetSetup */
-	gameskill = skill;
+	customskill = skill;
 	gamemap = map;
 
 	D_memset(&emptymobj, 0, sizeof(emptymobj));
@@ -190,164 +190,178 @@ void G_InitNew (skill_t skill, int map, gametype_t gametype) // 800046F4
     G_InitSkill (skill);
 }
 
-void G_InitSkill (skill_t skill) // [Immorpher] initialize skill
+void G_InitSkill (customskill_t skill) // [Immorpher] initialize skill
 {
-	if (skill >= sk_nightmare)
-	{
-		// Faster enemies
-		states[S_SARG_ATK1].tics = 4;
-		states[S_SARG_ATK2].tics = 4;
-		states[S_SARG_ATK3].tics = 4;
-		mobjinfo[MT_DEMON1].speed = 24;
-		mobjinfo[MT_DEMON2].speed = 24;
-		mobjinfo[MT_MANCUBUS].speed = 14;
-		mobjinfo[MT_POSSESSED1].speed = 14;
-		mobjinfo[MT_POSSESSED2].speed = 14;
-		mobjinfo[MT_IMP1].speed = 14;
-		mobjinfo[MT_IMP2].speed = 20;
-		mobjinfo[MT_CACODEMON].speed = 14;
-		mobjinfo[MT_BRUISER1].speed = 14;
-		mobjinfo[MT_BRUISER2].speed = 14;
-		mobjinfo[MT_SKULL].speed = 14;
-		mobjinfo[MT_BABY].speed = 18;
-		mobjinfo[MT_CYBORG].speed = 20;
-		mobjinfo[MT_PAIN].speed = 12;
-		mobjinfo[MT_RESURRECTOR].speed = 32;
+    if (skill.monster_speed >= 1)
+    {
+        // Faster enemies
+        states[S_SARG_ATK1].tics = 4;
+        states[S_SARG_ATK2].tics = 4;
+        states[S_SARG_ATK3].tics = 4;
+        mobjinfo[MT_DEMON1].speed = 17;
+        mobjinfo[MT_DEMON2].speed = 17;
+        // Faster Projectiles
+        mobjinfo[MT_PROJ_BRUISER1].speed = 20; // MT_BRUISERSHOT
+        mobjinfo[MT_PROJ_BRUISER2].speed = 20; // MT_BRUISERSHOT2
+        mobjinfo[MT_PROJ_HEAD].speed = 30; // MT_HEADSHOT value like Doom 64 Ex
+        mobjinfo[MT_PROJ_IMP1].speed = 20; // MT_TROOPSHOT
+        mobjinfo[MT_PROJ_IMP2].speed = 35; // MT_TROOPSHOT2 value like Doom 64 Ex
 
-		// Faster Projectiles
-		mobjinfo[MT_PROJ_BRUISER1].speed = 20; // MT_BRUISERSHOT
-		mobjinfo[MT_PROJ_BRUISER2].speed = 20; // MT_BRUISERSHOT2
-		mobjinfo[MT_PROJ_HEAD].speed = 30; // MT_HEADSHOT value like Doom 64 Ex
-		mobjinfo[MT_PROJ_IMP1].speed = 20; // MT_TROOPSHOT
-		mobjinfo[MT_PROJ_IMP2].speed = 30; // [Immorpher] reduced it from 35 to 30, hard to dodge otherwise
-		
-		// [Immorpher] Thinner enemies
-		mobjinfo[MT_DEMON1].radius = 38*FRACUNIT;
-		mobjinfo[MT_DEMON1].height = 81*FRACUNIT;
-		mobjinfo[MT_DEMON2].radius = 38*FRACUNIT;
-		mobjinfo[MT_DEMON2].height = 81*FRACUNIT;
-		mobjinfo[MT_MANCUBUS].radius = 54*FRACUNIT;
-		mobjinfo[MT_MANCUBUS].height = 105*FRACUNIT;
-		mobjinfo[MT_POSSESSED1].radius = 19*FRACUNIT;
-		mobjinfo[MT_POSSESSED1].height = 79*FRACUNIT;
-		mobjinfo[MT_POSSESSED2].radius = 19*FRACUNIT;
-		mobjinfo[MT_POSSESSED2].height = 79*FRACUNIT;
-		mobjinfo[MT_IMP1].radius = 27*FRACUNIT;
-		mobjinfo[MT_IMP1].height = 86*FRACUNIT;
-		mobjinfo[MT_IMP2].radius = 27*FRACUNIT;
-		mobjinfo[MT_IMP2].height = 86*FRACUNIT;
-		mobjinfo[MT_CACODEMON].radius = 40*FRACUNIT;
-		mobjinfo[MT_CACODEMON].height = 88*FRACUNIT;
-		mobjinfo[MT_BRUISER1].radius = 24*FRACUNIT;
-		mobjinfo[MT_BRUISER1].height = 98*FRACUNIT;
-		mobjinfo[MT_BRUISER2].radius = 24*FRACUNIT;
-		mobjinfo[MT_BRUISER2].height = 98*FRACUNIT;
-		mobjinfo[MT_SKULL].radius = 26*FRACUNIT;
-		mobjinfo[MT_SKULL].height = 62*FRACUNIT;
-		mobjinfo[MT_BABY].radius = 62*FRACUNIT;
-		mobjinfo[MT_BABY].height = 78*FRACUNIT;
-		mobjinfo[MT_CYBORG].radius = 59*FRACUNIT;
-		mobjinfo[MT_CYBORG].height = 168*FRACUNIT;
-		mobjinfo[MT_PAIN].radius = 55*FRACUNIT;
-		mobjinfo[MT_PAIN].height = 98*FRACUNIT;
-		mobjinfo[MT_RESURRECTOR].radius = 71*FRACUNIT;
-		mobjinfo[MT_RESURRECTOR].height = 148*FRACUNIT;
-		
-		// Less pain
-		mobjinfo[MT_DEMON1].painchance = 90;
-		mobjinfo[MT_DEMON2].painchance = 90;
-		mobjinfo[MT_MANCUBUS].painchance = 40;
-		mobjinfo[MT_POSSESSED1].painchance = 100;
-		mobjinfo[MT_POSSESSED2].painchance = 95;
-		mobjinfo[MT_IMP1].painchance = 100;
-		mobjinfo[MT_IMP2].painchance = 64;
-		mobjinfo[MT_CACODEMON].painchance = 64;
-		mobjinfo[MT_BRUISER1].painchance = 25;
-		mobjinfo[MT_BRUISER2].painchance = 25;
-		mobjinfo[MT_SKULL].painchance = 128;
-		mobjinfo[MT_BABY].painchance = 64;
-		mobjinfo[MT_CYBORG].painchance = 10;
-		mobjinfo[MT_PAIN].painchance = 64;
-		mobjinfo[MT_RESURRECTOR].painchance = 25;
-	}
-	else
-	{
-		// Restore enemy speeds
-		states[S_SARG_ATK1].tics = 8;
-		states[S_SARG_ATK2].tics = 8;
-		states[S_SARG_ATK3].tics = 8;
-		mobjinfo[MT_DEMON1].speed = 12;
-		mobjinfo[MT_DEMON2].speed = 12;
-		mobjinfo[MT_MANCUBUS].speed = 8;
-		mobjinfo[MT_POSSESSED1].speed = 8;
-		mobjinfo[MT_POSSESSED2].speed = 8;
-		mobjinfo[MT_IMP1].speed = 8;
-		mobjinfo[MT_IMP2].speed = 16;
-		mobjinfo[MT_CACODEMON].speed = 8;
-		mobjinfo[MT_BRUISER1].speed = 8;
-		mobjinfo[MT_BRUISER2].speed = 8;
-		mobjinfo[MT_SKULL].speed = 8;
-		mobjinfo[MT_BABY].speed = 12;
-		mobjinfo[MT_CYBORG].speed = 16;
-		mobjinfo[MT_PAIN].speed = 8;
-		mobjinfo[MT_RESURRECTOR].speed = 30;
+        if (skill.monster_speed >= 2)
+        {
+            mobjinfo[MT_DEMON1].speed = 24;
+            mobjinfo[MT_DEMON2].speed = 24;
+            mobjinfo[MT_MANCUBUS].speed = 14;
+            mobjinfo[MT_POSSESSED1].speed = 14;
+            mobjinfo[MT_POSSESSED2].speed = 14;
+            mobjinfo[MT_IMP1].speed = 14;
+            mobjinfo[MT_IMP2].speed = 20;
+            mobjinfo[MT_CACODEMON].speed = 14;
+            mobjinfo[MT_BRUISER1].speed = 14;
+            mobjinfo[MT_BRUISER2].speed = 14;
+            mobjinfo[MT_SKULL].speed = 14;
+            mobjinfo[MT_BABY].speed = 18;
+            mobjinfo[MT_CYBORG].speed = 20;
+            mobjinfo[MT_PAIN].speed = 12;
+            mobjinfo[MT_RESURRECTOR].speed = 32;
+        }
+    }
+    else
+    {
+        // Restore enemy speeds
+        states[S_SARG_ATK1].tics = 8;
+        states[S_SARG_ATK2].tics = 8;
+        states[S_SARG_ATK3].tics = 8;
+        mobjinfo[MT_DEMON1].speed = 12;
+        mobjinfo[MT_DEMON2].speed = 12;
+        mobjinfo[MT_MANCUBUS].speed = 8;
+        mobjinfo[MT_POSSESSED1].speed = 8;
+        mobjinfo[MT_POSSESSED2].speed = 8;
+        mobjinfo[MT_IMP1].speed = 8;
+        mobjinfo[MT_IMP2].speed = 16;
+        mobjinfo[MT_CACODEMON].speed = 8;
+        mobjinfo[MT_BRUISER1].speed = 8;
+        mobjinfo[MT_BRUISER2].speed = 8;
+        mobjinfo[MT_SKULL].speed = 8;
+        mobjinfo[MT_BABY].speed = 12;
+        mobjinfo[MT_CYBORG].speed = 16;
+        mobjinfo[MT_PAIN].speed = 8;
+        mobjinfo[MT_RESURRECTOR].speed = 30;
+        // Restore projectile speeds
+        mobjinfo[MT_PROJ_BRUISER1].speed = 15; // MT_BRUISERSHOT
+        mobjinfo[MT_PROJ_BRUISER2].speed = 15; // MT_BRUISERSHOT2
+        mobjinfo[MT_PROJ_HEAD].speed = 20; // MT_HEADSHOT
+        mobjinfo[MT_PROJ_IMP1].speed = 10; // MT_TROOPSHOT
+        mobjinfo[MT_PROJ_IMP2].speed = 20; // MT_TROOPSHOT2
+    }
 
-		// Restore projectile speeds
-		mobjinfo[MT_PROJ_BRUISER1].speed = 15; // MT_BRUISERSHOT
-		mobjinfo[MT_PROJ_BRUISER2].speed = 15; // MT_BRUISERSHOT2
-		mobjinfo[MT_PROJ_HEAD].speed = 20; // MT_HEADSHOT
-		mobjinfo[MT_PROJ_IMP1].speed = 10; // MT_TROOPSHOT
-		mobjinfo[MT_PROJ_IMP2].speed = 20; // MT_TROOPSHOT2
-		
-		// Restore Enemy Size
-		mobjinfo[MT_DEMON1].radius = 44*FRACUNIT;
-		mobjinfo[MT_DEMON1].height = 100*FRACUNIT;
-		mobjinfo[MT_DEMON2].radius = 50*FRACUNIT;
-		mobjinfo[MT_DEMON2].height = 100*FRACUNIT;
-		mobjinfo[MT_MANCUBUS].radius = 60*FRACUNIT;
-		mobjinfo[MT_MANCUBUS].height = 108*FRACUNIT;
-		mobjinfo[MT_POSSESSED1].radius = 32*FRACUNIT;
-		mobjinfo[MT_POSSESSED1].height = 87*FRACUNIT;
-		mobjinfo[MT_POSSESSED2].radius = 32*FRACUNIT;
-		mobjinfo[MT_POSSESSED2].height = 87*FRACUNIT;
-		mobjinfo[MT_IMP1].radius = 42*FRACUNIT;
-		mobjinfo[MT_IMP1].height = 94*FRACUNIT;
-		mobjinfo[MT_IMP2].radius = 42*FRACUNIT;
-		mobjinfo[MT_IMP2].height = 94*FRACUNIT;
-		mobjinfo[MT_CACODEMON].radius = 55*FRACUNIT;
-		mobjinfo[MT_CACODEMON].height = 90*FRACUNIT;
-		mobjinfo[MT_BRUISER1].radius = 24*FRACUNIT;
-		mobjinfo[MT_BRUISER1].height = 100*FRACUNIT;
-		mobjinfo[MT_BRUISER2].radius = 24*FRACUNIT;
-		mobjinfo[MT_BRUISER2].height = 100*FRACUNIT;
-		mobjinfo[MT_SKULL].radius = 28*FRACUNIT;
-		mobjinfo[MT_SKULL].height = 64*FRACUNIT;
-		mobjinfo[MT_BABY].radius = 64*FRACUNIT;
-		mobjinfo[MT_BABY].height = 80*FRACUNIT;
-		mobjinfo[MT_CYBORG].radius = 70*FRACUNIT;
-		mobjinfo[MT_CYBORG].height = 170*FRACUNIT;
-		mobjinfo[MT_PAIN].radius = 60*FRACUNIT;
-		mobjinfo[MT_PAIN].height = 112*FRACUNIT;
-		mobjinfo[MT_RESURRECTOR].radius = 80*FRACUNIT;
-		mobjinfo[MT_RESURRECTOR].height = 150*FRACUNIT;
-		
-		// Restore pains
-		mobjinfo[MT_DEMON1].painchance = 180;
-		mobjinfo[MT_DEMON2].painchance = 180;
-		mobjinfo[MT_MANCUBUS].painchance = 80;
-		mobjinfo[MT_POSSESSED1].painchance = 200;
-		mobjinfo[MT_POSSESSED2].painchance = 170;
-		mobjinfo[MT_IMP1].painchance = 200;
-		mobjinfo[MT_IMP2].painchance = 128;
-		mobjinfo[MT_CACODEMON].painchance = 128;
-		mobjinfo[MT_BRUISER1].painchance = 50;
-		mobjinfo[MT_BRUISER2].painchance = 50;
-		mobjinfo[MT_SKULL].painchance = 256;
-		mobjinfo[MT_BABY].painchance = 128;
-		mobjinfo[MT_CYBORG].painchance = 20;
-		mobjinfo[MT_PAIN].painchance = 128;
-		mobjinfo[MT_RESURRECTOR].painchance = 50;
-	}
+    if (skill.monster_shrink >= 1)
+    {
+        // [Immorpher] Thinner enemies
+        mobjinfo[MT_DEMON1].radius = 38*FRACUNIT;
+        mobjinfo[MT_DEMON1].height = 81*FRACUNIT;
+        mobjinfo[MT_DEMON2].radius = 38*FRACUNIT;
+        mobjinfo[MT_DEMON2].height = 81*FRACUNIT;
+        mobjinfo[MT_MANCUBUS].radius = 54*FRACUNIT;
+        mobjinfo[MT_MANCUBUS].height = 105*FRACUNIT;
+        mobjinfo[MT_POSSESSED1].radius = 19*FRACUNIT;
+        mobjinfo[MT_POSSESSED1].height = 79*FRACUNIT;
+        mobjinfo[MT_POSSESSED2].radius = 19*FRACUNIT;
+        mobjinfo[MT_POSSESSED2].height = 79*FRACUNIT;
+        mobjinfo[MT_IMP1].radius = 27*FRACUNIT;
+        mobjinfo[MT_IMP1].height = 86*FRACUNIT;
+        mobjinfo[MT_IMP2].radius = 27*FRACUNIT;
+        mobjinfo[MT_IMP2].height = 86*FRACUNIT;
+        mobjinfo[MT_CACODEMON].radius = 40*FRACUNIT;
+        mobjinfo[MT_CACODEMON].height = 88*FRACUNIT;
+        mobjinfo[MT_BRUISER1].radius = 24*FRACUNIT;
+        mobjinfo[MT_BRUISER1].height = 98*FRACUNIT;
+        mobjinfo[MT_BRUISER2].radius = 24*FRACUNIT;
+        mobjinfo[MT_BRUISER2].height = 98*FRACUNIT;
+        mobjinfo[MT_SKULL].radius = 26*FRACUNIT;
+        mobjinfo[MT_SKULL].height = 62*FRACUNIT;
+        mobjinfo[MT_BABY].radius = 62*FRACUNIT;
+        mobjinfo[MT_BABY].height = 78*FRACUNIT;
+        mobjinfo[MT_CYBORG].radius = 59*FRACUNIT;
+        mobjinfo[MT_CYBORG].height = 168*FRACUNIT;
+        mobjinfo[MT_PAIN].radius = 55*FRACUNIT;
+        mobjinfo[MT_PAIN].height = 98*FRACUNIT;
+        mobjinfo[MT_RESURRECTOR].radius = 71*FRACUNIT;
+        mobjinfo[MT_RESURRECTOR].height = 148*FRACUNIT;
+    }
+    else
+    {
+        // Restore Enemy Size
+        mobjinfo[MT_DEMON1].radius = 44*FRACUNIT;
+        mobjinfo[MT_DEMON1].height = 100*FRACUNIT;
+        mobjinfo[MT_DEMON2].radius = 50*FRACUNIT;
+        mobjinfo[MT_DEMON2].height = 100*FRACUNIT;
+        mobjinfo[MT_MANCUBUS].radius = 60*FRACUNIT;
+        mobjinfo[MT_MANCUBUS].height = 108*FRACUNIT;
+        mobjinfo[MT_POSSESSED1].radius = 32*FRACUNIT;
+        mobjinfo[MT_POSSESSED1].height = 87*FRACUNIT;
+        mobjinfo[MT_POSSESSED2].radius = 32*FRACUNIT;
+        mobjinfo[MT_POSSESSED2].height = 87*FRACUNIT;
+        mobjinfo[MT_IMP1].radius = 42*FRACUNIT;
+        mobjinfo[MT_IMP1].height = 94*FRACUNIT;
+        mobjinfo[MT_IMP2].radius = 42*FRACUNIT;
+        mobjinfo[MT_IMP2].height = 94*FRACUNIT;
+        mobjinfo[MT_CACODEMON].radius = 55*FRACUNIT;
+        mobjinfo[MT_CACODEMON].height = 90*FRACUNIT;
+        mobjinfo[MT_BRUISER1].radius = 24*FRACUNIT;
+        mobjinfo[MT_BRUISER1].height = 100*FRACUNIT;
+        mobjinfo[MT_BRUISER2].radius = 24*FRACUNIT;
+        mobjinfo[MT_BRUISER2].height = 100*FRACUNIT;
+        mobjinfo[MT_SKULL].radius = 28*FRACUNIT;
+        mobjinfo[MT_SKULL].height = 64*FRACUNIT;
+        mobjinfo[MT_BABY].radius = 64*FRACUNIT;
+        mobjinfo[MT_BABY].height = 80*FRACUNIT;
+        mobjinfo[MT_CYBORG].radius = 70*FRACUNIT;
+        mobjinfo[MT_CYBORG].height = 170*FRACUNIT;
+        mobjinfo[MT_PAIN].radius = 60*FRACUNIT;
+        mobjinfo[MT_PAIN].height = 112*FRACUNIT;
+        mobjinfo[MT_RESURRECTOR].radius = 80*FRACUNIT;
+        mobjinfo[MT_RESURRECTOR].height = 150*FRACUNIT;
+    }
+
+    if (skill.monster_reduced_pain >= 1)
+    {
+        // Less pain
+        mobjinfo[MT_DEMON1].painchance = 90;
+        mobjinfo[MT_DEMON2].painchance = 90;
+        mobjinfo[MT_MANCUBUS].painchance = 40;
+        mobjinfo[MT_POSSESSED1].painchance = 100;
+        mobjinfo[MT_POSSESSED2].painchance = 95;
+        mobjinfo[MT_IMP1].painchance = 100;
+        mobjinfo[MT_IMP2].painchance = 64;
+        mobjinfo[MT_CACODEMON].painchance = 64;
+        mobjinfo[MT_BRUISER1].painchance = 25;
+        mobjinfo[MT_BRUISER2].painchance = 25;
+        mobjinfo[MT_SKULL].painchance = 128;
+        mobjinfo[MT_BABY].painchance = 64;
+        mobjinfo[MT_CYBORG].painchance = 10;
+        mobjinfo[MT_PAIN].painchance = 64;
+        mobjinfo[MT_RESURRECTOR].painchance = 25;
+    }
+    else
+    {
+        // Restore pains
+        mobjinfo[MT_DEMON1].painchance = 180;
+        mobjinfo[MT_DEMON2].painchance = 180;
+        mobjinfo[MT_MANCUBUS].painchance = 80;
+        mobjinfo[MT_POSSESSED1].painchance = 200;
+        mobjinfo[MT_POSSESSED2].painchance = 170;
+        mobjinfo[MT_IMP1].painchance = 200;
+        mobjinfo[MT_IMP2].painchance = 128;
+        mobjinfo[MT_CACODEMON].painchance = 128;
+        mobjinfo[MT_BRUISER1].painchance = 50;
+        mobjinfo[MT_BRUISER2].painchance = 50;
+        mobjinfo[MT_SKULL].painchance = 256;
+        mobjinfo[MT_BABY].painchance = 128;
+        mobjinfo[MT_CYBORG].painchance = 20;
+        mobjinfo[MT_PAIN].painchance = 128;
+        mobjinfo[MT_RESURRECTOR].painchance = 50;
+    }
 }
 /*============================================================================  */
 
@@ -451,7 +465,7 @@ void G_RunGame (void) // 80004794
 	}
 }
 
-int G_PlayDemoPtr (int skill, int map) // 800049D0
+int G_PlayDemoPtr (customskill_t skill, int map) // 800049D0
 {
 	int		exit;
     controls_t controls[MAXPLAYERS];
