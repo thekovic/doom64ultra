@@ -45,6 +45,8 @@ static byte *decompressbuf;
 
 extern OSMesgQueue romcopy_msgque;
 
+void AllocDecodeWindow(void);
+
 /*
 ============================================================================
 
@@ -84,6 +86,7 @@ void W_Init (void) // 8002BEC0
 {
     wadinfo_t wadfileheader ALIGNED(16);
 	int infotableofs, i;
+    bool intextures = false;
 
     W_GetRomData(0, &wadfileheader, sizeof(wadinfo_t), sizeof(wadinfo_t));
 
@@ -117,17 +120,31 @@ void W_Init (void) // 8002BEC0
     // [nova] - find appropriate size for a buffer for decompressing textures/sprites
     for(i = 0; i < numlumps; i++)
     {
+        char *name = lumpinfo[i].name;
+
+        if (D_strncmp(name, "T_START", 8) == 0)
+            intextures = true;
+        else if (D_strncmp(name, "T_END", 8) == 0)
+            intextures = false;
+
         if (!W_IsLumpCompressed(i))
             continue;
-
-        char *name = lumpinfo[i].name;
 
         // skip maps
         if (name[0] == ('M' | -0x80) && name[1] == 'A' && name[2] == 'P'
                 && name[3] >= '0' && name[3] <= '9'
                 && name[4] >= '0' && name[4] <= '9'
                 && name[5] == '\0')
+        {
+            AllocDecodeWindow();
             continue;
+        }
+
+        if (intextures
+                || (name[0] == ('D' | -0x80) && name[1] == 'E' && name[2] == 'M'
+                    && name[3] == 'O' && name[4] >= '0' && name[4] <= '9'
+                    && name[5] == 'L' && name[6] == 'M' && name[7] == 'P'))
+            AllocDecodeWindow();
 
         // skip some lumps never loaded during gameplay
         if (D_strncmp(name, "\xc5VIL", 8) == 0
