@@ -3323,6 +3323,23 @@ int M_ScreenTicker(void) // 8000A0F8
     return exit;
 }
 
+static char M_PakTableChar(char c)
+{
+    static const char Pak_Table[] = {
+      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',// 16
+      'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',// 26
+      'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',// 36
+      'u', 'v', 'w', 'x', 'y', 'z', '!', '"', '#','\'',// 46
+      '*', '+', ',', '-', '.', '/', ':', '=', '?', '@',// 56
+    };
+
+    if (c == 0)
+        return c;
+    if (c >= 16 && c < (16 + ARRAYLEN(Pak_Table)))
+        return Pak_Table[c - 16];
+    return ' ';
+}
+
 void M_ControllerPakDrawer(void) // 8000A3E4
 {
     byte idx;
@@ -3360,7 +3377,7 @@ void M_ControllerPakDrawer(void) // 8000A3E4
                     if(idx == 0)
                         break;
 
-                    tmpbuf[0] = Pak_Table[idx];
+                    tmpbuf[0] = M_PakTableChar(idx);
                     tmpbuf++;
                 }
 
@@ -3368,7 +3385,7 @@ void M_ControllerPakDrawer(void) // 8000A3E4
                 if (idx != 0)
                 {
                     tmpbuf[0] = '.';
-                    tmpbuf[1] = Pak_Table[idx];
+                    tmpbuf[1] = M_PakTableChar(idx);
                     tmpbuf += 2;
                 }
 
