@@ -46,7 +46,7 @@ extern void I_InitFlashCart(void);
 
 // Function pointers
 extern void (*UsbFuncWriteStart)(int datatype, int size);
-extern void (*UsbFuncWrite)(const void* data, int size);
+extern void (*UsbFuncWritePart)(const void* data, int size);
 extern void (*UsbFuncWriteEnd)(int datatype, int size);
 
 /* Check the USB for incoming commands and run them, should be called by main

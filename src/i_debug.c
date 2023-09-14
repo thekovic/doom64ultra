@@ -149,7 +149,10 @@ COLD void I_InitDebugging()
                     OS_PRIORITY_RMON);
     osStartThread(&debugThread);
 #endif /* !defined(NDEBUG) */
+}
 
+COLD void I_StartDebugger()
+{
     D_printstatic("DOOM 64 ULTRA\nI_InitDebugging: Logging enabled.\n\n");
 #ifdef USB
     I_USBPrintHelp();

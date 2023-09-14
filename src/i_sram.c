@@ -620,7 +620,7 @@ void I_QuickSave(void)
 static void I_NoopWriteFunc(u32 addr, const void* buf, u32 size) {}
 
 static void I_USBWriteFunc(u32 addr, const void* buf, u32 size) {
-    UsbFuncWrite(buf, size);
+    UsbFuncWritePart(buf, size);
 }
 
 void I_USBQuickSave(void)
@@ -631,7 +631,7 @@ void I_USBQuickSave(void)
     /* need to run through it twice to calculate CRC */
     I_QuickSaveInternal(&header, size, I_NoopWriteFunc);
     UsbFuncWriteStart(DATATYPE_RAWBINARY, size);
-    UsbFuncWrite(&header, sizeof header);
+    UsbFuncWritePart(&header, sizeof header);
     I_QuickSaveInternal(&header, size, I_USBWriteFunc);
     UsbFuncWriteEnd(DATATYPE_RAWBINARY, size);
 

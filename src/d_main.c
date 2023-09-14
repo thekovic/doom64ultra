@@ -3,6 +3,7 @@
 #include "i_main.h"
 #include "doomdef.h"
 #include "config.h"
+#include "i_debug.h"
 #ifdef USB
 #include "i_usb.h"
 #endif
@@ -26,6 +27,7 @@ void D_DoomMain(void *arg) // 800027C0
 
     int exit;
 
+    I_StartDebugger();
     Z_Init();
     I_Init();
     W_Init();
