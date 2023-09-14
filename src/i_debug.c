@@ -155,7 +155,8 @@ COLD void I_StartDebugger()
 {
     D_printstatic("DOOM 64 ULTRA\nI_InitDebugging: Logging enabled.\n\n");
 #ifdef USB
-    I_USBPrintHelp();
+    if (FlashCart)
+        I_USBPrintHelp();
 #endif /* USB */
 
 #ifdef USB_GDB
