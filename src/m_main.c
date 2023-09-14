@@ -768,13 +768,13 @@ int M_ButtonResponder(int buttons) // 80007960
 void M_AlphaInStart(void) // 800079E0
 {
     text_alpha = 0;
-    text_alpha_change_value = 20;
+    text_alpha_change_value = 32;
 }
 
 void M_AlphaOutStart(void) // 800079F8
 {
     text_alpha = 255;
-    text_alpha_change_value = -20;
+    text_alpha_change_value = -32;
 }
 
 int M_AlphaInOutTicker(void) // 80007A14
