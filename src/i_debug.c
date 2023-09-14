@@ -603,7 +603,7 @@ static void __attribute__((noreturn)) I_DebuggerThread(void *arg)
         }
     }
 
-    blit32_TextExplicit(fb, 0xffff, 1, 640, 480, blit_Clip, 16, 16, FAULT_MSG_BUFFER);
+    blit32_TextExplicit(fb, 0xffff, 1, 640, 480, blit_Clip, 32, 24, FAULT_MSG_BUFFER);
 
     osInvalDCache(fb, 640*480*2);
 
@@ -1838,7 +1838,7 @@ void I_TakeGDBPacket(void)
 static void I_ShowDebugScreen(const char *text)
 {
     D_memset(cfb, 0, CFB_SIZE);
-    blit32_TextExplicit(cfb, 0xffff, 1, XResolution, YResolution, blit_Clip, 16, 16, text);
+    blit32_TextExplicit(cfb, 0xffff, 1, XResolution, YResolution, blit_Clip, 32, 24, text);
     osViSwapBuffer(cfb);
     __osViSwapContext();
 }
