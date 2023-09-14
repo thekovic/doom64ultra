@@ -1296,7 +1296,8 @@ int I_SavePakFile(int filenumb, int flag, byte *data, int size); // 80007308
 int I_ReadPakFile(void); // 800073B8
 int I_CreatePakFile(void); // 800074D4
 
-void I_RumbleQuake(int pad, int time);
+void I_RumbleAmbient(int pad, int count);
+void I_RumbleShot(int pad, int tics);
 void I_RumbleDamage(int pad, int damage);
 void I_StopRumble(void);
 void I_CheckControllerStatus(void);

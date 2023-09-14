@@ -514,6 +514,7 @@ void T_Quake(quake_t *quake) // 8000EDE8
 {
     if((--quake->tics) == 0)
     {
+        I_RumbleAmbient(0, -1);
         S_StopSound(NULL, sfx_quake);
         quakeviewy = 0;
         quakeviewx = 0;
@@ -537,10 +538,10 @@ void P_SpawnQuake(int tics) // 8000EE7C
     /*
     for (int i = 0; i < MAXCONTROLLERS; i++)
         if (playeringame[i])
-            I_RumbleQuake(i, tics);
+            I_RumbleAmbient(i, 1);
     */
 
-    I_RumbleQuake(0, tics);
+    I_RumbleAmbient(0, 1);
 
     S_StopSound(NULL, sfx_quake);
 }

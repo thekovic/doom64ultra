@@ -46,16 +46,13 @@ extern int globalcm;   // 800A68fC r_local.h
 #define SYS_THREAD_ID_TICKER 3
 #define SYS_THREAD_ID_JOY 4
 
-#define JOY_MSG_DATA 0
-#define JOY_MSG_STATUS 1
-
 OSThread	idle_thread;                        // 800A4A18
 
 #define SYS_MAIN_STACKSIZE 0xA000
 OSThread	main_thread;                        // 800A4BC8
 u64	main_stack[SYS_MAIN_STACKSIZE/sizeof(u64)]; // 80099A00
 
-#define	JOY_STACKSIZE	0x300
+#define	JOY_STACKSIZE	0x100
 OSThread	joy_thread;
 u64	joy_stack[JOY_STACKSIZE/sizeof(u64)];
 
@@ -133,10 +130,7 @@ OSMesgQueue sys_msgque_joy; // 800A4F88
 OSMesg		sys_msg_joy;    // 800A51D4
 
 OSMesgQueue joy_cmd_msgque;
-OSMesg		joy_cmd_msg[2];
-
-OSMesgQueue joy_done_msgque;
-OSMesg		joy_done_msg;
+OSMesg		joy_cmd_msg;
 
 #define SYS_MSGBUF_SIZE_VID 16
 OSMesgQueue sys_ticker_queue; // 800A4FB8
@@ -170,7 +164,7 @@ u8 rumblepak_bit_pattern = 0;
 u8 motor_bit_pattern = 0;
 
 OSPfs RumblePaks[MAXCONTROLLERS];
-u16 MotorQuakeTimers[MAXCONTROLLERS];
+u16 MotorAmbientCount[MAXCONTROLLERS];
 u16 MotorDamageTimers[MAXCONTROLLERS];
 
 // Controller Pak
@@ -196,13 +190,16 @@ SDATA u8 hudyshift;
 
 static u8 blanktimer;
 
+u32 motor = 0;
 s32 vsync = 0;              // 8005A724
 s32 drawsync2 = 0;          // 8005A728
 s32 drawsync1 = 0;          // 8005A72C
 u32 NextFrameIdx = 0;       // 8005A730
 
+static bool PiLockedMain = false; // 8005A738
+static bool PiLockedJoy = false; // 8005A73C
 s32 FilesUsed = -1;                 // 8005A740
-SDATA u32 SystemTickerStatus = 0;  // 8005a744
+static SDATA u32 SystemTickerStatus = 0;  // 8005a744
 
 Gfx Gfx_base[2][MAX_GFX];    // 800653E0
 Mtx Mtx_base[2][MAX_MTX];    // 800793E0
@@ -217,8 +214,8 @@ SDATA Vtx *VTX2;	// 800A4A0C
 SDATA Mtx *MTX1;	// 800A4A10
 SDATA Mtx *MTX2;	// 800A4A14
 
-Gfx *GfxBlocks[8] = {0,0,0,0,0,0,0,0}; // 8005A748
-Vtx *VtxBlocks[8] = {0,0,0,0,0,0,0,0}; // 8005A768
+static Gfx *GfxBlocks[8] = {0,0,0,0,0,0,0,0}; // 8005A748
+static Vtx *VtxBlocks[8] = {0,0,0,0,0,0,0,0}; // 8005A768
 
 u32 LastFrameCycles = 0;
 static u32 LastCpuStart = 0;
@@ -463,17 +460,6 @@ void I_SystemTicker(void *arg) // 80005730
 
                     vsync += 1;
 
-                    if (!gamepaused)
-                    {
-                        for (int i = 0; i < MAXCONTROLLERS; i++)
-                        {
-                            if (MotorDamageTimers[i] > 0)
-                                MotorDamageTimers[i]--;
-                            if (MotorQuakeTimers[i] > 0)
-                                MotorQuakeTimers[i]--;
-                        }
-                    }
-
                     if (audio_task_queue.validCount)
                     {
                         if (SystemTickerStatus & STF_GFX_PENDING)
@@ -521,13 +507,13 @@ void I_SystemTicker(void *arg) // 80005730
                         drawsync1 = vsync - drawsync2;
                         drawsync2 = vsync;
 
-                        osJamMesg(&joy_cmd_msgque, (OSMesg)JOY_MSG_DATA, OS_MESG_NOBLOCK);
-
                         osSendMesg(&rdp_done_queue, (OSMesg)VID_MSG_KICKSTART, OS_MESG_NOBLOCK);
                     }
 
                     if(SystemTickerStatus == 0)
                         I_LoadGfxTask();
+
+                    osSendMesg(&joy_cmd_msgque, NULL, OS_MESG_NOBLOCK);
                 }
                 break;
         }
@@ -546,6 +532,8 @@ void I_Init(void) // 80005C50
     osCreateMesgQueue(&rdp_done_queue, rdp_done_msgbuf, SYS_MSGBUF_SIZE_VID2);//&sys_msgque_jam, sys_msgbuf_jam
     osCreateMesgQueue(&vid_task_queue, vid_task_msgbuf, SYS_MSGBUF_SIZE_VID2);//&sys_msgque_ser, sys_msgbuf_ser
     osCreateMesgQueue(&audio_task_queue, audio_task_msgbuf, SYS_MSGBUF_SIZE_VID2);//&sys_msgque_tmr, sys_msgbuf_tmr
+
+    osCreateMesgQueue(&joy_cmd_msgque, &joy_cmd_msg, 1);
 
     // Init the video mode...
     I_RefreshVideo();
@@ -599,9 +587,6 @@ void I_Init(void) // 80005C50
         osRecvMesg(&sys_msgque_joy, NULL, OS_MESG_BLOCK);
         osContGetReadData(gamepad_data);
     }
-
-    osCreateMesgQueue(&joy_cmd_msgque, joy_cmd_msg, ARRAYLEN(joy_cmd_msg));
-    osCreateMesgQueue(&joy_done_msgque, &joy_done_msg, 1);
 
     osCreateThread(&joy_thread, SYS_THREAD_ID_JOY, I_ControllerThread, (void *)0,
                    joy_stack + JOY_STACKSIZE/sizeof(u64), 11);
@@ -1110,61 +1095,120 @@ void I_WIPE_FadeOutScreen(void) // 80006D34
     Z_Free(fb);
 }
 
-#define PFS_MSG_CHECK  0
-#define PFS_MSG_DELETE 1
-#define PFS_MSG_SAVE   2
-#define PFS_MSG_READ   3
-#define PFS_MSG_CREATE 4
-
-typedef struct
+static void I_LockPi(void)
 {
-    int type;
-    union {
-        struct {
-            int file;
-        } delete;
-        struct {
-            int file;
-            int flag;
-            byte *data;
-            int size;
-        } save;
-    };
-} pfsmsg_t;
+    PiLockedMain = true;
+
+    while (PiLockedJoy)
+        osYieldThread();
+}
+
+static void I_UnlockPi(void)
+{
+    PiLockedMain = false;
+}
 
 int I_CheckControllerPak(void) // 800070B0
 {
-    pfsmsg_t msg = { .type = PFS_MSG_CHECK };
-    OSMesg ret;
+    int ret, file;
+    OSPfsState *fState;
+    s32 MaxFiles [2];
+    u8 validpaks = 0;
+
+    I_LockPi();
 
     FilesUsed = -1;
+    ret = PFS_ERR_NOPACK;
 
-    osSendMesg(&joy_cmd_msgque, (OSMesg) &msg, OS_MESG_BLOCK);
-    osRecvMesg(&joy_done_msgque, &ret, OS_MESG_BLOCK);
+    osPfsIsPlug(&sys_msgque_joy, &validpaks);
 
-    return (int) ret;
+    /* does the current controller have a memory pak? */
+    if (validpaks & 1)
+    {
+        ret = osPfsInit(&sys_msgque_joy, &ControllerPak, NULL);
+
+        if (ret == 0 || ret == PFS_ERR_NEW_PACK)
+        {
+            ret = osPfsNumFiles(&ControllerPak, MaxFiles, &FilesUsed);
+
+            if (ret == PFS_ERR_INCONSISTENT)
+                ret = osPfsChecker(&ControllerPak);
+
+            if (ret == 0)
+            {
+                Pak_Memory = 123;
+                fState = FileState;
+                file = 0;
+                do
+                {
+                    ret = osPfsFileState(&ControllerPak, file, fState);
+                    file += 1;
+
+                    if (ret != 0)
+                      fState->file_size = 0;
+
+                    Pak_Memory -= (fState->file_size >> 8);
+                    fState += 1;
+                } while (file != 16);
+                ret = 0;
+            }
+        }
+    }
+
+    I_UnlockPi();
+
+    return ret;
 }
 
 int I_DeletePakFile(int filenumb) // 80007224
 {
-    pfsmsg_t msg = { .type = PFS_MSG_DELETE, .delete = { filenumb } };
-    OSMesg ret;
+    int ret;
+    OSPfsState *fState;
 
-    osSendMesg(&joy_cmd_msgque, (OSMesg) &msg, OS_MESG_BLOCK);
-    osRecvMesg(&joy_done_msgque, &ret, OS_MESG_BLOCK);
+    I_LockPi();
 
-    return (int) ret;
+    fState = &FileState[filenumb];
+
+    if (fState->file_size == 0) {
+        ret = 0;
+    }
+    else
+    {
+        ret = osPfsDeleteFile(&ControllerPak,
+            FileState[filenumb].company_code,
+            FileState[filenumb].game_code,
+            (u8*)FileState[filenumb].game_name,
+            (u8*)FileState[filenumb].ext_name);
+
+        if (ret == PFS_ERR_INCONSISTENT)
+            ret = osPfsChecker(&ControllerPak);
+
+        if (ret == 0)
+        {
+            Pak_Memory += (fState->file_size >> 8);
+            fState->file_size = 0;
+        }
+    }
+
+    I_UnlockPi();
+
+    return ret;
 }
 
 int I_SavePakFile(int filenumb, int flag, byte *data, int size) // 80007308
 {
-    pfsmsg_t msg = { .type = PFS_MSG_SAVE, .save = { filenumb, flag, data, size } };
-    OSMesg ret;
+    int ret;
 
-    osSendMesg(&joy_cmd_msgque, (OSMesg) &msg, OS_MESG_BLOCK);
-    osRecvMesg(&joy_done_msgque, &ret, OS_MESG_BLOCK);
+    I_LockPi();
 
-    return (int) ret;
+    ret = osPfsReadWriteFile(&ControllerPak, filenumb, (u8)flag, 0, size, (u8*)data);
+
+    if (ret == PFS_ERR_INCONSISTENT)
+        ret = osPfsChecker(&ControllerPak);
+
+    I_UnlockPi();
+
+    return ret;
 }
 
 #define COMPANY_CODE 0x3544     // 5D
@@ -1172,41 +1216,103 @@ int I_SavePakFile(int filenumb, int flag, byte *data, int size) // 80007308
 
 int I_ReadPakFile(void) // 800073B8
 {
-    pfsmsg_t msg = { .type = PFS_MSG_READ };
-    OSMesg ret;
+    int ret;
+    u8 *ext_name;
+
+    I_LockPi();
 
     Pak_Data = NULL;
     Pak_Size = 0;
+    ext_name = NULL;
 
-    osSendMesg(&joy_cmd_msgque, (OSMesg) &msg, OS_MESG_BLOCK);
-    osRecvMesg(&joy_done_msgque, &ret, OS_MESG_BLOCK);
+    ret = osPfsFindFile(&ControllerPak, COMPANY_CODE, GAME_CODE, (u8*)Game_Name, ext_name, &File_Num);
 
-    return (int) ret;
+    if (ret == 0)
+    {
+        Pak_Size = FileState[File_Num].file_size;
+        Pak_Data = (byte *)Z_Malloc(Pak_Size, PU_STATIC, NULL);
+        ret = osPfsReadWriteFile(&ControllerPak, File_Num, PFS_READ, 0, Pak_Size, Pak_Data);
+    }
+
+    I_UnlockPi();
+
+    return ret;
 }
 
 int I_CreatePakFile(void) // 800074D4
 {
-    pfsmsg_t msg = { .type = PFS_MSG_CREATE };
-    OSMesg ret;
+    int ret;
+    u8 ExtName [8];
+
+    I_LockPi();
 
     if (Pak_Memory < 2)
         Pak_Size = 256;
     else
         Pak_Size = 512;
 
-    Pak_Data = (byte *)Z_Alloc(Pak_Size, PU_STATIC, NULL);
+    Pak_Data = (byte *)Z_Malloc(Pak_Size, PU_STATIC, NULL);
     D_memset(Pak_Data, 0, Pak_Size);
 
-    osSendMesg(&joy_cmd_msgque, (OSMesg) &msg, OS_MESG_BLOCK);
-    osRecvMesg(&joy_done_msgque, &ret, OS_MESG_BLOCK);
+    *(int*)ExtName = 0;
 
-    return (int) ret;
+    ret = osPfsAllocateFile(&ControllerPak, COMPANY_CODE, GAME_CODE, (u8*)Game_Name, ExtName, Pak_Size, &File_Num);
+
+    if (ret == PFS_ERR_INCONSISTENT)
+        ret = osPfsChecker(&ControllerPak);
+
+    if (ret == 0)
+        ret = osPfsReadWriteFile(&ControllerPak, File_Num, PFS_WRITE, 0, Pak_Size, Pak_Data);
+
+    I_UnlockPi();
+
+    return ret;
 }
 
-void I_RumbleQuake(int pad, int time)
+void I_CheckControllerStatus()
+{
+    I_LockPi();
+
+    osContStartQuery(&sys_msgque_joy);
+    osRecvMesg(&sys_msgque_joy, NULL, OS_MESG_BLOCK);
+    osContGetQuery(gamepad_status);
+
+    for (register int i = 0; i < MAXCONTROLLERS; i++)
+    {
+        register int bit = (1 << i);
+        register boolean rumble = false;
+
+        if ((gamepad_status[i].type & CONT_TYPE_MASK) == CONT_TYPE_NORMAL)
+        {
+            gamepad_bit_pattern |= bit;
+
+            if (osMotorInit(&sys_msgque_joy, &RumblePaks[i], i) == 0)
+                rumble = true;
+        }
+        else
+        {
+            gamepad_bit_pattern &= ~bit;
+        }
+
+        if (rumble)
+            rumblepak_bit_pattern |= bit;
+        else
+            rumblepak_bit_pattern &= ~bit;
+    }
+
+    I_UnlockPi();
+}
+
+void I_RumbleAmbient(int pad, int count)
 {
     if (rumblepak_bit_pattern & (1 << pad))
-        MotorQuakeTimers[pad] = MAX(MotorQuakeTimers[pad], time << 1);
+        MotorAmbientCount[pad] += count;
+}
+
+void I_RumbleShot(int pad, int tics)
+{
+    if (rumblepak_bit_pattern & (1 << pad))
+        MotorDamageTimers[pad] = MAX(tics, MotorDamageTimers[pad]);
 }
 
 void I_RumbleDamage(int pad, int damage)
@@ -1221,226 +1327,58 @@ void I_RumbleDamage(int pad, int damage)
 void I_StopRumble(void)
 {
     D_memset(MotorDamageTimers, 0, sizeof MotorDamageTimers);
-    D_memset(MotorQuakeTimers, 0, sizeof MotorQuakeTimers);
+    D_memset(MotorAmbientCount, 0, sizeof MotorAmbientCount);
 }
 
-void I_CheckControllerStatus(void)
-{
-    osSendMesg(&joy_cmd_msgque, (OSMesg) JOY_MSG_STATUS, OS_MESG_BLOCK);
-    osRecvMesg(&joy_done_msgque, NULL, OS_MESG_BLOCK);
-}
-
-static COLD __attribute__((noinline))
-void I_HandlePfsMessage(pfsmsg_t *msg)
-{
-    /* fallthrough to handle pfs message */
-    if (!(gamepad_bit_pattern & 1))
-    {
-        Pak_Memory = 0;
-        osSendMesg(&joy_done_msgque, (OSMesg) PFS_ERR_CONTRFAIL, OS_MESG_NOBLOCK);
-        return;
-    }
-
-    switch (((pfsmsg_t *)msg)->type)
-    {
-    case PFS_MSG_CHECK:
-        {
-            register int ret, file;
-            register OSPfsState *fState;
-            s32 MaxFiles [2];
-            u8 validpaks;
-
-            ret = PFS_ERR_NOPACK;
-
-            osPfsIsPlug(&sys_msgque_joy, &validpaks);
-
-            /* does the current controller have a memory pak? */
-            if (validpaks & 1)
-            {
-                ret = osPfsInitPak(&sys_msgque_joy, &ControllerPak, NULL);
-
-                if ((ret != PFS_ERR_NOPACK) &&
-                    (ret != PFS_ERR_ID_FATAL) &&
-                    (ret != PFS_ERR_DEVICE) &&
-                    (ret != PFS_ERR_CONTRFAIL))
-                {
-                    ret = osPfsNumFiles(&ControllerPak, MaxFiles, &FilesUsed);
-
-                    if (ret == PFS_ERR_INCONSISTENT)
-                        ret = osPfsChecker(&ControllerPak);
-
-                    if (ret == 0)
-                    {
-                        Pak_Memory = 123;
-                        fState = FileState;
-                        file = 0;
-                        do
-                        {
-                            ret = osPfsFileState(&ControllerPak, file, fState);
-                            file += 1;
-
-                            if (ret != 0)
-                              fState->file_size = 0;
-
-                            Pak_Memory -= (fState->file_size >> 8);
-                            fState += 1;
-                        } while (file != 16);
-                        ret = 0;
-                    }
-                }
-            }
-            osSendMesg(&joy_done_msgque, (OSMesg) ret, OS_MESG_NOBLOCK);
-        }
-
-        break;
-    case PFS_MSG_DELETE:
-        {
-            register int filenumb = ((pfsmsg_t *)msg)->delete.file;
-            register int ret;
-            register OSPfsState *fState;
-
-            fState = &FileState[filenumb];
-
-            if (fState->file_size == 0) {
-                ret = 0;
-            }
-            else
-            {
-                ret = osPfsDeleteFile(&ControllerPak,
-                    FileState[filenumb].company_code,
-                    FileState[filenumb].game_code,
-                    (u8*)FileState[filenumb].game_name,
-                    (u8*)FileState[filenumb].ext_name);
-
-                if (ret == PFS_ERR_INCONSISTENT)
-                    ret = osPfsChecker(&ControllerPak);
-
-                if (ret == 0)
-                {
-                    Pak_Memory += (fState->file_size >> 8);
-                    fState->file_size = 0;
-                }
-            }
-
-            osSendMesg(&joy_done_msgque, (OSMesg) ret, OS_MESG_NOBLOCK);
-        }
-
-        break;
-    case PFS_MSG_SAVE:
-        {
-            register int ret;
-
-            ret = osPfsReadWriteFile(&ControllerPak,
-                                     ((pfsmsg_t *)msg)->save.file,
-                                     ((pfsmsg_t *)msg)->save.flag,
-                                     0,
-                                     ((pfsmsg_t *)msg)->save.size,
-                                     ((pfsmsg_t *)msg)->save.data);
-
-            if (ret == PFS_ERR_INCONSISTENT)
-                ret = osPfsChecker(&ControllerPak);
-
-            osSendMesg(&joy_done_msgque, (OSMesg) ret, OS_MESG_NOBLOCK);
-        }
-        break;
-    case PFS_MSG_READ:
-        {
-            register int ret;
-
-            ret = osPfsFindFile(&ControllerPak, COMPANY_CODE, GAME_CODE, (u8*)Game_Name, NULL, &File_Num);
-
-            if (ret == 0)
-            {
-                Pak_Size = FileState[File_Num].file_size;
-                Pak_Data = (byte *)Z_Malloc(Pak_Size, PU_STATIC, NULL);
-                ret = osPfsReadWriteFile(&ControllerPak, File_Num, PFS_READ, 0, Pak_Size, Pak_Data);
-            }
-
-            osSendMesg(&joy_done_msgque, (OSMesg) ret, OS_MESG_NOBLOCK);
-        }
-        break;
-    case PFS_MSG_CREATE:
-        {
-            register int ret;
-            u8 ExtName [8];
-
-            *(int*)ExtName = 0;
-
-            ret = osPfsAllocateFile(&ControllerPak, COMPANY_CODE, GAME_CODE, (u8*)Game_Name, ExtName, Pak_Size, &File_Num);
-
-            if (ret == PFS_ERR_INCONSISTENT)
-                ret = osPfsChecker(&ControllerPak);
-
-            if (ret == 0)
-                ret = osPfsReadWriteFile(&ControllerPak, File_Num, PFS_WRITE, 0, Pak_Size, Pak_Data);
-
-            osSendMesg(&joy_done_msgque, (OSMesg) ret, OS_MESG_NOBLOCK);
-        }
-        break;
-    }
-}
 void I_ControllerThread(void *arg)
 {
     SET_GP();
 
     while (1)
     {
-        OSMesg msg;
+        osRecvMesg(&joy_cmd_msgque, NULL, OS_MESG_BLOCK);
 
-        osRecvMesg(&joy_cmd_msgque, &msg, OS_MESG_BLOCK);
-        switch ((int)msg)
+        motor += 1;
+        if (!gamepaused)
         {
-        case JOY_MSG_DATA:
-            osContStartReadData(&sys_msgque_joy);
-            osRecvMesg(&sys_msgque_joy, NULL, OS_MESG_BLOCK);
-            osContGetReadData(gamepad_data);
-            for (register int i = 0; i < MAXCONTROLLERS; i++)
+            for (int i = 0; i < MAXCONTROLLERS; i++)
             {
-                register int bit = 1 << i;
-                if (rumblepak_bit_pattern & bit)
-                {
-                    register int set = !gamepaused
-                        && ((MotorDamageTimers[i] > 0) || (MotorQuakeTimers[i] & 1) == 1);
-                    set = (!!set) << i;
-                    if ((motor_bit_pattern & bit) != set)
-                    {
-                        motor_bit_pattern = (motor_bit_pattern & ~bit) | set;
-                        if (__osMotorAccess(&RumblePaks[i], set ? MOTOR_START : MOTOR_STOP) != 0)
-                            rumblepak_bit_pattern &= ~bit;
-                    }
-                }
+                if (MotorDamageTimers[i] > 0)
+                    MotorDamageTimers[i]--;
             }
-            continue;
-        case JOY_MSG_STATUS:
-            osContStartQuery(&sys_msgque_joy);
-            osRecvMesg(&sys_msgque_joy, NULL, OS_MESG_BLOCK);
-            osContGetQuery(gamepad_status);
-            for (register int i = 0; i < MAXCONTROLLERS; i++)
-            {
-                register int bit = (1 << i);
-                register boolean rumble = false;
-
-                if ((gamepad_status[i].type & CONT_TYPE_MASK) == CONT_TYPE_NORMAL)
-                {
-                    gamepad_bit_pattern |= bit;
-
-                    if (osMotorInit(&sys_msgque_joy, &RumblePaks[i], i) == 0)
-                        rumble = true;
-                }
-                else
-                {
-                    gamepad_bit_pattern &= ~bit;
-                }
-
-                if (rumble)
-                    rumblepak_bit_pattern |= bit;
-                else
-                    rumblepak_bit_pattern &= ~bit;
-            }
-            osSendMesg(&joy_done_msgque, NULL, OS_MESG_NOBLOCK);
-            continue;
         }
 
-        I_HandlePfsMessage(msg);
+        PiLockedJoy = true;
+
+        if (PiLockedMain)
+        {
+            osSetThreadPri(&joy_thread, 10);
+            while (PiLockedMain)
+                osYieldThread();
+            osSetThreadPri(&joy_thread, 11);
+        }
+
+        osContStartReadData(&sys_msgque_joy);
+        osRecvMesg(&sys_msgque_joy, NULL, OS_MESG_BLOCK);
+        osContGetReadData(gamepad_data);
+
+        for (register int i = 0; i < MAXCONTROLLERS; i++)
+        {
+            register int bit = 1 << i;
+            if (rumblepak_bit_pattern & bit)
+            {
+                register int set = !gamepaused
+                    && (MotorDamageTimers[i] || (MotorAmbientCount[i] && (motor & 1)));
+                set = (!!set) << i;
+                if ((motor_bit_pattern & bit) != set)
+                {
+                    motor_bit_pattern = (motor_bit_pattern & ~bit) | set;
+                    if (__osMotorAccess(&RumblePaks[i], set ? MOTOR_START : MOTOR_STOP) != 0)
+                        rumblepak_bit_pattern &= ~bit;
+                }
+            }
+        }
+
+        PiLockedJoy = false;
     }
 }
