@@ -952,6 +952,8 @@ void I_WIPE_MeltScreen(void) // 80006964
     int size;
     int tileheight;
     int fbsize;
+    int buttons;
+    int shift = 0;
 
     {
         int pixelsize = BitDepth == BITDEPTH_32 ? sizeof(u32) : sizeof(u16);
@@ -969,6 +971,10 @@ void I_WIPE_MeltScreen(void) // 80006964
     {
         y1 = 0;
         D_memcpy(fb, CFB(vid_side ^ 1), fbsize);
+
+        buttons = I_GetControllerData();
+        if (buttons & (PAD_A|PAD_B|PAD_START))
+            shift = 2;
 
         I_ClearFrame();
 
@@ -1014,7 +1020,7 @@ void I_WIPE_MeltScreen(void) // 80006964
             } while (y1 < height);
         }
 
-        yscroll += vblsinframe[0];
+        yscroll += (vblsinframe[0] << shift);
         if (yscroll >= 160) break;
         I_DrawFrame();
     }
