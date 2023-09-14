@@ -1007,7 +1007,7 @@ void I_WIPE_MeltScreen(void) // 80006964
         fbsize = XResolution*YResolution*pixelsize;
         fb = Z_Malloc(fbsize, PU_STATIC, NULL);
         I_GetScreenGrab();
-        D_memcpy(fb, CFB(vid_side ^ 1), fbsize);
+        D_memcpy(CFB(vid_side), CFB(vid_side ^ 1), fbsize);
     }
 
     yscroll = 1;
