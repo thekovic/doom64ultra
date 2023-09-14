@@ -340,6 +340,14 @@ u64 __divmoddi4(u64 a, u64 b, u64 *c)
     return (a << 1) | (wrap & 1);               // return the quotient
 }
 
+// Return the quotient of the signed division of a and b.
+__attribute__((used))
+s64 __divdi3(s64 a, s64 b)
+{
+    u64 q = __divmoddi4(arith64_abs(a), arith64_abs(b), (void *)0);
+    return arith64_neg(q, a^b); // negate q if a and b signs are different
+}
+
 // Return the result of logically shifting a right by b bits.
 __attribute__((used))
 u64 __lshrdi3(u64 a, int b)
@@ -360,9 +368,27 @@ u64 __lshrdi3(u64 a, int b)
     return w.u64;
 }
 
+// Return the remainder of the signed division of a and b.
+__attribute__((used))
+s64 __moddi3(s64 a, s64 b)
+{
+    u64 r;
+    __divmoddi4(arith64_abs(a), arith64_abs(b), &r);
+    return arith64_neg(r, a); // negate remainder if numerator is negative
+}
+
 // Return the quotient of the unsigned division of a and b.
 __attribute__((used))
 u64 __udivdi3(u64 a, u64 b)
 {
     return __divmoddi4(a, b, (void *)0);
+}
+
+// Return the remainder of the unsigned division of a and b.
+__attribute__((used))
+u64 __umoddi3(u64 a, u64 b)
+{
+    u64 r;
+    __divmoddi4(a, b, &r);
+    return r;
 }
