@@ -371,7 +371,7 @@ void P_Stop (int exit) // 80021D58
     if ((gamemap != 33) || (exit == ga_exit))
         S_StopMusic();
 
-    if ((demoplayback) && (exit == ga_exit))
+    if ((demoplayback) && (exit == ga_exitdemo))
         I_WIPE_FadeOutScreen();
     else if (exit != ga_loadquicksave)
         I_WIPE_MeltScreen();
