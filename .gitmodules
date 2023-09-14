@@ -1,0 +1,4 @@
+[submodule "libultra_modern"]
+	path = libultra_modern
+	url = https://github.com/9nova/libultra_modern.git
+	branch = doom64ultra

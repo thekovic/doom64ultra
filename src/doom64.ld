@@ -44,25 +44,20 @@ SECTIONS
    {
       KEEP(BUILD_DIR/src/asm/entry.o(.start));
       _gp = ALIGN(16) + 0x8000;
-      *.o(.sdata);
-      *.o(.text.hot);
+      :*.o(.sdata);
+      :*.o(.text.hot);
+      */libdoom64.a:*.o(.text.hot);
       *.ltrans.o(.text);
-      BUILD_DIR/src*.o(.text);
-      *.o(.text.unlikely);
-
-      */libultra_rom.a:*.o(.text);
+      */libdoom64.a:*.o(.text);
+      */LIBULTRA.a:*.o(.text);
       */libgcc.a:*.o(.text);
-
-      /usr/lib/n64/PR/rspboot.o(.text);
-      /usr/lib/n64/PR/gspL3DEX2.fifo.o(.text);
-      /usr/lib/n64/PR/gspF3DEX2.NoN.fifo.o(.text);
-      /usr/lib/n64/PR/aspMain.o(.text);
+      :*.o(.text.unlikely);
 
       /* data */
       *.ltrans.o(.data*);
-      BUILD_DIR/src*.o(.data*);
+      */libdoom64.a:*.o(.data*);
 
-      */libultra_rom.a:*.o(.data*);
+      */LIBULTRA.a:*.o(.data*);
 
       /usr/lib/n64/PR/rspboot.o(.data*);
       /usr/lib/n64/PR/gspL3DEX2.fifo.o(.data*);
@@ -71,10 +66,16 @@ SECTIONS
 
       /* rodata */
       *.ltrans.o(.rodata*);
-      BUILD_DIR/src*.o(.*rodata*);
+      */libdoom64.a:*.o(.*rodata*);
 
-      */libultra_rom.a:*.o(.*rodata*);
+      */LIBULTRA.a:*.o(.*rodata*);
       */libgcc.a:*.o(.*rodata*);
+      */libgcc.a:*.o(.eh_frame*);
+
+      /usr/lib/n64/PR/rspboot.o(.text);
+      /usr/lib/n64/PR/gspL3DEX2.fifo.o(.text);
+      /usr/lib/n64/PR/gspF3DEX2.NoN.fifo.o(.text);
+      /usr/lib/n64/PR/aspMain.o(.text);
    }
    END_SEG(code)
 
@@ -83,11 +84,12 @@ SECTIONS
    BEGIN_NOLOAD(code)
    {
       *.ltrans.o(.*bss*);
-      BUILD_DIR/src*.o(.*bss*);
+      */libdoom64.a:*.o(.scommon);
+      */libdoom64.a:*.o(.*bss*);
 
-      */libultra_rom.a:*.o(COMMON);
-      */libultra_rom.a:*.o(.scommon);
-      */libultra_rom.a:*.o(.*bss*);
+      */LIBULTRA.a:*.o(COMMON);
+      */LIBULTRA.a:*.o(.scommon);
+      */LIBULTRA.a:*.o(.*bss*);
    }
    END_NOLOAD(code)
 

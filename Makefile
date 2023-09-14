@@ -27,6 +27,9 @@ ifdef DEBUG_DISPLAY
 endif
 ifeq ($(DEBUG),0)
   DEFINES += NDEBUG=1
+  LIBULTRA_VER=libultra_rom
+else
+  LIBULTRA_VER=libultra_d
 endif
 ifneq ($(REQUIRE_EXPANSION_PAK),0)
   OPTIONS += REQUIRE_EXPANSION_PAK
@@ -75,11 +78,13 @@ BOOT		:= /usr/lib/n64/PR/bootcode/boot.6102
 BOOT_OBJ	:= $(BUILD_DIR)/boot.6102.o
 
 # Directories containing source files
-SRC_DIRS += src src/asm
-ALL_DIRS := $(BUILD_DIR) $(addprefix $(BUILD_DIR)/,$(SRC_DIRS))
+SRC_DIRS += src
+ASM_DIR += src/asm
+ALL_DIRS := $(BUILD_DIR) $(addprefix $(BUILD_DIR)/,$(SRC_DIRS) $(ASM_DIR))
 
 C_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c))
 S_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.s))
+BOOT_S_FILES      := $(wildcard $(ASM_DIR)/*.s)
 
 # Files compiled with -Ofast
 FAST_C_FILES      := src/i_sram.c
@@ -94,9 +99,13 @@ O_FILES := $(FAST_O_FILES) $(SIZE_O_FILES) \
            $(BUILD_DIR)/DOOM64.WAD.o $(BUILD_DIR)/DOOM64.WDD.o \
            $(BUILD_DIR)/DOOM64.WMD.o $(BUILD_DIR)/DOOM64.WSD.o \
            $(BOOT_OBJ)
+BOOT_O_FILES := $(foreach file,$(BOOT_S_FILES),$(BUILD_DIR)/$(file:.s=.o))
 
 # Automatic dependency files
-DEP_FILES := $(O_FILES:.o=.d) $(ASM_O_FILES:.o=.d)  $(BUILD_DIR)/$(LD_SCRIPT).d
+DEP_FILES := $(O_FILES:.o=.d) $(BUILD_DIR)/$(LD_SCRIPT).d
+
+LIBDOOM64 = $(BUILD_DIR)/libdoom64.a
+LIBULTRA = libultra_modern/build/$(LIBULTRA_VER)/$(LIBULTRA_VER).a
 
 # Make sure build directory exists before compiling anything
 $(shell mkdir -p $(ALL_DIRS))
@@ -134,7 +143,7 @@ AS        := $(N64_BINDIR)/mips-n64-as
 CC        := $(N64_BINDIR)/mips-n64-gcc
 CPP       := cpp
 LD        := $(N64_BINDIR)/mips-n64-ld
-AR        := $(N64_BINDIR)/mips-n64-ar
+AR        := $(N64_BINDIR)/mips-n64-gcc-ar
 OBJDUMP   := $(N64_BINDIR)/mips-n64-objdump
 OBJCOPY   := $(N64_BINDIR)/mips-n64-objcopy
 
@@ -142,18 +151,19 @@ INCLUDE_DIRS += /usr/include/n64 /usr/include/n64/PR $(BUILD_DIR) $(BUILD_DIR)/i
 
 DEFINES += _FINALROM=1 F3DEX_GBI_2=1
 C_DEFINES := $(foreach d,$(DEFINES),-D$(d))
-LD_DEFINES := $(C_DEFINES) $(foreach d,$(OPTIONS),"-D$(d)")
+LD_DEFINES := $(C_DEFINES) $(foreach d,$(OPTIONS),"-D$(d)") -DLIBULTRA=$(LIBULTRA_VER)
 DEF_INC_CFLAGS := $(foreach i,$(INCLUDE_DIRS),-I$(i)) $(C_DEFINES)
 
 CFLAGS = -Wall -mno-check-zero-division -march=vr4300 -mtune=vr4300 \
          -D_LANGUAGE_C -D_ULTRA64 -D__EXTENSIONS__ \
-         -fno-common -G0 -D_MIPS_SZLONG=32 -D_MIPS_SZINT=32 -g -mabi=32 \
-         -ffreestanding -mfix4300 $(DEF_INC_CFLAGS)
+         -fno-common -G0 -D_MIPS_SZLONG=32 -D_MIPS_SZINT=32 -g -ggdb -mabi=32 \
+         -ffreestanding -fuse-linker-plugin -mfix4300 $(DEF_INC_CFLAGS)
 ASFLAGS := -mno-check-zero-division -march=vr4300 -mabi=32 $(foreach i,$(INCLUDE_DIRS),-I$(i))
 LDFLAGS :=
 
 SIZE_CFLAGS :=
 FAST_CFLAGS :=
+LIBULTRA_CFLAGS :=
 
 # $(foreach d,$(DEFINES),--defsym $(d))
 #
@@ -161,7 +171,8 @@ ifneq (,$(filter 0,$(DEBUG))$(filter 1,$(DEBUGOPT)))
     FAST_CFLAGS += -Ofast -fno-unroll-loops -fno-peel-loops -flto=auto --param case-values-threshold=20 \
                    -fno-inline -finline-functions-called-once --param max-completely-peeled-insns=8
     SIZE_CFLAGS += -Os -finline-functions-called-once -ffast-math -falign-functions=32 -flto=auto
-    LDFLAGS += -Wl,--gc-sections -flto=auto -Os
+    LIBULTRA_CFLAGS += -Os -ffast-math -falign-functions=32 -flto=auto -fuse-linker-plugin
+    LDFLAGS += -Wl,--gc-sections -flto=auto -fuse-linker-plugin -Os
 endif
 
 OPT_CFLAGS :=
@@ -194,7 +205,7 @@ endef
 default: $(ROM)
 
 clean:
-	$(RM) -r $(BUILD_DIR)
+	$(RM) -r $(BUILD_DIR) libultra_modern/build
 
 #==============================================================================#
 # Compilation Recipes                                                          #
@@ -230,10 +241,19 @@ $(BOOT_OBJ): $(BOOT)
 	$(V)$(OBJCOPY) -I binary -B mips -O elf32-bigmips $< $@
 
 # Link final ELF file
-$(ELF): $(O_FILES) $(BUILD_DIR)/$(LD_SCRIPT)
+$(LIBDOOM64): $(O_FILES)
+	$(call print,Archiving:,$@)
+	$(V)$(AR) rcs -o $@ $(O_FILES)
+
+$(LIBULTRA):
+	if [ ! -d libultra_modern/src ]; then git submodule update -i -r; fi
+	$(MAKE) -C libultra_modern VERSION=$(LIBULTRA_VER) "EXT_CFLAGS=$(LIBULTRA_CFLAGS)"
+
+# Link final ELF file
+$(ELF): $(LIBULTRA) $(BOOT_O_FILES) $(LIBDOOM64) $(BUILD_DIR)/$(LD_SCRIPT)
 	@$(PRINT) "$(GREEN)Linking ELF file: $(BLUE)$@ $(NO_COL)\n"
-	$(V)$(CC) $(LDFLAGS) "-L$(BUILD_DIR)" "-Wl,-T,$(BUILD_DIR)/$(LD_SCRIPT)" "-Wl,-Map,$(BUILD_DIR)/$(TARGET).map" -o $@ $(O_FILES) \
-        -L/usr/lib/n64 -lultra_rom -L$(N64_LIBGCCDIR) -lgcc
+	$(V)$(CC) $(LDFLAGS) "-L$(BUILD_DIR)" "-Wl,-T,$(BUILD_DIR)/$(LD_SCRIPT)" "-Wl,-Map,$(BUILD_DIR)/$(TARGET).map" \
+		-o $@ $(BOOT_O_FILES) $(LIBDOOM64) $(LIBULTRA) -L$(N64_LIBGCCDIR)
 
 # Build ROM
 $(ROM): $(ELF)
@@ -241,7 +261,7 @@ $(ROM): $(ELF)
 	$(V)$(OBJCOPY) --pad-to=0x100000 --gap-fill=0xFF $< $@ -O binary
 	$(V)makemask $@
 
-.PHONY: clean default
+.PHONY: clean default libultra_modern
 # with no prerequisites, .SECONDARY causes no intermediate target to be removed
 .SECONDARY:
 

@@ -122,3 +122,13 @@ int D_vsprintf(char *string, const char *format, va_list args) // 80001D24
 
   return string - origstring;
 }
+
+int D_sprintf(char* dst, const char* fmt, ...) {
+    int len;
+    va_list args;
+
+    va_start(args, fmt);
+    len = D_vsprintf(dst, fmt, args);
+    va_end(args);
+    return len;
+}

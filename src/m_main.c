@@ -2670,11 +2670,11 @@ static void M_DebugMenuDrawer(void) // 800091C0
     sprintf(textbuf, "Build Flags   %s", *BuildFlags ? BuildFlags : "-");
     ST_Message(40, 50, textbuf, text_alpha | 0xffffff00);
 
-    sprintf(textbuf, "  Total RAM   %d bytes", osMemSize);
+    sprintf(textbuf, "  Total RAM   %lu bytes", osMemSize);
     ST_Message(40, 70, textbuf, text_alpha | 0xffffff00);
     sprintf(textbuf, "   Zone Mem   %d bytes", mainzone->size);
     ST_Message(40, 80, textbuf, text_alpha | 0xffffff00);
-    sprintf(textbuf, "       SRAM   %d bytes", SramSize);
+    sprintf(textbuf, "       SRAM   %lu bytes", SramSize);
     ST_Message(40, 90, textbuf, text_alpha | 0xffffff00);
 
     if (IsEmulator)
@@ -3407,7 +3407,7 @@ void M_ControllerPakDrawer(void) // 8000A3E4
             ST_DrawString(60, 150, "\x8E more...", text_alpha | 0xffffff00);
         }
 
-        sprintf(buffer, "pages used: %d   free: %d", FileState[cursorpos].file_size >> 8, Pak_Memory);
+        sprintf(buffer, "pages used: %lu   free: %ld", FileState[cursorpos].file_size >> 8, Pak_Memory);
 
         ST_DrawString(-1, 170, buffer, text_alpha | 0xc0000000);
         ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 51, MenuAnimationTic + 70, text_alpha | 0xffffff00);

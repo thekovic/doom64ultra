@@ -36,9 +36,10 @@
 #define ra	$31
 #define return	s7
 
-    .text
 	.set noreorder
 	.option pic0
+
+.section .text.hot, "ax"
 
 /* Original Code From Mortal Kombat Trilogy N64 */
 
