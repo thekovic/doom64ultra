@@ -687,6 +687,7 @@ void A_Punch (player_t *player, pspdef_t *psp) // 8001BB2C
     /* turn to face target */
 	if (hittarget.type == ht_thing)
 	{
+        I_RumbleShot(0, 5);
 	    S_StartSound(player->mo, sfx_punch);
 		player->mo->angle = R_PointToAngle2 (player->mo->x, player->mo->y, hittarget.thing->x, hittarget.thing->y);
 	}
@@ -714,6 +715,10 @@ void A_Saw (player_t *player, pspdef_t *psp) // 8001BC1C
 	angle += (angle_t)(rnd2-rnd1)<<18;
 	/* use meleerange + 1 se the puff doesn't skip the flash */
 	P_LineAttack (player->mo, angle, 0, MELEERANGE+1, P_AimSlope(player), damage);
+	if (hittarget.type != ht_none)
+		I_RumbleShot(0, 3);
+	else
+		I_RumbleShot(0, 2);
 	if (hittarget.type != ht_thing)
 	{
 		S_StartSound (player->mo, sfx_saw1);
@@ -772,6 +777,8 @@ void A_FireMissile (player_t *player, pspdef_t *psp) // 8001BDE4
         P_Thrust(player, player->mo->angle + ANG180, FRACUNIT);
 
 	P_SpawnPlayerMissile (player->mo, MT_PROJ_ROCKET);
+
+    I_RumbleShot(0, 8);
 }
 
 
@@ -787,6 +794,7 @@ void A_FireBFG (player_t *player, pspdef_t *psp) // 8001BE78
 {
 	player->ammo[weaponinfo[player->readyweapon].ammo] -= BFGCELLS;
 	P_SpawnPlayerMissile (player->mo, MT_PROJ_BFG);
+    I_RumbleShot(0, 6);
 }
 
 
@@ -820,6 +828,7 @@ void A_FirePlasma (player_t *player, pspdef_t *psp) // 8001BF2C
 	player->ammo[weaponinfo[player->readyweapon].ammo]--;
 	P_SetPsprite (player,ps_flash,S_NULL);
 	P_SpawnPlayerMissile (player->mo, MT_PROJ_PLASMA);
+    I_RumbleShot(0, 2);
 }
 
 /*
@@ -927,6 +936,7 @@ void A_FireShotgun (player_t *player, pspdef_t *psp) // 8001C138
 	{
 	    P_GunShot(player->mo, false, bulletslope);
 	}
+    I_RumbleShot(0, 5);
 }
 
 /*
@@ -964,6 +974,7 @@ void A_FireShotgun2(player_t *player, pspdef_t *psp) // 8001C210
         angle += (P_Random() - P_Random()) << 19;
         P_LineAttack(player->mo, angle, 0, MISSILERANGE, bulletslope + ((P_Random() - P_Random()) << 5), damage);
     }
+    I_RumbleShot(0, 7);
 }
 
 /*
@@ -1017,6 +1028,7 @@ void A_FireCGun (player_t *player, pspdef_t *psp) // 8001C3F8
 	player->psprites[ps_flashalpha].alpha = 160;
 
 	P_GunShot (player->mo, !player->refire, P_BulletSlope(player));
+    I_RumbleShot(0, 3);
 }
 
 /*
@@ -1031,6 +1043,7 @@ void A_BFGFlash(mobj_t* actor) // 8001C548
 {
     players[0].bfgcount = 100;
     actor->alpha = 170;
+    I_RumbleAmbient(0, 1);
 }
 
 /*
@@ -1073,6 +1086,7 @@ void A_BFGSpray (mobj_t *mo) // 8001C560
         alpha += 3;
 
     mo->alpha = alpha >> 2;
+    I_RumbleAmbient(0, -1);
 }
 
 /*
