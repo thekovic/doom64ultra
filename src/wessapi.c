@@ -456,9 +456,7 @@ int wess_load_module(char *wmd_filename,
 #if _ALIGN8_ == 1
 	//force align to word boundary because previous size adjust
 	//may wind up with odd address
-	pmem += (unsigned int)pmem & 1;
-	pmem += (unsigned int)pmem & 2;
-	pmem += (unsigned int)pmem & 4;
+    pmem = (char *) ALIGN(pmem, 8);
 #endif
 
 	/*

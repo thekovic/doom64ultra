@@ -36,7 +36,7 @@ extern void trackstart(track_status *ptmp, sequence_status *psq_stat);
 extern void Eng_SeqEnd (track_status *ptk_stat);
 extern int wess_handle_getposition(int handle);
 
-char __attribute__((aligned(16))) scratch_area[32];//800B41E0
+char ALIGNED(16) scratch_area[32];//800B41E0
 
 void tracksetspecial(track_status *ptmp, TriggerPlayAttr *attr); // 8003429C
 void trackgetspecial(track_status *ptmp, TriggerPlayAttr *attr); // 80034508

@@ -978,7 +978,7 @@ void ST_DrawSymbol(int xpos, int ypos, int index, int color) // 8002ADEC
 
         // Load Palette Data
         offset = (((gfxN64_t*)data)->width * ((gfxN64_t*)data)->height);
-        offset = (offset + 7) & ~7;
+        offset = ALIGN(offset, 8);
         gDPSetTextureImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b ,
                            1, data + offset + sizeof(gfxN64_t));
 

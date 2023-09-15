@@ -59,7 +59,7 @@ extern OSMesgQueue romcopy_msgque;
 
 void W_Init (void) // 8002BEC0
 {
-    wadinfo_t wadfileheader __attribute__((aligned(16)));
+    wadinfo_t wadfileheader ALIGNED(16);
     OSIoMesg romio_msgbuf;
 	int infotableofs, i;
 

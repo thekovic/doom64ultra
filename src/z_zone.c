@@ -117,7 +117,7 @@ void *Z_Malloc2 (register memzone_t *mainzone, register int size, register int t
     /* */
 
     size += sizeof(memblock_t);    /* account for size of block header */
-    size = (size+15) & ~15;        /* phrase align everything */
+    size = ALIGN(size, 16);        /* phrase align everything */
 
     start = base = mainzone->rover;
 
@@ -256,7 +256,7 @@ void *Z_Alloc2(register memzone_t *mainzone, register int size, register int tag
     /* */
 
     size += sizeof(memblock_t);    /* account for size of block header */
-    size = (size+15) & ~15;        /* phrase align everything */
+    size = ALIGN(size, 16);        /* phrase align everything */
 
     base = mainzone->rover3;
 

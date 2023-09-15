@@ -367,9 +367,7 @@ void N64_DriverInit (track_status *ptk_stat) // 80037DA8
 #if _ALIGN8_ == 1
 	//force align to word boundary because previous size adjust
 	//may wind up with odd address
-	pmem += (unsigned int)pmem & 1;
-	pmem += (unsigned int)pmem & 2;
-	pmem += (unsigned int)pmem & 4;
+    pmem = (char *) ALIGN(pmem, 8);
 #endif
     //PRINTF_D(WHITE,"patchesbase %d",(ppgd->pat_grp_hdr.patches));//588
 
@@ -379,9 +377,7 @@ void N64_DriverInit (track_status *ptk_stat) // 80037DA8
 #if _ALIGN8_ == 1
 	//force align to word boundary because previous size adjust
 	//may wind up with odd address
-	pmem += (unsigned int)pmem & 1;
-	pmem += (unsigned int)pmem & 2;
-	pmem += (unsigned int)pmem & 4;
+    pmem = (char *) ALIGN(pmem, 8);
 #endif
     //PRINTF_D(WHITE,"patchmapsbase %d",(ppgd->pat_grp_hdr.patchmaps));//10100
 
@@ -391,9 +387,7 @@ void N64_DriverInit (track_status *ptk_stat) // 80037DA8
 #if _ALIGN8_ == 1
 	//force align to word boundary because previous size adjust
 	//may wind up with odd address
-	pmem += (unsigned int)pmem & 1;
-	pmem += (unsigned int)pmem & 2;
-	pmem += (unsigned int)pmem & 4;
+    pmem = (char *) ALIGN(pmem, 8);
 #endif
     //PRINTF_D(WHITE,"samplesbase %d",(ppgd->pat_grp_hdr.patchinfo));//2976
 
@@ -403,9 +397,7 @@ void N64_DriverInit (track_status *ptk_stat) // 80037DA8
 #if _ALIGN8_ == 1
 	//force align to word boundary because previous size adjust
 	//may wind up with odd address
-	pmem += (unsigned int)pmem & 1;
-	pmem += (unsigned int)pmem & 2;
-	pmem += (unsigned int)pmem & 4;
+    pmem = (char *) ALIGN(pmem, 8);
 #endif
     //PRINTF_D(WHITE,"drummapsbase %d",(ppgd->pat_grp_hdr.drummaps * sizeof(char *)));
 

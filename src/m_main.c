@@ -433,7 +433,7 @@ u8 BitDepth = BITDEPTH_16;
 
 boolean ConfigChanged = false;
 
-controls_t CurrentControls[MAXPLAYERS] __attribute__((aligned(16))) = {
+controls_t CurrentControls[MAXPLAYERS] ALIGNED(16) = {
 {
     {{
     PAD_RIGHT_C, PAD_LEFT_C, 0, 0,
@@ -451,7 +451,7 @@ const char *ControlSetupNames[MAXCONTROLSETUPS] =
     "Modern", "Classic", "Arcade", "Dark", "Hunter", "Action", "Nuke", "Fighter",
 };
 
-const controls_t DefaultControlSetups[MAXCONTROLSETUPS] __attribute__((aligned(16))) = {
+const controls_t DefaultControlSetups[MAXCONTROLSETUPS] ALIGNED(16) = {
     // Modern
     {
         {{

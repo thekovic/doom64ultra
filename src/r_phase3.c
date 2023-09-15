@@ -910,7 +910,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
 
             if (compressed < 0)
             {
-                width = (((spriteN64_t*)data)->width + 7) & ~7;
+                width = ALIGN(((spriteN64_t*)data)->width, 8);
                 tilew = tileh * width;
 
                 if (((spriteN64_t*)data)->cmpsize & 1)
@@ -936,7 +936,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
             }
             else
             {
-                width = (((spriteN64_t*)data)->width + 15) & ~15;
+                width = ALIGN(((spriteN64_t*)data)->width, 16);
                 tilew = tileh * width;
 
                 if (tilew < 0) {
@@ -1194,7 +1194,7 @@ draw:
             tiles = sprite->tiles;
             width = sprite->width;
             tileh = sprite->tileheight;
-            width2 = (width + 7) & ~7;
+            width2 = ALIGN(width, 8);
             tilew = tileh * width2;
             height = sprite->height;
             src = ((byte*)sprite) + sizeof(spriteN64_t);

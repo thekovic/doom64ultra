@@ -743,8 +743,8 @@ static s32 tohex(register u8 *buf, register u32 bufsize, register s32 index,
     return index;
 }
 
-static u8 __attribute((aligned(8))) DebugTx[2048];
-static u8 __attribute((aligned(8))) DebugRx[2048];
+static u8 ALIGNED(8) DebugTx[2048];
+static u8 ALIGNED(8) DebugRx[2048];
 static u32 DebugTxPos = 2;
 static u32 DebugRxPos = 0;
 static u32 DebugRxEnd = 0;

@@ -109,9 +109,7 @@ int load_sequence_data(int seqnum, void *memptr) // 8003980C
 #if _ALIGN8_ == 1
 		//force align to word boundary because previous size adjust
 		//may wind up with odd address
-		pmem += (unsigned int)pmem & 1;
-		pmem += (unsigned int)pmem & 2;
-		pmem += (unsigned int)pmem & 4;
+        pmem = (char *) ALIGN(pmem, 8);
 #endif
 		dmem = pmem;
 		pmem += (unsigned int)psq_info->seq_hdr.trkinfolength;
@@ -426,9 +424,7 @@ int wess_seq_sizeof(int seqnum) // 80039EC8
 		numtracks *= sizeof(sequence_data);
 
 #if _ALIGN8_ == 1
-		numtracks += (unsigned int)numtracks & 1;
-		numtracks += (unsigned int)numtracks & 2;
-		numtracks += (unsigned int)numtracks & 4;
+        numtracks = ALIGN(numtracks, 8);
 #endif
 
 		return (int)(psq_info->seq_hdr.trkinfolength + numtracks);

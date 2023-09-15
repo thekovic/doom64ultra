@@ -197,7 +197,7 @@ u32  (*UsbFuncPoll)(void);
 void (*UsbFuncRead)(void);
 
 // USB globals
-static u8 usb_buffer_align[BUFFER_SIZE] __attribute__((aligned(16)));
+static u8 usb_buffer_align[BUFFER_SIZE] ALIGNED(16);
 static u8* usb_buffer;
 static u32 write_address;
 static char usb_didtimeout = FALSE;

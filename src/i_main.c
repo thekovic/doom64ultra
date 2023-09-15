@@ -67,8 +67,8 @@ OSMesg msgbuf_Pi[SYS_MSGBUF_SIZE_PI];   // 800A4FD0
 #define	SYS_FIFO_SIZE	512
 
 #if __GNUC__ /* for GNU compiler */
-u64 fifo_buff[2][SYS_FIFO_SIZE] __attribute__((aligned (16)));          /* buffer for RDP DL */      // 800633E0
-u64 sys_rcp_stack[SP_DRAM_STACK_SIZE64] __attribute__((aligned (16)));  /* used for matrix stack */  // 800915E0
+u64 fifo_buff[2][SYS_FIFO_SIZE] ALIGNED(16);          /* buffer for RDP DL */      // 800633E0
+u64 sys_rcp_stack[SP_DRAM_STACK_SIZE64] ALIGNED(16);  /* used for matrix stack */  // 800915E0
 #else /* for SGI compiler */
 u64 fifo_buff[2][SYS_FIFO_SIZE];            /* buffer for RDP DL */      // 800633E0
 u64 sys_rcp_stack[SP_DRAM_STACK_SIZE64];    /* used for matrix stack */  // 800915E0

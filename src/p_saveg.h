@@ -2,7 +2,7 @@
 
 #include "doomdef.h"
 
-typedef struct __attribute__((aligned(4))) {
+typedef struct ALIGNED(4) {
     u32 sensitivity: 7;
     u32 crosshair: 1;
     u32 autorun: 1;
@@ -41,7 +41,7 @@ typedef struct
     u16 activator;
 } savedmacroactivator_t;
 
-typedef struct __attribute__((aligned(8))) {
+typedef struct ALIGNED(8) {
     u32 cameratarget: 16;
     u32 active: 1;
     u32 macroidx1: 2;

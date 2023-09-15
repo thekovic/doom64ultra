@@ -207,7 +207,7 @@ u32 P_UnArchivePlayers (const u8 *savep)
     return read;
 }
 
-typedef struct __attribute__((aligned(8))) {
+typedef struct ALIGNED(8) {
     s16 floorheight;
     s16 ceilingheight;
     s16 floorpic;
@@ -293,13 +293,13 @@ u32 P_UnArchiveSectors (const u8 *savep, u32 savepsize, u32 *start)
     return read;
 }
 
-typedef struct __attribute__((aligned(8))) {
+typedef struct ALIGNED(8) {
     u32 flags;
     u16 special;
     u16 tag;
 } savedline_t;
 
-typedef struct __attribute__((aligned(8))) {
+typedef struct ALIGNED(8) {
     s16 textureoffset;
     s16 rowoffset;
     s16 toptexture;
@@ -469,7 +469,7 @@ void P_UnArchiveActiveMacro (const savedmacrosheader_t *header)
     }
 }
 
-typedef struct __attribute__((aligned(8))) {
+typedef struct ALIGNED(8) {
     u16 id;
     u16 special;
     u16 tag;
@@ -525,7 +525,7 @@ u32 P_UnArchiveMacros (const u8 *savep, u32 savepsize, u32 *start)
     return read;
 }
 
-typedef struct __attribute__((aligned(8)))
+typedef struct ALIGNED(8)
 {
     u32 x;
     u32 y;
@@ -558,7 +558,7 @@ typedef struct __attribute__((aligned(8)))
     u16 player: 3;
 } savedmobj_t;
 
-typedef struct __attribute__((aligned(8)))
+typedef struct ALIGNED(8)
 {
     u32 x1, y1, z1;
     u32 x2, y2, z2;
@@ -796,7 +796,7 @@ typedef enum
     tc_numclasses,
 } thinkerclass_e;
 
-typedef struct __attribute__((aligned(8))) {
+typedef struct ALIGNED(8) {
     thinkerclass_e tclass;
     u32            activemacro: 1;
 } thinkheader_t;

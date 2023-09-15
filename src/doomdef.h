@@ -620,7 +620,7 @@ typedef struct player_s
 extern controls_t CurrentControls[MAXPLAYERS];
 extern const controls_t DefaultControlSetups[MAXCONTROLSETUPS];
 
-typedef struct __attribute__((aligned (4))){
+typedef struct ALIGNED(4) {
     u32 magic;
     u32 size;
     u32 version: 8;
@@ -1203,7 +1203,7 @@ void I_Init(void) SEC_STARTUP; // 80005C50
 
 #define MAXSRAMSAVES 16
 
-typedef struct __attribute__((__packed__)) __attribute__((aligned (8))) {
+typedef struct __attribute__((__packed__)) ALIGNED(8)  {
     u16 crc;
     u32 present: 1;
     u32 map: 9;

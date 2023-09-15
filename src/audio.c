@@ -195,8 +195,7 @@ void amCreateAudioMgr(ALSynConfig *config, WessConfig *wessconfig) // 8002E610
 		frameSize = frameSize1;
 	}
 
-	if (frameSize & 15)
-		frameSize = (frameSize & ~0xf) + 16;
+    frameSize = ALIGN(frameSize, 16);
 
 	minFrameSize = frameSize - 16;
 	maxFrameSize = frameSize + wess_driver_extra_samples + 16;

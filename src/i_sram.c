@@ -22,7 +22,7 @@ static boolean QuickLoadAvailable = false;
 #define FOOTER_ADDR (SramSize - sizeof(sramheader_t))
 #define QUICKSAVE_SIZE (SramSize - QUICKSAVE_ADDR - sizeof(sramheader_t))
 
-static OSPiHandle SramHandle __attribute__((aligned(8)));
+static OSPiHandle SramHandle ALIGNED(8);
 
 #define SRAM_START_ADDR  0x08000000
 #define SRAM_PAGE_SIZE   0x8000
@@ -170,7 +170,7 @@ static void I_DetectSramType(void)
     write_buf = read_buf = NULL;
 }
 
-typedef struct  __attribute__((aligned(8))) {
+typedef struct  ALIGNED(8) {
     u32 magic;
     u32 size: 2;
     u32 banked: 1;
@@ -179,8 +179,8 @@ typedef struct  __attribute__((aligned(8))) {
 
 void I_InitSram(void)
 {
-    sramheader_t header __attribute__((aligned(16)));
-    sramheader_t footer __attribute__((aligned(16)));
+    sramheader_t header ALIGNED(16);
+    sramheader_t footer ALIGNED(16);
 
     if (SramHandle.baseAddress == PHYS_TO_K1(SRAM_START_ADDR))
         return;
@@ -239,7 +239,7 @@ void I_InitSram(void)
     }
 }
 
-typedef struct __attribute__((__packed__)) __attribute__((aligned (8))) {
+typedef struct __attribute__((__packed__)) ALIGNED(8) {
     u16 crc;
     u32 brightness: 8;
     u32 displayx: 6;
@@ -265,7 +265,7 @@ typedef struct __attribute__((__packed__)) __attribute__((aligned (8))) {
     u32 sfxvolume: 7;
     u32 musvolume: 7;
 
-    savedplayerconfig_t player __attribute__((aligned (4)));
+    savedplayerconfig_t player ALIGNED(4);
 } config_t;
 
 #define CRC16_INIT 0xffff
@@ -287,7 +287,7 @@ void I_SaveConfig(void)
     if (!SramPresent)
         return;
 
-    config_t config __attribute__((aligned(16)));
+    config_t config ALIGNED(16);
 
     bzero(&config, sizeof config);
 
@@ -326,7 +326,7 @@ extern void P_RefreshBrightness(void);
 
 static boolean I_LoadConfig(void)
 {
-    config_t config __attribute__((aligned(16)));
+    config_t config ALIGNED(16);
     u16 crc = CRC16_INIT;
 
     I_ReadWriteSram(CONFIG_ADDR, &config, sizeof config, OS_READ);
@@ -473,7 +473,7 @@ void I_SaveDemo(void *buffer, int len)
 
 extern int start_time;
 
-typedef struct __attribute__((aligned(8)))
+typedef struct ALIGNED(8)
 {
     u32 magic;
     u32 size;
@@ -512,7 +512,7 @@ extern int irndindex;
 
 void I_QuickSaveInternal(quicksaveheader_t *header, u32 limit, void (*write)(u32, const void*, u32))
 {
-    byte                 buf[4096] __attribute__((aligned(16)));
+    byte                 buf[4096] ALIGNED(16);
     register savephase_e phase = phase_sectors;
     register u32         addr = QUICKSAVE_ADDR + sizeof *header;
     register u32         count;
@@ -610,7 +610,7 @@ void I_QuickSave(void)
     if (!SramPresent)
         return;
 
-    quicksaveheader_t header __attribute__((aligned(16)));
+    quicksaveheader_t header ALIGNED(16);
 
     I_QuickSaveInternal(&header, FOOTER_ADDR, I_SramWriteFunc);
     // write header last after calculating size and crc
@@ -628,7 +628,7 @@ static void I_USBWriteFunc(u32 addr, const void* buf, u32 size) {
 
 void I_USBQuickSave(void)
 {
-    quicksaveheader_t header __attribute__((aligned(16)));
+    quicksaveheader_t header ALIGNED(16);
     u32 size = P_CurrentQuickSaveSize(MAXINT);
 
     /* need to run through it twice to calculate CRC */
@@ -653,8 +653,8 @@ void G_DoLoadLevel (void);
 
 const char *I_QuickLoadInternal(int limit, void (*read)(u32, void*, u32))
 {
-    quicksaveheader_t    header    __attribute__((aligned(16)));
-    byte                 buf[4096] __attribute__((aligned(16)));
+    quicksaveheader_t    header    ALIGNED(16);
+    byte                 buf[4096] ALIGNED(16);
     register savephase_e phase = phase_sectors;
     thinker_t   *currentthinker, *nextthinker;
     mobj_t      *currentmo, *nextmo;
@@ -881,7 +881,7 @@ boolean I_IsQuickLoadAvailable(void)
 
 static void I_DetectQuickLoad(void)
 {
-    quicksaveheader_t header __attribute__((aligned(16)));
+    quicksaveheader_t header ALIGNED(16);
 
     I_ReadWriteSram(QUICKSAVE_ADDR, &header, sizeof header, OS_READ);
 
