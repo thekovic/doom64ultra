@@ -1304,7 +1304,7 @@ void T_LaserThinker(laser_t *laser) // 8001C9B8
     }
 }
 
-extern fixed_t crouchease[];
+extern const fixed_t crouchease[];
 
 /*
 ================

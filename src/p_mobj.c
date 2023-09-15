@@ -524,7 +524,7 @@ mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yof
 }
 
 
-extern fixed_t crouchease[];
+extern const fixed_t crouchease[];
 /*
 ================
 =

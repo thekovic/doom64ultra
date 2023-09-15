@@ -562,10 +562,10 @@ typedef struct player_s
     u32            refire;                    /* refired shots are less accurate */
 
     u16            killcount, itemcount, secretcount;        /* for intermission */
-    char          *message;                /* hint messages */
-    char          *message1;                // [Immorpher] additional message levels
-    char          *message2;                // [Immorpher] additional message levels
-    char          *message3;                // [Immorpher] additional message levels
+    const char    *message;                /* hint messages */
+    const char    *message1;                // [Immorpher] additional message levels
+    const char    *message2;                // [Immorpher] additional message levels
+    const char    *message3;                // [Immorpher] additional message levels
     s16            messagetic;             /* messages tic countdown*/
     s16            messagetic1;            // [Immorpher] message tic buffer
     s16            messagetic2;            // [Immorpher] message tic buffer

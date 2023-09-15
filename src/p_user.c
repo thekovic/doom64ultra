@@ -60,7 +60,7 @@ int deathmocktics; // 800A56A0
 #define MK_TXT50t1	"ZELLLOOO: WE HAVE PINKY,\nBUT WHERE'S THE BRAIN?"
 #define MK_TXT51t1	"PEACHES: THIS ACTION TO DEFY THE\nEVIL ONE IS NOT WITHOUT RISK.\nCONFRONTATION IS OFTEN BEST\nAVOIDED..."
 
-char *mockstrings1[] =   // 8005A290
+const char *mockstrings1[] =   // 8005A290
 {
     MK_TXT01t1, MK_TXT02t1, MK_TXT03t1, MK_TXT04t1,
 	MK_TXT05t1, MK_TXT06t1, MK_TXT07t1, MK_TXT08t1,
@@ -77,15 +77,15 @@ char *mockstrings1[] =   // 8005A290
 	MK_TXT49t1, MK_TXT50t1, MK_TXT51t1,
 };
 
-fixed_t 		forwardmove[3] = {0xE000, 0x16000, 0x8000}; // 8005B060
-fixed_t 		sidemove[3] = {0xE000, 0x16000, 0x8000};    // 8005B068
+const fixed_t 		forwardmove[3] = {0xE000, 0x16000, 0x8000}; // 8005B060
+const fixed_t 		sidemove[3] = {0xE000, 0x16000, 0x8000};    // 8005B068
 
 #define SLOWTURNTICS    10
-fixed_t			angleturn[] =       // 8005B070
+const fixed_t			angleturn[] =       // 8005B070
 	{50,50,83,83,100,116,133,150,150,166,
 	133,133,150,166,166,200,200,216,216,233}; // fastangleturn
 
-fixed_t			crouchease[] = {65536, 61440, 53951, 32768};
+const fixed_t			crouchease[] = {65536, 61440, 53951, 32768};
 /*============================================================================= */
 
 mobj_t          *slidething;    //80077D04, pmGp000008f4
@@ -872,7 +872,7 @@ void P_DeathThink (player_t *player) // 80022914
 		} while(player->message1 == mockstrings1[mockrandom]);
 		
         player->messagetic = 2*MSGTICS; // [Immorpher] Doubled message time to read them!
-        player->message = mockstrings1[mockrandom];
+        player->message = (char*)mockstrings1[mockrandom];
 		player->messagecolor = 0xff200000;
         deathmocktics = ticon;
     }
