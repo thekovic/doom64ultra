@@ -1219,7 +1219,7 @@ draw:
             }
             else
             {
-                stileh = tileh << 2;
+                stileh = tileh << hudyshift;
             }
 
 			if (psp->state->frame & FF_FULLBRIGHT)
