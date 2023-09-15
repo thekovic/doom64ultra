@@ -107,7 +107,6 @@ u8 ControlMappings[] = {
     \
     _F(MTXT_DEBUG, "Debug") \
     _F(MTXT_DEBUG_DISPLAY, "DISPLAY") \
-    _F(MTXT_GAMMA_CORRECT, "GAMMA CORRECT") \
     _F(MTXT_SECTOR_COLORS, "SECTOR COLORS") \
     _F(MTXT_FULL_BRIGHT, "FULL BRIGHT") \
     _F(MTXT_EXIT, "Exit") \
@@ -136,6 +135,7 @@ u8 ControlMappings[] = {
     _F(MTXT_TEXTURE_FILTER, "Texture Filter") \
     _F(MTXT_SPRITE_FILTER, "Sprite Filter") \
     _F(MTXT_SKY_FILTER, "Sky Filter") \
+    _F(MTXT_GAMMA_CORRECT, "Gamma Correct") \
     _F(MTXT_DITHER_FILTER, "Dither Filter") \
     _F(MTXT_COLOR_DITHER, "Color Dither") \
     _F(MTXT_ANTIALIASING, "Anti-Aliasing") \
@@ -221,12 +221,13 @@ const menuitem_t Menu_Video[] =
     { MTXT_TEXTURE_FILTER,   42, 110},
     { MTXT_SPRITE_FILTER,    42, 120},
     { MTXT_SKY_FILTER,       42, 130},
-    { MTXT_DITHER_FILTER,    42, 140},
-    { MTXT_COLOR_DITHER,     42, 150},
-    { MTXT_ANTIALIASING,     42, 160},
-    { MTXT_INTERLACING,      42, 170},
-    { MTXT_CENTER_DISPLAY,   42, 180},
-    { MTXT_MRETURN,          42, 200},
+    { MTXT_GAMMA_CORRECT,    42, 140},
+    { MTXT_DITHER_FILTER,    42, 150},
+    { MTXT_COLOR_DITHER,     42, 160},
+    { MTXT_ANTIALIASING,     42, 170},
+    { MTXT_INTERLACING,      42, 180},
+    { MTXT_CENTER_DISPLAY,   42, 190},
+    { MTXT_MRETURN,          42, 210},
 };
 
 const menuitem_t Menu_StatusHUD[] =
@@ -333,11 +334,10 @@ const menuitem_t Menu_Debug[] =
     { MTXT_DEBUG_DISPLAY, 40, 120},
     { MTXT_SECTOR_COLORS, 40, 130},
     { MTXT_FULL_BRIGHT,   40, 140},
-    { MTXT_GAMMA_CORRECT, 40, 150},
 
-    { MTXT_RECORD_DEMO,   40, 170},
+    { MTXT_RECORD_DEMO,   40, 160},
 
-    { MTXT_EXIT,          40, 190},
+    { MTXT_EXIT,          40, 180},
 };
 
 typedef struct
@@ -413,6 +413,7 @@ fixed_t MotionBob = 0x100000;    // [Immorpher] Motion Bob works in hexadecimal
 int VideoFilters[3] = {0, 1, 0}; // [nova] Independent filter select
 int TvMode = 1;                  // [nova] AA, Interlacing
 int ScreenAspect = 0;            // [nova] select 4:3, 16:10, 16:9
+boolean NoGammaCorrect = false;  // [nova] real gamma option
 boolean DitherFilter = false;    // [Immorpher] Dither filter
 int ColorDither = 0;             // [Immorpher] Color dithering options (Off, Square, Bayer, Noise)
 int FlashBrightness = 32;        // [Immorpher] Strobe brightness adjustment, will need to change to float
@@ -2011,6 +2012,7 @@ int M_MenuTicker(void) // 80007E0C
                     brightness = 125;
                     VideoFilters[0] = VideoFilters[1] = VideoFilters[2] = 0;
                     TvMode = 0;
+                    NoGammaCorrect = false;
                     DitherFilter = false;  // [Immorpher] new video option
                     ColorDither = 0;  // [Immorpher] new video option
 
@@ -2063,6 +2065,7 @@ int M_MenuTicker(void) // 80007E0C
                     brightness = 0;
                     VideoFilters[0] = VideoFilters[1] = VideoFilters[2] = 0;
                     TvMode = 0;
+                    NoGammaCorrect = true;
                     DitherFilter = false;  // [Immorpher] new video option
                     ColorDither = 0;  // [Immorpher] new video option
 
@@ -2115,6 +2118,7 @@ int M_MenuTicker(void) // 80007E0C
                     brightness = 100;
                     VideoFilters[0] = VideoFilters[1] = VideoFilters[2] = 0;
                     TvMode = 0;
+                    NoGammaCorrect = false;
                     DitherFilter = false;  // [Immorpher] new video option
                     ColorDither = 0;  // [Immorpher] new video option
 
@@ -2168,6 +2172,7 @@ int M_MenuTicker(void) // 80007E0C
                     VideoFilters[filt_textures] = VideoFilters[filt_sprites] = 0;
                     VideoFilters[filt_skies] = 1;
                     TvMode = 0;
+                    NoGammaCorrect = false;
                     DitherFilter = false;  // [Immorpher] new video option
                     ColorDither = 2;  // [Immorpher] new video option
 
@@ -2220,6 +2225,7 @@ int M_MenuTicker(void) // 80007E0C
                     brightness = 200;
                     VideoFilters[0] = VideoFilters[1] = VideoFilters[2] = 0;
                     TvMode = 0;
+                    NoGammaCorrect = false;
                     DitherFilter = false;  // [Immorpher] new video option
                     ColorDither = 0;  // [Immorpher] new video option
 
@@ -2351,8 +2357,7 @@ int M_MenuTicker(void) // 80007E0C
                         || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    players[0].cheats ^= CF_GAMMA;
-                    globalcheats ^= CF_GAMMA;
+                    NoGammaCorrect = !NoGammaCorrect;
                     I_RefreshVideo();
                     return ga_nothing;
                 }
@@ -2775,9 +2780,6 @@ static void M_DebugMenuDrawer(void) // 800091C0
             case MTXT_FULL_BRIGHT:
                 text = (!(players[0].cheats & CF_FULLBRIGHT)) ? "OFF": "ON";
                 break;
-            case MTXT_GAMMA_CORRECT:
-                text = (!(players[0].cheats & CF_GAMMA)) ? "OFF": "ON";
-                break;
             default:
                 break;
         }
@@ -3009,6 +3011,13 @@ void M_VideoDrawer(void) // 80009884
                 text = "On";
             else
                 text = "Off";
+        }
+        else if (casepos == MTXT_GAMMA_CORRECT)
+        {
+            if (NoGammaCorrect)
+                text = "Off";
+            else
+                text = "On";
         }
         else if (casepos == MTXT_DITHER_FILTER)
         {

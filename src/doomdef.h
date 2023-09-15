@@ -609,7 +609,6 @@ typedef struct player_s
 
 #define CF_NOCOLORS     0x20000    // [GEC] NEW CHEAT CODE
 #define CF_FULLBRIGHT   0x40000    // [GEC] NEW CHEAT CODE
-#define CF_GAMMA        0x80000    // [Immorpher] NEW CHEAT CODE
 #define CF_FLYMODE      0x100000
 #define CF_ARTIFACTS    0x200000
 
@@ -950,6 +949,7 @@ extern fixed_t MotionBob;           // [Immorpher] Motion Bob
 extern int VideoFilters[3];			// [nova] Independent filter select
 extern int TvMode;                  // [nova] interlace/aa
 extern int ScreenAspect;            // [nova] widescreen
+extern boolean NoGammaCorrect;      // [nova] real gamma option
 extern boolean DitherFilter;     	// [Immorpher] Dither Filter
 extern int ColorDither;     		// [Immorpher] Color Dither
 extern int FlashBrightness;     	// [Immorpher] Strobe brightness adjustment

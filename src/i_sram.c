@@ -251,6 +251,7 @@ typedef struct __attribute__((__packed__)) __attribute__((aligned (8))) {
     u32 screenaspect: 2;
     u32 videoresolution: 2;
     u32 bitdepth: 1;
+    u32 nogammacorrect: 1;
     u32 ditherfilter: 1;
     u32 colordither: 2;
     u32 flashbrightness: 6;
@@ -300,6 +301,7 @@ void I_SaveConfig(void)
     config.screenaspect = ScreenAspect;
     config.videoresolution = VideoResolution;
     config.bitdepth = BitDepth;
+    config.nogammacorrect = NoGammaCorrect;
     config.ditherfilter = DitherFilter;
     config.colordither = ColorDither;
     config.flashbrightness = FlashBrightness;
@@ -343,6 +345,7 @@ static boolean I_LoadConfig(void)
     ScreenAspect = config.screenaspect % 3;
     VideoResolution = config.videoresolution % 3;
     BitDepth = config.bitdepth;
+    NoGammaCorrect = config.nogammacorrect;
     DitherFilter = config.ditherfilter;
     ColorDither = config.colordither;
     FlashBrightness = config.flashbrightness % 33;

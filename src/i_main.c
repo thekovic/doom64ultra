@@ -846,9 +846,9 @@ void I_RefreshVideo(void) // [Immorpher] video refresh
 
     special = (TvMode & 1) ? OS_VI_DIVOT_ON : OS_VI_DIVOT_OFF;
     special |= DitherFilter ? OS_VI_DITHER_FILTER_ON : OS_VI_DITHER_FILTER_OFF;
-    special |= (players[0].cheats & CF_GAMMA)
-        ? OS_VI_GAMMA_ON | OS_VI_GAMMA_DITHER_ON
-        : OS_VI_GAMMA_OFF |  OS_VI_GAMMA_DITHER_OFF;
+    special |= NoGammaCorrect
+        ? OS_VI_GAMMA_OFF | OS_VI_GAMMA_DITHER_OFF
+        : OS_VI_GAMMA_ON | OS_VI_GAMMA_DITHER_ON;
 
     osViSetSpecialFeatures(special);
 
