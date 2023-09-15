@@ -181,6 +181,7 @@ void IN_Stop(void) // 80004DB0
                 MiniLoop(M_SavePakStart,M_SavePakStop,M_SavePakTicker,M_MenuGameDrawer);
             }
         }
+        MenuCall = NULL;
     }
 
     I_WIPE_FadeOutScreen();
