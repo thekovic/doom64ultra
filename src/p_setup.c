@@ -60,7 +60,7 @@ int         spawncount;     // 800A5D78
 =================
 */
 
-void P_LoadVertexes (void) // 8001CF20
+SEC_STARTUP void P_LoadVertexes (void) // 8001CF20
 {
 	int			i;
 	mapvertex_t	*ml;
@@ -91,7 +91,7 @@ void P_LoadVertexes (void) // 8001CF20
 =================
 */
 
-void P_LoadSegs (void) // 8001D020
+SEC_STARTUP void P_LoadSegs (void) // 8001D020
 {
 	int			i;
 	mapseg_t	*ml;
@@ -149,7 +149,7 @@ void P_LoadSegs (void) // 8001D020
 =================
 */
 
-void P_LoadSubSectors (void) // 8001D34C
+SEC_STARTUP void P_LoadSubSectors (void) // 8001D34C
 {
 	int				i;
 	mapsubsector_t	*ms;
@@ -181,7 +181,7 @@ void P_LoadSubSectors (void) // 8001D34C
 =================
 */
 
-void P_LoadSectors (void) // 8001D43C
+SEC_STARTUP void P_LoadSectors (void) // 8001D43C
 {
 	int				i;
 	mapsector_t		*ms;
@@ -234,7 +234,7 @@ void P_LoadSectors (void) // 8001D43C
 =================
 */
 
-void P_LoadNodes (void) // 8001D64C
+SEC_STARTUP void P_LoadNodes (void) // 8001D64C
 {
 	int			i,j,k;
 	mapnode_t	*mn;
@@ -269,7 +269,7 @@ void P_LoadNodes (void) // 8001D64C
 =================
 */
 
-void P_LoadThings (void) // 8001D864
+SEC_STARTUP void P_LoadThings (void) // 8001D864
 {
 	int				i;
 	mapthing_t		*mt, *mts;
@@ -316,7 +316,7 @@ void P_LoadThings (void) // 8001D864
 =================
 */
 
-void P_LoadLineDefs (void) // 8001D9B8
+SEC_STARTUP void P_LoadLineDefs (void) // 8001D9B8
 {
 	int				i;
 	maplinedef_t	*mld;
@@ -409,7 +409,7 @@ void P_LoadLineDefs (void) // 8001D9B8
 =================
 */
 
-void P_LoadSideDefs (void) // 8001DCC8
+SEC_STARTUP void P_LoadSideDefs (void) // 8001DCC8
 {
 	int				i;
 	mapsidedef_t	*msd;
@@ -441,7 +441,7 @@ void P_LoadSideDefs (void) // 8001DCC8
 =================
 */
 
-void P_LoadBlockMap (void) // 8001DE38
+SEC_STARTUP void P_LoadBlockMap (void) // 8001DE38
 {
 	int		count;
 	int		i;
@@ -478,7 +478,7 @@ void P_LoadBlockMap (void) // 8001DE38
 =================
 */
 
-void P_LoadReject(void) // 8001DF98
+SEC_STARTUP void P_LoadReject(void) // 8001DF98
 {
 	int     length;
 	byte    *src;
@@ -499,7 +499,7 @@ void P_LoadReject(void) // 8001DF98
 =================
 */
 
-void P_LoadLeafs(void) // 8001DFF8
+SEC_STARTUP void P_LoadLeafs(void) // 8001DFF8
 {
 	int         i, j;
 	int         length, size, count;
@@ -572,7 +572,7 @@ void P_LoadLeafs(void) // 8001DFF8
 =================
 */
 
-void P_LoadLights(void) // 8001E29C
+SEC_STARTUP void P_LoadLights(void) // 8001E29C
 {
     int         i;
     int         length;
@@ -621,7 +621,7 @@ void P_LoadLights(void) // 8001E29C
 =================
 */
 
-void P_LoadMacros(void) // 8001E478
+SEC_STARTUP void P_LoadMacros(void) // 8001E478
 {
     short *data;
     int specialCount;
@@ -678,7 +678,7 @@ void P_LoadMacros(void) // 8001E478
 =================
 */
 
-void P_GroupLines (void) // 8001E614
+SEC_STARTUP void P_GroupLines (void) // 8001E614
 {
 	line_t		**linebuffer;
 	int			i, j, total;
