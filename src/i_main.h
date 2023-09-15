@@ -9,9 +9,9 @@ extern char _doom64_wmdSegmentRomStart[], _doom64_wmdSegmentRomEnd[];
 extern char _doom64_wsdSegmentRomStart[], _doom64_wsdSegmentRomEnd[];
 extern char _doom64_wddSegmentRomStart[], _doom64_wddSegmentRomEnd[];
 
-extern char _bssSegmentEnd[];
+extern char _bss_end[];
 
-#define BASEPROG_SIZE (ALIGN(_bssSegmentEnd, 16) - (u32)BASE_RAM_ADDR)
+#define BASEPROG_SIZE (ALIGN(_bss_end, 16) - (u32)BASE_RAM_ADDR)
 #define CFB_SIZE (osMemSize >= 0x800000 ? SCREEN_WD*SCREEN_HT*2*sizeof(u32) : SCREEN_WD*SCREEN_HT*sizeof(u16))
 #define CFBS_SIZE (CFB_SIZE*2)
 #define AUDIO_HEAP_SIZE	( \
@@ -21,7 +21,7 @@ extern char _bssSegmentEnd[];
     )
 #define MAIN_HEAP_SIZE (osMemSize - BASEPROG_SIZE - CFBS_SIZE - AUDIO_HEAP_SIZE)
 
-#define MAIN_HEAP_ADDR ((byte*)ALIGN(_bssSegmentEnd, 16))
+#define MAIN_HEAP_ADDR ((byte*)ALIGN(_bss_end, 16))
 #define CFBS_ADDR (BASE_RAM_END - CFBS_SIZE)
 #define AUDIO_HEAP_ADDR (CFBS_ADDR - AUDIO_HEAP_SIZE)
 

@@ -9,8 +9,8 @@
 
 glabel __start
     la      $gp, _gp
-    la $t0, _codeSegmentBssStart
-    la $t1, _codeSegmentBssSize
+    la $t0, _bss_start
+    la $t1, _bss_size
 bss_clear:
     addi $t1, $t1, -8
     sw $zero, ($t0)
