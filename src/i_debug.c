@@ -72,6 +72,7 @@ static void I_DebuggerThread(void *arg) COLD;
 static boolean I_InitIsViewer(void) SEC_STARTUP;
 static void I_PrintIsViewer(const char *message, u32 len);
 
+static void DoomErrorHandler(s16 code, s16 numArgs, ...);
 static void* DoomPrintf(void* arg, const u8* str, u32 count);
 
 // Fault thread globals
@@ -140,7 +141,10 @@ SEC_STARTUP void I_InitDebugging()
         D_print = I_PrintIsViewer;
 
     extern void* __printfunc;
+    extern OSErrorHandler __osCommonHandler;
+
     __printfunc = DoomPrintf;
+    __osCommonHandler = DoomErrorHandler;
 #endif /* !defined(NDEBUG) */
 
 #ifndef NDEBUG
@@ -169,6 +173,24 @@ SEC_STARTUP void I_StartDebugger()
     I_RefreshVideo();
     BREAKPOINT();
 #endif
+}
+
+static NO_RETURN void DoomErrorHandler(s16 code, s16 numArgs, ...) {
+    va_list args;
+    char buf[256];
+    char *b = buf;
+
+    extern const char* __os_error_message[];
+
+    va_start(args, numArgs);
+
+    b += D_sprintf(b, "0x%08lX (%04d):", osGetCount(), code);
+    b += D_vsprintf(b,  __os_error_message[code], args);
+    b += D_sprintf(b, "\n");
+
+    va_end(args);
+
+    I_Error("%s", buf);
 }
 
 static void* DoomPrintf(void* arg, const u8* str, u32 count)
