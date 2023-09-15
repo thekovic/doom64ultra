@@ -169,7 +169,7 @@ dospecial:
 #define	STOPSPEED		0x1000
 #define	FRICTION		0xd200  //Jag 0xd240
 
-void P_PlayerXYMovement (mobj_t *mo) // 80021E20
+SEC_GAME void P_PlayerXYMovement (mobj_t *mo) // 80021E20
 {
     /* */
 	/* try to slide along a blocked move */
@@ -209,7 +209,7 @@ void P_PlayerXYMovement (mobj_t *mo) // 80021E20
 ===============
 */
 
-void P_PlayerZMovement (mobj_t *mo) // 80021f38
+SEC_GAME void P_PlayerZMovement (mobj_t *mo) // 80021f38
 {
     /* */
     /* check for smooth step up */
@@ -275,7 +275,7 @@ void P_PlayerZMovement (mobj_t *mo) // 80021f38
 ================
 */
 
-void P_PlayerMobjThink (mobj_t *mobj) // 80022060
+SEC_GAME void P_PlayerMobjThink (mobj_t *mobj) // 80022060
 {
     state_t	*st;
     int		state;

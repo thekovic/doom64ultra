@@ -55,22 +55,22 @@ typedef struct __attribute__((aligned(8))) {
     savedmacroactivator_t macroqueue[4];
 } savedmacrosheader_t;
 
-void P_ArchiveActiveMacro (savedmacrosheader_t *header);
-void P_UnArchiveActiveMacro (const savedmacrosheader_t *header);
+void P_ArchiveActiveMacro (savedmacrosheader_t *header) SEC_MENU;
+void P_UnArchiveActiveMacro (const savedmacrosheader_t *header) SEC_STARTUP;
 
-u32 P_ArchivePlayers (u8 *savep);
-u32 P_ArchiveSectors (u8 *savep, u32 savepsize, u32 *start);
-u32 P_ArchiveLines (u8 *savep, u32 savepsize, u32 *start);
-u32 P_ArchiveMacros (u8 *savep, u32 savepsize, u32 *start);
-u32 P_ArchiveMobjs (u8 *savep, u32 savepsize, mobj_t **start, u32 *counter);
-u32 P_ArchiveThinkers (u8 *savep, u32 savepsize, thinker_t **start, u32 *counter);
+u32 P_ArchivePlayers (u8 *savep) SEC_MENU;
+u32 P_ArchiveSectors (u8 *savep, u32 savepsize, u32 *start) SEC_MENU;
+u32 P_ArchiveLines (u8 *savep, u32 savepsize, u32 *start) SEC_MENU;
+u32 P_ArchiveMacros (u8 *savep, u32 savepsize, u32 *start) SEC_MENU;
+u32 P_ArchiveMobjs (u8 *savep, u32 savepsize, mobj_t **start, u32 *counter) SEC_MENU;
+u32 P_ArchiveThinkers (u8 *savep, u32 savepsize, thinker_t **start, u32 *counter) SEC_MENU;
 
-u32 P_UnArchivePlayers (const u8 *savep);
-u32 P_UnArchiveSectors (const u8 *savep, u32 savepsize, u32 *start);
-u32 P_UnArchiveLines (const u8 *savep, u32 savepsize, u32 *start);
-u32 P_UnArchiveMacros (const u8 *savep, u32 savepsize, u32 *start);
-u32 P_UnArchiveMobjs (const u8 *savep, u32 savepsize, u32 *counter);
-u32 P_UnArchiveThinkers (const u8 *savep, u32 savepsize, u32 *counter);
-void P_LinkUnArchivedMobjs(void);
+u32 P_UnArchivePlayers (const u8 *savep) SEC_STARTUP;
+u32 P_UnArchiveSectors (const u8 *savep, u32 savepsize, u32 *start) SEC_STARTUP;
+u32 P_UnArchiveLines (const u8 *savep, u32 savepsize, u32 *start) SEC_STARTUP;
+u32 P_UnArchiveMacros (const u8 *savep, u32 savepsize, u32 *start) SEC_STARTUP;
+u32 P_UnArchiveMobjs (const u8 *savep, u32 savepsize, u32 *counter) SEC_STARTUP;
+u32 P_UnArchiveThinkers (const u8 *savep, u32 savepsize, u32 *counter) SEC_STARTUP;
+void P_LinkUnArchivedMobjs(void) SEC_STARTUP;
 
 u32 P_CurrentQuickSaveSize(u32 max);

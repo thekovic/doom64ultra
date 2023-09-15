@@ -36,19 +36,19 @@ int wmd_size;//8005D8EC
 static int(*Error_func)(int, int) = 0;//8005D8F0
 static int Error_module = 0;//8005D8F4
 
-static void err(int code) // 8002F400
+static COLD void err(int code) // 8002F400
 {
 	if (Error_func) {
 		Error_func(Error_module, code);
 	}
 }
 
-static void zeroset(char *pdest, unsigned long size) // 8002F438
+static void INLINE_ALWAYS zeroset(char *pdest, unsigned long size) // 8002F438
 {
 	while (size--) *pdest++ = 0;
 }
 
-void wess_install_error_handler(int(*error_func)(int, int), int module) // 8002F460
+SEC_STARTUP void wess_install_error_handler(int(*error_func)(int, int), int module) // 8002F460
 {
 	Error_func = error_func;
 	Error_module = module;
@@ -99,7 +99,7 @@ int Is_Seq_Num_Valid(int seq_num) // 8002F4CC
 	return 1;*/
 }
 
-void Register_Early_Exit(void) // 8002F540
+COLD void Register_Early_Exit(void) // 8002F540
 {
 	if (!early_exit)
 	{
@@ -107,12 +107,12 @@ void Register_Early_Exit(void) // 8002F540
 	}
 }
 
-void wess_install_handler(void) // 8002F564
+SEC_STARTUP void wess_install_handler(void) // 8002F564
 {
 	init_WessTimer();
 }
 
-void wess_restore_handler(void) // 8002F584
+COLD void wess_restore_handler(void) // 8002F584
 {
 	exit_WessTimer();
 }
@@ -120,7 +120,7 @@ void wess_restore_handler(void) // 8002F584
 /* used by wesssys_exit */
 enum RestoreFlag {NoRestore,YesRestore};
 
-int wesssys_init(void) // 8002F5A4
+SEC_STARTUP int wesssys_init(void) // 8002F5A4
 {
 	int initok;
 
@@ -142,7 +142,7 @@ int wesssys_init(void) // 8002F5A4
 	return (initok);
 }
 
-void wesssys_exit(enum RestoreFlag rflag) // 8002F608
+COLD void wesssys_exit(enum RestoreFlag rflag) // 8002F608
 {
 	if (!Is_System_Active())
 	{
@@ -165,17 +165,17 @@ void wesssys_exit(enum RestoreFlag rflag) // 8002F608
 	}
 }
 
-char *wess_get_wmd_start(void) // 8002F684
+SEC_STARTUP char *wess_get_wmd_start(void) // 8002F684
 {
 	return(wmd_mem);
 }
 
-char *wess_get_wmd_end(void) // 8002F694
+SEC_STARTUP char *wess_get_wmd_end(void) // 8002F694
 {
 	return(wmd_end);
 }
 
-static void free_mem_if_mine(void) // 8002F6A4
+COLD static void free_mem_if_mine(void) // 8002F6A4
 {
 	if (wmd_mem_is_mine)
 	{
@@ -188,7 +188,7 @@ static void free_mem_if_mine(void) // 8002F6A4
 	}
 }
 
-void wess_unload_module(void) // 8002F6F4
+COLD void wess_unload_module(void) // 8002F6F4
 {
 	if (module_loaded)
 	{
@@ -204,7 +204,7 @@ void wess_unload_module(void) // 8002F6F4
 	}
 }
 
-int wess_size_module(char *wmd_filename) // 8002F770
+SEC_STARTUP int wess_size_module(char *wmd_filename) // 8002F770
 {
 	int readrequest, readresult;
 	int size, i;

@@ -239,10 +239,10 @@ DEBUG_COUNTER(SDATA u32 LastVisThings = 0);
 void S_Init(void);
 void I_InitSram(void);
 
-void I_Start(void) COLD;  // 80005620
-__attribute__((noreturn)) void I_IdleGameThread(void *arg) COLD; // 8000567C
-__attribute__((noreturn)) void I_SystemTicker(void *arg) HOT; // 80005730
-__attribute__((noreturn)) void I_ControllerThread(void *) HOT;
+void I_Start(void) SEC_STARTUP;  // 80005620
+NO_RETURN void I_IdleGameThread(void *arg) SEC_STARTUP; // 8000567C
+NO_RETURN void I_SystemTicker(void *arg) HOT; // 80005730
+NO_RETURN void I_ControllerThread(void *) HOT;
 
 OSTask * wess_work(void);
 
@@ -257,7 +257,7 @@ void I_Start(void)  // 80005620
     osStartThread(&idle_thread);
 }
 
-static HOT __attribute__((noreturn, noinline)) void I_IdleLoop(void)
+static HOT NO_RETURN INLINE_NEVER void I_IdleLoop(void)
 {
     do {
         osYieldThread();

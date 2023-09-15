@@ -925,7 +925,7 @@ void M_QuickLoadFailedDrawer(void) // 8002BBE4
     I_DrawFrame();
 }
 
-void M_QuickLoadFailed(void)
+SEC_MENU void M_QuickLoadFailed(void)
 {
     last_ticon = 0;
     MiniLoop(NULL, NULL, M_QuickLoadFailedTicker, M_QuickLoadFailedDrawer);

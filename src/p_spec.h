@@ -147,32 +147,32 @@ extern	int         numsectorspecials;
 //void	P_InitPicAnims (void);
 
 /* at map load */
-void	P_SpawnSpecials (void);
+void	P_SpawnSpecials (void) SEC_GAME;
 
 /* every tic */
-void 	P_UpdateSpecials (void);
+void 	P_UpdateSpecials (void) SEC_GAME;
 
 /* when needed */
-boolean	P_UseSpecialLine (line_t *line, mobj_t *thing);
+boolean	P_UseSpecialLine (line_t *line, mobj_t *thing) SEC_GAME;
 //void	P_ShootSpecialLine ( mobj_t *thing, line_t *line);
 //void P_CrossSpecialLine (line_t *line,mobj_t *thing);
 
-void 	P_PlayerInSpecialSector (player_t *player, sector_t *sec);
+void 	P_PlayerInSpecialSector (player_t *player, sector_t *sec) SEC_GAME;
 
-int		twoSided(int sector,int line);
-sector_t *getSector(int currentSector,int line,int side);
-side_t	*getSide(int currentSector,int line, int side);
-fixed_t	P_FindLowestFloorSurrounding(sector_t *sec);
-fixed_t	P_FindHighestFloorSurrounding(sector_t *sec);
-fixed_t	P_FindNextHighestFloor(sector_t *sec,int currentheight);
-fixed_t	P_FindLowestCeilingSurrounding(sector_t *sec);
-fixed_t	P_FindHighestCeilingSurrounding(sector_t *sec);
-int		P_FindSectorFromLineTag(int tag,int start);
-int		P_FindMinSurroundingLight(sector_t *sector,int max);
-sector_t *getNextSector(line_t *line,sector_t *sec);
+int		twoSided(int sector,int line) SEC_GAME;
+sector_t *getSector(int currentSector,int line,int side) SEC_GAME;
+side_t	*getSide(int currentSector,int line, int side) SEC_GAME;
+fixed_t	P_FindLowestFloorSurrounding(sector_t *sec) SEC_GAME;
+fixed_t	P_FindHighestFloorSurrounding(sector_t *sec) SEC_GAME;
+fixed_t	P_FindNextHighestFloor(sector_t *sec,int currentheight) SEC_GAME;
+fixed_t	P_FindLowestCeilingSurrounding(sector_t *sec) SEC_GAME;
+fixed_t	P_FindHighestCeilingSurrounding(sector_t *sec) SEC_GAME;
+int		P_FindSectorFromLineTag(int tag,int start) SEC_GAME;
+int		P_FindMinSurroundingLight(sector_t *sector,int max) SEC_GAME;
+sector_t *getNextSector(line_t *line,sector_t *sec) SEC_GAME;
 
-int P_FindLightFromLightTag(int tag,int start);
-boolean P_ActivateLineByTag(int tag,mobj_t *thing);
+int P_FindLightFromLightTag(int tag,int start) SEC_GAME;
+boolean P_ActivateLineByTag(int tag,mobj_t *thing) SEC_GAME;
 
 /* */
 /*	SPECIAL */
@@ -257,16 +257,16 @@ typedef struct
 #define	FASTDARK        15
 #define	SLOWDARK        30
 
-void	T_FireFlicker(fireflicker_t *flick);
-void	P_SpawnFireFlicker(sector_t *sector);
-void	T_LightFlash (lightflash_t *flash);
-void	P_SpawnLightFlash (sector_t *sector);
-void	T_StrobeFlash (strobe_t *flash);
-void 	P_SpawnStrobeFlash (sector_t *sector, int fastOrSlow);
-void	P_SpawnStrobeAltFlash(sector_t *sector, int fastOrSlow);
-int     EV_StartLightStrobing(line_t *line);
-void	T_Glow(glow_t *g);
-void	P_SpawnGlowingLight(sector_t *sector, glowtype_e type);
+void	T_FireFlicker(fireflicker_t *flick) SEC_GAME;
+void	P_SpawnFireFlicker(sector_t *sector) SEC_GAME;
+void	T_LightFlash (lightflash_t *flash) SEC_GAME;
+void	P_SpawnLightFlash (sector_t *sector) SEC_GAME;
+void	T_StrobeFlash (strobe_t *flash) SEC_GAME;
+void 	P_SpawnStrobeFlash (sector_t *sector, int fastOrSlow) SEC_GAME;
+void	P_SpawnStrobeAltFlash(sector_t *sector, int fastOrSlow) SEC_GAME;
+int     EV_StartLightStrobing(line_t *line) SEC_GAME;
+void	T_Glow(glow_t *g) SEC_GAME;
+void	P_SpawnGlowingLight(sector_t *sector, glowtype_e type) SEC_GAME;
 
 
 typedef enum
@@ -283,12 +283,12 @@ typedef enum
 #define LIGHT_UPRWALL   3
 #define LIGHT_LWRWALL   4
 
-int P_ModifySectorColor(line_t* line, int index, int type);
+int P_ModifySectorColor(line_t* line, int index, int type) SEC_GAME;
 
 #define SEQUENCELIGHTMAX 48
 
-void T_SequenceGlow(sequenceglow_t *seq_g);
-void P_SpawnSequenceLight(sector_t* sector, boolean first);
+void T_SequenceGlow(sequenceglow_t *seq_g) SEC_GAME;
+void P_SpawnSequenceLight(sector_t* sector, boolean first) SEC_GAME;
 
 typedef struct
 {
@@ -302,10 +302,10 @@ typedef struct
 	int		    inc;
 } lightmorph_t;
 
-void P_UpdateLightThinker(int destlight, int srclight);
-void T_LightMorph(lightmorph_t *lt);
-int P_ChangeLightByTag(int tag1, int tag2);
-int P_DoSectorLightChange(int tag1,int tag2);
+void P_UpdateLightThinker(int destlight, int srclight) SEC_GAME;
+void T_LightMorph(lightmorph_t *lt) SEC_GAME;
+int P_ChangeLightByTag(int tag1, int tag2) SEC_GAME;
+int P_DoSectorLightChange(int tag1,int tag2) SEC_GAME;
 
 typedef struct
 {
@@ -314,7 +314,7 @@ typedef struct
 	sector_t    *combiner;
 	int		    special;
 } combine_t;
-void P_CombineLightSpecials(sector_t *sector);
+void P_CombineLightSpecials(sector_t *sector) SEC_GAME;
 
 /*
 ===============================================================================
@@ -351,9 +351,9 @@ typedef struct
 
 extern	button_t	buttonlist[MAXBUTTONS];
 
-void	P_ChangeSwitchTexture(line_t *line,int useAgain);
-void 	P_InitSwitchList(void);
-void    P_StartSwitchSound(line_t *line, int sound_id);
+void	P_ChangeSwitchTexture(line_t *line,int useAgain) SEC_GAME;
+void 	P_InitSwitchList(void) SEC_GAME;
+void    P_StartSwitchSound(line_t *line, int sound_id) SEC_GAME;
 
 
 /*
@@ -408,12 +408,12 @@ typedef struct
 
 extern	plat_t	*activeplats[MAXPLATS];
 
-void	T_PlatRaise(plat_t	*plat);
-int		EV_DoPlat(line_t *line,plattype_e type,int amount);
-void	P_AddActivePlat(plat_t *plat);
-void	P_RemoveActivePlat(plat_t *plat);
-int     EV_StopPlat(line_t *line);
-void	P_ActivateInStasis(int tag);
+void	T_PlatRaise(plat_t	*plat) SEC_GAME;
+int		EV_DoPlat(line_t *line,plattype_e type,int amount) SEC_GAME;
+void	P_AddActivePlat(plat_t *plat) SEC_GAME;
+void	P_RemoveActivePlat(plat_t *plat) SEC_GAME;
+int     EV_StopPlat(line_t *line) SEC_GAME;
+void	P_ActivateInStasis(int tag) SEC_GAME;
 
 /*
 ===============================================================================
@@ -452,12 +452,12 @@ typedef struct
 #define	VDOORSPEED	FRACUNIT*2
 #define	VDOORWAIT	120
 
-void	EV_VerticalDoor (line_t *line, mobj_t *thing);
-boolean P_CheckKeyLock(line_t *line, mobj_t *thing);  // Psx Doom New
-int		EV_DoDoor (line_t *line, vldoor_e  type);
-void	T_VerticalDoor (vldoor_t *door);
-void	P_SpawnDoorCloseIn30 (sector_t *sec);
-void	P_SpawnDoorRaiseIn5Mins (sector_t *sec, int secnum);
+void	EV_VerticalDoor (line_t *line, mobj_t *thing) SEC_GAME;
+boolean P_CheckKeyLock(line_t *line, mobj_t *thing) SEC_GAME;  // Psx Doom New
+int		EV_DoDoor (line_t *line, vldoor_e  type) SEC_GAME;
+void	T_VerticalDoor (vldoor_t *door) SEC_GAME;
+void	P_SpawnDoorCloseIn30 (sector_t *sec) SEC_GAME;
+void	P_SpawnDoorRaiseIn5Mins (sector_t *sec, int secnum) SEC_GAME;
 
 /*
 ===============================================================================
@@ -498,12 +498,12 @@ typedef struct
 
 extern	ceiling_t	*activeceilings[MAXCEILINGS];
 
-int		EV_DoCeiling (line_t *line, ceiling_e  type, fixed_t speed);
-void	T_MoveCeiling (ceiling_t *ceiling);
-void	P_AddActiveCeiling(ceiling_t *c);
-void	P_RemoveActiveCeiling(ceiling_t *c);
-int		EV_CeilingCrushStop(line_t	*line);
-void	P_ActivateInStasisCeiling(line_t *line);
+int		EV_DoCeiling (line_t *line, ceiling_e  type, fixed_t speed) SEC_GAME;
+void	T_MoveCeiling (ceiling_t *ceiling) SEC_GAME;
+void	P_AddActiveCeiling(ceiling_t *c) SEC_GAME;
+void	P_RemoveActiveCeiling(ceiling_t *c) SEC_GAME;
+int		EV_CeilingCrushStop(line_t	*line) SEC_GAME;
+void	P_ActivateInStasisCeiling(line_t *line) SEC_GAME;
 
 /*
 ===============================================================================
@@ -571,13 +571,13 @@ typedef enum
 } result_e;
 
 result_e	T_MovePlane(sector_t *sector,fixed_t speed,
-			fixed_t dest,boolean crush,int floorOrCeiling,int direction);
+			fixed_t dest,boolean crush,int floorOrCeiling,int direction) SEC_GAME;
 
-int		EV_BuildStairs(line_t *line, stair_e type);
-int		EV_DoFloor(line_t *line,floor_e floortype,fixed_t speed);
-int     EV_SplitSector(line_t *line, boolean sync);// New D64
-void	T_MoveFloor(floormove_t *floor);
-void    T_MoveSplitPlane(splitmove_t *split);// New D64
+int		EV_BuildStairs(line_t *line, stair_e type) SEC_GAME;
+int		EV_DoFloor(line_t *line,floor_e floortype,fixed_t speed) SEC_GAME;
+int     EV_SplitSector(line_t *line, boolean sync) SEC_GAME;// New D64
+void	T_MoveFloor(floormove_t *floor) SEC_GAME;
+void    T_MoveSplitPlane(splitmove_t *split) SEC_GAME;// New D64
 
 /*
 ===============================================================================
@@ -586,8 +586,8 @@ void    T_MoveSplitPlane(splitmove_t *split);// New D64
 
 ===============================================================================
 */
-int		EV_Teleport( line_t *line,mobj_t *thing );
-int		EV_SilentTeleport( line_t *line,mobj_t *thing );
+int		EV_Teleport( line_t *line,mobj_t *thing ) SEC_GAME;
+int		EV_SilentTeleport( line_t *line,mobj_t *thing ) SEC_GAME;
 
 /*
 ===============================================================================
@@ -597,33 +597,33 @@ int		EV_SilentTeleport( line_t *line,mobj_t *thing );
 ===============================================================================
 */
 
-void T_AimCamera(aimcamera_t *camera); // 8000DE60
-int P_SetAimCamera(line_t *line, boolean aim); // 8000DF20
-int EV_SpawnTrapMissile(line_t *line, mobj_t *target, mobjtype_t type); // 8000E02C
-void P_SpawnDelayTimer(int tics, void(*action)()); // 8000E1CC
-void T_CountdownTimer(delay_t *timer); // 8000E1CC
-void P_ExitLevel(void); // 8000E220
-void P_SecretExitLevel(int map); // 8000E25C
-int P_ModifyLineFlags(line_t *line, int tag); // 8000E6BC
-int P_ModifyLineData(line_t *line, int tag); // 8000E780
-int P_ModifyLineTexture(line_t *line, int tag); // 8000E82C
-int P_ModifySector(line_t *line, int tag, int type); // 8000E928
-void T_FadeThinker(fade_t *fade); // 8000EACC
-int EV_SpawnMobjTemplate(int tag); // 8000EB8C
-int EV_FadeOutMobj(int tag); // 8000ED08
-void T_Quake(quake_t *quake); // 8000EDE8
-void T_Combine(combine_t *combine);
-void T_LaserThinker(laser_t *laser);
-void P_SpawnQuake(int tics); // 8000EE7C
-int P_RandomLineTrigger(line_t *line,mobj_t *thing); // 8000EEE0
-void T_MoveCamera(movecamera_t *camera); // 8000F014
-void P_SetMovingCamera(line_t *line); // 8000f2f8
-void P_RefreshBrightness(void); // 8000f410
-void P_SetLightFactor(int lightfactor); // 8000F458
-void T_FadeInBrightness(fadebright_t *fb); // 8000f610
-int P_ModifyMobjFlags(int tid, int flags); // 8000F674
-int P_AlertTaggedMobj(int tid, mobj_t *activator); // 8000F6C4
-void T_MobjExplode(mobjexp_t *exp); // 8000F76C
+void T_AimCamera(aimcamera_t *camera) SEC_GAME; // 8000DE60
+int P_SetAimCamera(line_t *line, boolean aim) SEC_GAME; // 8000DF20
+int EV_SpawnTrapMissile(line_t *line, mobj_t *target, mobjtype_t type) SEC_GAME; // 8000E02C
+void P_SpawnDelayTimer(int tics, void(*action)()) SEC_GAME; // 8000E1CC
+void T_CountdownTimer(delay_t *timer) SEC_GAME; // 8000E1CC
+void P_ExitLevel(void) SEC_GAME; // 8000E220
+void P_SecretExitLevel(int map) SEC_GAME; // 8000E25C
+int P_ModifyLineFlags(line_t *line, int tag) SEC_GAME; // 8000E6BC
+int P_ModifyLineData(line_t *line, int tag) SEC_GAME; // 8000E780
+int P_ModifyLineTexture(line_t *line, int tag) SEC_GAME; // 8000E82C
+int P_ModifySector(line_t *line, int tag, int type) SEC_GAME; // 8000E928
+void T_FadeThinker(fade_t *fade) SEC_GAME; // 8000EACC
+int EV_SpawnMobjTemplate(int tag) SEC_GAME; // 8000EB8C
+int EV_FadeOutMobj(int tag) SEC_GAME; // 8000ED08
+void T_Quake(quake_t *quake) SEC_GAME; // 8000EDE8
+void T_Combine(combine_t *combine) SEC_GAME;
+void T_LaserThinker(laser_t *laser) SEC_GAME;
+void P_SpawnQuake(int tics) SEC_GAME; // 8000EE7C
+int P_RandomLineTrigger(line_t *line,mobj_t *thing) SEC_GAME; // 8000EEE0
+void T_MoveCamera(movecamera_t *camera) SEC_GAME; // 8000F014
+void P_SetMovingCamera(line_t *line) SEC_GAME; // 8000f2f8
+void P_RefreshBrightness(void) SEC_GAME; // 8000f410
+void P_SetLightFactor(int lightfactor) SEC_GAME; // 8000F458
+void T_FadeInBrightness(fadebright_t *fb) SEC_GAME; // 8000f610
+int P_ModifyMobjFlags(int tid, int flags) SEC_GAME; // 8000F674
+int P_AlertTaggedMobj(int tid, mobj_t *activator) SEC_GAME; // 8000F6C4
+void T_MobjExplode(mobjexp_t *exp) SEC_GAME; // 8000F76C
 
 /*
 ===============================================================================
@@ -653,8 +653,8 @@ extern int         macroidx1;          // 800A6120
 extern int         macroidx2;          // 800A6124
 DEBUG_COUNTER(extern int activemacroidx);
 
-int P_StartMacro(int macroindex, line_t *line, mobj_t *thing); // 80021088
-int P_SuspendMacro(void); // 80021148
-void P_ToggleMacros(int tag, boolean toggleon); // 80021214
-void P_RunMacros(void); // 8002126C
-void P_RestartMacro(line_t *line, int id); // 80021384
+int P_StartMacro(int macroindex, line_t *line, mobj_t *thing) SEC_GAME; // 80021088
+int P_SuspendMacro(void) SEC_GAME; // 80021148
+void P_ToggleMacros(int tag, boolean toggleon) SEC_GAME; // 80021214
+void P_RunMacros(void) SEC_GAME; // 8002126C
+void P_RestartMacro(line_t *line, int id) SEC_GAME; // 80021384

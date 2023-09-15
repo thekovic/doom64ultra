@@ -3,6 +3,7 @@
 #pragma once
 
 #include "r_local.h"
+#include "a_local.h"
 
 #define	FLOATSPEED		(FRACUNIT*4)
 
@@ -75,12 +76,12 @@ void P_RemoveThinker (thinker_t *thinker) HOT;
 ===============================================================================
 */
 
-void P_SetupPsprites (int curplayer); //(player_t *curplayer);
-void P_MovePsprites (player_t *curplayer);
+void P_SetupPsprites (int curplayer) SEC_GAME; //(player_t *curplayer);
+void P_MovePsprites (player_t *curplayer) SEC_GAME;
 
-void P_SetPsprite (player_t *player, int position, statenum_t stnum);
-void P_BringUpWeapon (player_t *player);
-void P_DropWeapon (player_t *player);
+void P_SetPsprite (player_t *player, int position, statenum_t stnum) SEC_GAME;
+void P_BringUpWeapon (player_t *player) SEC_GAME;
+void P_DropWeapon (player_t *player) SEC_GAME;
 
 /*
 ===============================================================================
@@ -90,7 +91,7 @@ void P_DropWeapon (player_t *player);
 ===============================================================================
 */
 
-void	P_PlayerThink (player_t *player);
+void	P_PlayerThink (player_t *player) SEC_GAME;
 
 
 /*
@@ -116,12 +117,12 @@ DEBUG_COUNTER(extern int activemobjs);
 mobj_t *P_SpawnMobj (fixed_t x, fixed_t y, fixed_t z, mobjtype_t type) HOT;
 
 void 	P_RemoveMobj (mobj_t *th) HOT;
-mobj_t* P_SubstNullMobj (mobj_t* th);
-boolean	P_SetMobjState (mobj_t *mobj, statenum_t state);
+mobj_t* P_SubstNullMobj (mobj_t* th) SEC_GAME;
+boolean	P_SetMobjState (mobj_t *mobj, statenum_t state) SEC_GAME;
 void 	P_MobjThinker (mobj_t *mobj) HOT;
 
-void	P_SpawnPuff (fixed_t x, fixed_t y, fixed_t z);
-void 	P_SpawnBlood (fixed_t x, fixed_t y, fixed_t z, int damage);
+void	P_SpawnPuff (fixed_t x, fixed_t y, fixed_t z) SEC_GAME;
+void 	P_SpawnBlood (fixed_t x, fixed_t y, fixed_t z, int damage) SEC_GAME;
 //mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, mobjtype_t type);
 mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yoffs, fixed_t heightoffs, mobjtype_t type) HOT;
 
@@ -130,11 +131,11 @@ void	P_SpawnPlayerMissile (mobj_t *source, mobjtype_t type) HOT;
 void	P_RunMobjBase (void) HOT;//P_RunMobjBase2 (void);
 void	P_RunMobjExtra (void) HOT;
 
-void L_SkullBash (mobj_t *mo);
-void L_MissileHit (mobj_t *mo);
-void L_CrossSpecial (mobj_t *mo);
+void L_SkullBash (mobj_t *mo) SEC_GAME;
+void L_MissileHit (mobj_t *mo) SEC_GAME;
+void L_CrossSpecial (mobj_t *mo) SEC_GAME;
 
-void P_ExplodeMissile (mobj_t *mo);
+void P_ExplodeMissile (mobj_t *mo) SEC_GAME;
 
 /*
 ===============================================================================
@@ -144,8 +145,8 @@ void P_ExplodeMissile (mobj_t *mo);
 ===============================================================================
 */
 
-void A_MissileExplode (mobj_t *mo);
-void A_SkullBash (mobj_t *mo);
+void A_MissileExplode (mobj_t *mo) SEC_GAME;
+void A_SkullBash (mobj_t *mo) SEC_GAME;
 
 /*
 ===============================================================================
@@ -179,11 +180,11 @@ int 	P_PointOnDivlineSide (fixed_t x, fixed_t y, divline_t *line) HOT;
 void 	P_MakeDivline (line_t *li, divline_t *dl) HOT;
 fixed_t P_InterceptVector (divline_t *v2, divline_t *v1) HOT;
 int 	P_BoxOnLineSide (fixed_t *tmbox, line_t *ld) HOT;
-boolean P_CheckUseHeight(line_t *line);
+boolean P_CheckUseHeight(line_t *line) SEC_GAME;
 
 extern	fixed_t opentop, openbottom, openrange;//,,800A5748
 extern	fixed_t	lowfloor;
-void 	P_LineOpening (line_t *linedef);
+void 	P_LineOpening (line_t *linedef) SEC_GAME;
 
 boolean P_BlockLinesIterator (int x, int y, boolean(*func)(line_t*) ) HOT;
 boolean P_BlockThingsIterator (int x, int y, boolean(*func)(mobj_t*) ) HOT;
@@ -220,9 +221,9 @@ extern	mobj_t	*movething;
 boolean P_CheckPosition (mobj_t *thing, fixed_t x, fixed_t y) HOT;
 boolean P_TryMove (mobj_t *thing, fixed_t x, fixed_t y) HOT;
 boolean P_CheckSight (mobj_t *t1, mobj_t *t2) HOT;
-void 	P_UseLines (player_t *player);
+void 	P_UseLines (player_t *player) SEC_GAME;
 
-boolean P_ChangeSector (sector_t *sector, boolean crunch);
+boolean P_ChangeSector (sector_t *sector, boolean crunch) SEC_GAME;
 
 fixed_t P_AimSlope (player_t *player) HOT;
 
@@ -251,10 +252,10 @@ typedef struct
 extern boolean spawnpuff;
 extern hit_t hittarget;
 
-fixed_t P_AimLineAttack (mobj_t *t1, angle_t angle, fixed_t zheight, fixed_t distance);
+fixed_t P_AimLineAttack (mobj_t *t1, angle_t angle, fixed_t zheight, fixed_t distance) SEC_GAME;
 
-void P_LineAttack (mobj_t *t1, angle_t angle, fixed_t zheight, fixed_t distance, fixed_t slope, int damage);
-void P_RadiusAttack (mobj_t *spot, mobj_t *source, int damage);
+void P_LineAttack (mobj_t *t1, angle_t angle, fixed_t zheight, fixed_t distance, fixed_t slope, int damage) SEC_GAME;
+void P_RadiusAttack (mobj_t *spot, mobj_t *source, int damage) SEC_GAME;
 
 /*
 ===============================================================================
@@ -282,12 +283,12 @@ extern	mobj_t		**blocklinks;			/* for thing chains */
 extern	int		maxammo[NUMAMMO];
 extern	int		clipammo[NUMAMMO];
 
-void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher);
+void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) SEC_GAME;
 
 void P_DamageMobj (mobj_t *target, mobj_t *inflictor, mobj_t *source, int damage) HOT;
 
-void P_GiveAllWeapons (player_t *player);
-void P_GiveAllKeys (player_t *player);
+void P_GiveAllWeapons (player_t *player) SEC_GAME;
+void P_GiveAllKeys (player_t *player) SEC_GAME;
 
 #include "p_spec.h"
 
@@ -309,7 +310,7 @@ extern fixed_t  tmx, tmy;
 extern boolean  checkposonly;
 
 void	P_TryMove2(void) HOT;
-int     PM_PointOnLineSide(fixed_t x, fixed_t y, line_t *line);
+int     PM_PointOnLineSide(fixed_t x, fixed_t y, line_t *line) SEC_GAME;
 void 	P_UnsetThingPosition (mobj_t *thing) HOT;
 void	P_SetThingPosition (mobj_t *thing) HOT;
 void	PM_CheckPosition(void) HOT;
@@ -328,14 +329,14 @@ boolean PM_BlockThingsIterator(int x, int y) HOT;
 ===============================================================================
 */
 
-void P_Shoot2(void);
-boolean PA_DoIntercept(void *value, boolean isline, int frac);
-boolean	PA_ShootLine(line_t *li, fixed_t interceptfrac);
-boolean PA_ShootThing(mobj_t *th, fixed_t interceptfrac);
-fixed_t PA_SightCrossLine(line_t *line);
-boolean PA_CrossSubsector(subsector_t *sub);
-int PA_DivlineSide(fixed_t x, fixed_t y, divline_t *line);
-boolean PA_CrossBSPNode(int bspnum);
+void P_Shoot2(void) SEC_GAME;
+boolean PA_DoIntercept(void *value, boolean isline, int frac) SEC_GAME;
+boolean	PA_ShootLine(line_t *li, fixed_t interceptfrac) SEC_GAME;
+boolean PA_ShootThing(mobj_t *th, fixed_t interceptfrac) SEC_GAME;
+fixed_t PA_SightCrossLine(line_t *line) SEC_GAME;
+boolean PA_CrossSubsector(subsector_t *sub) SEC_GAME;
+int PA_DivlineSide(fixed_t x, fixed_t y, divline_t *line) SEC_GAME;
+boolean PA_CrossBSPNode(int bspnum) SEC_GAME;
 
 /*
 ===============================================================================

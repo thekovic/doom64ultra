@@ -11,7 +11,7 @@
 ==============
 */
 
-void P_Telefrag (mobj_t *thing, fixed_t x, fixed_t y) // 8000E29C
+SEC_GAME void P_Telefrag (mobj_t *thing, fixed_t x, fixed_t y) // 8000E29C
 {
 	int		delta;
 	int		size;

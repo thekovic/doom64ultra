@@ -62,14 +62,14 @@ void (*D_print)(const char *, u32) = I_PrintNoop;
 
 #ifdef USB
 void I_USBPrint(const char* message, unsigned long len);
-void I_USBPrintHelp(void);
+void I_USBPrintHelp(void) SEC_STARTUP;
 #endif /* USB */
 
 #ifndef NDEBUG
 
-static void I_DebuggerThread(void *arg);
+static void I_DebuggerThread(void *arg) COLD;
 
-static boolean I_InitIsViewer(void);
+static boolean I_InitIsViewer(void) SEC_STARTUP;
 static void I_PrintIsViewer(const char *message, u32 len);
 
 // Fault thread globals
@@ -126,7 +126,7 @@ void I_Error(const char *error, ...) // 80005F30
 
 #define LoggingEnabled() (D_print != I_PrintNoop)
 
-COLD void I_InitDebugging()
+SEC_STARTUP void I_InitDebugging()
 {
 #ifdef USB
     if (FlashCart)
@@ -151,7 +151,7 @@ COLD void I_InitDebugging()
 #endif /* !defined(NDEBUG) */
 }
 
-COLD void I_StartDebugger()
+SEC_STARTUP void I_StartDebugger()
 {
     D_printstatic("DOOM 64 ULTRA\nI_InitDebugging: Logging enabled.\n\n");
 #ifdef USB
@@ -564,7 +564,7 @@ static void I_DebugSetHiRes(u16 *fb)
 
 /* Fault/break thread */
 
-static void __attribute__((noreturn)) I_DebuggerThread(void *arg)
+static COLD void NO_RETURN I_DebuggerThread(void *arg)
 {
     SET_GP();
 
@@ -738,7 +738,7 @@ static u32 DebugTxPos = 2;
 static u32 DebugRxPos = 0;
 static u32 DebugRxEnd = 0;
 
-static void pkt_send_raw(u32 bufsize, u32 len) {
+static COLD void pkt_send_raw(u32 bufsize, u32 len) {
     /* zerofill tail */
     for(; len < bufsize; len++) {
         DebugTx[len] = 0;
@@ -748,18 +748,18 @@ static void pkt_send_raw(u32 bufsize, u32 len) {
     I_USBPrint((char*) DebugTx, bufsize);
 }
 
-static void pkt_putc(u8 c)
+static COLD void pkt_putc(u8 c)
 {
     DebugTx[DebugTxPos++] = c;
 }
 
-static void pkt_put(const char *data, u32 len)
+static COLD void pkt_put(const char *data, u32 len)
 {
     D_memcpy(&DebugTx[DebugTxPos], data, len);
     DebugTxPos += len;
 }
 
-static stubstatus_t pkt_put_hex(const void *data, u32 len)
+static COLD stubstatus_t pkt_put_hex(const void *data, u32 len)
 {
     int ret = tohex(DebugTx, sizeof DebugTx, DebugTxPos, data, len);
     if (ret < 0)
@@ -770,7 +770,7 @@ static stubstatus_t pkt_put_hex(const void *data, u32 len)
 
 #define pkt_put_str(_str) pkt_put((_str), sizeof(_str) - 1)
 
-static void pkt_send(void) {
+static COLD void pkt_send(void) {
     s32 si;
 
     if(DebugTxPos < 4)
@@ -826,14 +826,14 @@ static INLINE_ALWAYS boolean pkt_is_eof(void)
     return DebugRxEnd == DebugRxPos;
 }
 
-static int pkt_getc(void)
+static COLD int pkt_getc(void)
 {
     if (!pkt_has_bytes(1))
         return -1;
     return DebugRx[DebugRxPos++];
 }
 
-static boolean pkt_acceptc(char c)
+static COLD boolean pkt_acceptc(char c)
 {
     if (!pkt_has_bytes(1))
         return false;
@@ -845,7 +845,7 @@ static boolean pkt_acceptc(char c)
     return false;
 }
 
-static boolean pkt_accept(const char *s, u32 len)
+static COLD boolean pkt_accept(const char *s, u32 len)
 {
     if (!pkt_has_bytes(len))
         return false;
@@ -859,7 +859,7 @@ static boolean pkt_accept(const char *s, u32 len)
 
 #define pkt_accept_str(_str) pkt_accept((_str), sizeof(_str) - 1)
 
-static stubstatus_t pkt_get_hex(void *buf, u32 len)
+static COLD stubstatus_t pkt_get_hex(void *buf, u32 len)
 {
     if (!pkt_has_bytes(len))
         return STUBERR_UNDERFLOW;
@@ -883,7 +883,7 @@ static stubstatus_t pkt_get_hex(void *buf, u32 len)
     return STUB_SUCCESS;
 }
 
-static s64 pkt_get_hex_delim(register char delim)
+static COLD s64 pkt_get_hex_delim(register char delim)
 {
     register int count = 0;
     u32 value = 0;
@@ -905,7 +905,7 @@ static s64 pkt_get_hex_delim(register char delim)
     return value;
 }
 
-static OSId pkt_get_threadid(void)
+static COLD OSId pkt_get_threadid(void)
 {
     s64 id = 0;
 
@@ -919,7 +919,7 @@ static OSId pkt_get_threadid(void)
     return id;
 }
 
-static OSThread *I_GetThreadById(OSId id)
+static COLD OSThread *I_GetThreadById(OSId id)
 {
     if (id == 0)
     {
@@ -945,7 +945,7 @@ static OSThread *I_GetThreadById(OSId id)
 static u64 TmpRegister = 0;
 
 /* convert a gdb register packet position to a pointer inside the OSThread structure */
-static void *os_thread_reg_ptr(register __OSThreadContext *c, register int reg)
+static COLD void *os_thread_reg_ptr(register __OSThreadContext *c, register int reg)
 {
     if (reg >= 1 && reg < REGS_GPR + 26)
         return ((u64*)c) + reg - 1;
@@ -972,7 +972,7 @@ static void *os_thread_reg_ptr(register __OSThreadContext *c, register int reg)
 }
 
 /* g -> <regbytes> */
-static stubstatus_t cmd_getregs(void)
+static COLD stubstatus_t cmd_getregs(void)
 {
     __OSThreadContext *ctx = &DebugThread->context;
     const u64 *regptr;
@@ -1000,7 +1000,7 @@ static stubstatus_t cmd_getregs(void)
 }
 
 /* G<regbytes> -> OK|Exx */
-static stubstatus_t cmd_setregs(void) {
+static COLD stubstatus_t cmd_setregs(void) {
     register __OSThreadContext *ctx = &DebugThread->context;
     register u64 *p;
     register u32 reg;
@@ -1029,7 +1029,7 @@ static stubstatus_t cmd_setregs(void) {
 }
 
 /* m<ADDR>,<LEN> -> <membytes>|Exx */
-static stubstatus_t cmd_getmemory(void) {
+static COLD stubstatus_t cmd_getmemory(void) {
     register stubstatus_t status;
     u32 addr, len;
     status = pkt_get_hex(&addr, sizeof addr);
@@ -1057,7 +1057,7 @@ static stubstatus_t cmd_getmemory(void) {
 }
 
 /* M<ADDR>,<LEN>:<BYTES> -> OK|Exx */
-static stubstatus_t cmd_setmemory(void) {
+static COLD stubstatus_t cmd_setmemory(void) {
     register s64 saddr, len;
 
     saddr = pkt_get_hex_delim(',');
@@ -1133,7 +1133,7 @@ static stubstatus_t cmd_setmemory(void) {
     }
 }
 
-static void bpset(u32 index, u32 addr, u32 value) {
+static COLD void bpset(u32 index, u32 addr, u32 value) {
     origbpcodes[index].invaddr = ~addr;
     origbpcodes[index].value = *(u32*)addr;
     *(u32*)addr = value;
@@ -1142,7 +1142,7 @@ static void bpset(u32 index, u32 addr, u32 value) {
     osInvalICache((void*)addr, 4);
 }
 
-static void bprestore() {
+static COLD void bprestore() {
     u32 i;
 
     for(i = 0; i < sizeof(origbpcodes)/sizeof(*origbpcodes); i++) {
@@ -1161,7 +1161,7 @@ static void bprestore() {
 
 /* s -> (stop_reply) */
 /* ref: Linux 2.6.25:arch/mips/kernel/gdb-stub.c */
-static void cmd_step(OSThread *thread) {
+static COLD void cmd_step(OSThread *thread) {
     s32 pc;
     u32 insn;
     s32 tnext, fnext;
@@ -1213,7 +1213,7 @@ static void cmd_step(OSThread *thread) {
 #define STR(x) _STR(x)
 
 /* [zZ][0-4]<ADDR>,<KIND> -> OK|Exx */
-static stubstatus_t cmd_watch(void) {
+static COLD stubstatus_t cmd_watch(void) {
     s32 set = 0, type = 0, kind = 0;
     u32 addr = 0;
 
@@ -1269,7 +1269,7 @@ static stubstatus_t cmd_watch(void) {
     return STUB_SUCCESS;
 }
 
-static stubstatus_t cmd_stopreason(void)
+static COLD stubstatus_t cmd_stopreason(void)
 {
     u64 *regptr;
     __OSThreadContext *c = &DebugThread->context;
@@ -1325,7 +1325,7 @@ static stubstatus_t cmd_stopreason(void)
     return STUB_SUCCESS;
 }
 
-static void cmd_threadinfo(void)
+static COLD void cmd_threadinfo(void)
 {
     OSThread *thread = NULL;
 
@@ -1358,7 +1358,7 @@ static void cmd_threadinfo(void)
     InfoThread = thread ? thread->id : -1;
 }
 
-static stubstatus_t cmd_threadextrainfo(void)
+static COLD stubstatus_t cmd_threadextrainfo(void)
 {
     OSId id;
     OSThread *thread;
@@ -1404,7 +1404,7 @@ static stubstatus_t cmd_threadextrainfo(void)
     return STUB_SUCCESS;
 }
 
-static stubstatus_t cmd_threadalive(void)
+static COLD stubstatus_t cmd_threadalive(void)
 {
     OSId id = 0;
     OSThread *thread;
@@ -1431,7 +1431,7 @@ static stubstatus_t cmd_threadalive(void)
     return STUB_SUCCESS;
 }
 
-static stubstatus_t cmd_setthread()
+static COLD stubstatus_t cmd_setthread()
 {
     OSId id = 0;
     OSThread *thread;
@@ -1460,7 +1460,7 @@ static stubstatus_t cmd_setthread()
     return STUB_SUCCESS;
 }
 
-static void I_ResumeThread(OSThread *thread)
+static COLD void I_ResumeThread(OSThread *thread)
 {
     if (thread == RSP_THREAD)
     {
@@ -1472,7 +1472,7 @@ static void I_ResumeThread(OSThread *thread)
     }
 }
 
-static void I_StopThread(OSThread *thread)
+static COLD void I_StopThread(OSThread *thread)
 {
     if (thread == RSP_THREAD)
     {
@@ -1484,7 +1484,7 @@ static void I_StopThread(OSThread *thread)
     }
 }
 
-static stubstatus_t cmd_vcont(void)
+static COLD stubstatus_t cmd_vcont(void)
 {
     if (pkt_is_eof())
         return STUBERR_PARSE;
@@ -1537,7 +1537,7 @@ static stubstatus_t cmd_vcont(void)
     return STUB_SUCCESS;
 }
 
-static void cmd_ctrlc(void)
+static COLD void cmd_ctrlc(void)
 {
 
     DebugThread = __osGetActiveQueue();
@@ -1552,7 +1552,7 @@ static void cmd_ctrlc(void)
     cmd_stopreason();
 }
 
-static void I_ParseGDBPacket(void)
+static COLD void I_ParseGDBPacket(void)
 {
     u32 i;
     u32 len = I_CmdNextTokenSize();
@@ -1772,7 +1772,7 @@ pkt_error:
     }
 }
 
-static void __attribute__((noreturn)) I_DebuggerThread(void *arg)
+static COLD void NO_RETURN I_DebuggerThread(void *arg)
 {
     SET_GP();
 
@@ -1831,12 +1831,12 @@ static void __attribute__((noreturn)) I_DebuggerThread(void *arg)
     }
 }
 
-void I_TakeGDBPacket(void)
+void COLD I_TakeGDBPacket(void)
 {
     osSendMesg(&debugMessageQ, (OSMesg) MSG_GDB_PACKET, OS_MESG_NOBLOCK);
 }
 
-static void I_ShowDebugScreen(const char *text)
+static COLD void I_ShowDebugScreen(const char *text)
 {
     D_memset(cfb, 0, CFB_SIZE);
     blit32_TextExplicit(cfb, 0xffff, 1, XResolution, YResolution, blit_Clip, 32, 24, text);

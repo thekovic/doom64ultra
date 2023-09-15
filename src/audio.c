@@ -24,10 +24,10 @@ extern int wess_driver_max_subs_per_trk;       // 8005D97C
 /* used by wesssys_exit */
 enum RestoreFlag {NoRestore,YesRestore};
 
-extern void wess_error_callback(char *errstring, int errnum1, int errnum2);
+extern void wess_error_callback(char *errstring, int errnum1, int errnum2) COLD;
 
-extern int wesssys_init(void);
-extern void wesssys_exit(enum RestoreFlag rflag);
+extern int wesssys_init(void) SEC_STARTUP;
+extern void wesssys_exit(enum RestoreFlag rflag) COLD;
 
 //------------
 

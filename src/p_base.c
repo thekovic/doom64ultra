@@ -17,19 +17,19 @@ SDATA fixed_t testradius;                                      // 800A55E0
 
 DEBUG_COUNTER(SDATA int activemobjs = 0);
 
-void P_XYMovement(mobj_t *mo);
+void P_XYMovement(mobj_t *mo) HOT;
 void P_FloatChange(mobj_t *mo);
-void P_ZMovement(mobj_t *mo);
-void P_MobjThinker(mobj_t *mobj);
-boolean PB_TryMove(int tryx, int tryy);
-void PB_UnsetThingPosition(mobj_t *thing);
-void PB_SetThingPosition(mobj_t *thing);
-boolean PB_CheckPosition(void);
-boolean PB_BoxCrossLine(line_t *ld);
-boolean PB_CheckLine(line_t *ld);
-boolean PB_CheckThing(mobj_t *thing);
-boolean PB_BlockLinesIterator(int x, int y);
-boolean PB_BlockThingsIterator(int x, int y);
+void P_ZMovement(mobj_t *mo) HOT;
+void P_MobjThinker(mobj_t *mobj) HOT;
+boolean PB_TryMove(int tryx, int tryy) HOT;
+void PB_UnsetThingPosition(mobj_t *thing) HOT;
+void PB_SetThingPosition(mobj_t *thing) HOT;
+boolean PB_CheckPosition(void) SEC_GAME;
+boolean PB_BoxCrossLine(line_t *ld) HOT;
+boolean PB_CheckLine(line_t *ld) HOT;
+boolean PB_CheckThing(mobj_t *thing) HOT;
+boolean PB_BlockLinesIterator(int x, int y) HOT;
+boolean PB_BlockThingsIterator(int x, int y) HOT;
 
 /*
 =================

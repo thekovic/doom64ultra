@@ -9,7 +9,7 @@
 
 button_t    buttonlist[MAXBUTTONS];//800975B0
 
-void P_StartButton(line_t *line,bwhere_e w,int texture,int time);
+void P_StartButton(line_t *line,bwhere_e w,int texture,int time) SEC_GAME;
 
 void P_StartSwitchSound(line_t *line, int sound_id)
 {

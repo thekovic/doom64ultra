@@ -206,7 +206,7 @@ fixed_t P_InterceptVector (divline_t *v2, divline_t *v1) // 80016954
 ================
 */
 
-boolean	PIT_UseLines (line_t *li) // 80016A28
+SEC_GAME boolean	PIT_UseLines (line_t *li) // 80016A28
 {
 	divline_t	dl;
 	fixed_t		frac;
@@ -375,7 +375,7 @@ int			bombdamage;     //iGp000008b4
 =================
 */
 
-boolean PIT_RadiusAttack (mobj_t *thing) // 80016E3C
+SEC_GAME boolean PIT_RadiusAttack (mobj_t *thing) // 80016E3C
 {
 	fixed_t		dx, dy, dist;
 

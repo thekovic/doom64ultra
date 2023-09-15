@@ -20,12 +20,11 @@ SDATA int oldticbuttons[MAXPLAYERS];	// 8006314C
 //extern boolean run_hectic_demo;
 
 extern void ST_Init(void);
+static void D_DoomLoop(void) SEC_TEXT INLINE_NEVER NO_RETURN;
 
 void D_DoomMain(void *arg) // 800027C0
 {
     SET_GP();
-
-    int exit;
 
     I_StartDebugger();
     Z_Init();
@@ -40,6 +39,13 @@ void D_DoomMain(void *arg) // 800027C0
     ticon = 0;
     ticbuttons[0] = 0;
     oldticbuttons[0] = 0;
+
+    D_DoomLoop();
+}
+
+static void D_DoomLoop(void)
+{
+    int exit;
 
 #ifdef DEVWARP
     {

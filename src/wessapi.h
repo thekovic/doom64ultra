@@ -12,6 +12,8 @@
 #include <ultra64.h>
 
 int Is_Seq_Num_Valid(int seq_num);
+#include "doomlib.h"
+
 
     /*------------------------------------------------------------------*/
     /*
@@ -55,7 +57,7 @@ enum SequenceStatus { SEQUENCE_INVALID,
 
 typedef void (*WessErrorCallbackProc)( char *errstring, int errnum1, int errnum2 );
 
-extern void wess_set_error_callback( WessErrorCallbackProc errcall );
+extern void wess_set_error_callback( WessErrorCallbackProc errcall ) SEC_STARTUP;
 
     /*
         wess_set_decompression_callback - set a callback for runtime decompression
@@ -89,7 +91,7 @@ typedef int (*WessDecompCallbackProc)( unsigned char decomp_type,
 				       char          *ramdest,
 				       unsigned long uncompressed_size );
 
-extern void wess_set_decomp_callback( WessDecompCallbackProc decompcall );
+extern void wess_set_decomp_callback( WessDecompCallbackProc decompcall ) SEC_STARTUP;
 
     /*
         wess_set_tweak - set the tweak parameters for the audio engine
@@ -136,7 +138,7 @@ typedef struct {
                     unsigned long max_subs_per_trk;   /* default is 0     */
                } WessTweakAttr;
 
-extern void wess_set_tweaks(WessTweakAttr *attr);
+extern void wess_set_tweaks(WessTweakAttr *attr) SEC_STARTUP;
 
     /*
         wess_get_tweak - get the tweak parameters for the audio engine
@@ -146,7 +148,7 @@ extern void wess_set_tweaks(WessTweakAttr *attr);
         This function simply fills the WessTweakAttr structure and sets mask = 0.
     */
 
-extern void wess_get_tweaks(WessTweakAttr *attr);
+extern void wess_get_tweaks(WessTweakAttr *attr) SEC_STARTUP;
 
 
     /*
@@ -194,7 +196,7 @@ typedef struct WessConfig {     /* see wess_init function for more info */
     s32      *revtbl_ptr;       /* reverb table pointer (used if reverb_id == WESS_REVERB_CUSTOM */
 } WessConfig;
 
-extern void wess_init(WessConfig *wessconfig);
+extern void wess_init(WessConfig *wessconfig) SEC_STARTUP;
 
     /*
         wess_rom_copy - U64 rom copy
@@ -208,13 +210,13 @@ extern void wess_init(WessConfig *wessconfig);
         - returns length copied if length is non zero
     */
 
-extern int wess_rom_copy(char *src, char *dest, int len);
+extern int wess_rom_copy(char *src, char *dest, int len) SEC_STARTUP;
 
     /*
         wess_exit - call this to shutdown the audio system
     */
 
-extern void wess_exit(void);
+extern void wess_exit(void) COLD;
 
     /*
         wess_work - performs ALL CPU audio work for application
@@ -258,11 +260,11 @@ extern int wess_master_fade(char dest_vol, int millisec);
         - enables sequencer engine
     */
 
-extern int wess_size_module (char *wmd_filename);
+extern int wess_size_module (char *wmd_filename) SEC_STARTUP;
 
 extern int wess_load_module (char *wmd_filename,
                              char *memory_pointer,
-                             int   memory_allowance);
+                             int   memory_allowance) SEC_STARTUP;
 
     /*
         routine: wess_unload_module()
@@ -271,7 +273,7 @@ extern int wess_load_module (char *wmd_filename,
         - frees any allocated memory
     */
 
-extern void wess_unload_module (void);
+extern void wess_unload_module (void) COLD;
 
     /*
         routine: wess_get_wmd_start()
@@ -280,7 +282,7 @@ extern void wess_unload_module (void);
           gets the pointer to beginning of module block
     */
 
-extern char *wess_get_wmd_start (void);
+extern char *wess_get_wmd_start (void) SEC_STARTUP;
 
     /*
         routine: wess_get_wmd_end()
@@ -289,7 +291,7 @@ extern char *wess_get_wmd_start (void);
           gets the pointer past end of module block
     */
 
-extern char *wess_get_wmd_end (void);
+extern char *wess_get_wmd_end (void) SEC_STARTUP;
 
     /*------------------------------------------------------------------*/
     /*------------------------------------------------------------------*/

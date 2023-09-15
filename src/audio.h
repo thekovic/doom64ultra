@@ -52,16 +52,16 @@ extern AMAudioMgr   __am;			//800B4060
 extern ALVoice      *voice;			//800B40E0
 extern char         *reverb_status;	//800B40E4
 
-extern int wess_memfill(void *dst, unsigned char fill, int count);          // 8002E300
-extern int wess_rom_copy(char *src, char *dest, int len);                   // 8002E334
 extern s32 milli_to_param(register s32 paramvalue, register s32 rate);      // 8002E3D0
-extern void wess_init(WessConfig *wessconfig) COLD;                         // 8002E41C
-extern void amCreateAudioMgr(ALSynConfig *config, WessConfig *wessconfig) COLD;  // 8002E610
+extern int wess_memfill(void *dst, unsigned char fill, int count) SEC_STARTUP;          // 8002E300
+extern int wess_rom_copy(char *src, char *dest, int len) SEC_STARTUP;                   // 8002E334
+extern void wess_init(WessConfig *wessconfig) SEC_STARTUP;                         // 8002E41C
+extern void amCreateAudioMgr(ALSynConfig *config, WessConfig *wessconfig) SEC_STARTUP;  // 8002E610
 extern OSTask * wess_work(void) HOT;                                        // 8002EB2C
 extern OSTask *__amHandleFrameMsg(AudioInfo *info) HOT;                     // 8002EBD8
 extern s32 __amDMA(s32 addr, s32 len, void *state) HOT;                     // 8002ED74
 extern ALDMAproc __amDmaNew(AMDMAState **state) HOT;                        // 8002EF48
 extern void __clearAudioDMA(void) HOT;                                      // 8002EF7C
-extern void wess_exit(void) COLD;                                           // 8002F0CC
+extern void wess_exit(void) SEC_STARTUP;                                           // 8002F0CC
 
 #endif // _AUDIO_H

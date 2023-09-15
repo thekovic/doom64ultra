@@ -51,6 +51,9 @@ SECTIONS
       */libdoom64.a:*.o(.text);
       */LIBULTRA.a:*.o(.text);
       */libgcc.a:*.o(.text);
+      :*.o(.text.game);
+      :*.o(.text.menu);
+      :*.o(.text.startup);
       :*.o(.text.unlikely);
 
       /* data */

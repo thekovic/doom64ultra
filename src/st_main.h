@@ -23,7 +23,7 @@ extern int sumbolslump;    // 800A8204
 #define FIRST_SYMBOL   0x80
 #define LAST_SYMBOL    0x90 // 0x91 for Right arrow
 
-void ST_Init(void) COLD; // 80029BA0
+void ST_Init(void) SEC_STARTUP; // 80029BA0
 void ST_InitEveryLevel(void); // 80029C00
 void ST_Ticker (void) HOT; // 80029C88
 void ST_Drawer (void) HOT; // 80029DC0

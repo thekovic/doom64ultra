@@ -382,7 +382,7 @@ static char usb_timeout_check(u32 start_ticks, u32 duration)
     @returns 1 if the USB initialization was successful, 0 if not
 ==============================*/
 
-COLD void I_InitFlashCart(void)
+SEC_STARTUP void I_InitFlashCart(void)
 {
 #ifdef USB
     // Initialize the debug related globals
@@ -1884,8 +1884,7 @@ static void I_USBTicker(void)
     }
 }
 
-__attribute__((noreturn))
-static void I_USBThread(void *arg)
+static void NORETURN I_USBThread(void *arg)
 {
     SET_GP();
 

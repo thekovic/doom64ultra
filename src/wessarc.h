@@ -4,6 +4,8 @@
 #include <ultra64.h>
 #include <libaudio.h>
 
+#include "doomlib.h"
+
 //#define NOUSEWESSCODE
 
 enum Wess_Error {
@@ -415,31 +417,31 @@ typedef N64_File_IO_Struct Wess_Data_IO_Struct;
 extern Wess_File_IO_Struct module_fileref;//800B4200
 extern Wess_Data_IO_Struct data_fileref;//L800B4208
 
-extern void wess_engine_off(void);//L80035340()
-extern void wess_engine_on(void);//L8003534C()
+extern void wess_engine_off(void) COLD;//L80035340()
+extern void wess_engine_on(void) SEC_STARTUP;//L8003534C()
 
-extern void wess_low_level_init(void);//L8003531C()
-extern void wess_low_level_exit(void);//L80035324()
+extern void wess_low_level_init(void) SEC_STARTUP;//L8003531C()
+extern void wess_low_level_exit(void) COLD;//L80035324()
 
 extern short GetIntsPerSec(void);
 extern unsigned long CalcPartsPerInt(short ips,short ppq,short qpm);
 
-extern void init_WessTimer(void);
-extern void exit_WessTimer(void);
+extern void init_WessTimer(void) SEC_STARTUP;
+extern void exit_WessTimer(void) COLD;
 
-extern void wess_low_level_exit(void);
-extern char *wess_malloc(char *mem);
-extern void wess_free(char *mem);
+extern void wess_low_level_exit(void) COLD;
+extern char *wess_malloc(char *mem) SEC_STARTUP;
+extern void wess_free(char *mem) COLD;
 
-extern Wess_File_IO_Struct *module_open(char *filename);
-extern int module_read(void *destptr, int readbytes, Wess_File_IO_Struct *fileptr);
-extern int module_seek(Wess_File_IO_Struct *fileptr, int seekpos, int seekmode);
-extern unsigned long module_tell(Wess_File_IO_Struct *fileptr);
-extern void module_close(Wess_File_IO_Struct *fileptr);
+extern Wess_File_IO_Struct *module_open(char *filename) SEC_STARTUP;
+extern int module_read(void *destptr, int readbytes, Wess_File_IO_Struct *fileptr) SEC_STARTUP;
+extern int module_seek(Wess_File_IO_Struct *fileptr, int seekpos, int seekmode) SEC_STARTUP;
+extern unsigned long module_tell(Wess_File_IO_Struct *fileptr) SEC_STARTUP;
+extern void module_close(Wess_File_IO_Struct *fileptr) SEC_STARTUP;
 
-extern int wess_decomp(unsigned char decomp_type, char *fileref, unsigned long file_offset, char *ramdest, unsigned long uncompressed_size);
 extern void wess_enable(void);
 extern void wess_disable(void);
+extern int wess_decomp(unsigned char decomp_type, char *fileref, unsigned long file_offset, char *ramdest, unsigned long uncompressed_size) SEC_STARTUP;
 
 
 extern long WessInterruptHandler(void);

@@ -295,7 +295,7 @@ extern void R_RenderFilter(filtertype_t type) HOT;
 /*------*/
 /*R_data*/
 /*------*/
-void	R_InitData (void) COLD;
+void	R_InitData (void) SEC_STARTUP;
 
 /*--------*/
 /*r_phase1*/

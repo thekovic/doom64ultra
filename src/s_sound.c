@@ -8,7 +8,7 @@
 
 #define SYS_FRAMES_PER_SEC 30
 
-void S_Error_Callback_Routine(char *errstring, int errnum1, int errnum2) // 80029580
+COLD void S_Error_Callback_Routine(char *errstring, int errnum1, int errnum2) // 80029580
 {
     I_Error(errstring, errnum1, errnum2);
 }

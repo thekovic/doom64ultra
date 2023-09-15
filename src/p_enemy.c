@@ -702,7 +702,7 @@ void A_OnDeathTrigger (mobj_t *mo) // 80011894
     }
 }
 
-fixed_t P_SlopeToTarget(mobj_t *actor, fixed_t zheight)
+SEC_GAME fixed_t P_SlopeToTarget(mobj_t *actor, fixed_t zheight)
 {
     int dist;
     mobj_t *target;
