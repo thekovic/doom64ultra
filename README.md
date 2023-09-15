@@ -43,33 +43,33 @@ Once the SDK packages are installed and the data is in place, the rom can be
 built by invoking "make":
 
 ```sh
-make
+make -j
 ```
 
 Additional options can be provided to configure or debug the ROM:
 
 ```sh
-make DEBUG=1                      # Turn off optimizations and enable extra debugging features
+make -j DEBUG=1                      # Turn off optimizations and enable extra debugging features
 
-make DEBUGOPT=1                   # Enable extra debugging features but leave optimizations on
+make -j DEBUGOPT=1                   # Enable extra debugging features but leave optimizations on
 
-make DEBUG_DISPLAY=2              # Show debug frame counter by default
+make -j DEBUG_DISPLAY=2              # Show debug frame counter by default
 
-make REQUIRE_EXPANSION_PAK=0      # Disable expansion pak requirement screen
+make -j REQUIRE_EXPANSION_PAK=0      # Disable expansion pak requirement screen
 
-make SKIP_INTRO=1                 # Skip the intro screens on boot and go straight to the menu
+make -j SKIP_INTRO=1                 # Skip the intro screens on boot and go straight to the menu
 
-make WARP=XX                      # Warp to map number XX on boot
+make -j WARP=XX                      # Warp to map number XX on boot
 
-make WARP=XX SKILL=3              # Warp to map number XX on boot, with the specified difficulty (1-5)
+make -j WARP=XX SKILL=3              # Warp to map number XX on boot, with the specified difficulty (1-5)
 
-make CHEATS=CF_GODMODE+CF_NOCLIP  # Spawn with cheats enabled (see doomdef.h for more CF_ flags)
+make -j CHEATS=CF_GODMODE+CF_NOCLIP  # Spawn with cheats enabled (see doomdef.h for more CF_ flags)
 
-make USB=1                        # Enable Flashcart USB Screenshot/Demo transfers
-                                  # Supports EverDrive, 64Drive, SC64
-                                  # When used with DEBUG=1, enables debug logging over USB
+make -j USB=1                        # Enable Flashcart USB Screenshot/Demo transfers
+                                     # Supports EverDrive, 64Drive, SC64
+                                     # When used with DEBUG=1, enables debug logging over USB
 
-make GDB=1                        # Enable GDB debugging over USB (implies DEBUG=1 and USB=1)
+make -j GDB=1                        # Enable GDB debugging over USB (implies DEBUG=1 and USB=1)
 ```
 ## Contact
 
