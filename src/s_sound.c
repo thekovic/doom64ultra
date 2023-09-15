@@ -69,7 +69,7 @@ void S_Init(void) // 80029590
 
 	// now we load the .wmd image into a temporary ram space
 	modulesize = wess_size_module(_doom64_wmdSegmentRomStart);
-	modulesize = ((modulesize + 15) & ~15);
+	modulesize = ALIGN(modulesize, 16);
 	moduleptr = alHeapAlloc(&sys_aheap, 1, modulesize);
 	//PRINTF_D(WHITE, "modulesize %d", modulesize);
 	//PRINTF_D(WHITE, "moduleptr %x", (int)&moduleptr);
@@ -80,7 +80,7 @@ void S_Init(void) // 80029590
 
 
 	seqtblsize = wess_seq_loader_sizeof(wess_get_master_status(), _doom64_wsdSegmentRomStart);
-	seqtblsize = ((seqtblsize + 15) & ~15);
+	seqtblsize = ALIGN(seqtblsize, 16);
 	seqtblptr = alHeapAlloc(&sys_aheap, 1, seqtblsize);
 	//PRINTF_D(WHITE, "seqtblsize %d", seqtblsize);
 	//PRINTF_D(WHITE, "seqtblptr %x", (int)&seqtblptr);
@@ -89,7 +89,7 @@ void S_Init(void) // 80029590
 	wess_seq_loader_init(wess_get_master_status(), _doom64_wsdSegmentRomStart, NoOpenSeqHandle, seqtblptr, seqtblsize);
 
 	seqsize = wess_seq_range_sizeof(0, wess_seq_loader_count());
-	seqtblsize = ((seqsize + 15) & ~15);
+	seqtblsize = ALIGN(seqsize, 16);
 	seqptr = alHeapAlloc(&sys_aheap, 1, seqsize);
 
 	//PRINTF_D(WHITE, "seqsize %d", seqsize);

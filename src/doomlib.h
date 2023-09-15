@@ -15,6 +15,7 @@
 #define INLINE_NEVER __attribute__((noinline))
 #define INLINE_ALWAYS __attribute__((always_inline)) inline
 #define NO_RETURN __attribute__((noreturn))
+#define ALIGNED(_b) __attribute__((aligned(_b)))
 
 #define MAXCHAR ((char)0x7f)
 #define MAXSHORT ((short)0x7fff)

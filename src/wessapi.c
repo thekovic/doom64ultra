@@ -21,8 +21,8 @@
 
 extern void (**CmdFuncArr[10])(track_status *);
 
-module_data				tmp_moddata;		//0x800B4160
-patch_group_data		tmp_patgrpdata;		//0x800B4188
+ALIGNED(16) module_data				tmp_moddata;		//0x800B4160
+ALIGNED(16) patch_group_data		tmp_patgrpdata;		//0x800B4188
 pmasterstat tmp_mss;			//0x800B41A8
 pmasterstat *pm_stat;			//0x800B41CC
 

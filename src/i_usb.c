@@ -1884,7 +1884,7 @@ static void I_USBTicker(void)
     }
 }
 
-static void NORETURN I_USBThread(void *arg)
+static NO_RETURN void I_USBThread(void *arg)
 {
     SET_GP();
 

@@ -25,7 +25,7 @@ SECTIONS
     {
         KEEP(BUILD_DIR/src/asm/entry.o(.start));
         _gp = ALIGN(16) + 0x8000;
-        :*.o(.sdata);
+        *.o(.sdata);
         :*.o(.text.hot);
         */libdoom64.a:*.o(.text.hot);
         *.ltrans.o(.text);
