@@ -72,6 +72,8 @@ static void I_DebuggerThread(void *arg) COLD;
 static boolean I_InitIsViewer(void) SEC_STARTUP;
 static void I_PrintIsViewer(const char *message, u32 len);
 
+static void* DoomPrintf(void* arg, const u8* str, u32 count);
+
 // Fault thread globals
 static OSMesgQueue debugMessageQ;
 static OSMesg      debugMessageBuf[DEBUG_MSGS];
@@ -136,6 +138,9 @@ SEC_STARTUP void I_InitDebugging()
 #ifndef NDEBUG
     if (!LoggingEnabled() && I_InitIsViewer())
         D_print = I_PrintIsViewer;
+
+    extern void* __printfunc;
+    __printfunc = DoomPrintf;
 #endif /* !defined(NDEBUG) */
 
 #ifndef NDEBUG
@@ -164,6 +169,12 @@ SEC_STARTUP void I_StartDebugger()
     I_RefreshVideo();
     BREAKPOINT();
 #endif
+}
+
+static void* DoomPrintf(void* arg, const u8* str, u32 count)
+{
+    D_print((const char *) str, count);
+    return (void*) 1;
 }
 
 void D_printf(const char* message, ...)
