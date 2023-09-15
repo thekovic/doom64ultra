@@ -11,6 +11,8 @@
 
 #include "funqueue.h"
 
+#include "doomdef.h"
+
 
 #ifndef NOUSEWESSCODE
 
@@ -19,25 +21,10 @@ master_status_structure *ref_pm_stat;	//800B6A80
 char *loaderfile;						//800B6A84
 int ref_max_seq_num;					//800B6A88
 int opencount;							//800B6A8C
-int(*Error_func)(int, int);				//800B6A90
-int Error_module;						//800B6A94
 Wess_File_IO_Struct *fp_seq_file;		//800B6A98
 int seq_loader_offset;					//800B6A9C
 int seq_loader_enable;					//800B6AA0
 
-
-static void err(int code) // 800396C0
-{
-	if (Error_func) {
-		Error_func(Error_module, code);
-	}
-}
-
-void wess_seq_loader_install_error_handler(int(*error_func)(int, int), int module) // 800396F8
-{
-	Error_func = error_func;
-	Error_module = module;
-}
 
 int wess_seq_loader_count(void) // 8003970C
 {
@@ -63,7 +50,7 @@ int open_sequence_data(void) // 80039748
 		fp_seq_file = module_open(loaderfile);
 		if (!fp_seq_file)
 		{
-			err(SEQLOAD_FOPEN);
+			I_Error("SEQLOAD_FOPEN");
 			return 0;
 		}
 	}
@@ -145,14 +132,14 @@ int load_sequence_data(int seqnum, void *memptr) // 8003980C
 			seqload = open_sequence_data();
 			if (!seqload)
 			{
-				err(SEQLOAD_FOPEN);
+				I_Error("SEQLOAD_FOPEN");
 				return (0);
 			}
 
 			seqseek = module_seek(fp_seq_file, seekpos, 0);
 			if (seqseek)
 			{
-				err(SEQLOAD_FSEEK);
+				I_Error("SEQLOAD_FSEEK");
 				return (0);
 			}
 
@@ -160,7 +147,7 @@ int load_sequence_data(int seqnum, void *memptr) // 8003980C
 
 			if (seqread != readbytes)
 			{
-				err(SEQLOAD_FREAD);
+				I_Error("SEQLOAD_FREAD");
 				return (0);
 			}
 
@@ -280,7 +267,7 @@ int wess_seq_loader_sizeof(void *input_pm_stat, char *seqfile) // 80039C20
 		seqload = open_sequence_data();
 		if (!seqload)
 		{
-			err(SEQLOAD_FOPEN);
+			I_Error("SEQLOAD_FOPEN");
 			return (0);
 		}
 
@@ -290,7 +277,7 @@ int wess_seq_loader_sizeof(void *input_pm_stat, char *seqfile) // 80039C20
 		seqseek = module_seek(fp_seq_file, 0, 0);
 		if (seqseek)
 		{
-			err(SEQLOAD_FSEEK);
+			I_Error("SEQLOAD_FSEEK");
 			return (0);
 		}
 
@@ -298,7 +285,7 @@ int wess_seq_loader_sizeof(void *input_pm_stat, char *seqfile) // 80039C20
 		seqread = module_read(&sfile_hdr, sizeof(module_header), fp_seq_file);
 		if (seqread != readbytes)
 		{
-			err(SEQLOAD_FREAD);
+			I_Error("SEQLOAD_FREAD");
 			return (0);
 		}
 
@@ -336,14 +323,14 @@ int wess_seq_loader_init(void *input_pm_stat, char *seqfile, enum OpenSeqHandleF
 		seqload = open_sequence_data();
 		if (!seqload)
 		{
-			err(SEQLOAD_FOPEN);
+			I_Error("SEQLOAD_FOPEN");
 			return (0);
 		}
 
 		seqseek = module_seek(fp_seq_file, 0, 0);
 		if (seqseek)
 		{
-			err(SEQLOAD_FSEEK);
+			I_Error("SEQLOAD_FSEEK");
 			return (0);
 		}
 
@@ -351,7 +338,7 @@ int wess_seq_loader_init(void *input_pm_stat, char *seqfile, enum OpenSeqHandleF
 		seqread = module_read(&sfile_hdr, sizeof(module_header), fp_seq_file);
 		if (seqread != readbytes)
 		{
-			err(SEQLOAD_FREAD);
+			I_Error("SEQLOAD_FREAD");
 			return (0);
 		}
 
@@ -376,7 +363,7 @@ int wess_seq_loader_init(void *input_pm_stat, char *seqfile, enum OpenSeqHandleF
 
 			if (seqread != readbytes)
 			{
-				err(SEQLOAD_FREAD);
+				I_Error("SEQLOAD_FREAD");
 				return (0);
 			}
 			seq_loader_offset = sfile_hdr.data_size + sizeof(module_header);

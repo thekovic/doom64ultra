@@ -33,32 +33,6 @@ enum SequenceStatus { SEQUENCE_INVALID,
 		      SEQUENCE_STOPPED,
 		      SEQUENCE_PLAYING };
 
-    /*------------------------------------------------------------------*/
-    /*------------------------------------------------------------------*/
-    /*
-        System Setup and Shutdown Functions.
-    */
-    /*------------------------------------------------------------------*/
-    /*------------------------------------------------------------------*/
-
-
-    /*
-        wess_set_error_callback - set a callback for runtime audio errors
-
-        passing NULL removes the callback
-
-        the errstring passed to the callback is guaranteed to be less than 12
-        uppercase letter characters only, thus you can print the errors
-        with a very simple print routine.
-
-        the errnum1 and errnum2 ints passed to the callback may or may not
-        have meaning based on the errstring
-    */
-
-typedef void (*WessErrorCallbackProc)( char *errstring, int errnum1, int errnum2 );
-
-extern void wess_set_error_callback( WessErrorCallbackProc errcall ) SEC_STARTUP;
-
     /*
         wess_set_decompression_callback - set a callback for runtime decompression
 

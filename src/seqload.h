@@ -49,17 +49,6 @@ extern int wess_seq_loader_count( void );
 extern void wess_seq_loader_exit(void);
 
     /*
-        routine: wess_seq_loader_install_error_handler()
-
-        - for installing an error callback to notify file access errors
-        - module is your own ID returned as err_module parameter
-        - err_enum is the returned Seq_Load_Error enum parameter
-    */
-
-extern void wess_seq_loader_install_error_handler(int (*error_func)(int, int),
-                                                  int module);
-
-    /*
         general loading guidelines:
 
         - sizeof functions return the amount of bytes needed for data

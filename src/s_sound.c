@@ -8,11 +8,6 @@
 
 #define SYS_FRAMES_PER_SEC 30
 
-COLD void S_Error_Callback_Routine(char *errstring, int errnum1, int errnum2) // 80029580
-{
-    I_Error(errstring, errnum1, errnum2);
-}
-
 extern int SfxVolume;
 extern int MusVolume;
 
@@ -43,8 +38,6 @@ void S_Init(void) // 80029590
 	//PRINTF_D(WHITE, "cur %x", (int)&sys_aheap.cur);
 	//PRINTF_D(WHITE, "len %d", sys_aheap.len);
 	//PRINTF_D(WHITE, "count %d", sys_aheap.count);
-
-	wess_set_error_callback(S_Error_Callback_Routine);
 
 	/* tweak audio */
 	wess_get_tweaks(&tweak);

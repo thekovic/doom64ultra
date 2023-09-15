@@ -22,8 +22,6 @@ extern master_status_structure *ref_pm_stat;	//800B6A80
 extern char *loaderfile;						//800B6A84
 extern int ref_max_seq_num;					    //800B6A88
 extern int opencount;							//800B6A8C
-extern int(*Error_func)(int, int);				//800B6A90
-extern int Error_module;						//800B6A94
 extern Wess_File_IO_Struct *fp_seq_file;		//800B6A98
 extern int seq_loader_offset;					//800B6A9C
 extern int seq_loader_enable;					//800B6AA0

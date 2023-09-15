@@ -8,6 +8,7 @@
 
 #include "funqueue.h"
 
+#include "doomdef.h"
 
 #ifndef NOUSEWESSCODE
 //./seqload.h
@@ -33,25 +34,10 @@ int wmd_mem_is_mine;//8005D8E0
 char *wmd_mem;//8005D8E4
 char *wmd_end;//8005D8E8
 int wmd_size;//8005D8EC
-static int(*Error_func)(int, int) = 0;//8005D8F0
-static int Error_module = 0;//8005D8F4
-
-static COLD void err(int code) // 8002F400
-{
-	if (Error_func) {
-		Error_func(Error_module, code);
-	}
-}
 
 static void INLINE_ALWAYS zeroset(char *pdest, unsigned long size) // 8002F438
 {
 	while (size--) *pdest++ = 0;
-}
-
-SEC_STARTUP void wess_install_error_handler(int(*error_func)(int, int), int module) // 8002F460
-{
-	Error_func = error_func;
-	Error_module = module;
 }
 
 void * wess_get_master_status(void) // 8002F474
@@ -214,7 +200,7 @@ SEC_STARTUP int wess_size_module(char *wmd_filename) // 8002F770
 
 	if (!(fp_wmd_file = module_open(wmd_filename)))
 	{
-		err(wess_FOPEN);
+		I_Error("FOPEN");
 		return (module_loaded);
 	}
 
@@ -228,7 +214,7 @@ SEC_STARTUP int wess_size_module(char *wmd_filename) // 8002F770
 	readresult = module_read(&tmp_moddata.mod_hdr, readrequest, fp_wmd_file);
 	if (readrequest != readresult)
 	{
-		err(wess_FREAD);
+		I_Error("FREAD");
 		return(0);
 	}
 
@@ -242,7 +228,7 @@ SEC_STARTUP int wess_size_module(char *wmd_filename) // 8002F770
 	readresult = module_read(&tmp_patgrpdata.pat_grp_hdr, readrequest, fp_wmd_file);
 	if (readrequest != readresult)
 	{
-		err(wess_FREAD);
+		I_Error("FREAD");
 		return(0);
 	}
 
@@ -376,7 +362,7 @@ int wess_load_module(char *wmd_filename,
 	if (!(fp_wmd_file = module_open(wmd_filename)))
 	{
 	    //PRINTF_D(WHITE, "WMD::fp_wmd_file %s Error al abrir", fp_wmd_file);
-		err(wess_FOPEN);
+		I_Error("FOPEN");
 		free_mem_if_mine();
 		return (module_loaded);
 	}
@@ -426,7 +412,7 @@ int wess_load_module(char *wmd_filename,
 	readresult = module_read(&tmp_moddata.mod_hdr, readrequest, fp_wmd_file);
 	if (readrequest != readresult)
 	{
-		err(wess_FREAD);
+		I_Error("FREAD");
 		free_mem_if_mine();
 		return(0);
 	}
@@ -450,7 +436,7 @@ int wess_load_module(char *wmd_filename,
 	readresult = module_read(&tmp_patgrpdata.pat_grp_hdr, readrequest, fp_wmd_file);
 	if (readrequest != readresult)
 	{
-		err(wess_FREAD);
+		I_Error("FREAD");
 		free_mem_if_mine();
 		return(0);
 	}
@@ -502,7 +488,7 @@ int wess_load_module(char *wmd_filename,
 		//printf("WMD::readrequest %d\n",readresult);
 		if (readrequest != readresult)
 		{
-			err(wess_FREAD);
+            I_Error("FREAD");
 			free_mem_if_mine();
 			return(0);
 		}

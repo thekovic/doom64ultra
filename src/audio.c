@@ -1,5 +1,6 @@
 
 #include "audio.h"
+#include "i_debug.h"
 
 
 //------------
@@ -23,8 +24,6 @@ extern int wess_driver_max_subs_per_trk;       // 8005D97C
 
 /* used by wesssys_exit */
 enum RestoreFlag {NoRestore,YesRestore};
-
-extern void wess_error_callback(char *errstring, int errnum1, int errnum2) COLD;
 
 extern int wesssys_init(void) SEC_STARTUP;
 extern void wesssys_exit(enum RestoreFlag rflag) COLD;
@@ -314,7 +313,7 @@ OSTask *__amHandleFrameMsg(AudioInfo *info) // 8002EBD8
 
 	if (maxRSPCmds < cmdLen)
 	{
-		wess_error_callback("MAXRSPCMDS", 0, 0);
+		I_Error("MAXRSPCMDS");
 	}
 
 	/* this is the task for the next audio frame */
@@ -371,7 +370,7 @@ s32 __amDMA(s32 addr, s32 len, void *state) // 8002ED74
 	if (!(dmaPtr))
 	{
 		lastDmaPtr = 0;
-		wess_error_callback("DMAPTRNULL", 0, 0);
+		I_Error("DMAPTRNULL");
 		return (int)osVirtualToPhysical(dmaState.firstUsed);
 	}
 
@@ -435,7 +434,7 @@ void __clearAudioDMA(void) // 8002EF7C
 	{
 		if (osRecvMesg(&audDMAMessageQ, (OSMesg *)&iomsg, OS_MESG_NOBLOCK) == -1)
 		{
-			wess_error_callback("DMANOTDONE", 0, 0);
+			I_Error("DMANOTDONE");
 		}
 	}
 

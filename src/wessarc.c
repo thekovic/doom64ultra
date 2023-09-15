@@ -46,22 +46,8 @@ int SeqOn = 0;                  // 8005D990
 unsigned long accmpi = 0;       // 8005D994
 int disabledeep = 0;            // 8005D998
 
-WessErrorCallbackProc wesserr;  // 800B4210
 WessDecompCallbackProc wessdecomp; // 800B4214
 long imask; // 800B4218
-
-void wess_set_error_callback(WessErrorCallbackProc errcall) // 80035290
-{
-	wesserr = errcall;
-}
-
-void wess_error_callback(char *errstring, int errnum1, int errnum2) // 8003529C
-{
-	if (wesserr)
-	{
-		wesserr(errstring, errnum1, errnum2);
-	}
-}
 
 void wess_set_decomp_callback(WessDecompCallbackProc decompcall) // 800352C8
 {
