@@ -411,7 +411,7 @@ int brightness = 125;            // 8005A7C8
 int ShowDebugCounters = DEBUG_DISPLAY; // [nova] debug counters
 fixed_t MotionBob = 0x100000;    // [Immorpher] Motion Bob works in hexadecimal
 int VideoFilters[3] = {0, 1, 0}; // [nova] Independent filter select
-int TvMode = 1;                  // [nova] AA, Interlacing
+int TvMode = 0;                  // [nova] AA, Interlacing
 int ScreenAspect = 0;            // [nova] select 4:3, 16:10, 16:9
 boolean NoGammaCorrect = false;  // [nova] real gamma option
 boolean DitherFilter = false;    // [Immorpher] Dither filter
@@ -419,7 +419,7 @@ s8 ColorDither = 0;              // [Immorpher] Color dithering options (Off, Sq
 int FlashBrightness = 32;        // [Immorpher] Strobe brightness adjustment, will need to change to float
 boolean runintroduction = false; // [Immorpher] New introduction sequence!
 boolean StoryText = true;        // [Immorpher] Skip story cut scenes?
-boolean MapStats = false;        // [Immorpher] Enable map statistics for automap?
+boolean MapStats = true;         // [Immorpher] Enable map statistics for automap?
 int HUDmargin = 20;              // [Immorpher] HUD margin options (default 20)
 boolean ColoredHUD = true;       // [Immorpher] Colored hud
 s8 VideoResolution = VIDEO_RES_LOW;
@@ -1714,7 +1714,6 @@ int M_MenuTicker(void) // 80007E0C
                     return ga_nothing;
                 }
                 break;
-
 
             case MTXT_SENSITIVITY:
                 if (buttons & PAD_RIGHT)
