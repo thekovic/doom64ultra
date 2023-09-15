@@ -951,7 +951,7 @@ extern int TvMode;                  // [nova] interlace/aa
 extern int ScreenAspect;            // [nova] widescreen
 extern boolean NoGammaCorrect;      // [nova] real gamma option
 extern boolean DitherFilter;     	// [Immorpher] Dither Filter
-extern int ColorDither;     		// [Immorpher] Color Dither
+extern s8 ColorDither;     		// [Immorpher] Color Dither
 extern int FlashBrightness;     	// [Immorpher] Strobe brightness adjustment
 extern boolean runintroduction; 	// [Immorpher] New introduction text
 extern boolean StoryText; 			// [Immorpher] Enable story text

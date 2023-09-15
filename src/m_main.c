@@ -415,7 +415,7 @@ int TvMode = 1;                  // [nova] AA, Interlacing
 int ScreenAspect = 0;            // [nova] select 4:3, 16:10, 16:9
 boolean NoGammaCorrect = false;  // [nova] real gamma option
 boolean DitherFilter = false;    // [Immorpher] Dither filter
-int ColorDither = 0;             // [Immorpher] Color dithering options (Off, Square, Bayer, Noise)
+s8 ColorDither = 0;              // [Immorpher] Color dithering options (Off, Square, Bayer, Noise)
 int FlashBrightness = 32;        // [Immorpher] Strobe brightness adjustment, will need to change to float
 boolean runintroduction = false; // [Immorpher] New introduction sequence!
 boolean StoryText = true;        // [Immorpher] Skip story cut scenes?
@@ -1947,7 +1947,7 @@ int M_MenuTicker(void) // 80007E0C
                 {
                     S_StartSound(NULL, sfx_switch2);
                     ColorDither += 1;
-                    if (ColorDither > 2)
+                    if (ColorDither > 3)
                         ColorDither = 0;
                     ConfigChanged = true;
                     return ga_nothing;
@@ -1957,7 +1957,7 @@ int M_MenuTicker(void) // 80007E0C
                     S_StartSound(NULL, sfx_switch2);
                     ColorDither -= 1;
                     if (ColorDither < 0)
-                        ColorDither = 2;
+                        ColorDither = 3;
                     ConfigChanged = true;
                     return ga_nothing;
                 }
@@ -3032,6 +3032,8 @@ void M_VideoDrawer(void) // 80009884
                 text = "Square";
             else if (ColorDither == 2)
                 text = "Bayer";
+            else if (ColorDither == 3)
+                text = "Noise";
             else
                 text = "Off";
         }

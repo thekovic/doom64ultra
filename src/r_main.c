@@ -499,6 +499,8 @@ void R_RenderModes(rendermode_t mode)
             gDPSetColorDither(GFX1++, G_CD_MAGICSQ);
         } else if (ColorDither == 2) {
             gDPSetColorDither(GFX1++, G_CD_BAYER);
+        } else if (ColorDither == 3) {
+            gDPSetColorDither(GFX1++, G_CD_NOISE);
         } else {
             gDPSetColorDither(GFX1++, G_CD_DISABLE);
         }
