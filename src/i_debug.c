@@ -454,7 +454,7 @@ static int I_PrintRegister(char *out, u32 value, const char *name, const regDesc
 {
     char first = 1;
     char *start = out;
-    out += sprintf(out, "% 5s 0x%08X <", name, value);
+    out += sprintf(out, "%5s 0x%08lX <", name, value);
     while (desc->mask != 0)
     {
         if ((value & desc->mask) == desc->value)
@@ -530,18 +530,18 @@ char *I_PrintFault(OSThread *curr, char *out)
         out += sprintf(out, "%s\n", ErrorText);
 
     // Print the basic info
-    out += sprintf(out, "Stopped thread %d\n\n", curr->id);
+    out += sprintf(out, "Stopped thread %ld\n\n", curr->id);
     out += I_PrintRegister(out, context->cause, "cause", causeDesc);
     out += I_PrintRegister(out, context->sr, "sr", srDesc);
     out += I_PrintRegister(out, context->fpcsr, "fpcsr", fpcsrDesc);
-    out += sprintf(out, "badva 0x%08X\n", context->badvaddr);
+    out += sprintf(out, "badva 0x%08lX\n", context->badvaddr);
 
     out += sprintf(out, "Backtrace:\n");
     backtracesize = I_GetCallStack(addresses, context->sp, context->ra);
 
-    out += sprintf(out, "  0x%08X\n", context->pc);
+    out += sprintf(out, "  0x%08lX\n", context->pc);
     for (int i = 0; i < backtracesize; ++i) {
-        out += sprintf(out, "  0x%08X\n", (u32)addresses[i]);
+        out += sprintf(out, "  0x%08lX\n", (u32)addresses[i]);
     }
 
     out += sprintf(out, "\n");
