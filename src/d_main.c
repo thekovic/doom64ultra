@@ -27,10 +27,15 @@ void D_DoomMain(void *arg) // 800027C0
     SET_GP();
 
     I_StartDebugger();
+    D_printf ("Z_Init: Init zone memory allocation daemon. \n");
     Z_Init();
+    D_printf ("I_Init: Setting up N64 state.\n");
     I_Init();
+    D_printf ("W_Init: Init WADfile.\n");
     W_Init();
+    D_printf ("R_Init: Init DOOM refresh daemon.\n");
     R_Init();
+    D_printf ("ST_Init: Init status bar.\n");
     ST_Init();
 
     gamevbls = 0;

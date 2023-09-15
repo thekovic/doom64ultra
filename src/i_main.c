@@ -326,8 +326,7 @@ static HOT void I_LoadGfxTask(void)
 
     if(ret != -1)
     {
-        //D_printf("rspTask->t.type %d\n",rspTask->t.type);
-        //D_printf("rspTask->t.type %x\n",(u64*)rspTask->t.ucode);
+        //D_printf("rspTask %lu  0x%08lx\\n",rspTask->t.type,(u32)rspTask->t.ucode);
 
         if(rspTask == vid_rsptask)
             read_vid_side = 0;
@@ -364,9 +363,7 @@ void I_SystemTicker(void *arg) // 80005730
     {
         osRecvMesg(&sys_ticker_queue, (OSMesg *)&vbi_msg, OS_MESG_BLOCK);
 
-        //D_printf("SystemTickerStatus %d\n",SystemTickerStatus);
-        //D_printf("vbi_msg %d\n",vbi_msg);
-        //D_printf("read_vid_side %d\n",read_vid_side);
+        //D_printf("  SystemTickerStatus %d vbi_msg %d read_vid_side %d\n", (int)SystemTickerStatus, vbi_msg,read_vid_side);
 
         switch (vbi_msg)
         {
@@ -502,8 +499,6 @@ void I_SystemTicker(void *arg) // 80005730
                             vsync = drawsync2 + 2;
                         }
 
-                        //D_printf("vsync %d | side %d\n", vsync, side);
-
                         drawsync1 = vsync - drawsync2;
                         drawsync2 = vsync;
 
@@ -592,6 +587,7 @@ void I_Init(void) // 80005C50
                    joy_stack + JOY_STACKSIZE/sizeof(u64), 11);
     osStartThread(&joy_thread);
 
+    D_printf ("S_Init: Setting up sound.\n");
     S_Init();
 
     /* Create and start ticker thread... */
