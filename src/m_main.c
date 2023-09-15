@@ -152,10 +152,11 @@ u8 ControlMappings[] = {
     _F(MTXT_MAP_STATS, "Map Stats") \
     \
     _F(MTXT_DEFAULTS, "Defaults") \
-    _F(MTXT_ORIGINAL, "Original") \
-    _F(MTXT_MERCILESS, "Merciless") \
-    _F(MTXT_RETRO, "Retro") \
-    _F(MTXT_ACCESSIBLE, "Accessible") \
+    _F(MTXT_PRESET_MODERN, "Modern") \
+    _F(MTXT_PRESET_VANILLA, "Vanilla") \
+    _F(MTXT_PRESET_MERCILESS, "Merciless") \
+    _F(MTXT_PRESET_RETRO, "Retro") \
+    _F(MTXT_PRESET_ACCESSIBLE, "Accessible") \
 
 #define _F(_id, _s) _id,
 typedef enum { MENU_STRINGS } menuentry_t;
@@ -242,11 +243,12 @@ const menuitem_t Menu_StatusHUD[] =
 
 const menuitem_t Menu_Defaults[] =
 {
-    { MTXT_ORIGINAL,   102, 60},
-    { MTXT_MERCILESS,  102, 80},
-    { MTXT_RETRO,  102, 100},
-    { MTXT_ACCESSIBLE, 102, 120},
-    { MTXT_RETURN,     102, 140},
+    { MTXT_PRESET_MODERN,     102, 60},
+    { MTXT_PRESET_VANILLA,    102, 80},
+    { MTXT_PRESET_MERCILESS,  102, 100},
+    { MTXT_PRESET_RETRO,      102, 120},
+    { MTXT_PRESET_ACCESSIBLE, 102, 140},
+    { MTXT_RETURN,            102, 160},
 };
 
 menuitem_t Menu_Game[] =
@@ -1712,57 +1714,6 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
 
-            case MTXT_ORIGINAL:
-                if (truebuttons)
-                {
-                    S_StartSound(NULL, sfx_switch2);
-
-                    // Set movement/controller options
-                    MotionBob = 0x100000;
-
-                    // Set video options
-                    brightness = 0;
-                    VideoFilters[0] = VideoFilters[1] = VideoFilters[2] = 0;
-                    TvMode = 0;
-                    DitherFilter = false;  // [Immorpher] new video option
-                    ColorDither = 0;  // [Immorpher] new video option
-
-                    // Set display options
-                    FlashBrightness = 32;  // [Immorpher] new video option
-                    StoryText = true; // [Immorpher] Skip story cut scenes?
-                    MapStats = false; // [Immorpher] Display automap stats?
-
-                    // Set HUD options
-                    enable_messages = true;
-                    HUDopacity = 128;
-                    HUDmargin = 19; // [Immorpher] HUD margin options
-                    ColoredHUD = false; // [Immorpher] Colored hud
-
-                    // Set sound options
-                    SfxVolume = 0x50;
-                    MusVolume = 0x50;
-
-                    // Reset functions
-                    for (int i = 0; i < MAXPLAYERS; i++)
-                    {
-                        ConfgNumb[i] = 0;    // gamepad configuration
-                        D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
-                        playerconfigs[i].crosshair = 0;
-                        playerconfigs[i].sensitivity = 0;
-                        playerconfigs[i].verticallook = 1;
-                        playerconfigs[i].autorun = false;
-                        playerconfigs[i].autoaim = true;
-                    }
-                    I_MoveDisplay(0,0);
-                    P_RefreshBrightness();
-                    I_RefreshVideo();
-                    S_SetMusicVolume(MusVolume);
-                    S_SetSoundVolume(SfxVolume);
-
-                    ConfigChanged = true;
-                    return ga_nothing;
-                }
-                break;
 
             case MTXT_SENSITIVITY:
                 if (buttons & PAD_RIGHT)
@@ -2048,7 +1999,111 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
 
-            case MTXT_MERCILESS:
+            case MTXT_PRESET_MODERN:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_switch2);
+
+                    // Set movement/controller options
+                    MotionBob = 0x100000;
+
+                    // Set video options
+                    brightness = 125;
+                    VideoFilters[0] = VideoFilters[1] = VideoFilters[2] = 0;
+                    TvMode = 0;
+                    DitherFilter = false;  // [Immorpher] new video option
+                    ColorDither = 0;  // [Immorpher] new video option
+
+                    // Set display options
+                    FlashBrightness = 32;  // [Immorpher] new video option
+                    StoryText = true; // [Immorpher] Skip story cut scenes?
+                    MapStats = true; // [Immorpher] Display automap stats?
+
+                    // Set HUD options
+                    enable_messages = true;
+                    HUDopacity = 128;
+                    HUDmargin = 19; // [Immorpher] HUD margin options
+                    ColoredHUD = true; // [Immorpher] Colored hud
+
+                    // Set sound options
+                    SfxVolume = 0x50;
+                    MusVolume = 0x50;
+
+                    // Reset functions
+                    for (int i = 0; i < MAXPLAYERS; i++)
+                    {
+                        ConfgNumb[i] = 0;    // gamepad configuration
+                        D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
+                        playerconfigs[i].crosshair = 2;
+                        playerconfigs[i].sensitivity = 0;
+                        playerconfigs[i].verticallook = -1;
+                        playerconfigs[i].autorun = true;
+                        playerconfigs[i].autoaim = false;
+                    }
+                    I_MoveDisplay(0,0);
+                    P_RefreshBrightness();
+                    I_RefreshVideo();
+                    S_SetMusicVolume(MusVolume);
+                    S_SetSoundVolume(SfxVolume);
+
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_PRESET_VANILLA:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_switch2);
+
+                    // Set movement/controller options
+                    MotionBob = 0x100000;
+
+                    // Set video options
+                    brightness = 0;
+                    VideoFilters[0] = VideoFilters[1] = VideoFilters[2] = 0;
+                    TvMode = 0;
+                    DitherFilter = false;  // [Immorpher] new video option
+                    ColorDither = 0;  // [Immorpher] new video option
+
+                    // Set display options
+                    FlashBrightness = 32;  // [Immorpher] new video option
+                    StoryText = false; // [Immorpher] Skip story cut scenes?
+                    MapStats = false; // [Immorpher] Display automap stats?
+
+                    // Set HUD options
+                    enable_messages = true;
+                    HUDopacity = 128;
+                    HUDmargin = 19; // [Immorpher] HUD margin options
+                    ColoredHUD = false; // [Immorpher] Colored hud
+
+                    // Set sound options
+                    SfxVolume = 0x50;
+                    MusVolume = 0x50;
+
+                    // Reset functions
+                    for (int i = 0; i < MAXPLAYERS; i++)
+                    {
+                        ConfgNumb[i] = 1;    // gamepad configuration
+                        D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
+                        playerconfigs[i].crosshair = 0;
+                        playerconfigs[i].sensitivity = 0;
+                        playerconfigs[i].verticallook = -1;
+                        playerconfigs[i].autorun = false;
+                        playerconfigs[i].autoaim = true;
+                    }
+                    I_MoveDisplay(0,0);
+                    P_RefreshBrightness();
+                    I_RefreshVideo();
+                    S_SetMusicVolume(MusVolume);
+                    S_SetSoundVolume(SfxVolume);
+
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_PRESET_MERCILESS:
                 if (truebuttons)
                 {
                     S_StartSound(NULL, sfx_switch2);
@@ -2085,7 +2140,7 @@ int M_MenuTicker(void) // 80007E0C
                         D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
                         playerconfigs[i].crosshair = 0;
                         playerconfigs[i].sensitivity = 0;
-                        playerconfigs[i].verticallook = 1;
+                        playerconfigs[i].verticallook = -1;
                         playerconfigs[i].autorun = false;
                         playerconfigs[i].autoaim = true;
                     }
@@ -2100,7 +2155,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
 
-            case MTXT_RETRO:
+            case MTXT_PRESET_RETRO:
                 if (truebuttons)
                 {
                     S_StartSound(NULL, sfx_switch2);
@@ -2134,7 +2189,7 @@ int M_MenuTicker(void) // 80007E0C
                     // Reset functions
                     for (int i = 0; i < MAXPLAYERS; i++)
                     {
-                        ConfgNumb[i] = 6;    // gamepad configuration
+                        ConfgNumb[i] = 5;    // gamepad configuration
                         D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
                         playerconfigs[i].crosshair = 2;
                         playerconfigs[i].sensitivity = 0;
@@ -2153,7 +2208,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
 
-            case MTXT_ACCESSIBLE:
+            case MTXT_PRESET_ACCESSIBLE:
                 if (truebuttons)
                 {
                     S_StartSound(NULL, sfx_switch2);
@@ -2171,7 +2226,7 @@ int M_MenuTicker(void) // 80007E0C
                     // Set display options
                     FlashBrightness = 0;  // [Immorpher] new video option
                     StoryText = true; // [Immorpher] Skip story cut scenes?
-                    MapStats = false; // [Immorpher] Display automap stats?
+                    MapStats = true; // [Immorpher] Display automap stats?
 
                     // Set HUD options
                     enable_messages = true;
