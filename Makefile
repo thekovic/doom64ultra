@@ -27,9 +27,7 @@ ifdef DEBUG_DISPLAY
 endif
 ifeq ($(DEBUG),0)
   DEFINES += NDEBUG=1
-  LIBULTRA_VER=libultra_rom
 else
-  LIBULTRA_VER=libultra_d
 endif
 ifneq ($(REQUIRE_EXPANSION_PAK),0)
   OPTIONS += REQUIRE_EXPANSION_PAK
@@ -48,6 +46,16 @@ ifdef SKILL
 endif
 ifdef CHEATS
   OPTIONS += DEVCHEATS=$(CHEATS)
+endif
+
+ifeq ($(DEBUGOPT),1)
+  LIBULTRA_VER=libultra
+else
+    ifeq ($(DEBUG),1)
+      LIBULTRA_VER=libultra_d
+    else
+      LIBULTRA_VER=libultra_rom
+    endif
 endif
 
 SRC_DIRS :=
