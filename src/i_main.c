@@ -939,6 +939,9 @@ void I_MoveDisplay(int x,int y) // 80006790
        (int)((video_vStart2 & 65535) + y) % 65535;
 }
 
+static bool skipfade = false;
+s8 fadetick = 8;
+
 void I_WIPE_MeltScreen(void) // 80006964
 {
     u16 *fb;
@@ -950,6 +953,8 @@ void I_WIPE_MeltScreen(void) // 80006964
     int fbsize;
     int buttons;
     int shift = 0;
+
+    skipfade = false;
 
     {
         int pixelsize = BitDepth == BITDEPTH_32 ? sizeof(u32) : sizeof(u16);
@@ -970,7 +975,10 @@ void I_WIPE_MeltScreen(void) // 80006964
 
         buttons = I_GetControllerData();
         if (buttons & (PAD_A|PAD_B|PAD_START))
+        {
             shift = 2;
+            skipfade = true;
+        }
 
         I_ClearFrame();
 
@@ -1025,8 +1033,6 @@ void I_WIPE_MeltScreen(void) // 80006964
     I_WIPE_FadeOutScreen();
 }
 
-int fadetick = 8;
-
 void I_WIPE_FadeOutScreen(void) // 80006D34
 {
     u32 *fb;
@@ -1034,6 +1040,8 @@ void I_WIPE_FadeOutScreen(void) // 80006D34
     int size;
     int tileheight;
     int fbsize;
+    int buttons;
+    int shift = skipfade ? 2 : 0;
 
     {
         int pixelsize = BitDepth == BITDEPTH_32 ? sizeof(u32) : sizeof(u16);
@@ -1046,10 +1054,17 @@ void I_WIPE_FadeOutScreen(void) // 80006D34
         D_memcpy(fb, CFB(vid_side ^ 1), fbsize);
     }
 
-    outcnt = 248;
+    outcnt = 256;
     do
     {
+        outcnt -= (((int) fadetick) * drawsync1) << shift >> 1;
+        outcnt = MAX(outcnt, 0);
+
         I_ClearFrame();
+
+        buttons = I_GetControllerData();
+        if (buttons & (PAD_A|PAD_B|PAD_START))
+            shift = 2;
 
         gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
         gDPSetTextureLUT(GFX1++, G_TT_NONE);
@@ -1090,11 +1105,11 @@ void I_WIPE_FadeOutScreen(void) // 80006D34
         } while (y1 < YResolution);
 
         I_DrawFrame();
-        outcnt -= (fadetick * drawsync1) >> 1;
-    } while (outcnt >= 0);
+    } while (outcnt > 0);
 
     I_GetScreenGrab();
     Z_Free(fb);
+    skipfade = false;
 }
 
 static void I_LockPi(void)

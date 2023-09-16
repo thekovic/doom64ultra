@@ -261,7 +261,7 @@ int MiniLoop(void(*start)(void), void(*stop)(),
         }
         else
         {
-            extern int fadetick;
+            extern s8 fadetick;
             if (osTvType == OS_TV_PAL)
                 fadetick = 42;
             else
