@@ -965,7 +965,7 @@ void M_MenuGameDrawer(void) // 80007C48
             M_DrawBackground(56, 57, 80, "TITLE");
 
         if (MenuItem != Menu_Title) {
-            M_DrawOverlay(0, 0, XResolution, YResolution, 96);
+            M_DrawOverlay(0, 0, XResolution, YResolution, 224);
         }
 
         ST_DrawDebug();
