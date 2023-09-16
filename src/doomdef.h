@@ -1110,6 +1110,7 @@ void AM_Drawer (void);
 /* D_SCREENS */
 /*-----------*/
 
+void D_DrawUltraTitle(int y);
 int D_RunDemo(char *name, customskill_t skill, int map); // 8002B2D0
 int D_TitleMap(void);           // 8002B358
 int D_WarningTicker(void) SEC_MENU;      // 8002B3E8

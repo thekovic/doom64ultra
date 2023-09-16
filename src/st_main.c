@@ -644,6 +644,9 @@ void ST_Message(int x,int y,const char *text,int color) // 8002A36C
 
     gDPSetPrimColorD64(GFX1++, 0, 0, color);
 
+    if (x == -1)
+        x = (SCREEN_WD>>1) - ((D_strlen(text) * ST_FONTWHSIZE) >> 1);
+
     ypos = y;
     xpos = x;
     while (*text)

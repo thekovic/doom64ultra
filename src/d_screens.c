@@ -6,6 +6,8 @@
 #include "st_main.h"
 #include "config.h"
 
+#define D64ULTRA_VERSION "0.1 alpha"
+
 int D_RunDemo(char *name, customskill_t skill, int map) // 8002B2D0
 {
   int lump;
@@ -36,6 +38,12 @@ int D_TitleMap(void) // 8002B358
   Z_Free(demo_p);
 
   return exit;
+}
+
+void D_DrawUltraTitle(int y)
+{
+    ST_DrawString(-1,  y, "Doom 64 Ultra", text_alpha | 0xc080c000);
+    ST_Message(-1,  y+16, "version " D64ULTRA_VERSION, text_alpha | 0x8080ff00);
 }
 
 #if !defined(DEVWARP) && !defined(SKIP_INTRO)
@@ -73,6 +81,47 @@ static bool D_SkipPressed(void)
     return false;
 }
 
+int D_UltraTicker(void)
+{
+    if ((ticon - last_ticon) >= 16*TICRATE)
+        return ga_exit;
+    if ((ticon - last_ticon) >= 15 && D_SkipPressed())
+        return ga_exit;
+    return ga_nothing;
+}
+
+void D_DrawUltra(void)
+{
+    static const char *DISCLAIMER[] = {
+        "doom 64 ultra is a free and",
+        "open-source modification",
+        "created for educational purposes.",
+        NULL,
+        "it is not intended to be bought",
+        "or sold for profit.",
+        NULL,
+        "visit the home page for more",
+        "information and updates:",
+        "https://d64u.github.io",
+    };
+
+    I_ClearFrame();
+
+    I_ClearFB(0x000000ff);
+
+    D_DrawUltraTitle(40);
+
+    for (int i = 0; i < ARRAYLEN(DISCLAIMER); i++)
+        if (DISCLAIMER[i])
+            ST_Message(-1, 80 + (i*10), DISCLAIMER[i], 0xffffffff);
+
+    if (FilesUsed > -1) {
+        ST_DrawString(-1, SCREEN_HT-40, "hold \x8d to manage pak", text_alpha | 0xffffff00);
+    }
+
+    I_DrawFrame();
+}
+
 int D_LegalTicker(void) // 8002B5F8
 {
     if (D_SkipPressed())
@@ -94,6 +143,8 @@ void D_DrawLegal(void) // 8002B644
     I_ClearFrame();
 
     I_ClearFB(0x000000ff);
+
+    D_DrawUltraTitle(40);
 
     M_DrawBackground(27, 74, text_alpha, "USLEGAL");
 
@@ -183,11 +234,14 @@ void D_SplashScreen(void) // 8002B988
     }
 #endif
 
+    text_alpha = 0xff;
+    last_ticon = 0;
+    MiniLoop(NULL, NULL, D_UltraTicker, D_DrawUltra);
+
     /* */
     /* show the legals screen */
     /* */
 
-    text_alpha = 0xff;
     last_ticon = 0;
     MiniLoop(NULL, NULL, D_LegalTicker, D_DrawLegal);
 }

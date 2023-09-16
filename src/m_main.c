@@ -2872,6 +2872,10 @@ void M_MenuTitleDrawer(void) // 80008E7C
     const menuitem_t *item;
     int i;
 
+    if (MenuItem == Menu_Title)
+    {
+        D_DrawUltraTitle(20);
+    }
     if (MenuItem == Menu_Game)
     {
         ST_DrawString(-1, 20, "Pause", text_alpha | 0xc0000000);
