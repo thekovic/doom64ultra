@@ -25,37 +25,6 @@ boolean doLoadSave = false;
 //intermission
 int DrawerStatus;
 
-char *ControlText[] =   //8007517C
-{
-    "default  %s",
-    "  stick ",
-
-    "move forward",
-    "move backward",
-    "strafe left",
-    "strafe right",
-    "strafe on",
-    "attack",
-    "run",
-    "jump",
-    "crouch",
-
-    "turn left",
-    "turn right",
-    "look up",
-    "look down",
-    "look on",
-    "use",
-    "weapon up",
-    "weapon down",
-    "map"
-};
-
-u8 ControlMappings[] = {
-    2,  3,  9, 10,  8,  4,  7, 16, 17,
-    1,  0, 14, 15,  13, 5, 12, 11, 6
-};
-
 #define MENU_STRINGS \
     _F(MTXT_MAIN_MENU, "Main Menu") \
     _F(MTXT_LOAD_GAME, "Load Game") \
@@ -415,6 +384,37 @@ const credit_t Merciless_Credits[] =
     {"NEIGH WINNY, ISANN KEKET, NEVANDER",   -1, 200},
 };
 
+char *ControlText[] =   //8007517C
+{
+    "default  %s",
+    "  stick ",
+
+    "move forward",
+    "move backward",
+    "strafe left",
+    "strafe right",
+    "strafe on",
+    "attack",
+    "run",
+    "jump",
+    "crouch",
+
+    "turn left",
+    "turn right",
+    "look up",
+    "look down",
+    "look on",
+    "use",
+    "weapon up",
+    "weapon down",
+    "map"
+};
+
+u8 ControlMappings[] = {
+    2,  3,  9, 10,  8,  4,  7, 16, 17,
+    1,  0, 14, 15,  13, 5, 12, 11, 6
+};
+
 menudata_t MenuData[8]; // 800A54F0
 int MenuAnimationTic;   // 800a5570
 int cursorpos;          // 800A5574
@@ -477,6 +477,7 @@ boolean ConfigChanged = false;
 s8 SkillPreset = 1;
 static s8 skillpresetsetup;
 static customskill_t skillsetup;
+static u8 buttonbindstate;
 
 const skillpreset_t SkillPresets[] = {
     { "Be Gentle!", { .monster_counts = sk_easy, .player_damage = 0, .player_ammo = 1, } },
@@ -1111,6 +1112,7 @@ int M_MenuTicker(void) // 80007E0C
                     MenuCall = M_ControlPadDrawer;
                     cursorpos = 0;
                     linepos = 0;
+                    buttonbindstate = 0;
 
                     MiniLoop(M_FadeInStart,M_FadeOutStart,M_ControlPadTicker,M_MenuGameDrawer);
                     M_RestoreMenuData(true);
@@ -4562,20 +4564,56 @@ void M_CenterDisplayDrawer(void) // 8000B604
 int M_ControlPadTicker(void) // 8000B694
 {
     unsigned int buttons;
-    unsigned int stickbuttons;
     unsigned int oldbuttons;
-    int exit;
     int code = 0;
 
-    if ((gamevbls < gametic) && ((gametic & 3U) == 0)) {
-        MenuAnimationTic = (MenuAnimationTic + 1) & 7;
+    buttons = M_ButtonResponder(ticbuttons[0]);
+    oldbuttons = M_ButtonResponder(oldticbuttons[0]);
+
+    if (buttonbindstate == 1)
+    {
+        int m = ControlMappings[cursorpos - 2];
+
+        if (!((buttons & PAD_START) && !(oldbuttons & PAD_START)))
+        {
+            for (int i = 16; i < 32; i++)
+            {
+                register int bit = 1 << i;
+                if ((ticbuttons[0] & bit) && !(oldticbuttons[0] & bit))
+                {
+                    code = (1 << i);
+                    break;
+                }
+            }
+            if (!code)
+                return ga_nothing;
+        }
+
+        ConfgNumb[0] = -1;
+        CurrentControls[0].BUTTONS[m] = code;
+        /* if setting, unset anything previously bound to this button */
+        if (CurrentControls[0].BUTTONS[m])
+        {
+            for (int i = 0; i < ARRAYLEN(CurrentControls[0].BUTTONS); i++)
+                if (i != m && CurrentControls[0].BUTTONS[i] == buttons)
+                    CurrentControls[0].BUTTONS[i] = 0;
+        }
+        S_StartSound(NULL,sfx_switch2);
+        ConfigChanged = true;
+        buttonbindstate = 2;
+
+        return ga_nothing;
+    }
+    else if (buttonbindstate == 2)
+    {
+        /* wait for the button to be released */
+        if (buttons & ALL_JPAD)
+            return ga_nothing;
+
+        buttonbindstate = 0;
     }
 
-    stickbuttons = M_ButtonResponder(ticbuttons[0] & 0xffff);
-    buttons = ticbuttons[0] & 0xffff0000;
-    oldbuttons = oldticbuttons[0] & 0xffff0000;
-
-    if (!(stickbuttons & ALL_JPAD))
+    if (!(buttons & ALL_JPAD))
     {
         m_vframe1 = 0;
     }
@@ -4586,7 +4624,7 @@ int M_ControlPadTicker(void) // 8000B694
         {
             m_vframe1 = 0xf; // TICRATE / 2
 
-            if (stickbuttons & PAD_DOWN)
+            if (buttons & PAD_DOWN)
             {
                 cursorpos += 1;
                 if (cursorpos >= ARRAYLEN(ControlText))
@@ -4594,33 +4632,28 @@ int M_ControlPadTicker(void) // 8000B694
                 else
                     S_StartSound(NULL, sfx_switch1);
             }
-            else if (stickbuttons & PAD_UP)
+            else if (buttons & PAD_UP)
             {
-                cursorpos -= 1;
+                if (cursorpos == 2 + CONTROLCOLSIZE)
+                    cursorpos = 1;
+                else
+                    cursorpos -= 1;
                 if (cursorpos < 0)
                     cursorpos = 0;
                 else
                     S_StartSound(NULL, sfx_switch1);
             }
-            else if (stickbuttons & PAD_RIGHT)
+            else if (buttons & PAD_RIGHT)
             {
-                if (cursorpos < 2)
-                {
-                    buttons |= PAD_RIGHT;
-                }
-                else if (cursorpos < 2 + CONTROLCOLSIZE)
+                if (cursorpos >= 2 && cursorpos < 2 + CONTROLCOLSIZE)
                 {
                     S_StartSound(NULL, sfx_switch1);
                     cursorpos += CONTROLCOLSIZE;
                 }
             }
-            else if (stickbuttons & PAD_LEFT)
+            else if (buttons & PAD_LEFT)
             {
-                if (cursorpos < 2)
-                {
-                    buttons |= PAD_LEFT;
-                }
-                else if (cursorpos >= 2 + CONTROLCOLSIZE)
+                if (cursorpos >= 2 + CONTROLCOLSIZE)
                 {
                     S_StartSound(NULL, sfx_switch1);
                     cursorpos -= CONTROLCOLSIZE;
@@ -4629,127 +4662,94 @@ int M_ControlPadTicker(void) // 8000B694
         }
     }
 
-    if ((buttons & PAD_START) && !(oldbuttons & PAD_START))
+    if (((buttons & PAD_START) && !(oldbuttons & PAD_START))
+            || ((buttons & PAD_B) && !(oldbuttons & PAD_B)))
     {
+        buttonbindstate = 0;
         S_StartSound(NULL, sfx_pistol);
-        exit = ga_exit;
+        return ga_exit;
     }
-    else
+    if (buttons == oldbuttons)
     {
-        if (buttons == oldbuttons)
-            exit = ga_nothing;
+        return ga_nothing;
+    }
+
+    if (cursorpos == 0) // Set Default Configuration
+    {
+        if (((buttons & PAD_A) && !(oldbuttons & PAD_A))
+                || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+        {
+            ConfgNumb[0] += 1;
+            if(ConfgNumb[0] >= ARRAYLEN(DefaultControlSetups))
+                ConfgNumb[0] = 0;
+            ConfigChanged = true;
+        }
+        else if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+        {
+            ConfgNumb[0] -= 1;
+            if (ConfgNumb[0] < 0)
+                ConfgNumb[0] = ARRAYLEN(DefaultControlSetups) - 1;
+            ConfigChanged = true;
+        }
         else
         {
-            if (cursorpos == 0) // Set Default Configuration
-            {
-                if (buttons & (PAD_RIGHT|PAD_A))
-                {
-                    ConfgNumb[0] += 1;
-                    if(ConfgNumb[0] >= ARRAYLEN(DefaultControlSetups))
-                        ConfgNumb[0] = 0;
-                    ConfigChanged = true;
-                }
-                else if (buttons & PAD_LEFT)
-                {
-                    ConfgNumb[0] -= 1;
-                    if (ConfgNumb[0] < 0)
-                        ConfgNumb[0] = ARRAYLEN(DefaultControlSetups) - 1;
-                    ConfigChanged = true;
-                }
-                else if ((buttons & PAD_B) && !(oldbuttons & PAD_B))
-                {
-                    S_StartSound(NULL, sfx_pistol);
-                    return ga_exit;
-                }
-                else
-                {
-                    return ga_nothing;
-                }
-
-                D_memcpy(&CurrentControls[0], &DefaultControlSetups[ConfgNumb[0]], sizeof CurrentControls);
-                S_StartSound(NULL, sfx_switch2);
-            }
-            else if (cursorpos == 1)
-            {
-                const int modes[] = {
-                    STICK_TURN,
-                    STICK_MOVE | STICK_TURN,
-                    STICK_MOVE | STICK_STRAFE,
-                    STICK_TURN | STICK_VLOOK,
-                    STICK_STRAFE | STICK_VLOOK
-                };
-
-                int mode = CurrentControls[0].STICK_MODE;
-                int modeindex = 0;
-
-                for (int i = 0; i < ARRAYLEN(modes); i++)
-                {
-                    if (modes[i] == mode)
-                    {
-                        modeindex = i;
-                        break;
-                    }
-                }
-                if (buttons & (PAD_RIGHT|PAD_A))
-                {
-                    modeindex += 1;
-                    if(modeindex >= ARRAYLEN(modes))
-                        modeindex = 0;
-                    ConfigChanged = true;
-                }
-                else if (buttons & PAD_LEFT)
-                {
-                    modeindex -= 1;
-                    if (modeindex < 0)
-                        modeindex = ARRAYLEN(modes) - 1;
-                    ConfigChanged = true;
-                }
-                else if ((buttons & PAD_B) && !(oldbuttons & PAD_B))
-                {
-                    S_StartSound(NULL, sfx_pistol);
-                    return ga_exit;
-                }
-                else
-                {
-                    return ga_nothing;
-                }
-
-                ConfgNumb[0] = -1;
-                CurrentControls[0].STICK_MODE = modes[modeindex];
-                S_StartSound(NULL,sfx_switch2);
-            }
-            else // Set Custom Configuration
-            {
-                for (int i = 16; i < 32; i++)
-                {
-                    if (buttons & (1 << i))
-                    {
-                        code = (1 << i);
-                        break;
-                    }
-                }
-                if (!code)
-                    return ga_nothing;
-
-                int m = ControlMappings[cursorpos - 2];
-
-                ConfgNumb[0] = -1;
-                CurrentControls[0].BUTTONS[m]
-                    = CurrentControls[0].BUTTONS[m] == code ? 0 : code;
-                /* if setting, unset anything previously bound to this button */
-                if (CurrentControls[0].BUTTONS[m])
-                {
-                    for (int i = 0; i < ARRAYLEN(CurrentControls[0].BUTTONS); i++)
-                        if (i != m && CurrentControls[0].BUTTONS[i] == buttons)
-                            CurrentControls[0].BUTTONS[i] = 0;
-                }
-                S_StartSound(NULL,sfx_switch2);
-                ConfigChanged = true;
-            }
-            exit = ga_nothing;
+            return ga_nothing;
         }
+
+        D_memcpy(&CurrentControls[0], &DefaultControlSetups[ConfgNumb[0]], sizeof CurrentControls);
+        S_StartSound(NULL, sfx_switch2);
     }
-    return exit;
+    else if (cursorpos == 1)
+    {
+        const int modes[] = {
+            STICK_TURN,
+            STICK_MOVE | STICK_TURN,
+            STICK_MOVE | STICK_STRAFE,
+            STICK_TURN | STICK_VLOOK,
+            STICK_STRAFE | STICK_VLOOK
+        };
+
+        int mode = CurrentControls[0].STICK_MODE;
+        int modeindex = 0;
+
+        for (int i = 0; i < ARRAYLEN(modes); i++)
+        {
+            if (modes[i] == mode)
+            {
+                modeindex = i;
+                break;
+            }
+        }
+        if (((buttons & PAD_A) && !(oldbuttons & PAD_A))
+                || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+        {
+            modeindex += 1;
+            if(modeindex >= ARRAYLEN(modes))
+                modeindex = 0;
+            ConfigChanged = true;
+        }
+        else if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+        {
+            modeindex -= 1;
+            if (modeindex < 0)
+                modeindex = ARRAYLEN(modes) - 1;
+            ConfigChanged = true;
+        }
+        else
+        {
+            return ga_nothing;
+        }
+
+        ConfgNumb[0] = -1;
+        CurrentControls[0].STICK_MODE = modes[modeindex];
+        S_StartSound(NULL,sfx_switch2);
+    }
+    else if (buttons & PAD_A)
+    {
+        buttonbindstate = 1;
+    }
+
+    return ga_nothing;
 }
 
 static int button_code_to_symbol_index(u32 code)
@@ -4794,6 +4794,7 @@ void M_ControlPadDrawer(void) // 8000B988
 {
     char buffer [44];
     int c, stick;
+    int cursor_alpha = text_alpha;
 
     ST_DrawString(-1, 20, "Controls", text_alpha | 0xc0000000);
 
@@ -4801,7 +4802,7 @@ void M_ControlPadDrawer(void) // 8000B988
         sprintf(buffer, ControlText[0], "Custom");
     else
         sprintf(buffer, ControlText[0], ControlSetupNames[ConfgNumb[0]]);
-    ST_Message(20, 40, buffer, text_alpha | 0xc0000000);
+    ST_Message(28, 40, buffer, text_alpha | 0xc0000000);
 
     c = sprintf(buffer, ControlText[1]);
     stick = CurrentControls[0].STICK_MODE;
@@ -4813,12 +4814,12 @@ void M_ControlPadDrawer(void) // 8000B988
         sprintf(&buffer[c], " strafe");
     else if (stick & STICK_TURN)
         sprintf(&buffer[c], " turn");
-    ST_Message(20, 50, buffer, text_alpha | 0xc0000000);
+    ST_Message(28, 50, buffer, text_alpha | 0xc0000000);
 
     for(int i = 2; i < ARRAYLEN(ControlText); i++)
     {
         int code = CurrentControls[0].BUTTONS[ControlMappings[i - 2]];
-        int x = (i < (2 + CONTROLCOLSIZE)) ? 10 : 170;
+        int x = (i < (2 + CONTROLCOLSIZE)) ? 18 : 170;
         int y = ((i - 2) % CONTROLCOLSIZE) * 16 + 68;
         int len = D_strlen(ControlText[i]);
 
@@ -4830,14 +4831,20 @@ void M_ControlPadDrawer(void) // 8000B988
         }
     }
 
-    if (cursorpos < 2)
-        ST_DrawSymbol(10, cursorpos * 10 + 39, 78, text_alpha | 0x90600000);
-    else if (cursorpos < 2 + CONTROLCOLSIZE)
-        ST_DrawSymbol(116, ((cursorpos - 2) * 16) + 69, 78, text_alpha | 0x90600000);
-    else
-        ST_DrawSymbol(276, (cursorpos - 2) % CONTROLCOLSIZE * 16 + 70 , 78, text_alpha | 0x90600000);
+    if (buttonbindstate == 1)
+        cursor_alpha = ((finesine((gametic & 31) << 8) * 96) >> FRACBITS) + 128;
 
-    ST_DrawString(-1, SCREEN_HT - 20, "press \x8d to exit", text_alpha | 0xffffff00);
+    if (cursorpos < 2)
+        ST_DrawSymbol(18, cursorpos * 10 + 39, 78, text_alpha | 0x90600000);
+    else if (cursorpos < 2 + CONTROLCOLSIZE)
+        ST_DrawSymbol(124, ((cursorpos - 2) * 16) + 69, 78, cursor_alpha | 0x90600000);
+    else
+        ST_DrawSymbol(276, (cursorpos - 2) % CONTROLCOLSIZE * 16 + 70 , 78, cursor_alpha | 0x90600000);
+
+    if (buttonbindstate == 1)
+        ST_DrawString(-1, SCREEN_HT - 20, "press \x8d to clear", text_alpha | 0xffffff00);
+    else
+        ST_DrawString(-1, SCREEN_HT - 20, "press \x8b to exit", text_alpha | 0xffffff00);
 }
 
 void M_UpdateSkillPreset(void)
