@@ -1016,7 +1016,7 @@ void I_WIPE_MeltScreen(void) // 80006964
             } while (y1 < height);
         }
 
-        yscroll += (vblsinframe[0] << shift);
+        yscroll += (drawsync1 << shift);
         if (yscroll >= 160) break;
         I_DrawFrame();
     }
@@ -1090,7 +1090,7 @@ void I_WIPE_FadeOutScreen(void) // 80006D34
         } while (y1 < YResolution);
 
         I_DrawFrame();
-        outcnt -= (fadetick * vblsinframe[0]) >> 1;
+        outcnt -= (fadetick * drawsync1) >> 1;
     } while (outcnt >= 0);
 
     I_GetScreenGrab();
