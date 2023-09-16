@@ -4432,6 +4432,13 @@ int M_LoadGamePakTicker(void)
         }
         exit = ga_warped;
     }
+    else if (IS_PRESSED(PAD_RIGHT_C) && I_IsSaveValid(&GamePak_Data[cursorpos]))
+    {
+        S_StartSound(NULL, sfx_pistol);
+        GamePak_Data[cursorpos].present = 0;
+        I_DeleteSramSave(cursorpos);
+        exit = ga_nothing;
+    }
     else
     {
         exit = ga_nothing;
@@ -4468,6 +4475,9 @@ void M_LoadGamePakDrawer(void)
     }
 
     ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 56, MenuAnimationTic + 70, text_alpha | 0xffffff00);
+
+    if (I_IsSaveValid(&GamePak_Data[cursorpos]))
+        ST_DrawString(-1, SCREEN_HT - 25, "press \x85 to delete", text_alpha | 0xffffff00);
 }
 
 int M_CenterDisplayTicker(void) // 8000B4C4
