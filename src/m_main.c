@@ -809,7 +809,7 @@ static void M_AdjustCursorPos(int dir)
     }
 }
 
-#define MAXSENSIVITY    20
+#define MAXSENSIVITY    40
 
 int M_ButtonResponder(int buttons) // 80007960
 {
@@ -1017,11 +1017,24 @@ int M_PasswordMenu()
     return exit;
 }
 
+static inline bool M_IsPressed(int buttons, int oldbuttons, int mask)
+{
+    return !!(buttons & mask) && !(oldbuttons & mask);
+}
+
+static inline bool M_IsHeldNoVert(int buttons, int mask)
+{
+    return !!(buttons & mask) && !(buttons & (PAD_UP|PAD_DOWN));
+}
+
+#define IS_PRESSED(mask) M_IsPressed(buttons, oldbuttons, (mask))
+#define IS_HELD(mask) M_IsHeldNoVert(buttons, (mask))
+
 int M_MenuTicker(void) // 80007E0C
 {
     unsigned int buttons, oldbuttons;
     int exit;
-    int truebuttons;
+    bool truebuttons, leftbutton, rightbutton;
     int i;
     menuentry_t casepos;
     boolean padrepeat = false;
@@ -1080,8 +1093,7 @@ int M_MenuTicker(void) // 80007E0C
             }
         }
 
-        if (((buttons & PAD_START) && !(oldticbuttons[0] & PAD_START))
-                || ((buttons & PAD_B) && !(oldticbuttons[0] & PAD_B)))
+        if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
         {
             if (MenuItem == Menu_Title)
             {
@@ -1097,7 +1109,17 @@ int M_MenuTicker(void) // 80007E0C
         }
         else
         {
-            truebuttons = (buttons & PAD_A) && !(oldbuttons & PAD_A);
+            truebuttons = IS_PRESSED(PAD_A);
+            if (buttons & (PAD_UP|PAD_DOWN))
+            {
+                leftbutton = 0;
+                rightbutton = 0;
+            }
+            else
+            {
+                leftbutton = IS_PRESSED(PAD_LEFT);
+                rightbutton = IS_PRESSED(PAD_RIGHT);
+            }
             casepos = (menuentry_t) MenuItem[cursorpos].casepos;
 
             switch(casepos)
@@ -1224,7 +1246,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_MUSIC_VOLUME:
-                if (buttons & PAD_RIGHT)
+                if (IS_HELD(PAD_RIGHT))
                 {
                     MusVolume += 1;
                     if (MusVolume <= 100)
@@ -1242,7 +1264,7 @@ int M_MenuTicker(void) // 80007E0C
                         MusVolume = 100;
                     }
                 }
-                else if (buttons & PAD_LEFT)
+                else if (IS_HELD(PAD_LEFT))
                 {
                     MusVolume -= 1;
                     if (MusVolume < 0)
@@ -1263,7 +1285,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_EFFECT_VOLUME:
-                if (buttons & PAD_RIGHT)
+                if (IS_HELD(PAD_RIGHT))
                 {
                     SfxVolume += 1;
                     if (SfxVolume <= 100)
@@ -1281,7 +1303,7 @@ int M_MenuTicker(void) // 80007E0C
                         SfxVolume = 100;
                     }
                 }
-                else if (buttons & PAD_LEFT)
+                else if (IS_HELD(PAD_LEFT))
                 {
                     SfxVolume -= 1;
                     if (SfxVolume < 0)
@@ -1302,7 +1324,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_BRIGHTNESS:
-                if (buttons & PAD_RIGHT)
+                if (IS_HELD(PAD_RIGHT))
                 {
                     brightness += 2; // [Immorpher] increments doubled for scroll speed
                     if (brightness <= 200) // [Immorpher] limit extended to 200 from 100 for an optional brightness boost
@@ -1320,7 +1342,7 @@ int M_MenuTicker(void) // 80007E0C
                         brightness = 200; // [Immorpher] new limit is 200 instead of 100
                     }
                 }
-                else if (buttons & PAD_LEFT)
+                else if (IS_HELD(PAD_LEFT))
                 {
                     brightness -= 2; // [Immorpher] decrement speed doubled
                     if (brightness < 0)
@@ -1361,8 +1383,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_AUTORUN:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || leftbutton || rightbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     playerconfigs[0].autorun ^= true;
@@ -1468,7 +1489,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_PRESET:
-                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     if (skillpresetsetup == ARRAYLEN(SkillPresets) - 1)
@@ -1478,7 +1499,7 @@ int M_MenuTicker(void) // 80007E0C
                     skillsetup = SkillPresets[skillpresetsetup].skill;
                     return ga_nothing;
                 }
-                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                if (leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     if (skillpresetsetup <= 0)
@@ -1490,7 +1511,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_PLAYER_DAMAGE:
-                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     if (skillsetup.player_damage == 3)
@@ -1500,7 +1521,7 @@ int M_MenuTicker(void) // 80007E0C
                     M_UpdateSkillPreset();
                     return ga_nothing;
                 }
-                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                if (leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     if (skillsetup.player_damage == 0)
@@ -1512,7 +1533,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_PLAYER_AMMO:
-                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     if (skillsetup.player_ammo == 2)
@@ -1522,7 +1543,7 @@ int M_MenuTicker(void) // 80007E0C
                     M_UpdateSkillPreset();
                     return ga_nothing;
                 }
-                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                if (leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     if (skillsetup.player_ammo == 0)
@@ -1534,7 +1555,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_MONSTER_COUNTS:
-                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     if (skillsetup.monster_counts == 2)
@@ -1544,7 +1565,7 @@ int M_MenuTicker(void) // 80007E0C
                     M_UpdateSkillPreset();
                     return ga_nothing;
                 }
-                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                if (leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     if (skillsetup.monster_counts == 0)
@@ -1556,7 +1577,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_MONSTER_SPEED:
-                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     if (skillsetup.monster_speed == 2)
@@ -1566,7 +1587,7 @@ int M_MenuTicker(void) // 80007E0C
                     M_UpdateSkillPreset();
                     return ga_nothing;
                 }
-                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                if (leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     if (skillsetup.monster_speed == 0)
@@ -1578,8 +1599,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_MONSTER_RESPAWNS:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     skillsetup.monster_respawns ^= 1;
@@ -1588,7 +1608,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_MONSTER_INFIGHTING:
-                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     if (skillsetup.monster_infighting == 2)
@@ -1598,7 +1618,7 @@ int M_MenuTicker(void) // 80007E0C
                     M_UpdateSkillPreset();
                     return ga_nothing;
                 }
-                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                if (leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     if (skillsetup.monster_infighting == 0)
@@ -1610,8 +1630,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_MONSTER_REACTIONS:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     skillsetup.monster_reactions ^= 1;
@@ -1620,8 +1639,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_MONSTER_COLLISION:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     skillsetup.monster_shrink ^= 1;
@@ -1630,8 +1648,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_MONSTER_PAIN:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     skillsetup.monster_reduced_pain ^= 1;
@@ -1640,8 +1657,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_MONSTER_AIM:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     skillsetup.monster_random_aim ^= 1;
@@ -1650,8 +1666,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_PISTOL_START:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     skillsetup.pistol_start ^= 1;
@@ -1660,8 +1675,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_PERMA_DEATH:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     skillsetup.permadeath ^= 1;
@@ -1745,7 +1759,7 @@ int M_MenuTicker(void) // 80007E0C
             case MTXT_WARP:
                 if (padrepeat)
                 {
-                    if (buttons & PAD_LEFT)
+                    if (IS_HELD(PAD_LEFT))
                     {
                         m_actualmap -= 1;
                         if (m_actualmap < 1)
@@ -1758,7 +1772,7 @@ int M_MenuTicker(void) // 80007E0C
                         }
                         return ga_nothing;
                     }
-                    else if (buttons & PAD_RIGHT)
+                    else if (IS_HELD(PAD_RIGHT))
                     {
                         m_actualmap += 1;
                         if (m_actualmap > 32)
@@ -1781,8 +1795,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_INVULNERABLE:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     players[0].cheats ^= CF_GODMODE;
@@ -1791,8 +1804,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_FLY:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     players[0].cheats ^= CF_FLYMODE;
@@ -1805,8 +1817,7 @@ int M_MenuTicker(void) // 80007E0C
                 /*
                 Reconstructed code based on Psx Doom
                 */
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     players[0].cheats |= CF_ALLKEYS;
@@ -1818,8 +1829,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_WEAPONS:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     players[0].cheats |= CF_WEAPONS;
@@ -1851,7 +1861,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_DEBUG_DISPLAY:
-                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     ShowDebugCounters += 1;
@@ -1859,7 +1869,7 @@ int M_MenuTicker(void) // 80007E0C
                         ShowDebugCounters = 0;
                     return ga_nothing;
                 }
-                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                if (leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     ShowDebugCounters -= 1;
@@ -1874,8 +1884,7 @@ int M_MenuTicker(void) // 80007E0C
                 /*
                 In my opinion it must have been the NOCLIP cheat code
                 */
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     players[0].cheats ^= CF_WALLBLOCKING;
@@ -1900,8 +1909,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_MESSAGES:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     enable_messages ^= true;
@@ -1911,7 +1919,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_OPACITY:
-                if (buttons & PAD_RIGHT)
+                if (IS_HELD(PAD_RIGHT))
                 {
                     HUDopacity += 4;
                     if (HUDopacity <= 255)
@@ -1928,7 +1936,7 @@ int M_MenuTicker(void) // 80007E0C
                         HUDopacity = 255;
                     }
                 }
-                else if (buttons & PAD_LEFT)
+                else if (IS_HELD(PAD_LEFT))
                 {
                     HUDopacity -= 4;
                     if (HUDopacity < 0)
@@ -1952,8 +1960,7 @@ int M_MenuTicker(void) // 80007E0C
                 /*
                 Reconstructed code based on Doom 64 Ex
                 */
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     players[0].cheats ^= CF_LOCKMONSTERS;
@@ -1970,8 +1977,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_MAP_EVERYTHING:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     players[0].cheats ^= CF_ALLMAP;
@@ -1986,7 +1992,7 @@ int M_MenuTicker(void) // 80007E0C
                 */
                 if (padrepeat)
                 {
-                    if (buttons & PAD_LEFT)
+                    if (IS_HELD(PAD_LEFT))
                     {
                         MusicID -= 1;
                         if (MusicID > 0)
@@ -1996,7 +2002,7 @@ int M_MenuTicker(void) // 80007E0C
                         }
                         MusicID = 1;
                     }
-                    else if (buttons & PAD_RIGHT)
+                    else if (IS_HELD(PAD_RIGHT))
                     {
                         MusicID += 1;
                         if (MusicID < 25)
@@ -2033,7 +2039,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_SENSITIVITY:
-                if (buttons & PAD_RIGHT)
+                if (IS_HELD(PAD_RIGHT))
                 {
                     playerconfigs[0].sensitivity += 1;
                     if (playerconfigs[0].sensitivity <= 100)
@@ -2050,7 +2056,7 @@ int M_MenuTicker(void) // 80007E0C
                         playerconfigs[0].sensitivity = 100;
                     }
                 }
-                else if (buttons & PAD_LEFT)
+                else if (IS_HELD(PAD_LEFT))
                 {
                     playerconfigs[0].sensitivity -= 1;
                     if (playerconfigs[0].sensitivity < 0)
@@ -2090,8 +2096,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_SECTOR_COLORS:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     players[0].cheats ^= CF_NOCOLORS;
@@ -2102,8 +2107,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_FULL_BRIGHT:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     players[0].cheats ^= CF_FULLBRIGHT;
@@ -2116,8 +2120,7 @@ int M_MenuTicker(void) // 80007E0C
             case MTXT_TEXTURE_FILTER:
             case MTXT_SPRITE_FILTER:
             case MTXT_SKY_FILTER:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     i = casepos - MTXT_TEXTURE_FILTER;
                     S_StartSound(NULL, sfx_switch2);
@@ -2128,7 +2131,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_MOTION_BOB:
-                if (buttons & PAD_RIGHT)
+                if (IS_HELD(PAD_RIGHT))
                 {
                     MotionBob += 0x8000; // increments
                     if (MotionBob <= 0x100000) // Maximum is 32 in hex
@@ -2145,7 +2148,7 @@ int M_MenuTicker(void) // 80007E0C
                         MotionBob = 0x100000; // The Limit
                     }
                 }
-                else if (buttons & PAD_LEFT)
+                else if (IS_HELD(PAD_LEFT))
                 {
                     MotionBob -= 0x8000; // decrements
                     if (MotionBob < 0x0)
@@ -2164,7 +2167,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_RESOLUTION:
-                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     VideoResolution += 1;
@@ -2175,7 +2178,7 @@ int M_MenuTicker(void) // 80007E0C
                     ConfigChanged = true;
                     return ga_nothing;
                 }
-                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                if (leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     VideoResolution -= 1;
@@ -2189,8 +2192,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_COLOR_DEPTH:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     BitDepth ^= 1;
@@ -2202,7 +2204,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_ASPECT_RATIO:
-                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     ScreenAspect += 1;
@@ -2211,7 +2213,7 @@ int M_MenuTicker(void) // 80007E0C
                     ConfigChanged = true;
                     return ga_nothing;
                 }
-                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                if (leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     ScreenAspect -= 1;
@@ -2223,8 +2225,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_DITHER_FILTER:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     DitherFilter ^= true;
@@ -2235,8 +2236,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_ANTIALIASING:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     TvMode ^= 1;
@@ -2247,8 +2247,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_INTERLACING:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     TvMode ^= 2;
@@ -2259,7 +2258,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_COLOR_DITHER:
-                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     ColorDither += 1;
@@ -2268,7 +2267,7 @@ int M_MenuTicker(void) // 80007E0C
                     ConfigChanged = true;
                     return ga_nothing;
                 }
-                if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                if (leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     ColorDither -= 1;
@@ -2280,7 +2279,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_FLASH_BRIGHTNESS:
-                if (buttons & PAD_RIGHT)
+                if (IS_HELD(PAD_RIGHT))
                 {
                     FlashBrightness += 1; // increments
                     if (FlashBrightness  <= 32) // Maximum is 32
@@ -2297,7 +2296,7 @@ int M_MenuTicker(void) // 80007E0C
                         FlashBrightness = 32; // The Limit
                     }
                 }
-                else if (buttons & PAD_LEFT)
+                else if (IS_HELD(PAD_LEFT))
                 {
                     FlashBrightness -= 1; // decrements
                     if (FlashBrightness < 0)
@@ -2583,8 +2582,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_STORY_TEXT:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     StoryText ^= true;
@@ -2594,8 +2592,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_MAP_STATS:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     MapStats ^= true;
@@ -2621,7 +2618,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_MARGIN:
-                if (buttons & PAD_RIGHT)
+                if (IS_HELD(PAD_RIGHT))
                 {
                     HUDmargin += 1; // increments
                     if (HUDmargin <= 20) // Maximum is 20
@@ -2638,7 +2635,7 @@ int M_MenuTicker(void) // 80007E0C
                         HUDmargin = 20; // The Limit
                     }
                 }
-                else if (buttons & PAD_LEFT)
+                else if (IS_HELD(PAD_LEFT))
                 {
                     HUDmargin -= 1; // decrements
                     if (HUDmargin < 0)
@@ -2658,8 +2655,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_COLORED:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     ColoredHUD ^= true;
@@ -2669,8 +2665,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_GAMMA_CORRECT:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     NoGammaCorrect = !NoGammaCorrect;
@@ -2706,8 +2701,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_ARTIFACTS:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     players[0].cheats |= CF_ARTIFACTS;
                     players[0].artifacts |= 1 | 2 | 4;
@@ -2717,7 +2711,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_CROSSHAIR:
-                if (truebuttons || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     playerconfigs[0].crosshair += 1;
@@ -2726,7 +2720,7 @@ int M_MenuTicker(void) // 80007E0C
                     ConfigChanged = true;
                     return ga_nothing;
                 }
-                else if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+                else if (leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     playerconfigs[0].crosshair -= 1;
@@ -2737,8 +2731,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_VERTICAL_LOOK:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     playerconfigs[0].verticallook
@@ -2748,8 +2741,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_AUTOAIM:
-                if (truebuttons || ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
-                        || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+                if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     playerconfigs[0].autoaim ^= true;
@@ -2758,7 +2750,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_QUICK_SAVE:
-                if ((buttons & PAD_RIGHT_C) && !(oldbuttons & PAD_RIGHT_C))
+                if (IS_PRESSED(PAD_RIGHT_C))
                 {
                     if (I_IsQuickSaveAvailable())
                     {
@@ -2773,11 +2765,11 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_QUICK_LOAD:
-                if ((buttons & PAD_RIGHT_C) && !(oldbuttons & PAD_RIGHT_C))
+                if (IS_PRESSED(PAD_RIGHT_C))
                     return ga_loadquicksave;
                 break;
             case MTXT_LOAD_QUICK_LOAD:
-                if ((buttons & PAD_A) && !(oldbuttons & PAD_A))
+                if (truebuttons)
                     return ga_loadquicksave;
                 break;
             case MTXT_QUICK_LOAD_DISABLED:
@@ -3115,9 +3107,7 @@ static int M_MenuCreditsTicker(void)
     int buttons = ticbuttons[0];
     int oldbuttons = oldticbuttons[0];
 
-    if (((buttons & PAD_A) && !(oldbuttons & PAD_A))
-            || ((buttons & PAD_B) && !(oldbuttons & PAD_B))
-            || ((buttons & PAD_START) && !(oldbuttons & PAD_START)))
+    if (IS_PRESSED(PAD_A) || IS_PRESSED(PAD_B) || IS_PRESSED(PAD_START))
     {
         S_StartSound(NULL, sfx_pistol);
         return ga_exit;
@@ -3665,15 +3655,14 @@ int M_ScreenTicker(void) // 8000A0F8
         }
     }
 
-    if (((buttons & PAD_START) && !(oldbuttons & PAD_START))
-            || ((buttons & PAD_B) && !(oldbuttons & PAD_B)))
+    if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
     {
         S_StartSound(NULL, sfx_pistol);
         exit = ga_exit;
     }
     else
     {
-        if ((buttons & PAD_RIGHT_C) && !(oldbuttons & PAD_RIGHT_C))
+        if (IS_PRESSED(PAD_RIGHT_C))
         {
             fState = &FileState[cursorpos];
 
@@ -3880,8 +3869,7 @@ int M_SavePakTicker(void) // 8000A804
     buttons = M_ButtonResponder(ticbuttons[0]);
     oldbuttons = oldticbuttons[0] & 0xffff0000;
 
-    if (((buttons & PAD_START) && !(oldbuttons & PAD_START))
-            || ((buttons & PAD_B) && !(oldbuttons & PAD_B)))
+    if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
     {
         return ga_exit;
     }
@@ -3944,7 +3932,7 @@ int M_SavePakTicker(void) // 8000A804
 
     if (last_ticon == 0)
     {
-        if ((buttons & PAD_A) && !(oldbuttons & PAD_A))
+        if (IS_PRESSED(PAD_A))
         {
             levelsave_t save;
             I_SaveProgress(&save);
@@ -4071,8 +4059,7 @@ int M_SaveGamePakTicker(void)
     buttons = M_ButtonResponder(ticbuttons[0]);
     oldbuttons = oldticbuttons[0] & 0xffff0000;
 
-    if (((buttons & PAD_START) && !(oldbuttons & PAD_START))
-            || ((buttons & PAD_B) && !(oldbuttons & PAD_B)))
+    if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
     {
         return ga_exit;
     }
@@ -4118,7 +4105,7 @@ int M_SaveGamePakTicker(void)
 
     if (last_ticon == 0)
     {
-        if ((buttons & PAD_A) && !(oldbuttons & PAD_A))
+        if (IS_PRESSED(PAD_A))
         {
             I_SaveProgress(&GamePak_Data[cursorpos]);;
             I_SaveProgressToSram(cursorpos, &GamePak_Data[cursorpos]);
@@ -4266,12 +4253,11 @@ int M_LoadPakTicker(void) // 8000AFE4
         }
     }
 
-    if (((buttons & PAD_START) && !(oldbuttons & PAD_START))
-            || ((buttons & PAD_B) && !(oldbuttons & PAD_B)))
+    if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
     {
         exit = ga_exit;
     }
-    else if (((buttons & PAD_A) && !(oldbuttons & PAD_A)) && I_IsSaveValid(M_PakDataIndex(cursorpos)))
+    else if (IS_PRESSED(PAD_A) && I_IsSaveValid(M_PakDataIndex(cursorpos)))
     {
         doLoadSave = true;
         LevelSaveBuffer = *M_PakDataIndex(cursorpos);
@@ -4427,12 +4413,11 @@ int M_LoadGamePakTicker(void)
         }
     }
 
-    if (((buttons & PAD_START) && !(oldbuttons & PAD_START))
-            || ((buttons & PAD_B) && !(oldbuttons & PAD_B)))
+    if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
     {
         exit = ga_exit;
     }
-    else if (((buttons & PAD_A) && !(oldbuttons & PAD_A)) && I_IsSaveValid(&GamePak_Data[cursorpos]))
+    else if (IS_PRESSED(PAD_A) && I_IsSaveValid(&GamePak_Data[cursorpos]))
     {
         doLoadSave = true;
         LevelSaveBuffer = GamePak_Data[cursorpos];
@@ -4493,8 +4478,7 @@ int M_CenterDisplayTicker(void) // 8000B4C4
     buttons = M_ButtonResponder(ticbuttons[0]);
     oldbuttons = oldticbuttons[0] & 0xffff0000;
 
-    if (((buttons & PAD_START) && !(oldbuttons & PAD_START))
-            || ((buttons & PAD_B) && !(oldbuttons & PAD_B)))
+    if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
     {
         S_StartSound(NULL, sfx_pistol);
         exit = ga_exit;
@@ -4535,7 +4519,7 @@ int M_CenterDisplayTicker(void) // 8000B4C4
                 ConfigChanged = true;
         }
 
-        if ((buttons & PAD_A) && !(oldbuttons & PAD_A) && (Display_X || Display_Y))
+        if (IS_PRESSED(PAD_A) && (Display_X || Display_Y))
         {
             Display_X = 0;
             Display_Y = 0;
@@ -4574,7 +4558,7 @@ int M_ControlPadTicker(void) // 8000B694
     {
         int m = ControlMappings[cursorpos - 2];
 
-        if (!((buttons & PAD_START) && !(oldbuttons & PAD_START)))
+        if (!IS_PRESSED(PAD_START))
         {
             for (int i = 16; i < 32; i++)
             {
@@ -4662,8 +4646,7 @@ int M_ControlPadTicker(void) // 8000B694
         }
     }
 
-    if (((buttons & PAD_START) && !(oldbuttons & PAD_START))
-            || ((buttons & PAD_B) && !(oldbuttons & PAD_B)))
+    if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
     {
         buttonbindstate = 0;
         S_StartSound(NULL, sfx_pistol);
@@ -4676,15 +4659,14 @@ int M_ControlPadTicker(void) // 8000B694
 
     if (cursorpos == 0) // Set Default Configuration
     {
-        if (((buttons & PAD_A) && !(oldbuttons & PAD_A))
-                || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+        if (IS_PRESSED(PAD_A) || IS_PRESSED(PAD_RIGHT))
         {
             ConfgNumb[0] += 1;
             if(ConfgNumb[0] >= ARRAYLEN(DefaultControlSetups))
                 ConfgNumb[0] = 0;
             ConfigChanged = true;
         }
-        else if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+        else if (IS_PRESSED(PAD_LEFT))
         {
             ConfgNumb[0] -= 1;
             if (ConfgNumb[0] < 0)
@@ -4720,15 +4702,14 @@ int M_ControlPadTicker(void) // 8000B694
                 break;
             }
         }
-        if (((buttons & PAD_A) && !(oldbuttons & PAD_A))
-                || ((buttons & PAD_RIGHT) && !(oldbuttons & PAD_RIGHT)))
+        if (IS_PRESSED(PAD_A) || IS_PRESSED(PAD_RIGHT))
         {
             modeindex += 1;
             if(modeindex >= ARRAYLEN(modes))
                 modeindex = 0;
             ConfigChanged = true;
         }
-        else if ((buttons & PAD_LEFT) && !(oldbuttons & PAD_LEFT))
+        else if (IS_PRESSED(PAD_LEFT))
         {
             modeindex -= 1;
             if (modeindex < 0)
