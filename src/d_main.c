@@ -262,7 +262,10 @@ int MiniLoop(void(*start)(void), void(*stop)(),
         else
         {
             extern int fadetick;
-            fadetick = 18;
+            if (osTvType == OS_TV_PAL)
+                fadetick = 42;
+            else
+                fadetick = 18;
             I_WIPE_FadeOutScreen();
             osViBlack(TRUE);
             I_MoveDisplay(0,0);
