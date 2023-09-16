@@ -3934,6 +3934,7 @@ int M_SavePakTicker(void) // 8000A804
     {
         if (IS_PRESSED(PAD_A))
         {
+            S_StartSound(NULL, sfx_pistol);
             levelsave_t save;
             I_SaveProgress(&save);
             D_memcpy(M_PakDataIndex(cursorpos), &save, sizeof save);
@@ -4107,6 +4108,7 @@ int M_SaveGamePakTicker(void)
     {
         if (IS_PRESSED(PAD_A))
         {
+            S_StartSound(NULL, sfx_pistol);
             I_SaveProgress(&GamePak_Data[cursorpos]);;
             I_SaveProgressToSram(cursorpos, &GamePak_Data[cursorpos]);
             last_ticon = ticon;
@@ -4259,6 +4261,8 @@ int M_LoadPakTicker(void) // 8000AFE4
     }
     else if (IS_PRESSED(PAD_A) && I_IsSaveValid(M_PakDataIndex(cursorpos)))
     {
+        S_StartSound(NULL, sfx_pistol);
+
         doLoadSave = true;
         LevelSaveBuffer = *M_PakDataIndex(cursorpos);
 
@@ -4419,6 +4423,8 @@ int M_LoadGamePakTicker(void)
     }
     else if (IS_PRESSED(PAD_A) && I_IsSaveValid(&GamePak_Data[cursorpos]))
     {
+        S_StartSound(NULL, sfx_pistol);
+
         doLoadSave = true;
         LevelSaveBuffer = GamePak_Data[cursorpos];
 
