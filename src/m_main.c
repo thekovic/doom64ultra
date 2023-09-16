@@ -3786,7 +3786,7 @@ void M_ControllerPakDrawer(void) // 8000A3E4
         ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 51, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
         ST_DrawString(-1, SCREEN_HT - 40, "press \x8b to exit", text_alpha | 0xffffff00);
-        ST_DrawString(-1, SCREEN_HT - 25, "press \x84\x85 to delete", text_alpha | 0xffffff00);
+        ST_DrawString(-1, SCREEN_HT - 25, "press \x85 to delete", text_alpha | 0xffffff00);
     }
 }
 
