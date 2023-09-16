@@ -72,8 +72,10 @@ static void I_DebuggerThread(void *arg) COLD;
 static boolean I_InitIsViewer(void) SEC_STARTUP;
 static void I_PrintIsViewer(const char *message, u32 len);
 
-static void DoomErrorHandler(s16 code, s16 numArgs, ...);
 static void* DoomPrintf(void* arg, const u8* str, u32 count);
+#if !defined(NDEBUG) && !defined(DEBUGOPT)
+static void DoomErrorHandler(s16 code, s16 numArgs, ...);
+#endif
 
 // Fault thread globals
 static OSMesgQueue debugMessageQ;
@@ -141,10 +143,12 @@ SEC_STARTUP void I_InitDebugging()
         D_print = I_PrintIsViewer;
 
     extern void* __printfunc;
-    extern OSErrorHandler __osCommonHandler;
-
     __printfunc = DoomPrintf;
+
+#ifndef DEBUGOPT
+    extern OSErrorHandler __osCommonHandler;
     __osCommonHandler = DoomErrorHandler;
+#endif
 #endif /* !defined(NDEBUG) */
 
 #ifndef NDEBUG
@@ -175,6 +179,7 @@ SEC_STARTUP void I_StartDebugger()
 #endif
 }
 
+#if !defined(NDEBUG) && !defined(DEBUGOPT)
 static NO_RETURN void DoomErrorHandler(s16 code, s16 numArgs, ...) {
     va_list args;
     char buf[256];
@@ -192,6 +197,7 @@ static NO_RETURN void DoomErrorHandler(s16 code, s16 numArgs, ...) {
 
     I_Error("%s", buf);
 }
+#endif  /* !defined(NDEBUG) && !defined(DEBUGOPT) */
 
 static void* DoomPrintf(void* arg, const u8* str, u32 count)
 {
