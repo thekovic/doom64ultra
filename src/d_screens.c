@@ -64,9 +64,20 @@ void D_DrawWarning(void) // 8002B430
     I_DrawFrame();
 }
 
+static bool D_SkipPressed(void)
+{
+    if ((ticbuttons[0] & PAD_A) && !(oldticbuttons[0] & PAD_A))
+        return true;
+    if ((ticbuttons[0] & PAD_B) && !(oldticbuttons[0] & PAD_B))
+        return true;
+    return false;
+}
+
 int D_LegalTicker(void) // 8002B5F8
 {
-    if ((ticon - last_ticon) >= 150) // 5 * TICRATE
+    if (D_SkipPressed())
+        last_ticon = -(5*TICRATE);
+    if ((ticon - last_ticon) >= (5*TICRATE))
     {
         text_alpha -= 8;
         if (text_alpha < 0)
@@ -95,7 +106,9 @@ void D_DrawLegal(void) // 8002B644
 
 int D_NoPakTicker(void) // 8002B7A0
 {
-    if ((ticon - last_ticon) >= 240) // 8 * TICRATE
+    if ((ticon - last_ticon) >= 15 && D_SkipPressed())
+        return ga_exit;
+    if ((ticon - last_ticon) >= (8*TICRATE))
         return ga_exit;
 
     return ga_nothing;
@@ -226,7 +239,7 @@ int D_CreditTicker(void) // 8002BA88
         }
         else if (cred_step == 2)
         {
-            if ((ticon - last_ticon) >= 180) // 6 * TICRATE
+            if ((ticon - last_ticon) >= (6*TICRATE))
                 cred_step = 3;
         }
         else
