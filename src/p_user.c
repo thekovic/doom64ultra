@@ -1150,11 +1150,6 @@ void P_PlayerThink (player_t *player) // 80022D60
 			player->usedown = false;
         }
 
-		if (buttons & cbutton->BT_ATTACK)
-		{
-			P_SetMobjState(player->mo, S_PLAY_ATK1);
-		}
-
 		/* */
 		/* cycle psprites */
 		/* */
