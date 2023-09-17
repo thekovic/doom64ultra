@@ -676,8 +676,8 @@ extern int ticsinframe;                 // 80063138 /* how many tics since last 
 extern int ticon;			            // 8006313C
 extern int lastticon;                   // 80063140
 extern int vblsinframe[MAXPLAYERS];	    // 80063144 /* range from 4 to 8 */
-extern int ticbuttons[MAXPLAYERS];		// 80063148
-extern int oldticbuttons[MAXPLAYERS];	// 8006314C
+extern int ticbuttons[MAXCONTROLLERS];		// 80063148
+extern int oldticbuttons[MAXCONTROLLERS];	// 8006314C
 
 extern	boolean		gamepaused;
 
@@ -1201,6 +1201,7 @@ extern boolean SramPresent; // [nova] sram support
 extern u32 SramSize;
 
 extern volatile u8 gamepad_bit_pattern; // 800A5260 // one bit for each controller
+extern OSContStatus gamepad_status[MAXCONTROLLERS]; // 800a5230
 
 // Controller Pak
 extern OSPfsState FileState[16];    // 800A52D8
@@ -1271,7 +1272,7 @@ extern boolean doLoadSave;
 
 void I_Error(const char *error, ...) __attribute__((format (printf, 1, 2))) NO_RETURN COLD;
 
-int I_GetControllerData(void); // 800060D0
+int I_GetControllerData(int pad); // 800060D0
 
 void I_CheckGFX(void) HOT; // 800060E8
 void I_ClearFrame(void) HOT; // 8000637C

@@ -447,12 +447,27 @@ void P_BuildMove (player_t *player, buildmove_t *move) // 80022154
     {
         move->pitchmove = config->verticallook * -(angleturn[player->pitchheld + (speed * SLOWTURNTICS)] << 18);
     }
-    if (ystick == STICK_VLOOK && !(buttons & (cbutton->BT_LOOKUP | cbutton->BT_LOOKDOWN)))
+    if (!(buttons & (cbutton->BT_LOOKUP | cbutton->BT_LOOKDOWN)))
     {
-        /* Analyze analog stick movement (up / down) */
-        sensitivity = ((int)((buttons) << 24) >> 24) * config->verticallook;
+        bool mouseused = false;
+        sensitivity = 0;
 
-        if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
+        /* Analyze analog stick movement (up / down) */
+        if (ystick == STICK_VLOOK)
+            sensitivity = (int)((buttons) << 24) >> 24;
+
+        if ((gamepad_status[1].type & CONT_TYPE_MASK) == CONT_TYPE_MOUSE)
+        {
+            int mouse = (int)((ticbuttons[1]) << 24) >> 22;
+            if (D_abs(mouse) > D_abs(sensitivity))
+            {
+                sensitivity = mouse;
+                mouseused = true;
+            }
+        }
+        sensitivity *= config->verticallook;
+
+        if(mouseused || sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
         {
             sensitivity = (((config->sensitivity * 800) / 100) + 233) * sensitivity;
             move->pitchmove = (sensitivity / 40) << 17;
@@ -519,13 +534,27 @@ void P_BuildMove (player_t *player, buildmove_t *move) // 80022154
     {
         move->angleturn = -angleturn[player->turnheld + (speed * SLOWTURNTICS)] << 17;
     }
-    if (xstick == STICK_TURN && !(buttons & (cbutton->BT_LEFT | cbutton->BT_RIGHT)))
+    if (!(buttons & (cbutton->BT_LEFT | cbutton->BT_RIGHT)))
     {
+        bool mouseused = false;
+        sensitivity = 0;
+
         /* Analyze analog stick movement (left / right) */
-        sensitivity = (int)(((buttons & 0xff00) >> 8) << 24) >> 24;
+        if (xstick == STICK_TURN)
+            sensitivity = (int)(((buttons & 0xff00) >> 8) << 24) >> 24;
+
+        if ((gamepad_status[1].type & CONT_TYPE_MASK) == CONT_TYPE_MOUSE)
+        {
+            int mouse = (int)(((ticbuttons[1] & 0xff00) >> 8) << 24) >> 22;
+            if (D_abs(mouse) > D_abs(sensitivity))
+            {
+                sensitivity = mouse;
+                mouseused = true;
+            }
+        }
         sensitivity = -sensitivity;
 
-        if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
+        if(mouseused || sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
         {
             sensitivity = (((config->sensitivity * 800) / 100) + 233) * sensitivity;
             move->angleturn = (sensitivity / 80) << 17;

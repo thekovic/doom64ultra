@@ -10,6 +10,7 @@ A fork of [Doom 64-RE] with the goal of creating a base for enhanced mods.
 - Autoaim option
 - Fly mode cheat
 - Widescreen support
+- N64 mouse support
 - High resolution video modes (expansion pak required)
 - Persistent saves to SRAM (no more controller pak requirement)
 - Quick saves (for saving/loading during a level)

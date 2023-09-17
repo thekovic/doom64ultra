@@ -1,7 +1,6 @@
 # Planned Features
 
 - Uncapped framerate (60fps support)
-- N64 mouse support
 - Walking over/under things
 - Splitscreen multiplayer
 - 3D models as things (via [fast64](https://github.com/Fast-64/fast64))

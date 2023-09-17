@@ -14,8 +14,8 @@ int ticsinframe;                // 80063138 /* how many tics since last drawer *
 int ticon;			            // 8006313C
 int lastticon;                  // 80063140
 SDATA int vblsinframe[MAXPLAYERS];	// 80063144 /* range from 4 to 8 */
-SDATA int ticbuttons[MAXPLAYERS];		// 80063148
-SDATA int oldticbuttons[MAXPLAYERS];	// 8006314C
+SDATA int ticbuttons[MAXCONTROLLERS];		// 80063148
+SDATA int oldticbuttons[MAXCONTROLLERS];	// 8006314C
 
 //extern boolean run_hectic_demo;
 
@@ -42,9 +42,6 @@ void D_DoomMain(void *arg) // 800027C0
     gametic = 0;
     ticsinframe = 0;
     ticon = 0;
-    ticbuttons[0] = 0;
-    oldticbuttons[0] = 0;
-    customskill = SkillPresets[1].skill;
 
     D_DoomLoop();
 }
@@ -52,6 +49,13 @@ void D_DoomMain(void *arg) // 800027C0
 static void D_DoomLoop(void)
 {
     int exit;
+
+    customskill = SkillPresets[1].skill;
+    for (int i = 0; i < MAXCONTROLLERS; i++)
+    {
+        ticbuttons[i] = 0;
+        oldticbuttons[i] = 0;
+    }
 
 #ifdef DEVWARP
     {
@@ -206,11 +210,15 @@ int MiniLoop(void(*start)(void), void(*stop)(),
     {
         vblsinframe[0] = *&drawsync1;
 
-        // get buttons for next tic
-        oldticbuttons[0] = ticbuttons[0];
+        for (int i = 0; i < MAXCONTROLLERS; i++)
+        {
+            // get buttons for next tic
+            oldticbuttons[i] = ticbuttons[i];
 
-        buttons = I_GetControllerData();
-        ticbuttons[0] = buttons;
+            ticbuttons[i] = I_GetControllerData(i);
+        }
+
+        buttons = ticbuttons[0];
 
         //Read|Write demos
         if (demorecording || demoplayback)
@@ -285,7 +293,8 @@ int MiniLoop(void(*start)(void), void(*stop)(),
     if(stop != NULL)
         stop(exit);
 
-    oldticbuttons[0] = ticbuttons[0];
+    for (int i = 0; i < MAXCONTROLLERS; i++)
+        oldticbuttons[i] = ticbuttons[i];
 
     return exit;
 }

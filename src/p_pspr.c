@@ -490,7 +490,9 @@ void A_WeaponReady (player_t *player, pspdef_t *psp) // 8001B83C
 	/* check for fire */
 	/* */
 	/* the missile launcher and bfg do not auto fire */
-	if (ticbuttons[0] & players[0].controls->BT_ATTACK)
+	if ((ticbuttons[0] & players[0].controls->BT_ATTACK)
+			|| ((gamepad_status[1].type & CONT_TYPE_MASK) == CONT_TYPE_MOUSE
+				&& (ticbuttons[1] & PAD_A)))
 	{
 		P_FireWeapon (player);
 		return;
@@ -522,8 +524,10 @@ void A_ReFire (player_t *player, pspdef_t *psp) // 8001B91C
 	/* */
 	/* check for fire (if a weaponchange is pending, let it go through instead) */
 	/* */
-	if ((ticbuttons[0] & players[0].controls->BT_ATTACK)
-	&& player->pendingweapon == wp_nochange && player->health)
+	if (((ticbuttons[0] & players[0].controls->BT_ATTACK)
+				|| ((gamepad_status[1].type & CONT_TYPE_MASK) == CONT_TYPE_MOUSE
+					&& (ticbuttons[1] & PAD_A)))
+			&& player->pendingweapon == wp_nochange && player->health)
 	{
 		player->refire++;
 		P_FireWeapon (player);

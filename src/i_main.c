@@ -620,9 +620,9 @@ void I_Init(void) // 80005C50
     osJamMesg(&rdp_done_queue, (OSMesg)VID_MSG_KICKSTART, OS_MESG_NOBLOCK);
 }
 
-int I_GetControllerData(void) // 800060D0
+int I_GetControllerData(int pad) // 800060D0
 {
-    return gamepad_data[0];
+    return gamepad_data[pad];
 }
 
 void I_CheckGFX(void) // 800060E8
@@ -990,7 +990,7 @@ void I_WIPE_MeltScreen(void) // 80006964
         y1 = 0;
         D_memcpy(fb, CFB(vid_side ^ 1), fbsize);
 
-        buttons = I_GetControllerData();
+        buttons = I_GetControllerData(0);
         if (buttons & (PAD_A|PAD_B|PAD_START))
         {
             shift = 2;
@@ -1079,7 +1079,7 @@ void I_WIPE_FadeOutScreen(void) // 80006D34
 
         I_ClearFrame();
 
-        buttons = I_GetControllerData();
+        buttons = I_GetControllerData(0);
         if (buttons & (PAD_A|PAD_B|PAD_START))
             shift = 2;
 

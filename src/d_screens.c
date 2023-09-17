@@ -356,7 +356,7 @@ void D_OpenControllerPak(void) // 8002BE28
 {
     unsigned int oldbuttons;
 
-    oldbuttons = I_GetControllerData();
+    oldbuttons = I_GetControllerData(0);
 
     if (((oldbuttons & 0xffff0000) == PAD_START) && (I_CheckControllerPak() == 0))
     {
