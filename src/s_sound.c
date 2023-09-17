@@ -128,7 +128,7 @@ int music_sequence; // 8005b250
 
 void S_StartMusic(int mus_seq) // 8002983C
 {
-    if (disabledrawing == false)
+    if ((*&disabledrawing) == false)
     {
         wess_seq_trigger(mus_seq);
         music_sequence = mus_seq;
@@ -179,7 +179,7 @@ HOT void S_StartGlobalSound(int sound_id)
 {
     TriggerPlayAttr attr;
 
-    if (disabledrawing == false)
+    if ((*&disabledrawing) == false)
     {
         attr.mask = (TRIGGER_VOLUME | TRIGGER_PAN | TRIGGER_REVERB);
         attr.volume = 127;
@@ -194,7 +194,7 @@ void S_StartSoundAt(void *key, fixed_t x, fixed_t y, fixed_t z, int flags, int s
 {
     TriggerPlayAttr attr;
 
-    if (disabledrawing == false)
+    if ((*&disabledrawing) == false)
     {
         if (key != cameratarget)
         {

@@ -1200,7 +1200,7 @@ extern u32 video_vStart2;  // 800A5254
 extern boolean SramPresent; // [nova] sram support
 extern u32 SramSize;
 
-extern u8 gamepad_bit_pattern; // 800A5260 // one bit for each controller
+extern volatile u8 gamepad_bit_pattern; // 800A5260 // one bit for each controller
 
 // Controller Pak
 extern OSPfsState FileState[16];    // 800A52D8
@@ -1209,10 +1209,10 @@ extern s32 Pak_Size;   // 800A54DC
 extern u8 *Pak_Data;   // 800A54E0
 extern s32 Pak_Memory; // 800A54E4
 
-extern boolean disabledrawing; // 8005A720
-extern s32 vsync;              // 8005A724
-extern s32 drawsync2;          // 8005A728
-extern s32 drawsync1;          // 8005A72C
+extern volatile boolean disabledrawing; // 8005A720
+extern volatile s32 vsync;              // 8005A724
+extern volatile s32 drawsync2;          // 8005A728
+extern volatile s32 drawsync1;          // 8005A72C
 extern u32 NextFrameIdx;       // 8005A730
 extern s32 FilesUsed;          // 8005A740
 
@@ -1318,11 +1318,11 @@ void I_WIPE_FadeOutScreen(void); // 80006D34
 
 #endif /* NDEBUG */
 
-extern u32 LastFrameCycles;
-extern u32 LastCpuCycles;
-extern u32 LastGfxRspCycles;
-extern u32 LastAudioRspCycles;
-extern u32 LastRdpCycles;
+extern volatile u32 LastFrameCycles;
+extern volatile u32 LastCpuCycles;
+extern volatile u32 LastGfxRspCycles;
+extern volatile u32 LastAudioRspCycles;
+extern volatile u32 LastRdpCycles;
 DEBUG_COUNTER(extern u32 LastWorldCycles);
 DEBUG_COUNTER(extern u32 LastAudioCycles);
 DEBUG_COUNTER(extern u32 LastBspCycles);

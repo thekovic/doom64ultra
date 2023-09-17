@@ -147,7 +147,7 @@ OSMesgQueue audio_task_queue; // 800A4F58
 OSMesg		audio_task_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A5228
 
 OSContStatus gamepad_status[MAXCONTROLLERS]; // 800a5230
-int         *gamepad_data;    // 800A5240
+volatile int *gamepad_data;    // 800A5240
 
 OSTask *vid_task;   // 800A5244
 u32 vid_side;       // 800A5248
@@ -159,13 +159,13 @@ u32 video_vStart2;  // 800A5254
 u32 GfxIndex;       // 800A5258
 u32 VtxIndex;       // 800A525C
 
-u8 gamepad_bit_pattern; // 800A5260 // one bit for each controller
-u8 rumblepak_bit_pattern = 0;
+volatile u8 gamepad_bit_pattern; // 800A5260 // one bit for each controller
+volatile u8 rumblepak_bit_pattern = 0;
 u8 motor_bit_pattern = 0;
 
 OSPfs RumblePaks[MAXCONTROLLERS];
-u16 MotorAmbientCount[MAXCONTROLLERS];
-u16 MotorDamageTimers[MAXCONTROLLERS];
+volatile u16 MotorAmbientCount[MAXCONTROLLERS];
+volatile u16 MotorDamageTimers[MAXCONTROLLERS];
 
 // Controller Pak
 OSPfs ControllerPak;        // 800A5270
@@ -181,7 +181,7 @@ static const char Game_Name[16] = // 8005A790
     0x2E, 0x25, 0x2D, 0x2B, 0x1A, 0x00, 0x00, 0x00
 };
 
-boolean disabledrawing = false; // 8005A720
+volatile boolean disabledrawing = false; // 8005A720
 
 SDATA u16 XResolution;
 SDATA u16 YResolution;
@@ -191,13 +191,13 @@ SDATA u8 hudyshift;
 static u8 blanktimer;
 
 u32 motor = 0;
-s32 vsync = 0;              // 8005A724
-s32 drawsync2 = 0;          // 8005A728
-s32 drawsync1 = 0;          // 8005A72C
+volatile s32 vsync = 0;              // 8005A724
+volatile s32 drawsync2 = 0;          // 8005A728
+volatile s32 drawsync1 = 0;          // 8005A72C
 u32 NextFrameIdx = 0;       // 8005A730
 
-static bool PiLockedMain = false; // 8005A738
-static bool PiLockedJoy = false; // 8005A73C
+static SDATA volatile bool PiLockedMain = false; // 8005A738
+static SDATA volatile bool PiLockedJoy = false; // 8005A73C
 s32 FilesUsed = -1;                 // 8005A740
 static SDATA u32 SystemTickerStatus = 0;  // 8005a744
 
@@ -217,15 +217,15 @@ SDATA Mtx *MTX2;	// 800A4A14
 static Gfx *GfxBlocks[8] = {0,0,0,0,0,0,0,0}; // 8005A748
 static Vtx *VtxBlocks[8] = {0,0,0,0,0,0,0,0}; // 8005A768
 
-u32 LastFrameCycles = 0;
+volatile u32 LastFrameCycles = 0;
 static u32 LastCpuStart = 0;
-u32 LastCpuCycles = 0;
+volatile u32 LastCpuCycles = 0;
 static u32 LastGfxRspStart = 0;
-u32 LastGfxRspCycles = 0;
+volatile u32 LastGfxRspCycles = 0;
 static u32 LastAudioRspStart = 0;
-u32 LastAudioRspCycles = 0;
+volatile u32 LastAudioRspCycles = 0;
 static u32 LastRdpStart = 0;
-u32 LastRdpCycles = 0;
+volatile u32 LastRdpCycles = 0;
 DEBUG_COUNTER(u32 LastWorldCycles = 0);
 DEBUG_COUNTER(u32 LastAudioCycles = 0);
 DEBUG_COUNTER(u32 LastBspCycles = 0);
@@ -348,6 +348,7 @@ void I_SystemTicker(void *arg) // 80005730
     SET_GP();
 
     int side;
+    int next_vsync;
     int current_fbuf, next_fbuf;
     OSTask *wess;
     OSTask *rspTaskPrev;
@@ -374,7 +375,7 @@ void I_SystemTicker(void *arg) // 80005730
                     if(rspTask->t.type == M_AUDTASK)
                     {
                         if (LastAudioRspStart)
-                            LastAudioRspCycles = osGetCount() - LastAudioRspStart;
+                            *&LastAudioRspCycles = osGetCount() - LastAudioRspStart;
 
                         SystemTickerStatus &= ~STF_AUDIO_PENDING;
 
@@ -414,7 +415,7 @@ void I_SystemTicker(void *arg) // 80005730
                         else
                         {
                             if (LastGfxRspStart)
-                                LastGfxRspCycles = osGetCount() - LastGfxRspStart;
+                                *&LastGfxRspCycles = osGetCount() - LastGfxRspStart;
 
                             if ((SystemTickerStatus & STF_RDP_DONE) == 0)
                                 SystemTickerStatus |= STF_RDP_PENDING;
@@ -434,9 +435,11 @@ void I_SystemTicker(void *arg) // 80005730
 
                     if (LastRdpStart)
                     {
-                        LastRdpCycles = osGetCount() - LastRdpStart;
-                        if (LastCpuCycles)
-                            LastFrameCycles = LastRdpCycles + LastCpuCycles;
+                        u32 rdp = osGetCount() - LastRdpStart;
+                        u32 cpu = *&LastCpuCycles;
+                        *&LastRdpCycles = rdp;
+                        if (cpu)
+                            *&LastFrameCycles = rdp + cpu;
                     }
 
                     osViSwapBuffer(CFB(read_vid_side));
@@ -446,7 +449,7 @@ void I_SystemTicker(void *arg) // 80005730
             case VID_MSG_PRENMI:
                 {
                     //D_printf("VID_MSG_PRENMI\n");
-                    disabledrawing = true;
+                    (*&disabledrawing) = true;
                     S_StopAll();
                 }
                 break;
@@ -455,7 +458,8 @@ void I_SystemTicker(void *arg) // 80005730
                 {
                     //D_printf("VID_MSG_VBI || vsync(%ld) || side(%d)\n", vsync, side);
 
-                    vsync += 1;
+                    next_vsync = *&vsync + 1;
+                    *&vsync = next_vsync;
 
                     osSendMesg(&joy_cmd_msgque, NULL, OS_MESG_NOBLOCK);
 
@@ -478,7 +482,7 @@ void I_SystemTicker(void *arg) // 80005730
                         DEBUG_CYCLES_START(audio_start);
                         // next audio function task
                         wess = wess_work();
-                        DEBUG_CYCLES_END(audio_start, LastAudioCycles);
+                        DEBUG_CYCLES_END(audio_start, *&LastAudioCycles);
                         if (wess)
                             osSendMesg(&audio_task_queue,(OSMesg) wess, OS_MESG_NOBLOCK);
                     }
@@ -486,7 +490,9 @@ void I_SystemTicker(void *arg) // 80005730
 
                     if (SystemTickerStatus & STF_RDP_DONE)
                     {
-                        if ((u32)(vsync - drawsync2) < 2) continue;
+                        s32 ds2 = *&drawsync2;
+
+                        if ((u32)(next_vsync - ds2) < 2) continue;
 
                         current_fbuf = (int)osViGetCurrentFramebuffer();
                         next_fbuf = (int)osViGetNextFramebuffer();
@@ -498,11 +504,11 @@ void I_SystemTicker(void *arg) // 80005730
 
                         if (demoplayback || demorecording)
                         {
-                            vsync = drawsync2 + 2;
+                            next_vsync = ds2 + 2;
                         }
 
-                        drawsync1 = vsync - drawsync2;
-                        drawsync2 = vsync;
+                        *&drawsync1 = next_vsync - ds2;
+                        *&drawsync2 = next_vsync;
 
                         osSendMesg(&rdp_done_queue, (OSMesg)VID_MSG_KICKSTART, OS_MESG_NOBLOCK);
                     }
@@ -519,13 +525,19 @@ void I_ReadPads(void)
 {
     OSContPad pads[MAXCONTROLLERS];
 
-    osContStartReadData(&sys_msgque_joy);
-    osRecvMesg(&sys_msgque_joy, NULL, OS_MESG_BLOCK);
-    osContGetReadData(pads);
-    for (int i = 0; i < MAXCONTROLLERS; i++)
+    if (*&gamepad_bit_pattern)
     {
-        OSContPad p = pads[i];
-        gamepad_data[i] = (p.button << 16) | (((u8)p.stick_x) << 8) | (u8)p.stick_y;
+        osContStartReadData(&sys_msgque_joy);
+        osRecvMesg(&sys_msgque_joy, NULL, OS_MESG_BLOCK);
+        osContGetReadData(pads);
+        for (int i = 0; i < MAXCONTROLLERS; i++)
+        {
+            OSContPad p = pads[i];
+            if (p.errno)
+                gamepad_data[i] = 0;
+            else
+                gamepad_data[i] = (p.button << 16) | (((u8)p.stick_x) << 8) | (u8)p.stick_y;
+        }
     }
 }
 
@@ -578,7 +590,8 @@ void I_Init(void) // 80005C50
     osCreateMesgQueue(&sys_msgque_joy, &sys_msg_joy, 1);
     osSetEventMesg(OS_EVENT_SI, &sys_msgque_joy, &sys_msg_joy);
 
-    osContInit(&sys_msgque_joy, &gamepad_bit_pattern, gamepad_status);
+    u8 gamepads;
+    osContInit(&sys_msgque_joy, &gamepads, gamepad_status);
 
     I_InitSram();
     if (osMemSize < 0x800000)
@@ -589,9 +602,8 @@ void I_Init(void) // 80005C50
     I_RefreshVideo(); // set vid mode again after loading settings
 
     gamepad_data = (int *)bootStack;
-
-    if ((gamepad_bit_pattern & 1) != 0)
-        I_ReadPads();
+    *&gamepad_bit_pattern = gamepads;
+    I_ReadPads();
 
     osCreateThread(&joy_thread, SYS_THREAD_ID_JOY, I_ControllerThread, (void *)0,
                    joy_stack + JOY_STACKSIZE/sizeof(u64), 11);
@@ -770,7 +782,7 @@ void I_DrawFrame(void)  // 80006570
     osSendMesg(&vid_task_queue,(OSMesg) vid_task, OS_MESG_NOBLOCK);
 
     if (LastCpuStart)
-        LastCpuCycles = osGetCount() - LastCpuStart;
+        *&LastCpuCycles = osGetCount() - LastCpuStart;
 
     osRecvMesg(&rdp_done_queue, NULL, OS_MESG_BLOCK);//retraceMessageQ
     vid_side ^= 1;
@@ -1029,7 +1041,7 @@ void I_WIPE_MeltScreen(void) // 80006964
             } while (y1 < height);
         }
 
-        yscroll += (drawsync1 << shift);
+        yscroll += (*&drawsync1) << shift;
         if (yscroll >= 160) break;
         I_DrawFrame();
     }
@@ -1062,7 +1074,7 @@ void I_WIPE_FadeOutScreen(void) // 80006D34
     outcnt = 256;
     do
     {
-        outcnt -= (((int) fadetick) * drawsync1) << shift >> 1;
+        outcnt -= (((int) fadetick) * (*&drawsync1)) << shift >> 1;
         outcnt = MAX(outcnt, 0);
 
         I_ClearFrame();
@@ -1119,15 +1131,15 @@ void I_WIPE_FadeOutScreen(void) // 80006D34
 
 static void I_LockPi(void)
 {
-    PiLockedMain = true;
+    *&PiLockedMain = true;
 
-    while (PiLockedJoy)
+    while (*&PiLockedJoy)
         osYieldThread();
 }
 
 static void I_UnlockPi(void)
 {
-    PiLockedMain = false;
+    *&PiLockedMain = false;
 }
 
 int I_CheckControllerPak(void) // 800070B0
@@ -1293,19 +1305,19 @@ int I_CreatePakFile(void) // 800074D4
 
 void I_RumbleAmbient(int pad, int count)
 {
-    if (rumblepak_bit_pattern & (1 << pad))
+    if (*&rumblepak_bit_pattern & (1 << pad))
         MotorAmbientCount[pad] += count;
 }
 
 void I_RumbleShot(int pad, int tics)
 {
-    if (rumblepak_bit_pattern & (1 << pad))
+    if (*&rumblepak_bit_pattern & (1 << pad))
         MotorDamageTimers[pad] = MAX(tics, MotorDamageTimers[pad]);
 }
 
 void I_RumbleDamage(int pad, int damage)
 {
-    if (rumblepak_bit_pattern & (1 << pad))
+    if (*&rumblepak_bit_pattern & (1 << pad))
     {
         damage = sqrtf(MAX(damage, 10) << 3);
         MotorDamageTimers[pad] = MIN(damage + MotorDamageTimers[pad], 0xffff);
@@ -1314,8 +1326,8 @@ void I_RumbleDamage(int pad, int damage)
 
 void I_StopRumble(void)
 {
-    D_memset(MotorDamageTimers, 0, sizeof MotorDamageTimers);
-    D_memset(MotorAmbientCount, 0, sizeof MotorAmbientCount);
+    D_memset((void*) MotorDamageTimers, 0, sizeof MotorDamageTimers);
+    D_memset((void*) MotorAmbientCount, 0, sizeof MotorAmbientCount);
 }
 
 void I_ControllerThread(void *arg)
@@ -1338,12 +1350,12 @@ void I_ControllerThread(void *arg)
             }
         }
 
-        PiLockedJoy = true;
+        *&PiLockedJoy = true;
 
-        if (PiLockedMain)
+        if (*&PiLockedMain)
         {
             osSetThreadPri(&joy_thread, 10);
-            while (PiLockedMain)
+            while (*&PiLockedMain)
                 osYieldThread();
             osSetThreadPri(&joy_thread, 11);
         }
@@ -1378,14 +1390,14 @@ void I_ControllerThread(void *arg)
 
             if ((gamepad_status[i].type & CONT_TYPE_MASK) == CONT_TYPE_NORMAL)
             {
-                gamepad_bit_pattern |= bit;
+                *&gamepad_bit_pattern |= bit;
 
                 if (!(rumblebits & bit) && osMotorInit(&sys_msgque_joy, &RumblePaks[i], i) == 0)
                     rumble = true;
             }
             else
             {
-                gamepad_bit_pattern &= ~bit;
+                *&gamepad_bit_pattern &= ~bit;
             }
 
             if (rumble)
@@ -1394,8 +1406,8 @@ void I_ControllerThread(void *arg)
                 rumblebits &= ~bit;
         }
 
-        PiLockedJoy = false;
+        *&PiLockedJoy = false;
 
-        rumblepak_bit_pattern = rumblebits;
+        *&rumblepak_bit_pattern = rumblebits;
     }
 }

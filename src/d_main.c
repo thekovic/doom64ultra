@@ -199,12 +199,12 @@ int MiniLoop(void(*start)(void), void(*stop)(),
     if(start != NULL)
         start();
 
-    drawsync1 = 0;
-    drawsync2 = vsync;
+    *&drawsync1 = 0;
+    *&drawsync2 = *&vsync;
 
     while (true)
     {
-        vblsinframe[0] = drawsync1;
+        vblsinframe[0] = *&drawsync1;
 
         // get buttons for next tic
         oldticbuttons[0] = ticbuttons[0];
@@ -251,7 +251,7 @@ int MiniLoop(void(*start)(void), void(*stop)(),
             ticsinframe = (ticon >> 1);
         }
 
-        if (disabledrawing == false)
+        if ((*&disabledrawing) == false)
         {
             exit = ticker();
             if (exit != ga_nothing)
