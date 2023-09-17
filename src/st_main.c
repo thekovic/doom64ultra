@@ -225,7 +225,7 @@ void ST_Ticker (void) // 80029C88
 #define DEBUGLINES 16
 #define DEBUGLINELEN (SCREEN_WD/8+1)
 static char *debugbuf = NULL;
-static int debugX = 8, debugY = 8;//80077E5C|uGp00000a4c, 80077E68|uGp00000a58
+static int debugX = 16, debugY = 8;//80077E5C|uGp00000a4c, 80077E68|uGp00000a58
 static int debugcnt = 0;
 static int debugstart = 0;
 static int debug = 0;
