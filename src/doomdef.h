@@ -1293,7 +1293,6 @@ void I_RumbleAmbient(int pad, int count);
 void I_RumbleShot(int pad, int tics);
 void I_RumbleDamage(int pad, int damage);
 void I_StopRumble(void);
-void I_CheckControllerStatus(void);
 
 void I_WIPE_MeltScreen(void); // 80006964
 void I_WIPE_FadeOutScreen(void); // 80006D34

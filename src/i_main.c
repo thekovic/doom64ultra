@@ -52,7 +52,7 @@ OSThread	idle_thread;                        // 800A4A18
 OSThread	main_thread;                        // 800A4BC8
 u64	main_stack[SYS_MAIN_STACKSIZE/sizeof(u64)]; // 80099A00
 
-#define	JOY_STACKSIZE	0x100
+#define	JOY_STACKSIZE	0x200
 OSThread	joy_thread;
 u64	joy_stack[JOY_STACKSIZE/sizeof(u64)];
 
@@ -147,7 +147,7 @@ OSMesgQueue audio_task_queue; // 800A4F58
 OSMesg		audio_task_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A5228
 
 OSContStatus gamepad_status[MAXCONTROLLERS]; // 800a5230
-OSContPad   *gamepad_data;    // 800A5240
+int         *gamepad_data;    // 800A5240
 
 OSTask *vid_task;   // 800A5244
 u32 vid_side;       // 800A5248
@@ -457,6 +457,8 @@ void I_SystemTicker(void *arg) // 80005730
 
                     vsync += 1;
 
+                    osSendMesg(&joy_cmd_msgque, NULL, OS_MESG_NOBLOCK);
+
                     if (audio_task_queue.validCount)
                     {
                         if (SystemTickerStatus & STF_GFX_PENDING)
@@ -507,11 +509,23 @@ void I_SystemTicker(void *arg) // 80005730
 
                     if(SystemTickerStatus == 0)
                         I_LoadGfxTask();
-
-                    osSendMesg(&joy_cmd_msgque, NULL, OS_MESG_NOBLOCK);
                 }
                 break;
         }
+    }
+}
+
+void I_ReadPads(void)
+{
+    OSContPad pads[MAXCONTROLLERS];
+
+    osContStartReadData(&sys_msgque_joy);
+    osRecvMesg(&sys_msgque_joy, NULL, OS_MESG_BLOCK);
+    osContGetReadData(pads);
+    for (int i = 0; i < MAXCONTROLLERS; i++)
+    {
+        OSContPad p = pads[i];
+        gamepad_data[i] = (p.button << 16) | (((u8)p.stick_x) << 8) | (u8)p.stick_y;
     }
 }
 
@@ -574,14 +588,10 @@ void I_Init(void) // 80005C50
     }
     I_RefreshVideo(); // set vid mode again after loading settings
 
-    gamepad_data = (OSContPad *)bootStack;
+    gamepad_data = (int *)bootStack;
 
     if ((gamepad_bit_pattern & 1) != 0)
-    {
-        osContStartReadData(&sys_msgque_joy);
-        osRecvMesg(&sys_msgque_joy, NULL, OS_MESG_BLOCK);
-        osContGetReadData(gamepad_data);
-    }
+        I_ReadPads();
 
     osCreateThread(&joy_thread, SYS_THREAD_ID_JOY, I_ControllerThread, (void *)0,
                    joy_stack + JOY_STACKSIZE/sizeof(u64), 11);
@@ -598,14 +608,9 @@ void I_Init(void) // 80005C50
     osJamMesg(&rdp_done_queue, (OSMesg)VID_MSG_KICKSTART, OS_MESG_NOBLOCK);
 }
 
-typedef struct
-{
-	int pad_data;
-} pad_t;
-
 int I_GetControllerData(void) // 800060D0
 {
-    return ((pad_t*)gamepad_data)->pad_data;
+    return gamepad_data[0];
 }
 
 void I_CheckGFX(void) // 800060E8
@@ -1286,40 +1291,6 @@ int I_CreatePakFile(void) // 800074D4
     return ret;
 }
 
-void I_CheckControllerStatus()
-{
-    I_LockPi();
-
-    osContStartQuery(&sys_msgque_joy);
-    osRecvMesg(&sys_msgque_joy, NULL, OS_MESG_BLOCK);
-    osContGetQuery(gamepad_status);
-
-    for (register int i = 0; i < MAXCONTROLLERS; i++)
-    {
-        register int bit = (1 << i);
-        register boolean rumble = false;
-
-        if ((gamepad_status[i].type & CONT_TYPE_MASK) == CONT_TYPE_NORMAL)
-        {
-            gamepad_bit_pattern |= bit;
-
-            if (osMotorInit(&sys_msgque_joy, &RumblePaks[i], i) == 0)
-                rumble = true;
-        }
-        else
-        {
-            gamepad_bit_pattern &= ~bit;
-        }
-
-        if (rumble)
-            rumblepak_bit_pattern |= bit;
-        else
-            rumblepak_bit_pattern &= ~bit;
-    }
-
-    I_UnlockPi();
-}
-
 void I_RumbleAmbient(int pad, int count)
 {
     if (rumblepak_bit_pattern & (1 << pad))
@@ -1349,6 +1320,8 @@ void I_StopRumble(void)
 
 void I_ControllerThread(void *arg)
 {
+    u8 rumblebits = 0;
+
     SET_GP();
 
     while (1)
@@ -1375,14 +1348,12 @@ void I_ControllerThread(void *arg)
             osSetThreadPri(&joy_thread, 11);
         }
 
-        osContStartReadData(&sys_msgque_joy);
-        osRecvMesg(&sys_msgque_joy, NULL, OS_MESG_BLOCK);
-        osContGetReadData(gamepad_data);
+        I_ReadPads();
 
         for (register int i = 0; i < MAXCONTROLLERS; i++)
         {
             register int bit = 1 << i;
-            if (rumblepak_bit_pattern & bit)
+            if (rumblebits & bit)
             {
                 register int set = !gamepaused
                     && (MotorDamageTimers[i] || (MotorAmbientCount[i] && (motor & 1)));
@@ -1391,11 +1362,40 @@ void I_ControllerThread(void *arg)
                 {
                     motor_bit_pattern = (motor_bit_pattern & ~bit) | set;
                     if (__osMotorAccess(&RumblePaks[i], set ? MOTOR_START : MOTOR_STOP) != 0)
-                        rumblepak_bit_pattern &= ~bit;
+                        rumblebits &= ~bit;
                 }
             }
         }
 
+        osContStartQuery(&sys_msgque_joy);
+        osRecvMesg(&sys_msgque_joy, NULL, OS_MESG_BLOCK);
+        osContGetQuery(gamepad_status);
+
+        for (register int i = 0; i < MAXCONTROLLERS; i++)
+        {
+            register int bit = (1 << i);
+            register boolean rumble = false;
+
+            if ((gamepad_status[i].type & CONT_TYPE_MASK) == CONT_TYPE_NORMAL)
+            {
+                gamepad_bit_pattern |= bit;
+
+                if (!(rumblebits & bit) && osMotorInit(&sys_msgque_joy, &RumblePaks[i], i) == 0)
+                    rumble = true;
+            }
+            else
+            {
+                gamepad_bit_pattern &= ~bit;
+            }
+
+            if (rumble)
+                rumblebits |= bit;
+            else
+                rumblebits &= ~bit;
+        }
+
         PiLockedJoy = false;
+
+        rumblepak_bit_pattern = rumblebits;
     }
 }

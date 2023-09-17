@@ -183,7 +183,6 @@ void P_CheckCheats (void) // 8002187C
     {
         gamepaused = false;
         S_ResumeSound();
-        I_CheckControllerStatus();
         ticon = lastticon;
         ticsinframe = lastticon >> 2;
     }
@@ -315,8 +314,6 @@ extern int end_time;    // 80063394
 void P_Start (void) // 80021C50
 {
     fadebright_t *fb;
-
-    I_CheckControllerStatus();
 
     DrawerStatus = 1;
 
