@@ -968,7 +968,8 @@ void I_WIPE_MeltScreen(void) // 80006964
     int size;
     int tileheight;
     int fbsize;
-    int buttons;
+    int buttons = I_GetControllerData(0);
+    int oldbuttons;
     int shift = 0;
 
     skipfade = false;
@@ -990,11 +991,17 @@ void I_WIPE_MeltScreen(void) // 80006964
         y1 = 0;
         D_memcpy(fb, CFB(vid_side ^ 1), fbsize);
 
-        buttons = I_GetControllerData(0);
-        if (buttons & (PAD_A|PAD_B|PAD_START))
+        if (!shift)
         {
-            shift = 2;
-            skipfade = true;
+            oldbuttons = buttons;
+            buttons = I_GetControllerData(0);
+            if (M_IsPressed(buttons, oldbuttons, PAD_A)
+                    || M_IsPressed(buttons, oldbuttons, PAD_B)
+                    || M_IsPressed(buttons, oldbuttons, PAD_START))
+            {
+                shift = 2;
+                skipfade = true;
+            }
         }
 
         I_ClearFrame();
@@ -1057,7 +1064,8 @@ void I_WIPE_FadeOutScreen(void) // 80006D34
     int size;
     int tileheight;
     int fbsize;
-    int buttons;
+    int buttons = I_GetControllerData(0);
+    int oldbuttons;
     int shift = skipfade ? 2 : 0;
 
     {
@@ -1079,9 +1087,17 @@ void I_WIPE_FadeOutScreen(void) // 80006D34
 
         I_ClearFrame();
 
-        buttons = I_GetControllerData(0);
-        if (buttons & (PAD_A|PAD_B|PAD_START))
-            shift = 2;
+        if (!shift)
+        {
+            oldbuttons = buttons;
+            buttons = I_GetControllerData(0);
+            if (M_IsPressed(buttons, oldbuttons, PAD_A)
+                    || M_IsPressed(buttons, oldbuttons, PAD_B)
+                    || M_IsPressed(buttons, oldbuttons, PAD_START))
+            {
+                shift = 2;
+            }
+        }
 
         gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
         gDPSetTextureLUT(GFX1++, G_TT_NONE);

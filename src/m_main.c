@@ -1017,7 +1017,7 @@ int M_PasswordMenu()
     return exit;
 }
 
-static inline bool M_IsPressed(int buttons, int oldbuttons, int mask)
+bool M_IsPressed(int buttons, int oldbuttons, int mask)
 {
     return !!(buttons & mask) && !(oldbuttons & mask);
 }

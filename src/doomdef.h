@@ -1007,6 +1007,7 @@ void M_PauseMenu(void) SEC_MENU;
 
 int M_ControllerPak(void) SEC_MENU; // 80007724
 int M_ButtonResponder(int buttons) SEC_MENU; // 80007960
+bool M_IsPressed(int buttons, int oldbuttons, int mask) SEC_MENU;
 
 void M_AlphaInStart(void) SEC_MENU; // 800079E0
 void M_AlphaOutStart(void) SEC_MENU; // 800079F8
