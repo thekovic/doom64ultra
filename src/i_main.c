@@ -1354,10 +1354,8 @@ void I_ControllerThread(void *arg)
 
         if (*&PiLockedMain)
         {
-            osSetThreadPri(&joy_thread, 10);
-            while (*&PiLockedMain)
-                osYieldThread();
-            osSetThreadPri(&joy_thread, 11);
+            *&PiLockedJoy = false;
+            continue;
         }
 
         I_ReadPads();
