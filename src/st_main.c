@@ -589,6 +589,39 @@ void ST_Drawer (void) // 80029DC0
             color = PACKRGBA(0,64,128,HUDopacity);
         }
         ST_DrawNumber(SCREEN_WD-22-HUDmargin, SCREEN_HT-13-HUDmargin, stat, 0, color);
+
+        // [nova] - hud damage direction indicators
+        if (player->damagecount && player->attacker && player->attacker != player->mo)
+        {
+            angle_t badguyangle;
+            angle_t diffang;
+            int i;
+
+            badguyangle = R_PointToAngle2(player->mo->x, player->mo->y,
+                                          player->attacker->x, player->attacker->y);
+
+            if (badguyangle > player->mo->angle)
+            {
+                // whether right or left
+                diffang = badguyangle - player->mo->angle;
+                i = diffang > ANG180;
+            }
+            else
+            {
+                // whether left or right
+                diffang = player->mo->angle - badguyangle;
+                i = diffang <= ANG180;
+            } // confusing, aint it?
+
+            if (diffang >= (aspectfovs[ScreenAspect]>>1))
+            {
+                int color = PACKRGBA(255, 0, 0, MIN(player->damagecount<<3, MIN(HUDopacity+64, 255)));
+                if (i) // right arrow
+                    ST_DrawSymbol(SCREEN_WD - 7 - 48, (SCREEN_HT>>1)-6, 97, color);
+                else // left arrow
+                    ST_DrawSymbol(48, (SCREEN_HT>>1)-6, 96, color);
+            }
+        }
     }
     ST_DrawDebug();
 }

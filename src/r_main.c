@@ -191,7 +191,7 @@ void R_RotateCameraMatrix(void)
 const fixed_t aspectscale[3] = { FRACUNIT, 0xd555, 0xc000 }; // 1, 5/6, 3/4
 const fixed_t invaspectscale[3] = { FRACUNIT, 0x13333, 0x15555 }; // 1, 6/5, 4/3
 const fixed_t aspectratios[3] = { 0x15555, 0x19999, 0x1c71c }; // 4/3, 16/10, 16/9
-static const angle_t aspectfovs[3] = { ANG90, 0x47633bdd, 0x4b901476 }; // 90deg, 100.38deg, 106.26deg
+const angle_t aspectfovs[3] = { ANG90, 0x47633bdd, 0x4b901476 }; // 90deg, 100.38deg, 106.26deg
 
 /*
 ==============
