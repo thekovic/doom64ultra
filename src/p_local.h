@@ -28,7 +28,7 @@
 /* MAXRADIUS is for precalculated sector block boxes */
 /* the spider demon is larger, but we don't have any moving sectors */
 /* nearby */
-#define	MAXRADIUS		32*FRACUNIT
+#define	MAXRADIUS		80*FRACUNIT
 
 
 #define	USERANGE		(70*FRACUNIT)

@@ -637,28 +637,19 @@ boolean PB_CheckPosition(void) // 8000D750
 	// blocks by up to MAXRADIUS units
 	//
 
-	// [d64]: intentionally removed MAXRADIUS?
 	xl = (testbbox[BOXLEFT  ] - bmaporgx) >> MAPBLOCKSHIFT;
 	xh = (testbbox[BOXRIGHT ] - bmaporgx) >> MAPBLOCKSHIFT;
 	yl = (testbbox[BOXBOTTOM] - bmaporgy) >> MAPBLOCKSHIFT;
 	yh = (testbbox[BOXTOP   ] - bmaporgy) >> MAPBLOCKSHIFT;
 
 	if (xl<0)
-	{
 		xl = 0;
-	}
 	if (yl<0)
-	{
 		yl = 0;
-	}
-	if (xh >= bmapwidth)
-	{
-		xh = bmapwidth - 1;
-	}
-	if (yh >= bmapheight)
-	{
-		yh = bmapheight - 1;
-	}
+	if (xh>= bmapwidth)
+		xh = bmapwidth -1;
+	if (yh>= bmapheight)
+		yh = bmapheight -1;
 
 	for (bx = xl; bx <= xh; bx++)
 	{
@@ -666,11 +657,31 @@ boolean PB_CheckPosition(void) // 8000D750
         {
 			if (!P_BlockLinesIterator(bx, by, PB_CheckLine))
 				return false;
+		}
+	}
+
+	xl = (testbbox[BOXLEFT  ] - bmaporgx - MAXRADIUS) >> MAPBLOCKSHIFT;
+	xh = (testbbox[BOXRIGHT ] - bmaporgx + MAXRADIUS) >> MAPBLOCKSHIFT;
+	yl = (testbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS) >> MAPBLOCKSHIFT;
+	yh = (testbbox[BOXTOP   ] - bmaporgy + MAXRADIUS) >> MAPBLOCKSHIFT;
+
+	if (xl<0)
+		xl = 0;
+	if (yl<0)
+		yl = 0;
+	if (xh>= bmapwidth)
+		xh = bmapwidth -1;
+	if (yh>= bmapheight)
+		yh = bmapheight -1;
+
+	for (bx = xl; bx <= xh; bx++)
+	{
+		for (by = yl; by <= yh; by++)
+        {
 			if (!P_BlockThingsIterator(bx, by, PB_CheckThing))
 				return false;
 		}
 	}
-
 	return true;
 }
 

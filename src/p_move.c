@@ -378,13 +378,10 @@ void PM_CheckPosition (void) // 80019F50
 	// the bounding box is extended by MAXRADIUS because mobj_ts are grouped
 	// into mapblocks based on their origin point, and can overlap into adjacent
 	// blocks by up to MAXRADIUS units
-	//
-	// [D64] no use MAXRADIUS
-	//
-	xl = (tmbbox[BOXLEFT] - bmaporgx/* - MAXRADIUS*/)>>MAPBLOCKSHIFT;
-	xh = (tmbbox[BOXRIGHT] - bmaporgx/* + MAXRADIUS*/)>>MAPBLOCKSHIFT;
-	yl = (tmbbox[BOXBOTTOM] - bmaporgy/* - MAXRADIUS*/)>>MAPBLOCKSHIFT;
-	yh = (tmbbox[BOXTOP] - bmaporgy/* + MAXRADIUS*/)>>MAPBLOCKSHIFT;
+	xl = (tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS)>>MAPBLOCKSHIFT;
+	xh = (tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS)>>MAPBLOCKSHIFT;
+	yl = (tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS)>>MAPBLOCKSHIFT;
+	yh = (tmbbox[BOXTOP] - bmaporgy + MAXRADIUS)>>MAPBLOCKSHIFT;
 
 	if (xl<0)
 		xl = 0;
