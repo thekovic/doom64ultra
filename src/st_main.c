@@ -893,11 +893,6 @@ void ST_UpdateFlash(void) // 8002AC30
 	{
 		FlashEnvColor = PACKRGBA(128, 128, 128, 255);
 	}
-	/* bfg flash (green)*/
-	else if(plyr->bfgcount)
-    {
-        FlashEnvColor = PACKRGBA(0, plyr->bfgcount, 0, 255);
-    }
 	else
 	{
 	    /* damage and strength flash (red) */
@@ -909,37 +904,23 @@ void ST_UpdateFlash(void) // 8002AC30
                 cnt = ST_MAXDMGCOUNT;
         }
 
-        if (plyr->powers[pw_strength] <= ST_MAXSTRCOUNT)
-        {
-            /* slowly fade the berzerk out */
-            bzc = plyr->powers[pw_strength];
+        /* slowly fade the berzerk out */
+        bzc = MIN(plyr->powers[pw_strength], ST_MAXSTRCOUNT);
+        if (bzc == 1)
+            bzc = 0;
 
-            if (bzc == 1)
-                bzc = 0;
-        }
-        else
-        {
-            bzc = ST_MAXSTRCOUNT;
-        }
+        FlashEnvColor = PACKRGBA(MAX(bzc, cnt), 0, 0, 255);
 
-        if ((cnt != 0) || (bzc != 0))
-        {
-            if (bzc < cnt)
-            {
-                FlashEnvColor = PACKRGBA(cnt, 0, 0, 255);
-            }
-            else
-            {
-                FlashEnvColor = PACKRGBA(bzc, 0, 0, 255);
-            }
-        }
+        /* bfg flash (green)*/
+        if(plyr->bfgcount)
+            FlashEnvColor += PACKRGBA(0, plyr->bfgcount, 0, 0);
+
         /* suit flash (green/yellow) */
-        else if(plyr->powers[pw_ironfeet] >= 61 || plyr->powers[pw_ironfeet] & 8)
-        {
-            FlashEnvColor = PACKRGBA(0, 32, 4, 255);
-        }
+        if(plyr->powers[pw_ironfeet] >= 61 || plyr->powers[pw_ironfeet] & 8)
+            FlashEnvColor += PACKRGBA(0, 32, 4, 0);
+
         /* bonus flash (yellow) */
-        else if (plyr->bonuscount)
+        if (plyr->bonuscount)
         {
             cnt = FlashBrightness*((plyr->bonuscount + 7) >> 3)/32;
 
@@ -948,13 +929,9 @@ void ST_UpdateFlash(void) // 8002AC30
 
             bnc = ((cnt << 2) + cnt) << 1;
 
-            FlashEnvColor = PACKRGBA(bnc, bnc, cnt, 255);
+            FlashEnvColor = R_AddColors(FlashEnvColor, PACKRGBA(bnc, bnc, cnt, 0));
         }
-        else
-        {
-            FlashEnvColor = PACKRGBA(0, 0, 0, 255); /* Default Flash */
-        }
-	}
+    }
 }
 
 void ST_DrawSymbol(int xpos, int ypos, int index, int color) // 8002ADEC

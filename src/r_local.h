@@ -316,6 +316,7 @@ extern const fixed_t aspectscale[3];
 extern const fixed_t invaspectscale[3];
 extern const fixed_t aspectratios[3];
 
+u32 R_AddColors(u32 c1, u32 c2);
 void R_SetupSky(void);
 
 /*--------*/

@@ -261,7 +261,7 @@ void R_RenderCloudSky(void) // 800255B8
     }
 }
 
-static u32 R_AddColors(u32 c1, u32 c2)
+u32 R_AddColors(u32 c1, u32 c2)
 {
     u32 e1, e2, er, r = 0;
 
