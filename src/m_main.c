@@ -479,7 +479,7 @@ static s8 skillpresetsetup;
 static customskill_t skillsetup;
 static u8 buttonbindstate;
 
-const skillpreset_t SkillPresets[] = {
+const skillpreset_t SkillPresets[NUMSKILLPRESETS] = {
     { "Be Gentle!", { .monster_counts = sk_easy, .player_damage = 0, .player_ammo = 1, } },
     { "Bring It On!", { .monster_counts = sk_easy, .player_damage = 1 } },
     { "I Own Doom!", { .monster_counts = sk_medium, .player_damage = 1 } },

@@ -717,7 +717,9 @@ extern	player_t	players[MAXPLAYERS];
 
 extern	playerconfig_t	playerconfigs[MAXPLAYERS];
 
-extern const skillpreset_t SkillPresets[];
+#define NUMSKILLPRESETS 9
+
+extern const skillpreset_t SkillPresets[NUMSKILLPRESETS];
 extern	customskill_t		customskill;
 extern	int			gamemap;
 extern	int			nextmap;

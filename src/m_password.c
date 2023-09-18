@@ -28,7 +28,7 @@ int CurPasswordSlot = 0;    // 8005ACBC
 
 void M_PrintSaveTitle(char *buf, customskill_t skill, int map)
 {
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < ARRAYLEN(SkillPresets); i++) {
         if (memcmp(&skill, (void*) &SkillPresets[i].skill, sizeof skill) == 0) {
             int count = sprintf(buf, "level %2.2d - %s", map, SkillPresets[i].name);
             if (buf[count - 1] == '!')
