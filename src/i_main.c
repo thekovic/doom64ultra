@@ -30,7 +30,6 @@ extern char _codeSegmentEnd[];
 #define	BOOT_STACKSIZE	0x100
 vu64	bootStack[BOOT_STACKSIZE/sizeof(u64)];
 
-u8 *cfb;
 SDATA u16 SCREEN_HT = 240;
 SDATA u32 CFB_SIZE;
 
@@ -580,14 +579,16 @@ void I_Init(void) // 80005C50
     I_RefreshVideo();
     osViBlack(TRUE);
 
-    cfb = CFBS_ADDR;
-    D_memset(cfb, 0, CFBS_SIZE);
+    Z_Reserve(AUDIO_HEAP_ADDR, AUDIO_HEAP_SIZE + CFB_SIZE);
 
-    osViSwapBuffer(cfb);
+    {
+        void *fb = CFB0_ADDR;
+        D_memset(fb, 0, CFB_SIZE);
+        D_memset(CFB1_ADDR, 0, CFB_SIZE);
 
-    if (osViGetCurrentFramebuffer() != cfb) {
-        do {
-        } while (osViGetCurrentFramebuffer() != cfb);
+        osViSwapBuffer(fb);
+
+        while (osViGetCurrentFramebuffer() != fb) {}
     }
 
     osViBlack(FALSE);

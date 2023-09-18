@@ -229,6 +229,86 @@ backtostart:
     return (void *) ((byte *)base + sizeof(memblock_t));
 }
 
+/* Allocate a block at the specified address. The address must be aligned to
+ * a 64-byte boundary.
+ */
+void Z_Reserve2 (memzone_t *mainzone, void *addr, int size)
+{
+	int		extra;
+	memblock_t	*block, *newblock, *base;
+
+    if ((u32)(addr) % 16)
+        I_Error ("Z_Reserve: invalid alignment");
+
+    #if DEBUG_
+    Z_CheckZone (mainzone);	/* DEBUG */
+    #endif
+
+    block = (void*)(((char*)addr) - sizeof(memblock_t));
+
+    /* */
+    /* scan through the block list looking for the block containing the address */
+    /* */
+    size += sizeof(memblock_t);	/* account for size of block header */
+
+    base = &mainzone->blocklist;
+    while (base->next && base->next < block)
+        base = base->next;
+
+    if (base->user)
+        I_Error ("Z_Reserve: address in use");
+    if (base->size < size)
+        I_Error ("Z_Reserve: no space left");
+
+    if (block != base)
+    {
+        if (((char*)base) + MINFRAGMENT > (char*)block)
+            I_Error ("Z_Reserve: invalid alignment");
+
+        extra = (char*)block - (char*)base;
+
+        block->prev = base;
+        block->next = base->next;
+        if (block->next)
+            block->next->prev = block;
+
+        base->next = block;
+        block->size = base->size - extra;
+        base->size = extra;
+    }
+
+    extra = block->size - size;
+    if (extra >  MINFRAGMENT)
+    {	/* there will be a free fragment after the allocated block */
+        newblock = (memblock_t *) ((byte *)block + size );
+        newblock->prev = block;
+        newblock->next = block->next;
+        if (newblock->next)
+            newblock->next->prev = newblock;
+        else
+            mainzone->rover3 = newblock;
+
+        block->next = newblock;
+        block->size = size;
+
+        newblock->size = extra;
+        newblock->user = NULL;		/* free block */
+        newblock->tag = 0;
+        newblock->id = ZONEID;
+    }
+
+    block->user = (void *)1;		/* mark as in use, but unowned	 */
+
+    block->tag = PU_STATIC;
+    block->id = ZONEID;
+
+    if (!block->next)
+        mainzone->rover3 = block;
+
+#if DEBUG_
+    Z_CheckZone (mainzone);	/* DEBUG */
+#endif
+}
 
 /*
 ========================

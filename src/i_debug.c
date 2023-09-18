@@ -1975,6 +1975,8 @@ void COLD I_TakeGDBPacket(void)
 
 static COLD void I_ShowDebugScreen(const char *text)
 {
+    void *cfb = CFB0_ADDR;
+
     D_memset(cfb, 0, CFB_SIZE);
     blit32_TextExplicit(cfb, 0xffff, 1, XResolution, YResolution, blit_Clip, 32, 24, text);
     osViSwapBuffer(cfb);

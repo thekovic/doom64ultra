@@ -803,10 +803,12 @@ memzone_t *Z_InitZone (byte *base, int size) SEC_STARTUP;
 void    Z_SetAllocBase(memzone_t *mainzone) SEC_STARTUP;
 void 	*Z_Malloc2 (memzone_t *mainzone, int size, int tag, void *ptr) __attribute__((malloc));
 void	*Z_Alloc2(memzone_t *mainzone, int size, int tag, void *user) __attribute__((malloc)); // PsxDoom / Doom64
+void    Z_Reserve2 (memzone_t *mainzone, void *addr, int size);
 void    Z_Free2 (memzone_t *mainzone,void *ptr);
 
 #define Z_Malloc(x,y,z) Z_Malloc2(mainzone,x,y,z)
 #define Z_Alloc(x,y,z) Z_Alloc2(mainzone,x,y,z)
+#define Z_Reserve(x,y) Z_Reserve2(mainzone,x,y)
 #define Z_Free(x) Z_Free2(mainzone,x)
 
 void	Z_FreeTags(memzone_t *mainzone, int tag);

@@ -21,22 +21,31 @@ extern char _bss_end[];
 #define AUDIO_HEAP_BASE_SIZE 0x26000
 #endif
 
+/*
+ * setup addresses for the memory layout:
+ *
+ * 0mb            1mb             2mb             3mb             4mb
+ * +---------------+---------------+---------------+---------------+
+ * | code |                | aheap | cfb0 |                 | cfb1 |
+ * +---------------+---------------+---------------+---------------+
+ * |      | <------------------- mheap -------------------> |      |
+ * +---------------+---------------+---------------+---------------+
+ */
+
 #define BASEPROG_SIZE (ALIGN(_bss_end, 32) - (u32)BASE_RAM_ADDR)
-#define CFBS_SIZE (CFB_SIZE*2)
 #define AUDIO_HEAP_SIZE	ALIGN( \
         AUDIO_HEAP_BASE_SIZE \
         + ALIGN(_doom64_wmdSegmentRomEnd - _doom64_wmdSegmentRomStart, 16) \
         + ALIGN(_doom64_wsdSegmentRomEnd - _doom64_wsdSegmentRomStart, 16) \
     , 64)
-#define MAIN_HEAP_SIZE (osMemSize - BASEPROG_SIZE - CFBS_SIZE - AUDIO_HEAP_SIZE)
+#define MAIN_HEAP_SIZE (osMemSize - BASEPROG_SIZE - CFB_SIZE)
 
 #define MAIN_HEAP_ADDR ((byte*)ALIGN(_bss_end, 32))
-#define CFBS_ADDR (BASE_RAM_END - CFBS_SIZE)
-#define AUDIO_HEAP_ADDR (CFBS_ADDR - AUDIO_HEAP_SIZE)
+#define CFB0_ADDR ((byte*)(BASE_RAM_ADDR + (osMemSize>>1)))
+#define CFB1_ADDR ((byte*)(BASE_RAM_END - CFB_SIZE))
+#define AUDIO_HEAP_ADDR (CFB0_ADDR - AUDIO_HEAP_SIZE)
 
-extern unsigned char *cfb;
-
-#define CFB(i) ((i) ? &cfb[CFB_SIZE] : &cfb[0])
+#define CFB(i) ((i) ? CFB1_ADDR : CFB0_ADDR)
 #define CFB_SPADDR (OS_K0_TO_PHYSICAL(CFB(vid_side)))
 
 #define STACK_GUARD 0xed8c82721e8025b2ULL // random value
