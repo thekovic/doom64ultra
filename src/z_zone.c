@@ -107,7 +107,7 @@ void *Z_Malloc2 (register memzone_t *mainzone, register int size, register int t
     int        extra;
     register memblock_t    *start, *rover, *newblock, *base;
 
-#if DEBUG_
+#ifdef DEBUG_MEM
     Z_CheckZone (mainzone);    /* DEBUG */
 #endif
 
@@ -222,7 +222,7 @@ backtostart:
         mainzone->rover = mainzone->rover2;//mainzone->rover = &mainzone->blocklist;
     }
 
-#if DEBUG_
+#ifdef DEBUG_MEM
     Z_CheckZone (mainzone);    /* DEBUG */
 #endif
 
@@ -246,7 +246,7 @@ void *Z_Alloc2(register memzone_t *mainzone, register int size, register int tag
     int extra;
     register memblock_t *rover, *base, *block, *newblock;
 
-#if DEBUG_
+#ifdef DEBUG_MEM
     Z_CheckZone (mainzone);    /* DEBUG */
 #endif
 
@@ -363,9 +363,9 @@ void *Z_Alloc2(register memzone_t *mainzone, register int size, register int tag
     block->tag = tag;
     block->lockframe = NextFrameIdx;
 
-    #if DEBUG_
+#ifdef DEBUG_MEM
     Z_CheckZone (mainzone);    /* DEBUG */
-    #endif
+#endif
 
     return (void *) ((byte *)block + sizeof(memblock_t));
 }
@@ -394,6 +394,10 @@ void Z_Free2(memzone_t *mainzone, void *ptr) // 8002CE28
         *block->user = 0;        /* clear the user's mark */
     block->user = NULL;    /* mark as free */
     block->tag = 0;
+
+#ifdef DEBUG_MEM
+    Z_CheckZone (mainzone);    /* DEBUG */
+#endif
 }
 
 /*
@@ -502,10 +506,6 @@ void Z_CheckZone (memzone_t *mainzone) // 8002CFEC
         if ( checkblock->next->prev != checkblock)
             I_Error ("Z_CheckZone: next block doesn't have proper back link\n");
     }
-
-    #if DEBUG_
-    Z_DumpHeap(mainzone);
-    #endif
 }
 
 
