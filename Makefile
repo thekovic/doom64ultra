@@ -31,7 +31,9 @@ ifdef DEBUG_MEM
 endif
 ifeq ($(DEBUG),0)
   DEFINES += NDEBUG=1
-else
+endif
+ifeq ($(SOUND),0)
+  OPTIONS += SOUND=0
 endif
 ifneq ($(REQUIRE_EXPANSION_PAK),0)
   OPTIONS += REQUIRE_EXPANSION_PAK
