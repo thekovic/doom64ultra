@@ -262,7 +262,7 @@ $(LIBDOOM64): $(O_FILES)
 	$(V)$(AR) rcs -o $@ $(O_FILES)
 
 libultra:
-	$(V)$(MAKE) -C libultra_modern VERSION=$(LIBULTRA_VER) "EXT_CFLAGS=$(LIBULTRA_CFLAGS)"
+	$(V)$(MAKE) -s -C libultra_modern VERSION=$(LIBULTRA_VER) "EXT_CFLAGS=$(LIBULTRA_CFLAGS)"
 
 $(LIBULTRA): libultra
 
