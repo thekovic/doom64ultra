@@ -242,11 +242,11 @@ typedef struct
 // Debug command struct
 struct
 {
-    int   current;
-    int   totaltokens;
-    int   incoming_start[COMMAND_TOKENS];
-    int   incoming_size[COMMAND_TOKENS];
-    const char* error;
+    volatile int   current;
+    volatile int   totaltokens;
+    volatile int   incoming_start[COMMAND_TOKENS];
+    volatile int   incoming_size[COMMAND_TOKENS];
+    const char* volatile error;
 } CommandParser;
 
 
@@ -427,8 +427,8 @@ SEC_STARTUP void I_InitFlashCart(void)
             return;
     }
 
-    // Send a heartbeat
-    usb_sendheartbeat();
+    // Create the message queue for the USB message
+    osCreateMesgQueue(&usbMessageQ, &usbMessageBuf, 1);
 
 #ifdef DEBUG_MEM
     usbThreadStack[0] = STACK_GUARD;
@@ -1665,41 +1665,43 @@ int I_DispatchUSBCommands(void)
 int I_CmdNextTokenSize(void)
 {
     // If we're out of commands to read, return 0
-    if (CommandParser.current == CommandParser.totaltokens)
+    if (*&CommandParser.current == *&CommandParser.totaltokens)
         return 0;
 
     // Otherwise, return the amount of data to read
-    return CommandParser.incoming_size[CommandParser.current];
+    return *&CommandParser.incoming_size[*&CommandParser.current];
 }
 
 void I_CmdGetNextToken(void* buffer)
 {
-    u8 curr = CommandParser.current;
+    u8 curr = *&CommandParser.current;
 
     // Skip this command if no buffer exists
     if (buffer == NULL)
     {
-        CommandParser.current++;
+        *&CommandParser.current = curr + 1;
         return;
     }
 
+    int total = *&CommandParser.totaltokens;
+
     // If we're out of commands to read, do nothing
-    if (curr == CommandParser.totaltokens)
+    if (curr == total)
         return;
 
     // Read from the correct offset
     usb_skip(CommandParser.incoming_start[curr]);
     usb_read(buffer, CommandParser.incoming_size[curr]);
     usb_rewind(CommandParser.incoming_size[curr]+CommandParser.incoming_start[curr]);
-    CommandParser.current++;
+    *&CommandParser.current = curr + 1;
 
-    if (curr == CommandParser.totaltokens)
+    if (curr == total)
         I_CmdSkipAllTokens();
 }
 
 void I_CmdSkipAllTokens(void)
 {
-    CommandParser.current = CommandParser.totaltokens;
+    *&CommandParser.current = *&CommandParser.totaltokens;
     usb_purge();
     osSetThreadPri(&usbThread, USB_THREAD_PRI);
 }
@@ -1715,7 +1717,8 @@ static void I_CmdSetup(void)
     char filestep = 0;
 
     // Initialize the starting offsets at -1
-    D_memset(CommandParser.incoming_start, -1, COMMAND_TOKENS*sizeof(int));
+    for (int i = 0; i < COMMAND_TOKENS; i++)
+        CommandParser.incoming_start[i] = -1;
 
     // Read data from USB in blocks
     while (dataleft > 0)
@@ -1733,7 +1736,7 @@ static void I_CmdSetup(void)
         {
             // If we're not reading a file
             int offset = datasize-dataleft;
-            u8 tok = CommandParser.totaltokens;
+            u8 tok = *&CommandParser.totaltokens;
 
             // Decide what to do based on the current character
             switch (CommandBuffer[i])
@@ -1745,7 +1748,7 @@ static void I_CmdSetup(void)
                         if (CommandParser.incoming_start[tok] != -1)
                         {
                             CommandParser.incoming_size[tok] = offset-CommandParser.incoming_start[tok];
-                            CommandParser.totaltokens++;
+                            (*&CommandParser.totaltokens)++;
                         }
 
                         if (CommandBuffer[i] == '\0')
@@ -1773,7 +1776,7 @@ static void I_CmdSetup(void)
                         // Store the file offsets and sizes in the global command buffers
                         CommandParser.incoming_start[tok] = offset;
                         CommandParser.incoming_size[tok] = filesize;
-                        CommandParser.totaltokens++;
+                        (*&CommandParser.totaltokens)++;
 
                         // Skip a bunch of bytes
                         if ((readsize-i)-filesize < 0)
@@ -1799,12 +1802,13 @@ static void I_USBTicker(void)
 {
     char errortype = USBERROR_NONE;
     usbMesg* threadMsg = NULL;
+    const char *error = NULL;
 
     // Wait for a USB message to arrive
     osRecvMesg(&usbMessageQ, (OSMesg *)&threadMsg, OS_MESG_BLOCK);
 
     // put it back if another thread is still parsing
-    if (CommandParser.current != CommandParser.totaltokens)
+    if (*&CommandParser.current != *&CommandParser.totaltokens)
     {
         osSetThreadPri(&usbThread, OS_PRIORITY_IDLE);
         osJamMesg(&usbMessageQ, (OSMesg *)&threadMsg, OS_MESG_NOBLOCK);
@@ -1825,9 +1829,9 @@ static void I_USBTicker(void)
         }
 
         // Initialize the command trackers
-        CommandParser.totaltokens = 0;
-        CommandParser.current = 0;
-        CommandParser.error = NULL;
+        *&CommandParser.totaltokens = 0;
+        *&CommandParser.current = 0;
+        *&CommandParser.error = NULL;
 
         // Break the USB command into parts
         I_CmdSetup();
@@ -1845,7 +1849,7 @@ static void I_USBTicker(void)
 
         if (!I_RunUSBCommand())
             errortype = USBERROR_UNKNOWN;
-        else if (CommandParser.error)
+        else if ((error = *&CommandParser.error) != NULL)
             errortype = USBERROR_CUSTOM;
 
         usb_purge();
@@ -1866,7 +1870,7 @@ static void I_USBTicker(void)
                 usb_write(DATATYPE_TEXT, "Error: Command too large\n", 25+1);
                 break;
             case USBERROR_CUSTOM:
-                usb_write(DATATYPE_TEXT, CommandParser.error, D_strlen(CommandParser.error)+1);
+                usb_write(DATATYPE_TEXT, error, D_strlen(error)+1);
                 usb_write(DATATYPE_TEXT, "\n", 1+1);
                 break;
         }
@@ -1891,11 +1895,11 @@ static NO_RETURN void I_USBThread(void *arg)
 {
     SET_GP();
 
-    // Create the message queue for the USB message
-    osCreateMesgQueue(&usbMessageQ, &usbMessageBuf, 1);
+    // Send a heartbeat
+    usb_sendheartbeat();
 
-    CommandParser.totaltokens = 0;
-    CommandParser.current = 0;
+    *&CommandParser.totaltokens = 0;
+    *&CommandParser.current = 0;
 
     // Thread loop
     while (1)
