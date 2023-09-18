@@ -214,7 +214,7 @@ int EV_DoDoor (line_t *line, vldoor_e  type) // 80010750
 	return rtn;
 }
 
-void P_PlayDoorSound(line_t *line, sector_t *sec, boolean open)
+SEC_GAME void P_PlayDoorSound(line_t *line, sector_t *sec, boolean open)
 {
     /* for proper sound */
     switch(SPECIALMASK(line->special))

@@ -320,7 +320,7 @@ SEC_GAME void P_PlayerMobjThink (mobj_t *mobj) // 80022060
 /*
  * Returns true if a button was pressed, or if (shift | shiftbutton) is
  * pressed when button is unbound */
-static boolean P_ButtonOrShift(int button, int shift, int shiftbutton, int buttons, int oldbuttons)
+static SEC_GAME boolean P_ButtonOrShift(int button, int shift, int shiftbutton, int buttons, int oldbuttons)
 {
     return button
         ? (buttons & button) && !(oldbuttons & button)
@@ -354,7 +354,7 @@ typedef struct {
     u8 jumpheld;
 } buildmove_t;
 
-void P_BuildMove (player_t *player, buildmove_t *move) // 80022154
+SEC_GAME void P_BuildMove (player_t *player, buildmove_t *move) // 80022154
 {
     int             speed, movespeed, sensitivity;
     int             buttons, oldbuttons;
@@ -594,7 +594,7 @@ void P_BuildMove (player_t *player, buildmove_t *move) // 80022154
 ==================
 */
 
-void P_Thrust (player_t *player, angle_t angle, fixed_t move) // 800225BC
+SEC_GAME void P_Thrust (player_t *player, angle_t angle, fixed_t move) // 800225BC
 {
     angle >>= ANGLETOFINESHIFT;
 	player->mo->momx += FixedMul(vblsinframe[0] * move, finecosine(angle));
@@ -613,7 +613,7 @@ void P_Thrust (player_t *player, angle_t angle, fixed_t move) // 800225BC
 ==================
 */
 
-void P_CalcHeight (player_t *player) // 80022670
+SEC_GAME void P_CalcHeight (player_t *player) // 80022670
 {
 	int			angle;
 	fixed_t		bob;
@@ -698,7 +698,7 @@ void P_CalcHeight (player_t *player) // 80022670
 =================
 */
 
-void P_MovePlayer (player_t *player, const buildmove_t* move) // 8002282C
+SEC_GAME void P_MovePlayer (player_t *player, const buildmove_t* move) // 8002282C
 {
     int aircontrol;
 
@@ -833,7 +833,7 @@ void P_MovePlayer (player_t *player, const buildmove_t* move) // 8002282C
 =================
 */
 
-void P_DeathThink (player_t *player) // 80022914
+SEC_GAME void P_DeathThink (player_t *player) // 80022914
 {
 	angle_t		angle, delta;
     fixed_t zdist, xydist;
@@ -938,7 +938,7 @@ void P_DeathThink (player_t *player) // 80022914
 ===============================================================================
 */
 
-void P_PlayerInSpecialSector (player_t *player, sector_t *sec) // 80022B1C
+SEC_GAME void P_PlayerInSpecialSector (player_t *player, sector_t *sec) // 80022B1C
 {
     fixed_t speed;
 
@@ -1016,7 +1016,7 @@ void P_PlayerInSpecialSector (player_t *player, sector_t *sec) // 80022B1C
 =================
 */
 
-void P_PlayerThink (player_t *player) // 80022D60
+SEC_GAME void P_PlayerThink (player_t *player) // 80022D60
 {
 	int		     buttons, oldbuttons;
 	controls_t    *cbutton;

@@ -240,7 +240,7 @@ SEC_STARTUP void L_Init()
 }
 
 #if !defined(NDEBUG) && !defined(DEBUGOPT)
-static NO_RETURN void DoomErrorHandler(s16 code, s16 numArgs, ...) {
+static COLD NO_RETURN void DoomErrorHandler(s16 code, s16 numArgs, ...) {
     va_list args;
     char buf[256];
     char *b = buf;
@@ -358,7 +358,7 @@ static void I_PrintIsViewer(const char *message, u32 len)
 #define RSP_TID        ((OSId) 1000)
 #define RSP_THREAD ((OSThread*)1)
 
-static OSThread *I_FaultedThread(int msg)
+static COLD OSThread *I_FaultedThread(int msg)
 {
     switch (msg)
     {
@@ -385,7 +385,7 @@ static OSThread *I_FaultedThread(int msg)
     return NULL;
 }
 
-static void I_ForEachThread(void (*func)(OSThread *))
+static COLD void I_ForEachThread(void (*func)(OSThread *))
 {
     OSThread *thread = __osGetActiveQueue();
     while (thread->priority != -1)
@@ -397,7 +397,7 @@ static void I_ForEachThread(void (*func)(OSThread *))
     }
 }
 
-static void I_StopAppThreads(void)
+static COLD void I_StopAppThreads(void)
 {
     // TODO - stop RSP
     I_ForEachThread(osStopThread);
@@ -514,7 +514,7 @@ static const regDesc fpcsrDesc[] = {
     @param The registry description to use
 ==============================*/
 
-static int I_PrintRegister(char *out, u32 value, const char *name, const regDesc *desc)
+static COLD int I_PrintRegister(char *out, u32 value, const char *name, const regDesc *desc)
 {
     char first = 1;
     char *start = out;
@@ -532,7 +532,7 @@ static int I_PrintRegister(char *out, u32 value, const char *name, const regDesc
     return out - start;
 }
 
-static int I_FindPrevSP(void** prev_sp, void** prev_ra, const void* sp, const void* ra)
+static COLD int I_FindPrevSP(void** prev_sp, void** prev_ra, const void* sp, const void* ra)
 {
     unsigned* wra = (unsigned*)ra;
     unsigned* k0base = (unsigned*)K0BASE;
@@ -579,7 +579,7 @@ static int I_GetCallStack(void **addresses, u64 sp_val, u64 ra_val) {
 #define FAULT_MSG_BUFFER ((char *)CFB(1))
 #define FAULT_BT_BUFFER ((void**)(FAULT_MSG_BUFFER + 0x4000))
 
-static inline __attribute__((nonnull(1, 2)))
+static inline COLD __attribute__((nonnull(1, 2)))
 char *I_PrintFault(OSThread *curr, char *out)
 {
     __OSThreadContext* context = &curr->context;
@@ -808,14 +808,14 @@ static struct {
     u32 value;
 } origbpcodes[2] = {{0,0},{0,0}};
 
-static s32 hex2int(u8 c) {
+static COLD s32 hex2int(u8 c) {
     if('0' <= c && c <= '9') { return c - '0'; }
     if('A' <= c && c <= 'F') { return c - 'A' + 10; }
     if('a' <= c && c <= 'f') { return c - 'a' + 10; }
     return -1;
 }
 
-static s32 int2hex(register u8 *buf, register u32 bufsize, register s32 index,
+static COLD s32 int2hex(register u8 *buf, register u32 bufsize, register s32 index,
                    register u32 value, register u32 nibbles) {
     u32 lpos;
     static const char i2h[16] = "0123456789ABCDEF";
@@ -827,8 +827,8 @@ static s32 int2hex(register u8 *buf, register u32 bufsize, register s32 index,
     return index;
 }
 
-static s32 tohex(register u8 *buf, register u32 bufsize, register s32 index,
-                 register const volatile void *src_, register u32 srclen)
+static COLD s32 tohex(register u8 *buf, register u32 bufsize, register s32 index,
+                      register const volatile void *src_, register u32 srclen)
 {
     u32 i = 0;
 
