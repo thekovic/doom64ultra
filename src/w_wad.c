@@ -2,6 +2,7 @@
 
 #include "doomdef.h"
 #include "config.h"
+#include "i_debug.h"
 #include "i_main.h"
 #ifdef USB
 #include "i_usb.h"
@@ -33,7 +34,10 @@ lumpinfo_t	*lumpinfo;				//800B2228 /* points directly to rom image */
 static int          mapnumlumps;			//800B2230 psxdoom/doom64
 static lumpinfo_t   *maplump;				//800B2234 psxdoom/doom64
 static byte         *mapfileptr;			//800B2238 psxdoom/doom64
+static u32           maplumppos;
 
+static int maxcompressedsize = 0;
+static byte *decompressbuf;
 
 /*=========*/
 /* EXTERNS */
@@ -49,6 +53,19 @@ extern OSMesgQueue romcopy_msgque;
 ============================================================================
 */
 
+static void W_GetRomData(u32 offset, void *dest, u32 len)
+{
+    OSIoMesg romio_msgbuf;
+
+    osInvalDCache(dest, len);
+
+    osPiStartDma(&romio_msgbuf, OS_MESG_PRI_NORMAL, OS_READ,
+            (u32)_doom64_wadSegmentRomStart + offset,
+            dest, len, &romcopy_msgque);
+
+    osRecvMesg(&romcopy_msgque, NULL, OS_MESG_BLOCK);
+}
+
 /*
 ====================
 =
@@ -60,16 +77,9 @@ extern OSMesgQueue romcopy_msgque;
 void W_Init (void) // 8002BEC0
 {
     wadinfo_t wadfileheader ALIGNED(16);
-    OSIoMesg romio_msgbuf;
 	int infotableofs, i;
 
-	osInvalDCache(&wadfileheader, sizeof(wadinfo_t));
-
-	osPiStartDma(&romio_msgbuf, OS_MESG_PRI_NORMAL, OS_READ,
-              (u32)_doom64_wadSegmentRomStart,
-              &wadfileheader, sizeof(wadinfo_t), &romcopy_msgque);
-
-    osRecvMesg(&romcopy_msgque, NULL, OS_MESG_BLOCK);
+    W_GetRomData(0, &wadfileheader, sizeof(wadinfo_t));
 
     //sprintf(str, "identification %s",wadfileptr->identification);
     //printstr(WHITE, 0, 4, str);
@@ -79,15 +89,8 @@ void W_Init (void) // 8002BEC0
 
 	numlumps = LONGSWAP(wadfileheader.numlumps);
 	lumpinfo = (lumpinfo_t *) Z_Malloc(numlumps * sizeof(lumpinfo_t), PU_STATIC, 0);
-	osInvalDCache((void *)lumpinfo, numlumps * sizeof(lumpinfo_t));
-
 	infotableofs = LONGSWAP(wadfileheader.infotableofs);
-
-	osPiStartDma(&romio_msgbuf, OS_MESG_PRI_NORMAL, OS_READ,
-              (u32)_doom64_wadSegmentRomStart + infotableofs,
-              (void *)lumpinfo, numlumps * sizeof(lumpinfo_t), &romcopy_msgque);
-
-    osRecvMesg(&romcopy_msgque, NULL, OS_MESG_BLOCK);
+    W_GetRomData(infotableofs, lumpinfo, numlumps * sizeof(lumpinfo_t));
 
 	//sprintf(str, "identification %s",wadfileptr->identification);
     //printstr(WHITE, 0, 4, str);
@@ -107,8 +110,36 @@ void W_Init (void) // 8002BEC0
         //printstr(WHITE, 0, 8, str);
     }
 
+    // [nova] - find appropriate size for a buffer for decompressing textures/sprites
+    for(i = 0; i < numlumps; i++)
+    {
+        if (!W_IsLumpCompressed(i))
+            continue;
+
+        char *name = lumpinfo[i].name;
+
+        // skip maps
+        if (name[0] == ('M' | -0x80) && name[1] == 'A' && name[2] == 'P'
+                && name[3] >= '0' && name[3] <= '9'
+                && name[4] >= '0' && name[4] <= '9'
+                && name[5] == '\0')
+            continue;
+
+        // skip some lumps never loaded during gameplay
+        if (D_strncmp(name, "\xc5VIL", 8) == 0
+                || D_strncmp(name, "\xc6INAL", 8) == 0
+                || D_strncmp(name, "\xd4ITLE", 8) == 0)
+            continue;
+
+        int lumpsize = lumpinfo[i+1].filepos - lumpinfo[i].filepos;
+        maxcompressedsize = MAX(maxcompressedsize, lumpsize);
+    }
+
     lumpcache = (lumpcache_t *) Z_Malloc(numlumps * sizeof(lumpcache_t), PU_STATIC, 0);
     D_memset(lumpcache, NULL, numlumps * sizeof(lumpcache_t));
+
+    if (maxcompressedsize)
+        decompressbuf = Z_Malloc(maxcompressedsize, PU_STATIC, 0);
 }
 
 
@@ -205,6 +236,10 @@ int W_LumpLength (int lump) // 8002C204
 	return lumpinfo[lump].size;
 }
 
+bool W_IsLumpCompressed (int lump)
+{
+    return !!(lumpinfo[lump].name[0] & 0x80);
+}
 
 /*
 ====================
@@ -215,55 +250,48 @@ int W_LumpLength (int lump) // 8002C204
 =
 ====================
 */
-// 96 kb buffer to replace Z_Alloc in W_ReadLump
-static u64 input_w_readlump[16384]; 
-static byte *input = (byte*)input_w_readlump;
 
 void W_ReadLump (int lump, void *dest, decodetype dectype) // 8002C260
 {
-    OSIoMesg romio_msgbuf;
-	lumpinfo_t *l;
-	int lumpsize;
+    lumpinfo_t *l;
+    int lumpsize;
+    byte *input;
 
     if ((lump < 0) || (lump >= numlumps))
-		I_Error ("W_ReadLump: lump %i out of range",lump);
+        I_Error ("W_ReadLump: lump %i out of range",lump);
 
-	l = &lumpinfo[lump];
-	if(dectype != dec_none)
-	{
-		if ((l->name[0] & 0x80)) /* compressed */
-		{
-			lumpsize = l[1].filepos - (l->filepos);
+    l = &lumpinfo[lump];
+    if(dectype != dec_none)
+    {
+        if ((l->name[0] & 0x80)) /* compressed */
+        {
+            lumpsize = l[1].filepos - (l->filepos);
 
-			osInvalDCache((void *)input, lumpsize);
+            if (lumpsize <= maxcompressedsize)
+                input = decompressbuf;
+            else
+                input = Z_Alloc(lumpsize, PU_STATIC, NULL);
 
-            osPiStartDma(&romio_msgbuf, OS_MESG_PRI_NORMAL, OS_READ,
-                      (u32)_doom64_wadSegmentRomStart + l->filepos,
-                      (void *)input, lumpsize, &romcopy_msgque);
+            W_GetRomData(l->filepos, input, lumpsize);
 
-            osRecvMesg(&romcopy_msgque, NULL, OS_MESG_BLOCK);
+            if (dectype == dec_jag)
+                DecodeJaguar(input, (byte *)dest);
+            else // dec_d64
+                DecodeD64(input, (byte *)dest);
 
-			if (dectype == dec_jag)
-				DecodeJaguar((byte *)input, (byte *)dest);
-			else // dec_d64
-				DecodeD64((byte *)input, (byte *)dest);
+            if (input != decompressbuf)
+                Z_Free(input);
 
-			return;
-		}
-	}
+            return;
+        }
+    }
 
-	if (l->name[0] & 0x80)
-		lumpsize = l[1].filepos - (l->filepos);
-	else
-		lumpsize = (l->size);
+    if (l->name[0] & 0x80)
+        lumpsize = l[1].filepos - (l->filepos);
+    else
+        lumpsize = (l->size);
 
-	osInvalDCache((void *)dest, lumpsize);
-
-	osPiStartDma(&romio_msgbuf, OS_MESG_PRI_NORMAL, OS_READ,
-              (u32)_doom64_wadSegmentRomStart + l->filepos,
-              (void *)dest, lumpsize, &romcopy_msgque);
-
-	osRecvMesg(&romcopy_msgque, NULL, OS_MESG_BLOCK);
+    W_GetRomData(l->filepos, dest, lumpsize);
 }
 
 /*
@@ -354,18 +382,27 @@ void W_OpenMapWad(int mapnum) // 8002C5B0
         name[5] = NULL;
 
         lump = W_GetNumForName(name);
-        size = W_LumpLength(lump);
+        if (W_IsLumpCompressed(lump))
+        {
+            size = W_LumpLength(lump);
 
-        //sprintf(str, "name %s           ",name);
-        //printstr(WHITE, 0, 7, str);
-        //sprintf(str, "lump %d           ",lump);
-        //printstr(WHITE, 0, 8, str);
-        //sprintf(str, "size %d           ",size);
-        //printstr(WHITE, 0, 9, str);
+            //sprintf(str, "name %s           ",name);
+            //printstr(WHITE, 0, 7, str);
+            //sprintf(str, "lump %d           ",lump);
+            //printstr(WHITE, 0, 8, str);
+            //sprintf(str, "size %d           ",size);
+            //printstr(WHITE, 0, 9, str);
 
-        mapfileptr = Z_Alloc(size, PU_STATIC, NULL);
+            mapfileptr = Z_Alloc(size, PU_STATIC, NULL);
+            maplumppos = 0;
 
-        W_ReadLump(lump, mapfileptr, dec_d64);
+            W_ReadLump(lump, mapfileptr, dec_d64);
+        }
+        else
+        {
+            mapfileptr = NULL;
+            maplumppos = lumpinfo[lump].filepos;
+        }
     }
 #ifdef USB
     else if (PendingUSBOperations & USB_OP_LOADMAP)
@@ -376,7 +413,8 @@ void W_OpenMapWad(int mapnum) // 8002C5B0
         if (size == 0)
             I_Error("No map provided");
 
-        mapfileptr = Z_Malloc(size, PU_STATIC, NULL);
+        mapfileptr = Z_Alloc(size, PU_STATIC, NULL);
+        maplumppos = 0;
         I_CmdGetNextToken(mapfileptr);
         I_CmdSkipAllTokens();
         gamemap = 0;
@@ -387,23 +425,37 @@ void W_OpenMapWad(int mapnum) // 8002C5B0
         I_Error("Invalid map %d", mapnum);
     }
 
-    mapnumlumps = LONGSWAP(((wadinfo_t*)mapfileptr)->numlumps);
-    infotableofs = LONGSWAP(((wadinfo_t*)mapfileptr)->infotableofs);
+    if (mapfileptr)
+    {
+        mapnumlumps = LONGSWAP(((wadinfo_t*)mapfileptr)->numlumps);
+        infotableofs = LONGSWAP(((wadinfo_t*)mapfileptr)->infotableofs);
 
-    //sprintf(str, "mapnumlumps %d           ",mapnumlumps);
-    //printstr(WHITE, 0, 10, str);
-    //sprintf(str, "infotableofs %d           ",infotableofs);
-    //printstr(WHITE, 0, 11, str);
+        //sprintf(str, "mapnumlumps %d           ",mapnumlumps);
+        //printstr(WHITE, 0, 10, str);
+        //sprintf(str, "infotableofs %d           ",infotableofs);
+        //printstr(WHITE, 0, 11, str);
 
-	maplump = (lumpinfo_t*)(mapfileptr + infotableofs);
+        maplump = (lumpinfo_t*)(mapfileptr + infotableofs);
+    }
+    else if (maplumppos)
+    {
+        wadinfo_t wadfileheader ALIGNED(16);
 
-	for(i = 0; i < mapnumlumps; i++)
+        W_GetRomData(maplumppos, &wadfileheader, sizeof(wadinfo_t));
+
+        mapnumlumps = LONGSWAP(wadfileheader.numlumps);
+        infotableofs = LONGSWAP(wadfileheader.infotableofs);
+
+        maplump = (lumpinfo_t *) Z_Malloc(mapnumlumps * sizeof(lumpinfo_t), PU_STATIC, 0);
+        W_GetRomData(maplumppos + infotableofs, maplump, mapnumlumps * sizeof(lumpinfo_t));
+    }
+
+    for(i = 0; i < mapnumlumps; i++)
     {
         maplump[i].filepos = LONGSWAP(maplump[i].filepos);
         maplump[i].size = LONGSWAP(maplump[i].size);
     }
 }
-
 /*
 ====================
 =
@@ -413,10 +465,26 @@ void W_OpenMapWad(int mapnum) // 8002C5B0
 ====================
 */
 
-void W_FreeMapLump(void) // 8002C748
+void W_FreeMapLumps(void) // 8002C748
 {
-    Z_Free(mapfileptr);
+    if (mapfileptr)
+    {
+        Z_Free(mapfileptr);
+        mapfileptr = NULL;
+    }
+    else
+    {
+        Z_Free(maplump);
+    }
+    maplump = NULL;
+    maplumppos = 0;
     mapnumlumps = 0;
+}
+
+void W_FreeMapLump(void *ptr)
+{
+    if (!mapfileptr)
+        Z_Free(ptr);
 }
 
 /*
@@ -499,8 +567,24 @@ int W_MapGetNumForName(char *name) // 8002C7D0
 
 void  *W_GetMapLump(int lump) // 8002C890
 {
-	if (lump >= mapnumlumps)
-		I_Error("W_GetMapLump: lump %d out of range", lump);
+    if (lump >= mapnumlumps)
+        I_Error("W_GetMapLump: lump %d out of range", lump);
 
-	return (void *) ((byte *)mapfileptr + maplump[lump].filepos);
+    if (mapfileptr)
+        return (void *) ((byte *)mapfileptr + maplump[lump].filepos);
+
+    int size = ALIGN(maplump[lump].size, 2);
+    void *ptr = Z_Alloc(size, PU_STATIC, NULL);
+
+    W_GetRomData(maplumppos + maplump[lump].filepos, ptr, size);
+
+    return ptr;
+}
+
+void W_ReadMapLump(int lump, void *ptr)
+{
+    if (mapfileptr)
+        D_memcpy(ptr, mapfileptr + maplump[lump].filepos, maplump[lump].size);
+    else
+        W_GetRomData(maplumppos + maplump[lump].filepos, ptr, ALIGN(maplump[lump].size, 2));
 }

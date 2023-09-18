@@ -65,6 +65,7 @@ int         nightmarerespawncount;
 
 SEC_STARTUP void P_LoadVertexes (void) // 8001CF20
 {
+	void *ptr;
 	int			i;
 	mapvertex_t	*ml;
 	vertex_t	*li;
@@ -73,7 +74,7 @@ SEC_STARTUP void P_LoadVertexes (void) // 8001CF20
 	vertexes = Z_Malloc (numvertexes*sizeof(vertex_t),PU_LEVEL,0);
 	D_memset (vertexes, 0, numvertexes*sizeof(vertex_t));
 
-	ml = (mapvertex_t *)W_GetMapLump(ML_VERTEXES);
+	ptr = ml = (mapvertex_t *)W_GetMapLump(ML_VERTEXES);
 	li = vertexes;
 	for (i=0 ; i<numvertexes ; i++, li++, ml++)
 	{
@@ -84,6 +85,7 @@ SEC_STARTUP void P_LoadVertexes (void) // 8001CF20
 		//PRINTF_D2(WHITE, 0, 25, "vertexes(%i,%i,%i)     \n", li->x>>16, li->y>>16,li->validcount);
 		//WAIT();
 	}
+	W_FreeMapLump(ptr);
 }
 
 /*
@@ -96,6 +98,7 @@ SEC_STARTUP void P_LoadVertexes (void) // 8001CF20
 
 SEC_STARTUP void P_LoadSegs (void) // 8001D020
 {
+	void *ptr;
 	int			i;
 	mapseg_t	*ml;
 	seg_t		*li;
@@ -107,7 +110,7 @@ SEC_STARTUP void P_LoadSegs (void) // 8001D020
 	segs = Z_Malloc (numsegs*sizeof(seg_t),PU_LEVEL,0);
 	D_memset (segs, 0, numsegs*sizeof(seg_t));
 
-	ml = (mapseg_t *)W_GetMapLump(ML_SEGS);
+	ptr = ml = (mapseg_t *)W_GetMapLump(ML_SEGS);
 	li = segs;
 	for (i=0 ; i<numsegs ; i++, li++, ml++)
 	{
@@ -142,6 +145,7 @@ SEC_STARTUP void P_LoadSegs (void) // 8001D020
         //PRINTF_D2(WHITE, 0, 25, "segs(length %i)     ", li->length);
 		//WAIT();
 	}
+	W_FreeMapLump(ptr);
 }
 
 /*
@@ -154,6 +158,7 @@ SEC_STARTUP void P_LoadSegs (void) // 8001D020
 
 SEC_STARTUP void P_LoadSubSectors (void) // 8001D34C
 {
+	void *ptr;
 	int				i;
 	mapsubsector_t	*ms;
 	subsector_t		*ss;
@@ -162,7 +167,7 @@ SEC_STARTUP void P_LoadSubSectors (void) // 8001D34C
 	subsectors = Z_Malloc (numsubsectors*sizeof(subsector_t),PU_LEVEL,0);
 	D_memset (subsectors, 0, numsubsectors*sizeof(subsector_t));
 
-	ms = (mapsubsector_t *)W_GetMapLump(ML_SSECTORS);
+	ptr = ms = (mapsubsector_t *)W_GetMapLump(ML_SSECTORS);
 	ss = subsectors;
 	for (i=0 ; i<numsubsectors ; i++, ss++, ms++)
 	{
@@ -173,6 +178,7 @@ SEC_STARTUP void P_LoadSubSectors (void) // 8001D34C
         //ss->leaf = 0;
         //ss->drawindex = 0;
 	}
+	W_FreeMapLump(ptr);
 }
 
 
@@ -186,6 +192,7 @@ SEC_STARTUP void P_LoadSubSectors (void) // 8001D34C
 
 SEC_STARTUP void P_LoadSectors (void) // 8001D43C
 {
+	void *ptr;
 	int				i;
 	mapsector_t		*ms;
 	sector_t		*ss;
@@ -198,7 +205,7 @@ SEC_STARTUP void P_LoadSectors (void) // 8001D43C
 	sectors = Z_Malloc (numsectors*sizeof(sector_t),PU_LEVEL,0);
 	D_memset (sectors, 0, numsectors*sizeof(sector_t));
 
-	ms = (mapsector_t *)W_GetMapLump(ML_SECTORS);
+	ptr = ms = (mapsector_t *)W_GetMapLump(ML_SECTORS);
 	ss = sectors;
 	for (i=0 ; i<numsectors ; i++, ss++, ms++)
 	{
@@ -227,6 +234,7 @@ SEC_STARTUP void P_LoadSectors (void) // 8001D43C
             ss->floorpic = -1;
 
 	}
+	W_FreeMapLump(ptr);
 }
 
 /*
@@ -239,6 +247,7 @@ SEC_STARTUP void P_LoadSectors (void) // 8001D43C
 
 SEC_STARTUP void P_LoadNodes (void) // 8001D64C
 {
+	void *ptr;
 	int			i,j,k;
 	mapnode_t	*mn;
 	node_t		*no;
@@ -247,7 +256,7 @@ SEC_STARTUP void P_LoadNodes (void) // 8001D64C
 	nodes = Z_Malloc (numnodes*sizeof(node_t),PU_LEVEL,0);
 	D_memset (nodes, 0, numnodes*sizeof(node_t));
 
-	mn = (mapnode_t *)W_GetMapLump(ML_NODES);
+	ptr = mn = (mapnode_t *)W_GetMapLump(ML_NODES);
 	no = nodes;
 	for (i=0 ; i<numnodes ; i++, no++, mn++)
 	{
@@ -262,6 +271,7 @@ SEC_STARTUP void P_LoadNodes (void) // 8001D64C
 				no->bbox[j][k] = LITTLESHORT(mn->bbox[j][k]) << FRACBITS;
 		}
 	}
+	W_FreeMapLump(ptr);
 }
 
 /*
@@ -326,6 +336,7 @@ SEC_STARTUP void P_LoadThings (void) // 8001D864
         //if (mt->type >= 4096)
         //	I_Error("P_LoadThings: doomednum:%d >= 4096", mt->type);
     }
+	W_FreeMapLump(mts);
 }
 
 /*
@@ -339,6 +350,7 @@ SEC_STARTUP void P_LoadThings (void) // 8001D864
 
 SEC_STARTUP void P_LoadLineDefs (void) // 8001D9B8
 {
+	void *ptr;
 	int				i;
 	maplinedef_t	*mld;
 	line_t			*ld;
@@ -349,7 +361,7 @@ SEC_STARTUP void P_LoadLineDefs (void) // 8001D9B8
 	lines = Z_Malloc (numlines*sizeof(line_t),PU_LEVEL,0);
 	D_memset (lines, 0, numlines*sizeof(line_t));
 
-	mld = (maplinedef_t *)W_GetMapLump(ML_LINEDEFS);
+	ptr = mld = (maplinedef_t *)W_GetMapLump(ML_LINEDEFS);
 	ld = lines;
 	for (i=0 ; i<numlines ; i++, mld++, ld++)
 	{
@@ -420,6 +432,7 @@ SEC_STARTUP void P_LoadLineDefs (void) // 8001D9B8
             }
         }
 	}
+	W_FreeMapLump(ptr);
 }
 
 /*
@@ -432,6 +445,7 @@ SEC_STARTUP void P_LoadLineDefs (void) // 8001D9B8
 
 SEC_STARTUP void P_LoadSideDefs (void) // 8001DCC8
 {
+	void *ptr;
 	int				i;
 	mapsidedef_t	*msd;
 	side_t			*sd;
@@ -440,7 +454,7 @@ SEC_STARTUP void P_LoadSideDefs (void) // 8001DCC8
 	sides = Z_Malloc (numsides*sizeof(side_t),PU_LEVEL,0);
 	D_memset (sides, 0, numsides*sizeof(side_t));
 
-	msd = (mapsidedef_t *)W_GetMapLump(ML_SIDEDEFS);
+	ptr = msd = (mapsidedef_t *)W_GetMapLump(ML_SIDEDEFS);
 	sd = sides;
 	for (i=0 ; i<numsides ; i++, msd++, sd++)
 	{
@@ -452,6 +466,7 @@ SEC_STARTUP void P_LoadSideDefs (void) // 8001DCC8
 		sd->midtexture = LITTLESHORT(msd->midtexture);
 		sd->bottomtexture = LITTLESHORT(msd->bottomtexture);
 	}
+	W_FreeMapLump(ptr);
 }
 
 /*
@@ -467,12 +482,10 @@ SEC_STARTUP void P_LoadBlockMap (void) // 8001DE38
 	int		count;
 	int		i;
 	int     length;
-	byte    *src;
 
 	length = W_MapLumpLength(ML_BLOCKMAP);
-	blockmaplump = Z_Malloc(length, PU_LEVEL, 0);
-	src = (byte *)W_GetMapLump(ML_BLOCKMAP);
-	D_memcpy(blockmaplump,src,length);
+	blockmaplump = Z_Malloc(ALIGN(length, 2), PU_LEVEL, 0);
+    W_ReadMapLump(ML_BLOCKMAP, blockmaplump);
 
 	blockmap = blockmaplump+4;//skip blockmap header
 	count = length/2;
@@ -502,13 +515,11 @@ SEC_STARTUP void P_LoadBlockMap (void) // 8001DE38
 SEC_STARTUP void P_LoadReject(void) // 8001DF98
 {
 	int     length;
-	byte    *src;
 
 	length = W_MapLumpLength(ML_REJECT);
-	rejectmatrix = (byte*)Z_Malloc(length, PU_LEVEL, NULL);
+	rejectmatrix = (byte*)Z_Malloc(ALIGN(length, 2), PU_LEVEL, NULL);
 
-    src = (byte *)W_GetMapLump(ML_REJECT);
-    D_memcpy(rejectmatrix,src,length);
+    W_ReadMapLump(ML_REJECT, rejectmatrix);
 }
 
 /*
@@ -582,6 +593,7 @@ SEC_STARTUP void P_LoadLeafs(void) // 8001DFF8
         }
         numleafs += (int)j;
 	}
+	W_FreeMapLump(data);
 }
 
 /*
@@ -597,16 +609,15 @@ SEC_STARTUP void P_LoadLights(void) // 8001E29C
 {
     int         i;
     int         length;
-    byte        *data;
     maplights_t *ml;
     light_t     *l;
 
     length = W_MapLumpLength(ML_LIGHTS);
     if (length > 0)
-        maplights = (maplights_t *)Z_Malloc(length, PU_LEVEL, 0);
-
-    data = (byte *)W_GetMapLump(ML_LIGHTS);
-    D_memcpy(maplights,data,length);
+    {
+        maplights = (maplights_t *)Z_Malloc(ALIGN(length, 2), PU_LEVEL, 0);
+        W_ReadMapLump(ML_LIGHTS, maplights);
+    }
 
     numlights = (length / sizeof(maplights_t)) + 256;
 
@@ -623,7 +634,7 @@ SEC_STARTUP void P_LoadLights(void) // 8001E29C
     }
 
     /* Copy custom light colors */
-    for (i = i; i < numlights; i++, l++, ml++)
+    for (; i < numlights; i++, l++, ml++)
     {
         l->rgba = ((ml->r << 24) | (ml->g << 16) | (ml->b << 8) | ml->a);
         l->tag = LITTLESHORT(ml->tag);
@@ -644,6 +655,7 @@ SEC_STARTUP void P_LoadLights(void) // 8001E29C
 
 SEC_STARTUP void P_LoadMacros(void) // 8001E478
 {
+    void *ptr;
     short *data;
     int specialCount;
     byte *macroData;
@@ -657,7 +669,7 @@ SEC_STARTUP void P_LoadMacros(void) // 8001E478
         nummacros = 0;
         return;
     }
-    data = (short *)W_GetMapLump(ML_MACROS);
+    ptr = data = (short *)W_GetMapLump(ML_MACROS);
 
     nummacros = LITTLESHORT(*data++);
     specialCount = LITTLESHORT(*data++);
@@ -687,6 +699,7 @@ SEC_STARTUP void P_LoadMacros(void) // 8001E478
             pMacro++;
         }
     }
+    W_FreeMapLump(ptr);
 }
 
 /*
@@ -822,7 +835,7 @@ void P_SetupLevel(int map) // 8001E974
     P_LoadLights();
     P_GroupLines();
     P_LoadThings();
-    W_FreeMapLump();
+    W_FreeMapLumps();
 
 	P_Init();
 }
