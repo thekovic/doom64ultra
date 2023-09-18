@@ -300,3 +300,42 @@ int MiniLoop(void(*start)(void), void(*stop)(int),
 
     return exit;
 }
+
+/*
+#include "st_main.h"
+
+static void D_BenchmarkMapLoad(void)
+{
+
+    ST_EnableDebug();
+    players[0].readyweapon = wp_pistol;
+
+    for (int i = 1; i <= TOTALMAPS; i++)
+    {
+        gamemap = i;
+
+        u32 start = osGetCount();
+
+        void G_DoLoadLevel (void);
+        G_DoLoadLevel();
+
+        u32 loadtime = (u32) OS_CYCLES_TO_USEC(osGetCount() - start);
+        D_printf("map%02d: %lu\n", gamemap, loadtime);
+        ST_DebugPrint("map%02d: %lu ms\n", gamemap, loadtime/1000);
+
+        I_ClearFrame();
+        I_ClearFB(0x000000ff);
+
+        ST_DrawDebug();
+
+        I_DrawFrame();
+    }
+
+    I_Sleep(3*1000000);
+
+    I_WIPE_FadeOutScreen();
+
+    ST_DebugClear();
+    ST_DisableDebug();
+}
+*/

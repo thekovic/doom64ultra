@@ -1299,6 +1299,8 @@ void I_StopRumble(void);
 void I_WIPE_MeltScreen(void); // 80006964
 void I_WIPE_FadeOutScreen(void); // 80006D34
 
+void I_Sleep(u32 us);
+
 #ifdef NDEBUG
 
 void I_Error(const char *error, ...) __attribute__((format (printf, 1, 2))) NO_RETURN COLD;

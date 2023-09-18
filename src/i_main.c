@@ -1444,3 +1444,9 @@ void I_ControllerThread(void *arg)
         I_CheckStack(joy_stack, "Joystick");
     }
 }
+
+void I_Sleep(u32 us)
+{
+    int start = osGetCount();
+    while (OS_CYCLES_TO_USEC(osGetCount() - start) < us) {}
+}
