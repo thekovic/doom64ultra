@@ -13,6 +13,8 @@ https://github.com/buu342/N64-UNFLoader
 #include "st_main.h"
 #else
 #include <os_internal.h>
+#include <internal/osint.h>
+#include <internal/viint.h>
 #include "blit32.h"
 #endif
 
@@ -138,7 +140,9 @@ void I_ErrorFull(const char *file, int line, const char *func, const char *expr,
     char *cur = buffer;
 
     if (expr)
-        cur += sprintf(cur, "Assertion failed: %s\n", expr);
+        cur += sprintf(cur, "Assertion Failed: %s\n", expr);
+    else
+        cur += sprintf(cur, "Fatal Error\n");
 
     if (func && file)
         cur += sprintf(cur, "%s: %s:%d\n", func, file, line);
@@ -399,8 +403,6 @@ static void I_StopAppThreads(void)
     I_ForEachThread(osStopThread);
 }
 
-void __osViSwapContext(void);
-
 #ifndef USB_GDB
 
 typedef struct
@@ -574,10 +576,8 @@ static int I_GetCallStack(void **addresses, u64 sp_val, u64 ra_val) {
     return i; /* stack size */
 }
 
-#define ERROR_FB_SIZE (640*480*sizeof(u16))
-#define HIRES_FB_ADDR ((u16*)(AUDIO_HEAP_ADDR - ERROR_FB_SIZE))
-#define FAULT_MSG_BUFFER (((char *)HIRES_FB_ADDR) - 0x4000)
-#define FAULT_BT_BUFFER ((void **)(FAULT_MSG_BUFFER - MAX_STACK_TRACE*4))
+#define FAULT_MSG_BUFFER ((char *)CFB(1))
+#define FAULT_BT_BUFFER ((void**)(FAULT_MSG_BUFFER + 0x4000))
 
 static inline __attribute__((nonnull(1, 2)))
 char *I_PrintFault(OSThread *curr, char *out)
@@ -635,27 +635,44 @@ char *I_PrintFault(OSThread *curr, char *out)
     return out;
 }
 
-static void I_DebugSetHiRes(u16 *fb)
+static COLD bool I_DebugSetMode(u16 *fb)
 {
     OSViMode *mode;
+    bool hires = false;
 
-    D_memset(fb, 0, ERROR_FB_SIZE);
+    D_memset(fb, 0, CFB_SIZE);
 
-    switch(osTvType)
+    if (CFB_SIZE >= 640*480*sizeof(u16))
     {
-        case OS_TV_PAL: mode = &osViModeTable[OS_VI_PAL_HPF1]; break;
-        case OS_TV_MPAL: mode = &osViModeTable[OS_VI_MPAL_HPF1]; break;
-        default: mode = &osViModeTable[OS_VI_NTSC_HPF1]; break;
+        switch(osTvType)
+        {
+            case OS_TV_PAL: mode = &osViModeTable[OS_VI_PAL_HPF1]; break;
+            case OS_TV_MPAL: mode = &osViModeTable[OS_VI_MPAL_HPF1]; break;
+            default: mode = &osViModeTable[OS_VI_NTSC_HPF1]; break;
+        }
+        mode->comRegs.xScale = 1024;
+        mode->comRegs.width = 640;
+        mode->fldRegs[0].origin = 320 * 4;
+        mode->fldRegs[1].origin = 320 * 8;
+        hires = true;
     }
-    mode->comRegs.xScale = 1024;
-    mode->comRegs.width = 640;
-    mode->fldRegs[0].origin = 320 * 4;
-    mode->fldRegs[1].origin = 320 * 8;
+    else
+    {
+        switch(osTvType)
+        {
+            case OS_TV_PAL: mode = &osViModeTable[OS_VI_PAL_LPN1]; break;
+            case OS_TV_MPAL: mode = &osViModeTable[OS_VI_MPAL_LPN1]; break;
+            default: mode = &osViModeTable[OS_VI_NTSC_LPN1]; break;
+        }
+    }
 
-    osViSwapBuffer(fb);
     osViSetMode(mode);
-}
+    osViBlack(FALSE);
+    osViSwapBuffer(fb);
+    __osViSwapContext();
 
+    return hires;
+}
 
 /* Fault/break thread */
 
@@ -663,49 +680,72 @@ static COLD void NO_RETURN I_DebuggerThread(void *arg)
 {
     SET_GP();
 
-    OSMesg msg;
-    u16 *fb;
-    int mask;
-    char *buf;
-    OSThread *thread;
-
-    osRecvMesg(&debugMessageQ, &msg, OS_MESG_BLOCK);
-
-    I_StopAppThreads();
-
-    /* take over memory at the end of the heap for a hires framebuffer */
-    fb = HIRES_FB_ADDR;
-
-    mask = __osDisableInt();
-
-    I_DebugSetHiRes(fb);
-    buf = FAULT_MSG_BUFFER;
-
-    thread = I_FaultedThread((int) msg);
-    if (thread == RSP_THREAD)
     {
-        buf += sprintf(buf, "RSP Break");
-        // TODO - print RSP registers
-    }
-    else
-    {
-        while (thread != NULL)
+        OSMesg msg;
+        u16 *fb;
+        int mask;
+        int shift;
+
+        osRecvMesg(&debugMessageQ, &msg, OS_MESG_BLOCK);
+
+        I_StopAppThreads();
+
+        mask = __osDisableInt();
+
         {
-            buf = I_PrintFault(thread, buf);
-            if ((int) msg == MSG_FAULT)
-                thread = __osGetNextFaultedThread(thread);
+            int start = osGetCount();
+
+            /* wait up to 1 second for the rcp to stop */
+            while (__osSpDeviceBusy() || __osDpDeviceBusy())
+                if (osGetCount() - start >= OS_USEC_TO_CYCLES(1000000))
+                    break;
+
+            /* wait for vsync */
+            while (IO_READ(VI_CURRENT_REG) > 10) {}
+
+            osViSetYScale(1.0);
+            osViBlack(TRUE);
+            __osViSwapContext();
+        }
+
+        fb = (u16*) CFB(0);
+
+        if (I_DebugSetMode(fb))
+            shift = 1;
+        else
+            shift = 0;
+
+        {
+            char *buf = FAULT_MSG_BUFFER;
+            char *end = buf;
+            OSThread *thread = I_FaultedThread((int) msg);
+
+            if (thread == RSP_THREAD)
+            {
+                end += sprintf(end, "RSP Break");
+                // TODO - print RSP registers
+            }
             else
-                thread = NULL;
+            {
+                while (thread != NULL)
+                {
+                    end = I_PrintFault(thread, end);
+                    if ((int) msg == MSG_FAULT)
+                        thread = __osGetNextFaultedThread(thread);
+                    else
+                        thread = NULL;
+                }
+            }
+
+            blit32_TextExplicit(fb, 0xffff, 1, 320<<shift, 240<<shift, blit_Clip, 32, 24, FAULT_MSG_BUFFER);
+
+            osInvalDCache(fb, 640*480*2);
+
+            __osRestoreInt(mask);
+
+            D_print(buf, end - buf);
         }
     }
-
-    blit32_TextExplicit(fb, 0xffff, 1, 640, 480, blit_Clip, 32, 24, FAULT_MSG_BUFFER);
-
-    osInvalDCache(fb, 640*480*2);
-
-    __osRestoreInt(mask);
-
-    D_print(FAULT_MSG_BUFFER, buf - FAULT_MSG_BUFFER);
 
     while (1)
         osYieldThread();

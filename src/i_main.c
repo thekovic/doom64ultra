@@ -32,6 +32,7 @@ vu64	bootStack[BOOT_STACKSIZE/sizeof(u64)];
 
 u8 *cfb;
 SDATA u16 SCREEN_HT = 240;
+SDATA u32 CFB_SIZE;
 
 extern int globallump; // 800A68f8 r_local.h
 extern int globalcm;   // 800A68fC r_local.h
@@ -274,12 +275,23 @@ void I_IdleGameThread(void *arg) // 8000567C
 {
     SET_GP();
 
-    /* Create and start the PI and VI managers... */
-    osCreatePiManager((OSPri)OS_PRIORITY_PIMGR, &msgque_Pi, msgbuf_Pi, SYS_MSGBUF_SIZE_PI);
-    osCreateViManager(OS_PRIORITY_VIMGR);
+    if (osMemSize >= 0x800000)
+    {
+        BitDepth = BITDEPTH_32;
+        CFB_SIZE = SCREEN_WD*SCREEN_HT*2*sizeof(u32);
+    }
+    else
+    {
+        BitDepth = BITDEPTH_16;
+        CFB_SIZE = SCREEN_WD*SCREEN_HT*sizeof(u16);
+    }
 
     if (osTvType == OS_TV_PAL)
         SCREEN_HT = 288;
+
+    /* Create and start the PI and VI managers... */
+    osCreatePiManager((OSPri)OS_PRIORITY_PIMGR, &msgque_Pi, msgbuf_Pi, SYS_MSGBUF_SIZE_PI);
+    osCreateViManager(OS_PRIORITY_VIMGR);
 
     /* Init debugger/USB support after PI */
     I_InitFlashCart();
@@ -567,11 +579,6 @@ void I_Init(void) // 80005C50
     // Init the video mode...
     I_RefreshVideo();
     osViBlack(TRUE);
-
-    if (osMemSize >= 0x800000)
-        BitDepth = BITDEPTH_32;
-    else
-        BitDepth = BITDEPTH_16;
 
     cfb = CFBS_ADDR;
     D_memset(cfb, 0, CFBS_SIZE);
