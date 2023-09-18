@@ -687,7 +687,7 @@ extern	int DrawerStatus;
 
 //extern	int		maxlevel;			/* highest level selectable in menu (1-25) */
 
-int MiniLoop ( void (*start)(void),  void (*stop)()
+int MiniLoop ( void (*start)(void),  void (*stop)(int)
 		,  int (*ticker)(void), void (*drawer)(void) ) HOT;
 
 int	G_Ticker (void);
@@ -920,7 +920,7 @@ void P_Drawer (void) SEC_GAME;
 /*---------*/
 
 void IN_Start (void) SEC_MENU;
-void IN_Stop (void) SEC_MENU;
+void IN_Stop (int exit) SEC_MENU;
 int IN_Ticker (void) SEC_MENU;
 void IN_Drawer (void) SEC_MENU;
 
@@ -1021,7 +1021,7 @@ void M_SaveMenuData(void) SEC_MENU; // 80007B2C
 void M_RestoreMenuData(boolean alpha_in) SEC_MENU; // 80007BB8
 void M_MenuGameDrawer(void) SEC_MENU; // 80007C48
 int M_MenuTicker(void) SEC_MENU; // 80007E0C
-void M_MenuClearCall(void) SEC_MENU; // 80008E6C
+void M_MenuClearCall(int exit) SEC_MENU; // 80008E6C
 
 void M_MenuTitleDrawer(void) SEC_MENU; // 80008E7C
 void M_FeaturesDrawer(void) SEC_MENU; // 800091C0
@@ -1047,7 +1047,7 @@ int M_SavePakTicker(void) SEC_MENU; // 8000A804
 void M_SavePakDrawer(void) SEC_MENU; // 8000AB44
 
 void M_LoadPakStart(void) SEC_MENU; // 8000AEEC
-void M_LoadPakStop(void) SEC_MENU; // 8000AF8C
+void M_LoadPakStop(int exit) SEC_MENU; // 8000AF8C
 int M_LoadPakTicker(void) SEC_MENU; // 8000AFE4
 void M_LoadPakDrawer(void) SEC_MENU; // 8000B270
 
@@ -1057,7 +1057,7 @@ int M_SaveGamePakTicker(void) SEC_MENU;
 void M_SaveGamePakDrawer(void) SEC_MENU;
 
 void M_LoadGamePakStart(void) SEC_MENU;
-void M_LoadGamePakStop(void) SEC_MENU;
+void M_LoadGamePakStop(int exit) SEC_MENU;
 int M_LoadGamePakTicker(void) SEC_MENU;
 void M_LoadGamePakDrawer(void) SEC_MENU;
 
@@ -1081,7 +1081,7 @@ void M_PrintSaveTitle(char *buf, customskill_t skill, int map);
 bool M_EncodePassword(byte *buff);//8000BC10
 int M_DecodePassword(byte *inbuff, int *levelnum, int *skill, player_t *player); // 8000C194
 void M_PasswordStart(void); // 8000C710
-void M_PasswordStop(void); // 8000C744
+void M_PasswordStop(int exit); // 8000C744
 int M_PasswordTicker(void); // 8000C774
 void M_PasswordDrawer(void); // 8000CAF0
 
@@ -1090,12 +1090,12 @@ void M_PasswordDrawer(void); // 8000CAF0
 /*--------*/
 
 void F_StartIntermission (void) SEC_MENU;
-void F_StopIntermission (void) SEC_MENU;
+void F_StopIntermission (int exit) SEC_MENU;
 int F_TickerIntermission (void) SEC_MENU;
 void F_DrawerIntermission (void) SEC_MENU;
 
 void F_Start (void) SEC_MENU;
-void F_Stop (void) SEC_MENU;
+void F_Stop (int exit) SEC_MENU;
 int F_Ticker (void) SEC_MENU;
 void F_Drawer (void) SEC_MENU;
 

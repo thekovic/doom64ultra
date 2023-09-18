@@ -364,7 +364,7 @@ void F_StartIntermission(void) // 80002CD0
 =================
 */
 
-void F_StopIntermission(void) // 80002E14
+void F_StopIntermission(int exit) // 80002E14
 {
 	S_StopMusic(); // [Immorpher] stop intermission music
     gamepaused = false;
@@ -515,7 +515,7 @@ void F_Start(void) // 8000313C
 =================
 */
 
-void F_Stop(void) // 80003220
+void F_Stop(int exit) // 80003220
 {
     gamepaused = false;
     DrawerStatus = 0;

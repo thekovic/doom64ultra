@@ -2862,7 +2862,7 @@ int M_MenuTicker(void) // 80007E0C
     return exit;
 }
 
-void M_MenuClearCall(void) // 80008E6C
+void M_MenuClearCall(int exit) // 80008E6C
 {
     MenuCall = NULL;
 }
@@ -4195,7 +4195,7 @@ void M_LoadPakStart(void) // 8000AEEC
     M_FadeInStart();
 }
 
-void M_LoadPakStop(void) // 8000AF8C
+void M_LoadPakStop(int exit) // 8000AF8C
 {
     S_StartSound(NULL, sfx_pistol);
     M_FadeOutStart(ga_exit);
@@ -4365,7 +4365,7 @@ void M_LoadGamePakStart(void)
     M_FadeInStart();
 }
 
-void M_LoadGamePakStop(void)
+void M_LoadGamePakStop(int exit)
 {
     S_StartSound(NULL, sfx_pistol);
     M_FadeOutStart(ga_exit);

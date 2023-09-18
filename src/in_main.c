@@ -149,7 +149,7 @@ void IN_Start(void) // 80004AF0
 
 extern const menuitem_t Menu_Save[3];
 
-void IN_Stop(void) // 80004DB0
+void IN_Stop(int exit) // 80004DB0
 {
 	S_StopMusic();
 
