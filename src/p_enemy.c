@@ -1772,7 +1772,7 @@ void L_MissileHit (mobj_t *mo) // 80013170
     {
         if (missilething && !(missilething->flags & MF_NOBLOOD))
         {
-            P_SpawnBlood(mo->x, mo->y, mo->z, damage);
+            P_SpawnBlood(mo->x, mo->y, mo->z, damage, mo);
         }
         else
         {

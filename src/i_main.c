@@ -929,7 +929,7 @@ void I_ClearFB(register u32 color)
 {
     if (BitDepth == BITDEPTH_16)
     {
-        color = RGBATO551(color);
+        color = RGBATO5551(color);
         color |= (color << 16);
     }
 

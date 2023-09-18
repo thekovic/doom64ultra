@@ -2,7 +2,6 @@
 
 #include "doomdef.h"
 #include "r_local.h"
-#include "p_local.h"
 
 SDATA int			firsttex;				// 800A632C
 int			lasttex;				// 800A6330
@@ -18,8 +17,13 @@ int	        skytexture;             // 800A5f14
 
 spritedef_t		sprites[NUMSPRITES];
 
+int bloodlump;
+int giblump;
+u16 bloodpalettes[5][3][16];
+
 void R_InitTextures(void);
 void R_InitSprites(void);
+void R_InitBloodPalette(int lump, u16 palettes[static 3][16]);
 /*============================================================================ */
 
 #define PI_VAL 3.141592653589793
@@ -45,8 +49,15 @@ void R_InitData (void) // 80023180
         val += 2;
     }*/
 
-	R_InitTextures();
+    R_InitTextures();
     R_InitSprites();
+
+    bloodlump = W_GetNumForName("BLUDA0");
+    for (int i = 0; i < 4; i++)
+        R_InitBloodPalette(bloodlump + i, bloodpalettes[i]);
+
+    giblump = W_GetNumForName("A027A0");
+    R_InitBloodPalette(giblump, bloodpalettes[4]);
 }
 
 /*
@@ -255,4 +266,41 @@ void R_InitSprites(void) // 80023378
 	lastspritelump = W_GetNumForName("S_END") - 1;
 	numspritelumps = (lastspritelump - firstspritelump) + 1;
 	R_InitSpriteDefs(sprnames);
+}
+
+void R_PaletteChangeHSV(u16 *dest, const u16 *src, int h, int s, int v)
+{
+    u32 c;
+    int hsv;
+
+    for (int i = 0; i < 16; i++) {
+        c = src[i];
+        if (c & 1)
+        {
+            hsv = LightGetHSV((c&0xf800)>>8, (c&0x7c0)>>3, (c&0x3e)<<2);
+            c = (LightGetRGB(((hsv >> 16) + h) & 0xff,
+                             CLAMP(((hsv >> 8) & 0xff) + s, 0, 255),
+                             CLAMP((hsv & 0xff) + v, 0, 255)) << 8) | 0xff;
+            dest[i] = RGBATO5551(c);
+        }
+        else
+        {
+            dest[i] = 0;
+        }
+    }
+}
+
+void R_InitBloodPalette(int lump, u16 palettes[static 3][16])
+{
+    spriteN64_t *sprite;
+    u16 *pal;
+
+    sprite = W_GetLump(lump, dec_jag, -1);
+    pal = (u16*)(((byte*)sprite) + sizeof(spriteN64_t) + sprite->cmpsize);
+
+    R_PaletteChangeHSV(palettes[0], pal, 11, 0, 0);
+    R_PaletteChangeHSV(palettes[1], pal, 85, 0, 0);
+    R_PaletteChangeHSV(palettes[2], pal, 192, -128, -16);
+
+    Z_Free(sprite);
 }

@@ -90,10 +90,10 @@ boolean PIT_ChangeSector (mobj_t *thing) // 80010234
         if(thing->type == MT_PAIN || thing->type == MT_SKULL || thing->type == MT_PROP_BARREL)
         {
             P_RemoveMobj (thing);
-            return true;		/* keep checking */
         }
         else if(thing->state != &states[S_GIBS])
         {
+            P_SetBloodColor(thing, thing);
             P_SetMobjState(thing, S_GIBS);
             S_StartSound(thing, sfx_slop);
             thing->height = 0;
@@ -132,6 +132,7 @@ boolean PIT_ChangeSector (mobj_t *thing) // 80010234
             mo = P_SpawnMobj (thing->x, thing->y, thing->z + thing->height/2, MT_BLOOD);
             mo->momx = (P_Random() - P_Random())<<12;
             mo->momy = (P_Random() - P_Random())<<12;
+            P_SetBloodColor(mo, thing);
         }
     }
 

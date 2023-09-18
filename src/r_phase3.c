@@ -801,7 +801,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
 {
     byte *data;
     byte *src;
-    byte *paldata;
+    u16 *paldata;
     vissprite_t *vissprite_p;
 
     mobj_t *thing;
@@ -920,7 +920,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
                 }
                 else
                 {
-                    paldata = (src + ((spriteN64_t*)data)->cmpsize);
+                    paldata = (u16 *) (src + ((spriteN64_t*)data)->cmpsize);
                 }
 
                 // Load Palette Data (256 colors)
@@ -945,8 +945,15 @@ void R_RenderThings(subsector_t *sub) // 80028248
 
                 tilew >>= 1;
 
+                if ((lump >= bloodlump && lump < bloodlump + 4) && thing->extradata)
+                    paldata = bloodpalettes[lump - bloodlump][((int) thing->extradata) - 1];
+                else if (lump == giblump && thing->extradata)
+                    paldata = bloodpalettes[4][((int) thing->extradata) - 1];
+                else
+                    paldata = (u16 *) (src + ((spriteN64_t*)data)->cmpsize);
+
                 // Load Palette Data (16 colors)
-                gDPSetTextureImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b , 1, (src + ((spriteN64_t*)data)->cmpsize));
+                gDPSetTextureImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b , 1, paldata);
 
                 gDPTileSync(GFX1++);
                 gDPSetTile(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_4b, 0, 256, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);

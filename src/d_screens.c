@@ -13,9 +13,7 @@ int D_RunDemo(char *name, customskill_t skill, int map) // 8002B2D0
 
   lump = W_GetNumForName(name);
   demosize = W_LumpLength(lump);
-  demo_p = Z_Alloc(demosize, PU_STATIC, NULL);
-
-  W_ReadLump(lump, demo_p, dec_d64, -1);
+  demo_p = W_GetLump(lump, dec_d64, -1);
   exit = G_PlayDemoPtr(skill, map);
   Z_Free(demo_p);
 

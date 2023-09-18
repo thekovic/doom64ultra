@@ -858,12 +858,13 @@ extern	lumpinfo_t	*lumpinfo;		/* points directly to rom image */
 
 void	W_Init (void) SEC_STARTUP;
 
-int     W_CheckNumForName (char *name, int hibit1, int hibit2);
-int		W_GetNumForName (char *name);
+int     W_CheckNumForName (const char *name, int hibit1, int hibit2);
+int		W_GetNumForName (const char *name);
 
 int		W_LumpLength (int lump);
 bool	W_IsLumpCompressed (int lump);
 void	W_ReadLump (int lump, void *dest, decodetype dectype, int usable) HOT;
+void	*W_GetLump(int lump, decodetype dectype, int usable);
 
 void	*W_CacheLumpNum (int lump, int tag, decodetype dectype, int usable) HOT;
 void	*W_CacheLumpName (char *name, int tag, decodetype dectype, int usable);
@@ -872,9 +873,9 @@ void	W_OpenMapWad(int mapnum) SEC_STARTUP;
 void    W_FreeMapLumps(void) SEC_STARTUP;
 void    W_FreeMapLump(void *ptr) SEC_STARTUP;
 int		W_MapLumpLength(int lump) SEC_STARTUP;
-int		W_MapGetNumForName(char *name) SEC_STARTUP;
+int		W_MapGetNumForName(const char *name) SEC_STARTUP;
 void	*W_GetMapLump(int lump) SEC_STARTUP;
-void W_ReadMapLump(int lump, void *ptr) SEC_STARTUP;
+void	W_ReadMapLump(int lump, void *ptr) SEC_STARTUP;
 
 /*---------*/
 /* DECODES */
@@ -1422,7 +1423,8 @@ DEBUG_COUNTER(extern u32 LastVisThings);
 
 #define PACKRGBA(r,g,b,a)       (((r)<<24)|((g)<<16)|((b)<<8)|(a))
 
-#define RGBATO551(c) (((((u32)(c))&0xf8000000)>>16) | (((c)&0xf80000)>>13) | (((c)&0xf800)>>10) | (((c)&0xff) > 0))
+#define RGBATO5551(c) ({ u32 _c = (c); ((_c&0xf8000000)>>16) | ((_c&0xf80000)>>13) | ((_c&0xf800)>>10) | ((_c&0xff) > 0); })
+#define UNPACK5551(c) ({ u32 _c = (c); ((_c&0xf800)<<16)|((_c&0x7c0)<<13)|((_c&0x3e)<<10)|((_c&1)?0xff:0); })
 
 /*
 U_JPAD  0x08000000

@@ -154,7 +154,7 @@ void W_Init (void) // 8002BEC0
 ====================
 */
 //int W_CheckNumForName(char *name, int unk1, int hibit1, int hibit2)    // original
-int W_CheckNumForName(char *name, int hibit1, int hibit2) // 8002C0F4 removed unknown parameter
+int W_CheckNumForName(const char *name, int hibit1, int hibit2) // 8002C0F4 removed unknown parameter
 {
 	char	name8[12];
 	char	c, *tmp;
@@ -206,7 +206,7 @@ int W_CheckNumForName(char *name, int hibit1, int hibit2) // 8002C0F4 removed un
 ====================
 */
 
-int	W_GetNumForName (char *name) // 8002C1B8
+int	W_GetNumForName (const char *name) // 8002C1B8
 {
 	int	i;
 
@@ -293,6 +293,15 @@ void W_ReadLump (int lump, void *dest, decodetype dectype, int usable) // 8002C2
         lumpsize = (l->size);
 
     W_GetRomData(l->filepos, dest, lumpsize, usable >= 0 ? usable : lumpsize);
+}
+
+void *W_GetLump(int lump, decodetype dectype, int usable)
+{
+  void *ptr = Z_Alloc(W_LumpLength(lump), PU_STATIC, NULL);
+
+  W_ReadLump(lump, ptr, dectype, usable);
+
+  return ptr;
 }
 
 /*
@@ -517,7 +526,7 @@ int W_MapLumpLength(int lump) // 8002C77C
 ====================
 */
 
-int W_MapGetNumForName(char *name) // 8002C7D0
+int W_MapGetNumForName(const char *name) // 8002C7D0
 {
     char	name8[12];
 	char	c, *tmp;

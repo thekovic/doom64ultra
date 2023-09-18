@@ -237,7 +237,7 @@ void R_RenderCloudSky(void) // 800255B8
         gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
         if (BitDepth == BITDEPTH_16)
         {
-            color = RGBATO551(color);
+            color = RGBATO5551(color);
             color |= (color << 16);
         }
         gDPSetFillColor(GFX1++, color);
@@ -301,7 +301,7 @@ void R_RenderVoidSky(void) // 800256B4
     // Fill borders with SkyVoidColor
     if (BitDepth == BITDEPTH_16)
     {
-        color = RGBATO551(color);
+        color = RGBATO5551(color);
         color |= (color << 16);
     }
     gDPSetFillColor(GFX1++, color);
@@ -514,7 +514,7 @@ void R_RenderFireSky(void) // 80025F68
         color = FlashEnvColor;
         if (BitDepth == BITDEPTH_16)
         {
-            color = RGBATO551(color);
+            color = RGBATO5551(color);
             color |= (color << 16);
         }
         gDPSetFillColor(GFX1++, color);
@@ -527,7 +527,7 @@ void R_RenderFireSky(void) // 80025F68
         color = R_AddColors(color, FlashEnvColor & 0xffffff00);
         if (BitDepth == BITDEPTH_16)
         {
-            color = RGBATO551(color);
+            color = RGBATO5551(color);
             color |= (color << 16);
         }
         gDPSetFillColor(GFX1++, color);

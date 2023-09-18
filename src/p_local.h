@@ -122,7 +122,8 @@ boolean	P_SetMobjState (mobj_t *mobj, statenum_t state) SEC_GAME;
 void 	P_MobjThinker (mobj_t *mobj) HOT;
 
 void	P_SpawnPuff (fixed_t x, fixed_t y, fixed_t z) SEC_GAME;
-void 	P_SpawnBlood (fixed_t x, fixed_t y, fixed_t z, int damage) SEC_GAME;
+void	P_SpawnBlood (fixed_t x, fixed_t y, fixed_t z, int damage, mobj_t *source) SEC_GAME;
+void	P_SetBloodColor (mobj_t *blood, mobj_t *source) SEC_GAME;
 //mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, mobjtype_t type);
 mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, fixed_t xoffs, fixed_t yoffs, fixed_t heightoffs, mobjtype_t type) HOT;
 

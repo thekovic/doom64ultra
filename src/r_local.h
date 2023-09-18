@@ -407,3 +407,6 @@ extern	int firstspritelump, lastspritelump, numspritelumps;
 //extern	short palettebase;
 //extern	light_t		*lights;
 
+extern int bloodlump;
+extern int giblump;
+extern u16 bloodpalettes[5][3][16]; // [nova] - colored blood for knights/barons/nightmareimps

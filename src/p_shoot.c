@@ -413,7 +413,7 @@ static void P_SpawnHitParticle(int damage)
     }
     else
     {
-        P_SpawnBlood(hittarget.x, hittarget.y, hittarget.z, damage);
+        P_SpawnBlood(hittarget.x, hittarget.y, hittarget.z, damage, hittarget.thing);
     }
 }
 

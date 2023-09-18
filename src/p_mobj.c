@@ -412,7 +412,7 @@ void P_SpawnPuff (fixed_t x, fixed_t y, fixed_t z) // 80019218
 ================
 */
 
-void P_SpawnBlood (fixed_t x, fixed_t y, fixed_t z, int damage) // 800192B8
+void P_SpawnBlood (fixed_t x, fixed_t y, fixed_t z, int damage, mobj_t *source) // 800192B8
 {
 	mobj_t	*th;
 	int i;
@@ -423,6 +423,7 @@ void P_SpawnBlood (fixed_t x, fixed_t y, fixed_t z, int damage) // 800192B8
         y += ((P_Random()-P_Random())<<12);
         z += ((P_Random()-P_Random())<<11);
         th = P_SpawnMobj (x,y,z, MT_BLOOD);
+        P_SetBloodColor(th, source);
         th->momz = FRACUNIT*2;
         th->tics -= P_Random()&1;
         if (th->tics<1)
@@ -431,6 +432,28 @@ void P_SpawnBlood (fixed_t x, fixed_t y, fixed_t z, int damage) // 800192B8
             P_SetMobjState (th, S_BLOOD2);
         else if (damage < 9)
             P_SetMobjState (th, S_BLOOD3);
+    }
+}
+
+void P_SetBloodColor (mobj_t *blood, mobj_t *source)
+{
+    if (blood != source)
+        blood->alpha = MAX(source->alpha, 128);
+
+    switch (source->type)
+    {
+    case MT_BRUISER1:
+        blood->extradata = (void*)1;
+        break;
+    case MT_BRUISER2:
+        blood->extradata = (void*)2;
+        break;
+    case MT_IMP2:
+        blood->extradata = (void*)3;
+        break;
+    default:
+        blood->extradata = (void*)0;
+        break;
     }
 }
 
