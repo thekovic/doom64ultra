@@ -861,10 +861,10 @@ int		W_GetNumForName (char *name);
 
 int		W_LumpLength (int lump);
 bool	W_IsLumpCompressed (int lump);
-void	W_ReadLump (int lump, void *dest, decodetype dectype) HOT;
+void	W_ReadLump (int lump, void *dest, decodetype dectype, int usable) HOT;
 
-void	*W_CacheLumpNum (int lump, int tag, decodetype dectype) HOT;
-void	*W_CacheLumpName (char *name, int tag, decodetype dectype);
+void	*W_CacheLumpNum (int lump, int tag, decodetype dectype, int usable) HOT;
+void	*W_CacheLumpName (char *name, int tag, decodetype dectype, int usable);
 
 void	W_OpenMapWad(int mapnum) SEC_STARTUP;
 void    W_FreeMapLumps(void) SEC_STARTUP;

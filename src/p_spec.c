@@ -62,22 +62,22 @@ void P_Init (void) // 8001F340
 	side = sides;
 	for (i = 0; i < numsides; i++, side++)
 	{
-        W_CacheLumpNum(side->toptexture + firsttex    , PU_LEVEL, dec_d64);
-        W_CacheLumpNum(side->bottomtexture + firsttex , PU_LEVEL, dec_d64);
-        W_CacheLumpNum(side->midtexture + firsttex    , PU_LEVEL, dec_d64);
+        W_CacheLumpNum(side->toptexture + firsttex    , PU_LEVEL, dec_d64, sizeof(textureN64_t));
+        W_CacheLumpNum(side->bottomtexture + firsttex , PU_LEVEL, dec_d64, sizeof(textureN64_t));
+        W_CacheLumpNum(side->midtexture + firsttex    , PU_LEVEL, dec_d64, sizeof(textureN64_t));
 	}
 
 	sector = sectors;
 	for (i = 0; i < numsectors; i++, sector++)
 	{
 		if (sector->ceilingpic >= 0)
-            W_CacheLumpNum(sector->ceilingpic + firsttex, PU_LEVEL, dec_d64);
+            W_CacheLumpNum(sector->ceilingpic + firsttex, PU_LEVEL, dec_d64, sizeof(textureN64_t));
 
         if (sector->floorpic >= 0)
-            W_CacheLumpNum(sector->floorpic + firsttex, PU_LEVEL, dec_d64);
+            W_CacheLumpNum(sector->floorpic + firsttex, PU_LEVEL, dec_d64, sizeof(textureN64_t));
 
         if (sector->flags & MS_LIQUIDFLOOR)
-            W_CacheLumpNum(sector->floorpic + firsttex + 1, PU_LEVEL,dec_d64);
+            W_CacheLumpNum(sector->floorpic + firsttex + 1, PU_LEVEL,dec_d64, sizeof(textureN64_t));
 	}
 }
 
@@ -130,7 +130,7 @@ void P_SpawnSpecials (void) // 8001F490
             /* Load the following graphics for animation */
             for (j=0 ; j < animdefs[i].frames ; j++)
             {
-                W_CacheLumpNum(lump, PU_LEVEL, dec_d64);
+                W_CacheLumpNum(lump, PU_LEVEL, dec_d64, sizeof(textureN64_t));
                 lump++;
             }
 	    }

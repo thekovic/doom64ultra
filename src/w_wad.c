@@ -53,15 +53,15 @@ extern OSMesgQueue romcopy_msgque;
 ============================================================================
 */
 
-static void W_GetRomData(u32 offset, void *dest, u32 len)
+static void W_GetRomData(u32 offset, void *dest, u32 len, u32 usable)
 {
     OSIoMesg romio_msgbuf;
 
-    osInvalDCache(dest, len);
+    osInvalDCache(dest, usable);
 
     osPiStartDma(&romio_msgbuf, OS_MESG_PRI_NORMAL, OS_READ,
             (u32)_doom64_wadSegmentRomStart + offset,
-            dest, len, &romcopy_msgque);
+             dest, len, &romcopy_msgque);
 
     osRecvMesg(&romcopy_msgque, NULL, OS_MESG_BLOCK);
 }
@@ -79,7 +79,7 @@ void W_Init (void) // 8002BEC0
     wadinfo_t wadfileheader ALIGNED(16);
 	int infotableofs, i;
 
-    W_GetRomData(0, &wadfileheader, sizeof(wadinfo_t));
+    W_GetRomData(0, &wadfileheader, sizeof(wadinfo_t), sizeof(wadinfo_t));
 
     //sprintf(str, "identification %s",wadfileptr->identification);
     //printstr(WHITE, 0, 4, str);
@@ -87,10 +87,11 @@ void W_Init (void) // 8002BEC0
 	if (bcmp(wadfileheader.identification, "IWAD", 4))
 		I_Error("W_Init: invalid main IWAD id");
 
-	numlumps = LONGSWAP(wadfileheader.numlumps);
-	lumpinfo = (lumpinfo_t *) Z_Malloc(numlumps * sizeof(lumpinfo_t), PU_STATIC, 0);
-	infotableofs = LONGSWAP(wadfileheader.infotableofs);
-    W_GetRomData(infotableofs, lumpinfo, numlumps * sizeof(lumpinfo_t));
+    numlumps = LONGSWAP(wadfileheader.numlumps);
+    i = numlumps * sizeof(lumpinfo_t);
+    lumpinfo = (lumpinfo_t *) Z_Malloc(i, PU_STATIC, 0);
+    infotableofs = LONGSWAP(wadfileheader.infotableofs);
+    W_GetRomData(infotableofs, lumpinfo, i, i);
 
 	//sprintf(str, "identification %s",wadfileptr->identification);
     //printstr(WHITE, 0, 4, str);
@@ -251,7 +252,7 @@ bool W_IsLumpCompressed (int lump)
 ====================
 */
 
-void W_ReadLump (int lump, void *dest, decodetype dectype) // 8002C260
+void W_ReadLump (int lump, void *dest, decodetype dectype, int usable) // 8002C260
 {
     lumpinfo_t *l;
     int lumpsize;
@@ -272,7 +273,7 @@ void W_ReadLump (int lump, void *dest, decodetype dectype) // 8002C260
             else
                 input = Z_Alloc(lumpsize, PU_STATIC, NULL);
 
-            W_GetRomData(l->filepos, input, lumpsize);
+            W_GetRomData(l->filepos, input, lumpsize, lumpsize);
 
             if (dectype == dec_jag)
                 DecodeJaguar(input, (byte *)dest);
@@ -291,7 +292,7 @@ void W_ReadLump (int lump, void *dest, decodetype dectype) // 8002C260
     else
         lumpsize = (l->size);
 
-    W_GetRomData(l->filepos, dest, lumpsize);
+    W_GetRomData(l->filepos, dest, lumpsize, usable >= 0 ? usable : lumpsize);
 }
 
 /*
@@ -302,7 +303,7 @@ void W_ReadLump (int lump, void *dest, decodetype dectype) // 8002C260
 ====================
 */
 
-void *W_CacheLumpNum (int lump, int tag, decodetype dectype) // 8002C430
+void *W_CacheLumpNum (int lump, int tag, decodetype dectype, int usable) // 8002C430
 {
     int lumpsize;
     lumpcache_t *lc;
@@ -324,7 +325,7 @@ void *W_CacheLumpNum (int lump, int tag, decodetype dectype) // 8002C430
 
 		Z_Malloc(lumpsize, tag, &lc->cache);
 
-		W_ReadLump(lump, lc->cache, dectype);
+		W_ReadLump(lump, lc->cache, dectype, usable);
 	}
 	else
     {
@@ -344,9 +345,9 @@ void *W_CacheLumpNum (int lump, int tag, decodetype dectype) // 8002C430
 ====================
 */
 
-void *W_CacheLumpName (char *name, int tag, decodetype dectype) // 8002C57C
+void *W_CacheLumpName (char *name, int tag, decodetype dectype, int usable) // 8002C57C
 {
-	return W_CacheLumpNum (W_GetNumForName(name), tag, dectype);
+	return W_CacheLumpNum (W_GetNumForName(name), tag, dectype, usable);
 }
 
 
@@ -396,7 +397,7 @@ void W_OpenMapWad(int mapnum) // 8002C5B0
             mapfileptr = Z_Alloc(size, PU_STATIC, NULL);
             maplumppos = 0;
 
-            W_ReadLump(lump, mapfileptr, dec_d64);
+            W_ReadLump(lump, mapfileptr, dec_d64, -1);
         }
         else
         {
@@ -440,14 +441,16 @@ void W_OpenMapWad(int mapnum) // 8002C5B0
     else if (maplumppos)
     {
         wadinfo_t wadfileheader ALIGNED(16);
+        int ls;
 
-        W_GetRomData(maplumppos, &wadfileheader, sizeof(wadinfo_t));
+        W_GetRomData(maplumppos, &wadfileheader, sizeof(wadinfo_t), sizeof(wadinfo_t));
 
         mapnumlumps = LONGSWAP(wadfileheader.numlumps);
         infotableofs = LONGSWAP(wadfileheader.infotableofs);
 
-        maplump = (lumpinfo_t *) Z_Malloc(mapnumlumps * sizeof(lumpinfo_t), PU_STATIC, 0);
-        W_GetRomData(maplumppos + infotableofs, maplump, mapnumlumps * sizeof(lumpinfo_t));
+        ls = mapnumlumps * sizeof(lumpinfo_t);
+        maplump = (lumpinfo_t *) Z_Malloc(ls, PU_STATIC, 0);
+        W_GetRomData(maplumppos + infotableofs, maplump, ls, ls);
     }
 
     for(i = 0; i < mapnumlumps; i++)
@@ -576,7 +579,7 @@ void  *W_GetMapLump(int lump) // 8002C890
     int size = ALIGN(maplump[lump].size, 2);
     void *ptr = Z_Alloc(size, PU_STATIC, NULL);
 
-    W_GetRomData(maplumppos + maplump[lump].filepos, ptr, size);
+    W_GetRomData(maplumppos + maplump[lump].filepos, ptr, size, size);
 
     return ptr;
 }
@@ -584,7 +587,12 @@ void  *W_GetMapLump(int lump) // 8002C890
 void W_ReadMapLump(int lump, void *ptr)
 {
     if (mapfileptr)
+    {
         D_memcpy(ptr, mapfileptr + maplump[lump].filepos, maplump[lump].size);
+    }
     else
-        W_GetRomData(maplumppos + maplump[lump].filepos, ptr, ALIGN(maplump[lump].size, 2));
+    {
+        int size = ALIGN(maplump[lump].size, 2);
+        W_GetRomData(maplumppos + maplump[lump].filepos, ptr, size, size);
+    }
 }

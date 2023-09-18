@@ -18,7 +18,7 @@ extern boolean tryopen[6]; // 800A81E0
 
 extern byte *sfontlump;     // 800A81F8
 extern byte *statuslump;   // 800A81FC
-extern int sumbolslump;    // 800A8204
+extern int symbolslump;    // 800A8204
 
 #define FIRST_SYMBOL   0x80
 #define LAST_SYMBOL    0x90 // 0x91 for Right arrow

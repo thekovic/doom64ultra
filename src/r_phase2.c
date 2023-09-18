@@ -79,7 +79,7 @@ void R_SetupSky(void) // 80025060
             SkyFlags = (SKF_CLOUD|SKF_THUNDER);
             R_RenderSKY = R_RenderCloudSky;
 
-            SkyCloudData = (byte *)W_CacheLumpName("CLOUD", PU_STATIC, dec_jag);
+            SkyCloudData = (byte *)W_CacheLumpName("CLOUD", PU_STATIC, dec_jag, 0);
             SkyCloudColor = PACKRGBA(176,128,255,255); // 0xb080ffff
 
             if (skytexture == 10)
@@ -98,7 +98,7 @@ void R_SetupSky(void) // 80025060
             SkyFlags = SKF_CLOUD;
             R_RenderSKY = R_RenderCloudSky;
 
-            SkyCloudData = (byte *)W_CacheLumpName("CLOUD", PU_STATIC, dec_jag);
+            SkyCloudData = (byte *)W_CacheLumpName("CLOUD", PU_STATIC, dec_jag, 0);
             SkyCloudColor = PACKRGBA(255,48,48,255); // 0xff3030ff;
 
             *(int*)SkyCloudVertex[0].v.cn = PACKRGBA(16,0,0,255); // 0x100000ff;
@@ -112,7 +112,7 @@ void R_SetupSky(void) // 80025060
             SkyFlags = SKF_CLOUD;
             R_RenderSKY = R_RenderCloudSky;
 
-            SkyCloudData = (byte *)W_CacheLumpName("CLOUD", PU_STATIC, dec_jag);
+            SkyCloudData = (byte *)W_CacheLumpName("CLOUD", PU_STATIC, dec_jag, 0);
             SkyCloudColor = PACKRGBA(208,112,64,255); // 0xd07040ff;
 
             if (skytexture == 3)
@@ -136,7 +136,7 @@ void R_SetupSky(void) // 80025060
         case 9:
             R_RenderSKY = R_RenderFireSky;
 
-            data = W_CacheLumpName("FIRE", PU_LEVEL, dec_jag);
+            data = W_CacheLumpName("FIRE", PU_LEVEL, dec_jag, -1);
             SkyFireData[0] = (data + 8);
             SkyFireData[1] = Z_Malloc((FIRESKY_WIDTH*FIRESKY_HEIGHT), PU_LEVEL, NULL);
 
@@ -412,7 +412,7 @@ void R_RenderSkyPic(int lump, int yoffset, boolean repeat) // 80025BDC
     int spriteh;
     int dsdx;
 
-    data = W_CacheLumpNum(lump, PU_CACHE, dec_jag);
+    data = W_CacheLumpNum(lump, PU_CACHE, dec_jag, sizeof(spriteN64_t));
 
     ang = (((XResolution/2*-viewinvhcot)>>FRACBITS) - (viewangle >> 22)) & 255;
     tileh = ((spriteN64_t*)data)->tileheight;

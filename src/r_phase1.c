@@ -445,7 +445,7 @@ void R_AddSprite(subsector_t *sub) // 80024A98
             }
 
             // TDOO - cache sprite w/xoff/h so can put this after clipping check
-            sprite = W_CacheLumpNum(lump, PU_CACHE, dec_jag);
+            sprite = W_CacheLumpNum(lump, PU_CACHE, dec_jag, sizeof(spriteN64_t));
 
             if (flip)
                 tx -= (((int)sprite->width) - sprite->xoffs) << FRACBITS;

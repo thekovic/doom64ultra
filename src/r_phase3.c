@@ -422,7 +422,7 @@ void R_RenderWall(seg_t *seg, int flags, int texture, int topHeight, int bottomH
             loaded from the P_Init function with the second decompression method (dec_d64)
             */
             //data = W_CacheLumpNum(texture >> 4, PU_CACHE, dec_jag); // error decomp mode
-            data = W_CacheLumpNum(texture >> 4, PU_CACHE, dec_d64); /* [GEC] FIXED */
+            data = W_CacheLumpNum(texture >> 4, PU_CACHE, dec_d64, sizeof(textureN64_t)); /* [GEC] FIXED */
 
             wshift = ((textureN64_t*)data)->wshift;
             hshift = ((textureN64_t*)data)->hshift;
@@ -522,7 +522,7 @@ void R_RenderSwitch(seg_t *seg, int texture, int topOffset, int color) // 800276
         loaded from the P_Init function with the second decompression method (dec_d64)
         */
         //data = W_CacheLumpNum(firsttex + texture, PU_CACHE, dec_jag); // error decomp mode
-        data = W_CacheLumpNum(firsttex + texture, PU_CACHE, dec_d64); /* [GEC] FIXED */
+        data = W_CacheLumpNum(firsttex + texture, PU_CACHE, dec_d64, sizeof(textureN64_t)); /* [GEC] FIXED */
 
         wshift = ((textureN64_t*)data)->wshift;
         hshift = ((textureN64_t*)data)->hshift;
@@ -629,7 +629,7 @@ void R_RenderPlane(leaf_t *leaf, int numverts, int zpos, int texture, int xpos, 
         loaded from the P_Init function with the second decompression method (dec_d64)
         */
         //data = W_CacheLumpNum(texture >> 4, PU_CACHE, dec_jag); // error decomp mode
-        data = W_CacheLumpNum(texture >> 4, PU_CACHE, dec_d64); /* [GEC] FIXED */
+        data = W_CacheLumpNum(texture >> 4, PU_CACHE, dec_d64, sizeof(textureN64_t)); /* [GEC] FIXED */
 
         src = data + sizeof(textureN64_t);
 
@@ -871,7 +871,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
 
             gDPSetPrimColorD64(GFX1++, 0, vissprite_p->sector->lightlevel, thing->alpha);
 
-            data = W_CacheLumpNum(lump, PU_CACHE, dec_jag);
+            data = W_CacheLumpNum(lump, PU_CACHE, dec_jag, sizeof(spriteN64_t));
 
             compressed = ((spriteN64_t*)data)->compressed;
             tileh = ((spriteN64_t*)data)->tileheight;
@@ -916,7 +916,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
                 if (((spriteN64_t*)data)->cmpsize & 1)
                 {
                     paldata = W_CacheLumpNum((lump - (((spriteN64_t*)data)->cmpsize >> 1)) +
-                                             thing->info->palette, PU_CACHE, dec_jag) + 8;
+                                             thing->info->palette, PU_CACHE, dec_jag, 0) + 8;
                 }
                 else
                 {
@@ -1188,7 +1188,7 @@ draw:
 			sprframe = &sprdef->spriteframes[state->frame & FF_FRAMEMASK];
 			lump = sprframe->lump[0];
 
-            sprite = W_CacheLumpNum(lump, PU_CACHE, dec_jag);
+            sprite = W_CacheLumpNum(lump, PU_CACHE, dec_jag, sizeof(spriteN64_t));
 
             tilecnt = 0;
             tiles = sprite->tiles;
@@ -1252,7 +1252,7 @@ draw:
                 /* Loads the palette from the first frame of the animation,  */
                 /* which uses an odd number to get to the lump */
                     paldata = W_CacheLumpNum((lump - (sprite->cmpsize >> 1)),
-                                             PU_CACHE, dec_jag);
+                                             PU_CACHE, dec_jag, sizeof(spriteN64_t));
 
                     paldata += (((spriteN64_t*)paldata)->cmpsize + sizeof(spriteN64_t));
                 }
