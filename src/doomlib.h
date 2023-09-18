@@ -41,7 +41,9 @@ typedef bool boolean;
 extern int D_vsprintf(char *string, const char *format, va_list args);
 extern int D_sprintf(char* dst, const char* fmt, ...) __attribute__((format (printf, 2, 3)));
 
+#ifdef NDEBUG
 #define sprintf D_sprintf
+#endif
 
 extern void bzero(void *, int);
 extern int bcmp(void *, void *, int);
@@ -49,13 +51,12 @@ extern int bcmp(void *, void *, int);
 
 void D_memmove(void *dest, const void *src);
 void D_memset (void *dest, int val, int count);
-void D_memcpy (void *dest, const void *src, int count);
 void D_strncpy (char *dest, const char *src, int maxcount);
 int D_strncmp (const char *s1, const char *s2, int len);
 void D_strupr(char *s);
 int D_strlen(const char *s);
 
-void memcpy (void *dest, const void *src, int count);
+void *memcpy (void *dest, const void *src, int count);
 #define D_memcpy memcpy
 
 #define MEMORY_BARRIER() asm volatile ("" : : : "memory")
