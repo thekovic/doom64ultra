@@ -1271,8 +1271,6 @@ boolean I_IsQuickLoadAvailable(void);
 extern levelsave_t LevelSaveBuffer;
 extern boolean doLoadSave;
 
-void I_Error(const char *error, ...) __attribute__((format (printf, 1, 2))) NO_RETURN COLD;
-
 int I_GetControllerData(int pad); // 800060D0
 
 void I_CheckGFX(void) HOT; // 800060E8
@@ -1301,7 +1299,10 @@ void I_WIPE_FadeOutScreen(void); // 80006D34
 
 #ifdef NDEBUG
 
-#define assert(expr)
+void I_Error(const char *error, ...) __attribute__((format (printf, 1, 2))) NO_RETURN COLD;
+
+#define assert(expr) ({ if (0) (void) (expr); })
+#define assertf(expr, fmt, ...) ({ if (0) { (void) (expr); (void) (fmt); ((void)0 __VA_OPT__(,) __VA_ARGS__); } })
 #define DEBUG_COUNTER(expr)
 #define DEBUG_CYCLES_START(var)
 #define DEBUG_CYCLES_END(var, diff)
@@ -1309,8 +1310,13 @@ void I_WIPE_FadeOutScreen(void); // 80006D34
 
 #else /* NDEBUG */
 
+#define I_Error(fmt, ...) I_ErrorFull(__FILE__, __LINE__, __func__, NULL, (fmt) __VA_OPT__(,) __VA_ARGS__)
+void I_ErrorFull(const char *file, int line, const char *func, const char *expr, const char *error, ...) __attribute__((format (printf, 5, 6))) NO_RETURN COLD;
+
 #define assert(expr) \
-     ((expr) ? ((void)0) : I_Error("tAssertion failed:\n%s\nFile '%s'\nLine %d.\n", #expr, __FILE__, __LINE__))
+     ((expr) ? ((void)0) : I_ErrorFull(__FILE__, __LINE__, __func__, #expr, NULL))
+#define assertf(expr, fmt, ...) \
+     ((expr) ? ((void)0) : I_ErrorFull(__FILE__, __LINE__, __func__, #expr, (fmt) __VA_OPT__(,) __VA_ARGS__))
 
 #define DEBUG_COUNTER(expr)          expr
 #define DEBUG_CYCLES_START(var)      const u32 var = osGetCount()

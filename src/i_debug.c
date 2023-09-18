@@ -40,7 +40,7 @@ static void I_ShowDebugScreen(const char *text);
 
 #else /* USB_GDB */
 #define DEBUG_MSGS 1
-static char *ErrorText = NULL;
+static const char *ErrorText = NULL;
 #endif /* USB_GDB */
 #endif /* !defined(NDEBUG) */
 
@@ -91,21 +91,13 @@ static u64         debugThreadStack[DEBUG_THREAD_STACK/sizeof(u64)];
 
 /* Terminates the program with an error message. */
 
-void I_Error(const char *error, ...) // 80005F30
+NO_RETURN COLD void I_Fatal(const char *error) // 80005F30
 {
-    char buffer[256];
-    va_list args;
-    va_start (args, error);
-    u32 len = D_vsprintf (buffer, error, args);
-    va_end (args);
-
-    buffer[len < 0 ? 0 : len] = '\0';
-
 #ifdef NDEBUG
 
     I_ClearFrame();
     I_ClearFB(0x000000ff);
-    ST_Message(16, 16, buffer, 0xffffffff);
+    ST_Message(16, 16, error, 0xffffffff);
     I_DrawFrame();
 
 #else /* NDEBUG */
@@ -114,8 +106,7 @@ void I_Error(const char *error, ...) // 80005F30
 #ifndef USB_GDB
 
     // show the message and a stack trace on screen
-    extern char *ErrorText;
-    ErrorText = buffer;
+    ErrorText = error;
 
 #endif /* !defined(USB_GDB) */
 
@@ -126,6 +117,48 @@ void I_Error(const char *error, ...) // 80005F30
     while (1)
         osYieldThread();
 }
+
+#ifdef NDEBUG
+void I_Error(const char *error, ...) // 80005F30
+{
+    char buffer[256];
+    va_list args;
+    va_start (args, error);
+    u32 len = D_vsprintf (buffer, error, args);
+    va_end (args);
+
+    buffer[len < 0 ? 0 : len] = '\0';
+
+    I_Fatal(buffer);
+}
+#else /* NDEBUG */
+void I_ErrorFull(const char *file, int line, const char *func, const char *expr, const char *error, ...)
+{
+    char buffer[512];
+    char *cur = buffer;
+
+    if (expr)
+        cur += sprintf(cur, "Assertion failed: %s\n", expr);
+
+    if (func && file)
+        cur += sprintf(cur, "%s: %s:%d\n", func, file, line);
+
+    if (error)
+    {
+        va_list args;
+
+        va_start (args, error);
+        int len = D_vsprintf (cur, error, args);
+        if (len > 0)
+            cur += len;
+        va_end (args);
+    }
+
+    *cur = '\0';
+
+    I_Fatal(buffer);
+}
+#endif /* NDEBUG */
 
 #ifdef LOGGING
 
