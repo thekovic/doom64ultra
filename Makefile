@@ -22,7 +22,6 @@ ifdef DEBUGOPT
     DEBUG = 1
 endif
 ifdef DEBUG_DISPLAY
-    DEBUG = 1
     OPTIONS += DEBUG_DISPLAY=$(DEBUG_DISPLAY)
 endif
 ifdef DEBUG_MEM
