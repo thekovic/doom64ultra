@@ -61,9 +61,13 @@ make -j DEBUGOPT=1                   # Enable extra debugging features but leave
 
 make -j DEBUG_DISPLAY=2              # Show debug frame counter by default
 
+make -j DEBUG_MEM=1                  # Enable extra heap/stack overflow checking (slow)
+
 make -j REQUIRE_EXPANSION_PAK=0      # Disable expansion pak requirement screen
 
-make -j SKIP_INTRO=1                 # Skip the intro screens on boot and go straight to the menu
+make -j SOUND=0                      # Disable sound
+
+make -j INTRO=0                      # Skip the intro screens on boot and go straight to the menu
 
 make -j WARP=XX                      # Warp to map number XX on boot
 
@@ -77,6 +81,17 @@ make -j USB=1                        # Enable Flashcart USB Screenshot/Demo tran
 
 make -j GDB=1                        # Enable GDB debugging over USB (implies DEBUG=1 and USB=1)
 ```
+
+## Code Completion
+
+The [Bear](https://github.com/rizsotto/Bear) utility can be used to generate
+clang code completion. As of this writing, clang does not support
+`-march=vr4300`. This can be worked around by removing the argument:
+
+```sh
+make clean && bear -- make -j DEBUG=1 && sed -i 's/.*=vr4300".*//' compile_commands.json
+```
+
 ## Contact
 
 Join the Doom 64 Discord: https://discord.gg/Ktxz8nz

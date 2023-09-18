@@ -41,7 +41,7 @@ endif
 ifdef USB
     OPTIONS += USB
 endif
-ifdef SKIP_INTRO
+ifeq ($(INTRO),0)
   OPTIONS += SKIP_INTRO
 endif
 ifdef WARP
