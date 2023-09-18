@@ -155,7 +155,7 @@ AR        := $(N64_BINDIR)/mips-n64-gcc-ar
 OBJDUMP   := $(N64_BINDIR)/mips-n64-objdump
 OBJCOPY   := $(N64_BINDIR)/mips-n64-objcopy
 
-INCLUDE_DIRS += /usr/include/n64 /usr/include/n64/PR $(BUILD_DIR) $(BUILD_DIR)/include src src/asm
+INCLUDE_DIRS += libultra_modern/include libultra_modern/include/PR $(BUILD_DIR) $(BUILD_DIR)/include src src/asm
 
 DEFINES += _FINALROM=1 F3DEX_GBI_2=1
 C_DEFINES := $(foreach d,$(DEFINES),-D$(d))
