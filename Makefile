@@ -121,6 +121,8 @@ LIBULTRA = libultra_modern/build/$(LIBULTRA_VER)/$(LIBULTRA_VER).a
 
 # Make sure build directory exists before compiling anything
 $(shell mkdir -p $(ALL_DIRS))
+# Ensure submodules are checked out
+$(shell if [ ! -d libultra_modern/src ]; then git submodule update -i -r; fi)
 
 define nl
 
@@ -214,7 +216,7 @@ endef
 #==============================================================================#
 
 # Default target
-default: $(ROM)
+default: libultra $(ROM)
 
 clean:
 	$(RM) -r $(BUILD_DIR) libultra_modern/build
@@ -257,9 +259,10 @@ $(LIBDOOM64): $(O_FILES)
 	$(call print,Archiving:,$@)
 	$(V)$(AR) rcs -o $@ $(O_FILES)
 
-$(LIBULTRA):
-	if [ ! -d libultra_modern/src ]; then git submodule update -i -r; fi
-	$(MAKE) -C libultra_modern VERSION=$(LIBULTRA_VER) "EXT_CFLAGS=$(LIBULTRA_CFLAGS)"
+libultra:
+	$(V)$(MAKE) -C libultra_modern VERSION=$(LIBULTRA_VER) "EXT_CFLAGS=$(LIBULTRA_CFLAGS)"
+
+$(LIBULTRA): libultra
 
 # Link final ELF file
 $(ELF): $(LIBULTRA) $(BOOT_O_FILES) $(LIBDOOM64) $(BUILD_DIR)/$(LD_SCRIPT)
@@ -273,7 +276,7 @@ $(ROM): $(ELF)
 	$(V)$(OBJCOPY) --pad-to=0x100000 --gap-fill=0xFF $< $@ -O binary
 	$(V)makemask $@
 
-.PHONY: clean default libultra_modern
+.PHONY: clean default libultra
 # with no prerequisites, .SECONDARY causes no intermediate target to be removed
 .SECONDARY:
 
