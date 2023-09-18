@@ -197,9 +197,8 @@ SEC_STARTUP void I_InitDebugging()
 #endif /* !defined(NDEBUG) */
 }
 
-SEC_STARTUP void I_StartDebugger()
+SEC_STARTUP void L_Init()
 {
-    D_printstatic("DOOM 64 ULTRA\nI_InitDebugging: Logging enabled.\n\n");
 #ifdef USB
     if (FlashCart)
         I_USBPrintHelp();

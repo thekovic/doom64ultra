@@ -26,7 +26,9 @@ void D_DoomMain(void *arg) // 800027C0
 {
     SET_GP();
 
-    I_StartDebugger();
+    D_printstatic ("DOOM 64 ULTRA " D64ULTRA_VERSION "\n");
+    D_printstatic("L_Init: Logging enabled.\n");
+    L_Init();
     D_printf ("Z_Init: Init zone memory allocation daemon. \n");
     Z_Init();
     D_printf ("I_Init: Setting up N64 state.\n");

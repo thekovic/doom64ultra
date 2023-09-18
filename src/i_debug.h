@@ -16,7 +16,7 @@
 extern void I_InitDebugging();
 
 /* Waits for gdb connection if required, and prints debug startup messages. */
-extern void I_StartDebugger();
+extern void L_Init();
 
 /* Prints a message with known length to the developer's command prompt.
  * The message must be null terminated.
@@ -32,7 +32,7 @@ extern void D_printf(const char* message, ...) __attribute__((format(printf, 1, 
 
 #else /* LOGGING */
 #define I_InitDebugging()
-#define I_StartDebugger()
+#define L_Init()
 #define D_print(msg, len)
 #define D_printf(...)
 #endif /* LOGGING */

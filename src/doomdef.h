@@ -2,6 +2,8 @@
 
 #pragma once
 
+#define D64ULTRA_VERSION "0.1 alpha"
+
 #define	VINT	int
 
 /* ULTRA64 LIBRARIES */

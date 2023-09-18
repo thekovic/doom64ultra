@@ -6,8 +6,6 @@
 #include "st_main.h"
 #include "config.h"
 
-#define D64ULTRA_VERSION "0.1 alpha"
-
 int D_RunDemo(char *name, customskill_t skill, int map) // 8002B2D0
 {
   int lump;
