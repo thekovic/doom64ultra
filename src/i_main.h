@@ -37,3 +37,5 @@ extern unsigned char *cfb;
 #define CFB(i) ((i) ? &cfb[CFB_SIZE] : &cfb[0])
 #define CFB_SPADDR (OS_K0_TO_PHYSICAL(CFB(vid_side)))
 
+#define STACK_GUARD 0xed8c82721e8025b2ULL // random value
+

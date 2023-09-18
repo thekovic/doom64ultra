@@ -1313,6 +1313,7 @@ void I_Error(const char *error, ...) __attribute__((format (printf, 1, 2))) NO_R
 #else /* NDEBUG */
 
 #define I_Error(fmt, ...) I_ErrorFull(__FILE__, __LINE__, __func__, NULL, (fmt) __VA_OPT__(,) __VA_ARGS__)
+
 void I_ErrorFull(const char *file, int line, const char *func, const char *expr, const char *error, ...) __attribute__((format (printf, 5, 6))) NO_RETURN COLD;
 
 #define assert(expr) \
@@ -1327,6 +1328,12 @@ void I_ErrorFull(const char *file, int line, const char *func, const char *expr,
 #define BREAKPOINT() asm("break")
 
 #endif /* NDEBUG */
+
+#ifdef DEBUG_MEM
+void I_CheckStack(vu64 *stack, const char *name);
+#else
+#define I_CheckStack(_stack, _name)  ({ if (0) ((void) (_stack), (void)(_name)); })
+#endif
 
 extern volatile u32 LastFrameCycles;
 extern volatile u32 LastCpuCycles;

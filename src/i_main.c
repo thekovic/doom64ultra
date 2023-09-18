@@ -28,7 +28,7 @@ extern char _codeSegmentEnd[];
 
 /* this stack size is in bytes */
 #define	BOOT_STACKSIZE	0x100
-u64	bootStack[BOOT_STACKSIZE/sizeof(u64)];
+vu64	bootStack[BOOT_STACKSIZE/sizeof(u64)];
 
 u8 *cfb;
 SDATA u16 SCREEN_HT = 240;
@@ -50,15 +50,15 @@ OSThread	idle_thread;                        // 800A4A18
 
 #define SYS_MAIN_STACKSIZE 0xA000
 OSThread	main_thread;                        // 800A4BC8
-u64	main_stack[SYS_MAIN_STACKSIZE/sizeof(u64)]; // 80099A00
+vu64	main_stack[SYS_MAIN_STACKSIZE/sizeof(u64)]; // 80099A00
 
 #define	JOY_STACKSIZE	0x200
 OSThread	joy_thread;
-u64	joy_stack[JOY_STACKSIZE/sizeof(u64)];
+vu64	joy_stack[JOY_STACKSIZE/sizeof(u64)];
 
 #define SYS_TICKER_STACKSIZE 0x800
 OSThread	sys_ticker_thread;                          // 800A4D78
-u64	sys_ticker_stack[SYS_TICKER_STACKSIZE/sizeof(u64)]; // 800A3A00
+vu64	sys_ticker_stack[SYS_TICKER_STACKSIZE/sizeof(u64)]; // 800A3A00
 
 #define SYS_MSGBUF_SIZE_PI 128
 OSMesgQueue msgque_Pi;                  // 800A4FA0
@@ -248,12 +248,18 @@ OSTask * wess_work(void);
 
 void I_Start(void)  // 80005620
 {
+#ifdef DEBUG_MEM
+    main_stack[0] = STACK_GUARD;
+    joy_stack[0] = STACK_GUARD;
+    sys_ticker_stack[0] = STACK_GUARD;
+#endif
+
     /* Re-initialize U64 operating system... */
     osInitialize();
 
     /* Create and start idle thread... */
     osCreateThread(&idle_thread, SYS_THREAD_ID_IDLE, I_IdleGameThread, (void *)0,
-                   bootStack + BOOT_STACKSIZE/sizeof(u64), 100);
+                   (void*)(bootStack + BOOT_STACKSIZE/sizeof(u64)), 100);
     osStartThread(&idle_thread);
 }
 
@@ -281,7 +287,7 @@ void I_IdleGameThread(void *arg) // 8000567C
 
     /* Create main thread... */
     osCreateThread(&main_thread, SYS_THREAD_ID_MAIN, D_DoomMain, (void *)0,
-                   main_stack + SYS_MAIN_STACKSIZE/sizeof(u64), 10);
+                   (void*)(main_stack + SYS_MAIN_STACKSIZE/sizeof(u64)), 10);
     osStartThread(&main_thread);
 
     osSetThreadPri(&idle_thread, OS_PRIORITY_IDLE);
@@ -518,6 +524,8 @@ void I_SystemTicker(void *arg) // 80005730
                 }
                 break;
         }
+
+        I_CheckStack(sys_ticker_stack, "Ticker");
     }
 }
 
@@ -601,12 +609,12 @@ void I_Init(void) // 80005C50
     }
     I_RefreshVideo(); // set vid mode again after loading settings
 
-    gamepad_data = (int *)bootStack;
+    gamepad_data = (volatile int *)bootStack;
     *&gamepad_bit_pattern = gamepads;
     I_ReadPads();
 
     osCreateThread(&joy_thread, SYS_THREAD_ID_JOY, I_ControllerThread, (void *)0,
-                   joy_stack + JOY_STACKSIZE/sizeof(u64), 11);
+                   (void*)(joy_stack + JOY_STACKSIZE/sizeof(u64)), 11);
     osStartThread(&joy_thread);
 
     D_printf ("S_Init: Setting up sound.\n");
@@ -614,7 +622,7 @@ void I_Init(void) // 80005C50
 
     /* Create and start ticker thread... */
     osCreateThread(&sys_ticker_thread, SYS_THREAD_ID_TICKER, I_SystemTicker, (void *)0,
-                   sys_ticker_stack + SYS_TICKER_STACKSIZE/sizeof(u64), 11);
+                   (void*)(sys_ticker_stack + SYS_TICKER_STACKSIZE/sizeof(u64)), 11);
     osStartThread(&sys_ticker_thread);
 
     osJamMesg(&rdp_done_queue, (OSMesg)VID_MSG_KICKSTART, OS_MESG_NOBLOCK);
@@ -793,6 +801,8 @@ void I_DrawFrame(void)  // 80006570
         if (!blanktimer)
             osViBlack(FALSE);
     }
+
+    I_CheckStack(main_stack, "Main");
 
     LastCpuStart = osGetCount();
 }
@@ -1423,5 +1433,7 @@ void I_ControllerThread(void *arg)
         *&PiLockedJoy = false;
 
         *&rumblepak_bit_pattern = rumblebits;
+
+        I_CheckStack(joy_stack, "Joystick");
     }
 }

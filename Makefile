@@ -25,6 +25,10 @@ ifdef DEBUG_DISPLAY
     DEBUG = 1
     OPTIONS += DEBUG_DISPLAY=$(DEBUG_DISPLAY)
 endif
+ifdef DEBUG_MEM
+    DEBUG = 1
+    DEFINES += DEBUG_MEM
+endif
 ifeq ($(DEBUG),0)
   DEFINES += NDEBUG=1
 else

@@ -261,7 +261,7 @@ static void I_USBThread(void *arg);
 static OSMesgQueue usbMessageQ;
 static OSMesg      usbMessageBuf;
 static OSThread    usbThread;
-static u64         usbThreadStack[USB_THREAD_STACK/sizeof(u64)];
+static vu64        usbThreadStack[USB_THREAD_STACK/sizeof(u64)];
 
 #endif /* USB */
 
@@ -430,9 +430,12 @@ SEC_STARTUP void I_InitFlashCart(void)
     // Send a heartbeat
     usb_sendheartbeat();
 
+#ifdef DEBUG_MEM
+    usbThreadStack[0] = STACK_GUARD;
+#endif
     // Initialize the USB thread
     osCreateThread(&usbThread, USB_THREAD_ID, I_USBThread, 0,
-                    (usbThreadStack+USB_THREAD_STACK/sizeof(u64)),
+                    (void*)(usbThreadStack+USB_THREAD_STACK/sizeof(u64)),
                     USB_THREAD_PRI);
     osStartThread(&usbThread);
 #endif
@@ -1896,7 +1899,10 @@ static NO_RETURN void I_USBThread(void *arg)
 
     // Thread loop
     while (1)
+    {
         I_USBTicker();
+        I_CheckStack(usbThreadStack, "USB");
+    }
 }
 
 void I_USBPrint(const char* message, u32 len)

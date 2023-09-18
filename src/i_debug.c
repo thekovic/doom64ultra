@@ -81,7 +81,7 @@ static void DoomErrorHandler(s16 code, s16 numArgs, ...);
 static OSMesgQueue debugMessageQ;
 static OSMesg      debugMessageBuf[DEBUG_MSGS];
 static OSThread    debugThread;
-static u64         debugThreadStack[DEBUG_THREAD_STACK/sizeof(u64)];
+static vu64        debugThreadStack[DEBUG_THREAD_STACK/sizeof(u64)];
 
 #endif /* !defined(NDEBUG) */
 
@@ -158,7 +158,27 @@ void I_ErrorFull(const char *file, int line, const char *func, const char *expr,
 
     I_Fatal(buffer);
 }
+
 #endif /* NDEBUG */
+
+#ifdef DEBUG_MEM
+
+void I_CheckStack(vu64 *stack, const char *name)
+{
+    if (stack[0] != STACK_GUARD)
+    {
+        int len = D_strlen(name);
+        char buf[32];
+        char *b = buf;
+
+        D_strncpy(b, name, sizeof buf);
+        D_strncpy(b + len, " Stack Overflow", sizeof buf - len);
+
+        I_Fatal(buf);
+    }
+}
+
+#endif /* DEBUG_MEM */
 
 #ifdef LOGGING
 
@@ -184,6 +204,10 @@ SEC_STARTUP void I_InitDebugging()
 #endif
 #endif /* !defined(NDEBUG) */
 
+#ifdef DEBUG_MEM
+    debugThreadStack[0] = STACK_GUARD;
+#endif
+
 #ifndef NDEBUG
     // Initialize the debug thread
     osCreateMesgQueue(&debugMessageQ, debugMessageBuf, ARRAYLEN(debugMessageBuf));
@@ -191,7 +215,7 @@ SEC_STARTUP void I_InitDebugging()
     osSetEventMesg(OS_EVENT_CPU_BREAK, &debugMessageQ, (OSMesg) MSG_CPU_BREAK);
     osSetEventMesg(OS_EVENT_SP_BREAK, &debugMessageQ, (OSMesg) MSG_SP_BREAK);
     osCreateThread(&debugThread, DEBUG_THREAD_ID, I_DebuggerThread, NULL,
-                    (debugThreadStack+DEBUG_THREAD_STACK/sizeof(u64)),
+                    (void*)(debugThreadStack+DEBUG_THREAD_STACK/sizeof(u64)),
                     OS_PRIORITY_RMON);
     osStartThread(&debugThread);
 #endif /* !defined(NDEBUG) */
@@ -1899,6 +1923,8 @@ static COLD void NO_RETURN I_DebuggerThread(void *arg)
             }
             break;
         }
+
+        I_CheckStack(debugThreadStack, "Debug");
     }
 }
 
