@@ -84,9 +84,6 @@ void W_Init (void) // 8002BEC0
     //sprintf(str, "identification %s",wadfileptr->identification);
     //printstr(WHITE, 0, 4, str);
 
-	if (bcmp(wadfileheader.identification, "IWAD", 4))
-		I_Error("W_Init: invalid main IWAD id");
-
     numlumps = LONGSWAP(wadfileheader.numlumps);
     i = numlumps * sizeof(lumpinfo_t);
     lumpinfo = (lumpinfo_t *) Z_Malloc(i, PU_STATIC, 0);
