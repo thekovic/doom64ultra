@@ -232,10 +232,7 @@ void AM_Drawer (void) // 800009AC
 	int			color;
 	int			scale;
 	int         artflag;
-	char        map_name[48];
-	char		killcount[20]; // [Immorpher] Automap kill count
-	char		itemcount[20]; // [Immorpher] Automap item count
-	char		secretcount[20]; // [Immorpher] Automap secret count
+	char        buf[48];
     fixed_t     hcot, vcot;
 
     hcot = aspectscale[ScreenAspect];
@@ -406,8 +403,8 @@ void AM_Drawer (void) // 800009AC
     {
         if (p->messagetic <= 0)
         {
-            sprintf(map_name, "LEVEL %d: %s", gamemap, MapInfo[gamemap].name);
-            ST_Message(2+HUDmargin,HUDmargin, map_name, 196 | 0xffffff00);
+            sprintf(buf, "LEVEL %d: %s", gamemap, MapInfo[gamemap].name);
+            ST_Message(2+HUDmargin,HUDmargin, buf, 196 | 0xffffff00);
         }
         else
         {
@@ -418,12 +415,12 @@ void AM_Drawer (void) // 800009AC
 
 	// [Immorpher] kill count
 	if(MapStats) {
-		sprintf(killcount, "KILLS: %d/%d", players[0].killcount, totalkills);
-		ST_Message(2+HUDmargin, 212-HUDmargin, killcount, 196 | 0xffffff00);
-		sprintf(itemcount, "ITEMS: %d/%d", players[0].itemcount, totalitems);
-		ST_Message(2+HUDmargin, 222-HUDmargin, itemcount, 196| 0xffffff00);
-		sprintf(secretcount, "SECRETS: %d/%d", players[0].secretcount, totalsecret);
-		ST_Message(2+HUDmargin, 232-HUDmargin, secretcount, 196 | 0xffffff00);
+		sprintf(buf, "KILLS: %d/%d", players[0].killcount, totalkills);
+		ST_Message(2+HUDmargin, 212-HUDmargin, buf, 196 | 0xffffff00);
+		sprintf(buf, "ITEMS: %d/%d", players[0].itemcount, totalitems);
+		ST_Message(2+HUDmargin, 222-HUDmargin, buf, 196| 0xffffff00);
+		sprintf(buf, "SECRETS: %d/%d", players[0].secretcount, totalsecret);
+		ST_Message(2+HUDmargin, 232-HUDmargin, buf, 196 | 0xffffff00);
 	}
 
     xpos = 297-HUDmargin;
