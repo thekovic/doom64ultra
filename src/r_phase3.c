@@ -131,14 +131,14 @@ void R_RenderWorld(subsector_t *sub) // 80026638
                 yoffset = 0;
             }
 
+            R_RenderModes(rm_liquid);
+
             //--------------------------------------------------------------
             lf = &leafs[sub->leaf];
             R_RenderPlane(lf, numverts, frontsector->floorheight >> FRACBITS,
                             textures[frontsector->floorpic + 1],
                             xoffset, yoffset,
                             lights[frontsector->colors[1]].rgba);
-
-            R_RenderModes(rm_liquid);
             //--------------------------------------------------------------
             gDPSetPrimColor(GFX1++, 0, frontsector->lightlevel, 0, 0, 0, 160);
 
