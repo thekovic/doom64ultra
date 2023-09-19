@@ -10,6 +10,7 @@
 #include "config.h"
 #include "i_debug.h"
 #include "i_usb.h"
+#include "r_local.h"
 
 /*
  * Symbol genererated by "makerom" to indicate the end of the code segment
@@ -933,11 +934,13 @@ void I_ClearFB(register u32 color)
         color |= (color << 16);
     }
 
-    gDPPipeSync(GFX1++);
+    R_RenderModes(rm_reset);
+
     gDPSetCycleType(GFX1++, G_CYC_FILL);
     gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
     gDPSetFillColor(GFX1++, color);
     gDPFillRectangle(GFX1++, 0, 0, XResolution-1, YResolution-1);
+
 }
 
 long LongSwap(long dat) // 80006724

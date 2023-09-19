@@ -433,17 +433,11 @@ void AM_Drawer (void) // 800009AC
         if ((players->artifacts & artflag) != 0)
         {
             if (artflag == 4)
-            {
-                BufferedDrawSprite(MT_ITEM_ARTIFACT3, &states[S_ART3], 0, 0xffffff80, xpos, 266-HUDmargin);
-            }
+                BufferedDrawSprite(MT_ITEM_ARTIFACT3, &states[S_ART3], 0, 0xffffff80, xpos, 266-HUDmargin, FRACUNIT);
             else if (artflag == 2)
-            {
-                BufferedDrawSprite(MT_ITEM_ARTIFACT2, &states[S_ART2], 0, 0xffffff80, xpos, 266-HUDmargin);
-            }
+                BufferedDrawSprite(MT_ITEM_ARTIFACT2, &states[S_ART2], 0, 0xffffff80, xpos, 266-HUDmargin, FRACUNIT);
             else if (artflag == 1)
-            {
-                BufferedDrawSprite(MT_ITEM_ARTIFACT1, &states[S_ART1], 0, 0xffffff80, xpos, 266-HUDmargin);
-            }
+                BufferedDrawSprite(MT_ITEM_ARTIFACT1, &states[S_ART1], 0, 0xffffff80, xpos, 266-HUDmargin, FRACUNIT);
 
             xpos -= 40;
         }

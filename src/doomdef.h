@@ -1107,7 +1107,7 @@ void F_Stop (int exit) SEC_MENU;
 int F_Ticker (void) SEC_MENU;
 void F_Drawer (void) SEC_MENU;
 
-void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int xpos, int ypos);
+void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int xpos, int ypos, fixed_t scale);
 
 /*---------*/
 /* AM_MAIN */

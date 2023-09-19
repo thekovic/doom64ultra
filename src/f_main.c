@@ -857,7 +857,7 @@ void F_Drawer(void) // 800039DC
             }
 
             BufferedDrawSprite(type, caststate, castrotation,
-                               PACKRGBA(castfadein, castfadein, castfadein, alpha), 160, 190);
+                               PACKRGBA(castfadein, castfadein, castfadein, alpha), 160, 190, FRACUNIT);
 
             ST_DrawString(-1, 208, castorder[castnum].name, 0xC00000ff);
             break;
@@ -872,89 +872,118 @@ void F_Drawer(void) // 800039DC
         MenuCall();
     }
 
+    ST_DrawDebug();
+
     I_DrawFrame();
 }
 
-void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int xpos, int ypos) // 80003D1C
+void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int xpos, int ypos, fixed_t scale) // 80003D1C
 {
-    spritedef_t     *sprdef;
-	spriteframe_t   *sprframe;
-	int			    lump;
-	boolean		    flip;
+    spriteframe_t   *sprframe;
+    int              lump;
 
-	byte *data;
-	byte *paldata;
-	byte *src;
+    byte *paldata;
+    byte *src;
+    spriteN64_t *sprite;
 
-	int compressed;
-    int tileh;
+    int xoffs;
+    int tiles;
     int tilew;
-    int height;
     int width;
     int width2;
-    int tiles;
-    int xoffs;
-    int yoffs;
+    fixed_t invscale;
 
-    int tilecnt = 0;
     int dsdx;
+    int dtdy;
     int spos;
-    int tpos;
     int x1;
     int y1;
     int xh;
     int yh;
 
-    // draw the current frame in the middle of the screen
-    sprdef = &sprites[state->sprite];
-    sprframe = &sprdef->spriteframes[state->frame & FF_FRAMEMASK];
+    sprframe = &sprites[state->sprite].spriteframes[state->frame & FF_FRAMEMASK];
     lump = sprframe->lump[rotframe];
-    flip = (boolean)sprframe->flip[rotframe];
+    sprite = W_CacheLumpNum(lump, PU_CACHE, dec_jag, sizeof(spriteN64_t));
+    tiles = sprite->tiles;
 
-	gDPPipeSync(GFX1++);
-	gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
-	gDPSetTexturePersp(GFX1++, G_TP_NONE);
-	gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
-	gDPSetAlphaCompare(GFX1++, G_AC_THRESHOLD);
-	gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
-	gDPSetCombineMode(GFX1++, G_CC_D64COMB04, G_CC_D64COMB04);
+    if (tiles <= 0)
+        return;
 
-	gDPSetPrimColorD64(GFX1++, 0, 0, color);
+    src = (byte *) &sprite[1];
+    xoffs = (sprite->xoffs * scale) >> (FRACBITS - hudxshift);
+    width = (sprite->width * scale) >> (FRACBITS - hudxshift);
 
-    if ((color & 255) < 255) {
+    xpos <<= hudxshift;
+
+    if (!sprframe->flip[rotframe])
+    {
+        x1 = xpos - xoffs;
+        xh = x1 + width;
+        spos = 0;
+        dsdx = 1;
+    }
+    else
+    {
+        xh = xpos + xoffs;
+        x1 = xh - width;
+        spos = (sprite->width - 1) << 5;
+        dsdx = -1;
+    }
+
+    if (xh <= 0 || x1 > (SCREEN_WD<<hudxshift))
+        return;
+
+    y1 = ((ypos << FRACBITS) - sprite->yoffs * scale) >> (FRACBITS - hudyshift);
+
+    int height = sprite->height;
+    int tileh = sprite->tileheight;
+    int screenheight = SCREEN_HT<<hudyshift;
+
+    if (y1 + ((height * yscale) >> (FRACBITS - hudyshift)) <= 0 || y1 > screenheight)
+        return;
+
+    if (scale == FRACUNIT)
+        invscale = FRACUNIT;
+    else
+        invscale = FixedDiv(FRACUNIT, scale);
+
+    if (x1 < 0)
+    {
+        int soff = (-x1 * invscale) >> (FRACBITS-5+hudxshift);
+        if (spos)
+            spos -= soff;
+        else
+            spos = soff;
+        x1 = 0;
+    }
+    xh = MIN(xh, SCREEN_WD<<hudxshift);
+
+    dsdx = (dsdx * invscale) >> (FRACBITS-10-2+hudxshift);
+    dtdy = invscale >> (FRACBITS-10-2+hudyshift);
+
+    R_RenderModes(rm_hudsprite);
+
+    gDPSetPrimColorD64(GFX1++, 0, 0, color);
+
+    if ((color & 255) < 255)
+    {
         gDPSetRenderMode(GFX1++, G_RM_XLU_SURF_CLAMP, G_RM_XLU_SURF2_CLAMP);
     }
-    else {
+    else
+    {
         gDPSetRenderMode(GFX1++, G_RM_TEX_EDGE, G_RM_TEX_EDGE2);
     }
 
-
-    data = W_CacheLumpNum(lump, PU_CACHE, dec_jag, sizeof(spriteN64_t));
-
-    compressed = ((spriteN64_t*)data)->compressed;
-    tileh = ((spriteN64_t*)data)->tileheight;
-    width = ((spriteN64_t*)data)->width;
-    height = ((spriteN64_t*)data)->height;
-    tiles = ((spriteN64_t*)data)->tiles;
-    xoffs = ((spriteN64_t*)data)->xoffs;
-    yoffs = ((spriteN64_t*)data)->yoffs;
-
-    src = data + sizeof(spriteN64_t);
-
-    if (compressed < 0)
+    if (sprite->compressed < 0)
     {
-        width2 = ALIGN(width, 8);
+        width2 = ALIGN(sprite->width, 8);
         tilew = tileh * width2;
 
-        if (((spriteN64_t*)data)->cmpsize & 1)
-        {
+        if (sprite->cmpsize & 1)
             paldata = W_CacheLumpNum(((mobjinfo[type].palette + lump) -
-                                    (((spriteN64_t*)data)->cmpsize >> 1)), PU_CACHE, dec_jag, 0) + 8;
-        }
+                                    (sprite->cmpsize >> 1)), PU_CACHE, dec_jag, 0) + 8;
         else
-        {
-            paldata = (src + ((spriteN64_t*)data)->cmpsize);
-        }
+            paldata = src + sprite->cmpsize;
 
         /* Load Palette Data (256 colors) */
         gDPSetTextureImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b , 1, paldata);
@@ -964,105 +993,86 @@ void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int x
 
         gDPLoadSync(GFX1++);
         gDPLoadTLUTCmd(GFX1++, G_TX_LOADTILE, 255);
-
-        gDPPipeSync(GFX1++);
     }
     else
     {
-        width2 = ALIGN(width, 16);
+        width2 = ALIGN(sprite->width, 16);
         tilew = tileh * width2;
 
-        if (tilew < 0) {
+        if (tilew < 0)
             tilew = tilew + 1;
-        }
 
         tilew >>= 1;
 
         /* Load Palette Data (16 colors) */
-        gDPSetTextureImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b , 1, (src + ((spriteN64_t*)data)->cmpsize));
+        gDPSetTextureImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b , 1, src + sprite->cmpsize);
 
         gDPTileSync(GFX1++);
         gDPSetTile(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_4b, 0, 256, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
 
         gDPLoadSync(GFX1++);
         gDPLoadTLUTCmd(GFX1++, G_TX_LOADTILE, 15);
-
-        gDPPipeSync(GFX1++);
     }
 
-    if (!flip)
-    {
-        x1 = (xpos - xoffs) << hudxshift;
-        xh = (x1 + (width << hudxshift));
-        spos = 0;
-        dsdx = 1;
-    }
-    else
-    {
-        xh = (xpos + xoffs) << hudxshift;
-        x1 = (xh - (width << hudxshift));
-        spos = (width - 1);
-        dsdx = 63;
-    }
+    gDPPipeSync(GFX1++);
 
-    y1 = (ypos - yoffs) << hudyshift;
+    int uy1, t, uyh;
 
-    if (tiles > 0)
+    for (int tilecnt = 0; tilecnt < tiles; tilecnt++)
     {
-        do
+        int tpos = MIN(tileh, height);
+        yh = y1 + ((tpos * scale) >> (FRACBITS - hudxshift));
+
+        if (y1 >= screenheight)
+            break;
+
+        if (yh > 0)
         {
-            if (tileh < height)
-                tpos = tileh;
-            else
-                tpos = height;
+            gDPSetTextureImage(GFX1++, G_IM_FMT_CI, G_IM_SIZ_16b , 1, src);
+            gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
+            gDPLoadSync(GFX1++);
 
-            if (compressed < 0)
+            if (sprite->compressed < 0)
             {
                 /* Load Image Data (8bit) */
-                gDPSetTextureImage(GFX1++, G_IM_FMT_CI, G_IM_SIZ_16b , 1, src);
-                gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
-
-                gDPLoadSync(GFX1++);
                 gDPLoadBlock(GFX1++, G_TX_LOADTILE, 0, 0, ((width2 * tpos + 1) >> 1) - 1, 0);
-
                 gDPPipeSync(GFX1++);
                 gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_8b, ((width2 + 7) >> 3), 0,
-                               G_TX_RENDERTILE , 0, 0, 0, 0, 0, 0, 0);
-
-                gDPSetTileSize(GFX1++, G_TX_RENDERTILE, 0, 0, ((width2 - 1) << 2), (tpos - 1) << 2);
+                           G_TX_RENDERTILE, 0, 0, 0, 0, 0, 0, 0);
             }
             else
             {
                 /* Load Image Data (4bit) */
-                gDPSetTextureImage(GFX1++, G_IM_FMT_CI, G_IM_SIZ_16b , 1, src);
-                gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
-
-                gDPLoadSync(GFX1++);
                 gDPLoadBlock(GFX1++, G_TX_LOADTILE, 0, 0, ((width2 * tpos + 3) >> 2) - 1, 0);
-
                 gDPPipeSync(GFX1++);
                 gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_4b, (((width2>>1) + 7) >> 3), 0,
-                           G_TX_RENDERTILE , 0, 0, 0, 0, 0, 0, 0);
-
-                gDPSetTileSize(GFX1++, G_TX_RENDERTILE, 0, 0, ((width2 - 1) << 2), (tpos - 1) << 2);
+                           G_TX_RENDERTILE, 0, 0, 0, 0, 0, 0, 0);
             }
 
-            yh = (y1 + (tpos << hudyshift));
+            gDPSetTileSize(GFX1++, G_TX_RENDERTILE, 0, 0, ((width2 - 1) << 2), (tpos - 1) << 2);
 
-            gSPTextureRectangle(GFX1++,
-                                x1, y1,
-                                xh, yh,
-                                G_TX_RENDERTILE,
-                                (spos << 5), (0 << 5),
-                                (dsdx << 12 >> hudxshift), (1 << 12 >> hudyshift));
+            if (y1 < 0)
+            {
+                t = (-y1 * invscale) >> (FRACBITS-5+hudyshift);
+                uy1 = 0;
+            }
+            else
+            {
+                t = 0 << 5;
+                uy1 = y1;
+            }
+            uyh = MIN(yh, screenheight);
 
-            height -= tpos;
+            gSPTextureRectangle(GFX1++, x1, uy1, xh, uyh, G_TX_RENDERTILE,
+                                spos, t, dsdx, dtdy);
+        }
 
-            src += tilew;
-            y1 = yh;
-            tilecnt += 1;
-        } while (tilecnt != tiles);
+        height -= tpos;
+        src += tilew;
+        y1 = yh;
     }
+
+    DEBUG_COUNTER(LastVisThings += 1);
 
     globallump = -1;
 }

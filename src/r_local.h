@@ -271,7 +271,8 @@ extern fixed_t  quakeviewx;     // 800A8118
 extern fixed_t  quakeviewy;     // 800A8114
 
 typedef enum {
-    rm_reset,
+    rm_nothing = -1,
+    rm_reset = 0,
     rm_texture,
     rm_liquid,
     rm_switch,
@@ -279,6 +280,7 @@ typedef enum {
     rm_sprite,
     rm_transparentsprite,
     rm_nightmaresprite,
+    rm_hudsprite,
 } rendermode_t;
 
 extern void R_RenderModes(rendermode_t mode) HOT;

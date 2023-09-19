@@ -2,7 +2,6 @@
 
 #include "doomdef.h"
 #include "r_local.h"
-#include "st_main.h"
 
 /*===================================== */
 
@@ -278,6 +277,7 @@ void R_RenderPlayerView(void) // 80023448
     gDPSetEnvColorD64(GFX1++, FlashEnvColor);
 
     R_RenderModes(rm_reset);
+    gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
 
     // Phase 2
     if (rendersky)
@@ -483,7 +483,7 @@ void R_RenderFilter(filtertype_t type)
     gDPSetTextureFilter(GFX1++, filter);
 }
 
-SDATA static rendermode_t lastrender = -1;
+SDATA static rendermode_t lastrender = rm_nothing;
 
 void R_RenderModes(rendermode_t mode)
 {
@@ -504,7 +504,6 @@ void R_RenderModes(rendermode_t mode)
         } else {
             gDPSetColorDither(GFX1++, G_CD_DISABLE);
         }
-        gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
     }
     else if (mode == rm_texture)
     {
@@ -580,6 +579,15 @@ void R_RenderModes(rendermode_t mode)
         }
         gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A, G_RM_XLU_SURF2_ADD);
         R_RenderFilter(filt_sprites);
+    }
+    else if (mode == rm_hudsprite)
+    {
+        gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
+        gDPSetTexturePersp(GFX1++, G_TP_NONE);
+        gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
+        gDPSetAlphaCompare(GFX1++, G_AC_THRESHOLD);
+        gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
+        gDPSetCombineMode(GFX1++, G_CC_D64COMB04, G_CC_D64COMB04);
     }
 
     lastrender = mode;
