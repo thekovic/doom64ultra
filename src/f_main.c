@@ -892,6 +892,8 @@ void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int x
     int width;
     int width2;
     fixed_t invscale;
+    fixed_t yscale;
+    fixed_t invyscale;
 
     int dsdx;
     int dtdy;
@@ -908,6 +910,11 @@ void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int x
 
     if (tiles <= 0)
         return;
+
+    invscale = scale;
+    yscale = scale;
+    if (ScreenAspect)
+        scale = FixedMul(scale, aspectscale[ScreenAspect]);
 
     src = (byte *) &sprite[1];
     xoffs = (sprite->xoffs * scale) >> (FRACBITS - hudxshift);
@@ -933,7 +940,10 @@ void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int x
     if (xh <= 0 || x1 > (SCREEN_WD<<hudxshift))
         return;
 
-    y1 = ((ypos << FRACBITS) - sprite->yoffs * scale) >> (FRACBITS - hudyshift);
+    if (osTvType == OS_TV_PAL)
+        yscale = FixedMul(yscale, 0x13333);
+
+    y1 = ((ypos << FRACBITS) - sprite->yoffs * yscale) >> (FRACBITS - hudyshift);
 
     int height = sprite->height;
     int tileh = sprite->tileheight;
@@ -942,10 +952,13 @@ void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int x
     if (y1 + ((height * yscale) >> (FRACBITS - hudyshift)) <= 0 || y1 > screenheight)
         return;
 
-    if (scale == FRACUNIT)
-        invscale = FRACUNIT;
-    else
-        invscale = FixedDiv(FRACUNIT, scale);
+    if (invscale != FRACUNIT)
+        invscale = FixedDiv(FRACUNIT, invscale);
+    invyscale = invscale;
+    if (ScreenAspect)
+        invscale = FixedMul(invscale, invaspectscale[ScreenAspect]);
+    if (osTvType == OS_TV_PAL)
+        invyscale = FixedMul(invyscale, 0xd555);
 
     if (x1 < 0)
     {
@@ -959,7 +972,7 @@ void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int x
     xh = MIN(xh, SCREEN_WD<<hudxshift);
 
     dsdx = (dsdx * invscale) >> (FRACBITS-10-2+hudxshift);
-    dtdy = invscale >> (FRACBITS-10-2+hudyshift);
+    dtdy = invyscale >> (FRACBITS-10-2+hudyshift);
 
     R_RenderModes(rm_hudsprite);
 
@@ -1021,7 +1034,7 @@ void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int x
     for (int tilecnt = 0; tilecnt < tiles; tilecnt++)
     {
         int tpos = MIN(tileh, height);
-        yh = y1 + ((tpos * scale) >> (FRACBITS - hudxshift));
+        yh = y1 + ((tpos * yscale) >> (FRACBITS - hudxshift));
 
         if (y1 >= screenheight)
             break;
@@ -1053,7 +1066,7 @@ void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int x
 
             if (y1 < 0)
             {
-                t = (-y1 * invscale) >> (FRACBITS-5+hudyshift);
+                t = (-y1 * invyscale) >> (FRACBITS-5+hudyshift);
                 uy1 = 0;
             }
             else

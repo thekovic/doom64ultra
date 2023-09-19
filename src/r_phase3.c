@@ -1140,7 +1140,7 @@ void R_RenderPSprites(void) // 80028f20
 	int             width2;
 	int             yh;
 	int             x, y;
-	int             dsdx, dsdy;
+	int             dsdx, dtdy;
 	int             stileh;
 
 	I_CheckGFX();
@@ -1175,9 +1175,9 @@ draw:
         dsdx = 1 << 12 >> hudxshift;
 
     if (osTvType == OS_TV_PAL)
-        dsdy = 0xd555 >> 4 >> hudyshift;
+        dtdy = 0xd555 >> 4 >> hudyshift;
     else
-        dsdy = 1 << 12 >> hudyshift;
+        dtdy = 1 << 12 >> hudyshift;
 
     for (i = 0; i < NUMPSPRITES; i++, psp++)
 	{
@@ -1214,7 +1214,7 @@ draw:
             {
                 y += (sprite->yoffs - FixedMul(0x13333, sprite->yoffs)) << hudyshift;
                 height = FixedMul(0x13333, height);
-                stileh = FixedMul(0x13333, tileh << 16) >> 14;
+                stileh = (0x13333 * tileh) >> (FRACBITS-hudyshift);
             }
             else
             {
@@ -1294,12 +1294,8 @@ draw:
 
                     yh = stileh + y;
 
-                    gSPTextureRectangle(GFX1++,
-                                    x, y,
-                                    xh, yh,
-                                    0,
-                                    0, 0,
-                                    dsdx, dsdy);
+                    gSPTextureRectangle(GFX1++, x, y, xh, yh, G_TX_RENDERTILE,
+                                        0, 0, dsdx, dtdy);
 
                     height -= tileh;
                     if (height < tileh) {

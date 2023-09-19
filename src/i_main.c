@@ -275,6 +275,9 @@ void I_IdleGameThread(void *arg) // 8000567C
 {
     SET_GP();
 
+    if (osTvType == OS_TV_PAL)
+        SCREEN_HT = 288;
+
     if (osMemSize >= 0x800000)
     {
         BitDepth = BITDEPTH_32;
@@ -285,9 +288,6 @@ void I_IdleGameThread(void *arg) // 8000567C
         BitDepth = BITDEPTH_16;
         CFB_SIZE = SCREEN_WD*SCREEN_HT*sizeof(u16);
     }
-
-    if (osTvType == OS_TV_PAL)
-        SCREEN_HT = 288;
 
     /* Create and start the PI and VI managers... */
     osCreatePiManager((OSPri)OS_PRIORITY_PIMGR, &msgque_Pi, msgbuf_Pi, SYS_MSGBUF_SIZE_PI);

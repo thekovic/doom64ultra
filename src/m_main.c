@@ -2871,6 +2871,7 @@ void M_MenuTitleDrawer(void) // 80008E7C
 {
     const menuitem_t *item;
     int i;
+    int y;
 
     if (MenuItem == Menu_Title)
     {
@@ -2926,6 +2927,9 @@ void M_MenuTitleDrawer(void) // 80008E7C
         menuentry_t casepos;
 
         casepos = item->casepos;
+        y = item->y;
+        if (MenuItem == Menu_Title && osTvType == OS_TV_PAL)
+            y += 34;
 
         if (casepos == MTXT_GAME_SAVED)
         {
@@ -2938,14 +2942,16 @@ void M_MenuTitleDrawer(void) // 80008E7C
         }
         else if (casepos == MTXT_QUICK_SAVE || casepos == MTXT_QUICK_LOAD)
         {
-            ST_DrawSymbol(240, item->y, 85, alpha | 0xffffff00);
+            ST_DrawSymbol(240, y, 85, alpha | 0xffffff00);
         }
 
-        ST_DrawString(item->x, item->y, MenuText[casepos], alpha | color);
+        ST_DrawString(item->x, y, MenuText[casepos], alpha | color);
+
+        if (i == cursorpos)
+            ST_DrawSymbol(item->x -37, y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
+
         item++;
     }
-
-    ST_DrawSymbol(MenuItem[0].x -37, MenuItem[cursorpos].y -9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 }
 
 void M_FeaturesDrawer(void) // 800091C0
@@ -3484,9 +3490,10 @@ void M_DefaultsDrawer(void) // [Immorpher] new defaults drawer
 void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
 {
     int width, height;
-    int yh, xh, t;
+    int xh, yh, tileh, stileh, sheight, t, th;
     int offset;
     byte *data;
+    int dsdx, dtdy;
 
     data = (byte *)W_CacheLumpName(name, PU_CACHE, dec_jag, sizeof(gfxN64_t));
 
@@ -3529,19 +3536,39 @@ void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
 
     gDPPipeSync(GFX1++);
 
-    xh = (width + 7) & ~7;
+    xh = (width + x) << hudxshift;
+    tileh = 2048 / ((width + 7) & ~7);
+    sheight = height << hudyshift;
+
+    if (osTvType == OS_TV_PAL)
+    {
+        y = FixedMul(0x13333, y);
+        sheight = FixedMul(0x13333, sheight);
+        stileh = (0x13333 * tileh) >> (FRACBITS-hudyshift);
+    }
+    else
+    {
+        stileh = tileh << hudyshift;
+    }
+
+    x <<= hudxshift;
+    y <<= hudxshift;
+
+    dsdx = 1 << 12 >> hudxshift;
+    if (osTvType == OS_TV_PAL)
+        dtdy = 0xd555 >> 4 >> hudyshift;
+    else
+        dtdy = 1 << 12 >> hudyshift;
 
     t = 0;
     while (height != 0)
     {
-        if ((2048 / xh) < height)
-            yh = (2048 / xh);
-        else
-            yh = height;
+        th = MIN(tileh, height);
+        yh = MIN(stileh, sheight);
 
         // Load Image Data
         gDPSetTextureImage(GFX1++, G_IM_FMT_CI, G_IM_SIZ_8b ,
-                        width, data + sizeof(gfxN64_t));
+                           width, data + sizeof(gfxN64_t));
 
          // Clip Rectangle From Image
         gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_8b,
@@ -3550,7 +3577,7 @@ void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
         gDPLoadSync(GFX1++);
         gDPLoadTile(GFX1++, G_TX_LOADTILE,
                     (0 << 2), (t << 2),
-                    ((width - 1) << 2), (((t + yh) - 1) << 2));
+                    ((width - 1) << 2), (((t + th) - 1) << 2));
 
         gDPPipeSync(GFX1++);
         gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_8b,
@@ -3558,17 +3585,13 @@ void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
 
         gDPSetTileSize(GFX1++, G_TX_RENDERTILE,
                        (0 << 2), (t << 2),
-                       ((width - 1) << 2), (((t + yh) - 1) << 2));
+                       ((width - 1) << 2), (((t + th) - 1) << 2));
 
-        gSPTextureRectangle(GFX1++,
-            (x << hudxshift), (y << hudyshift),
-            ((width + x) << hudxshift), ((yh + y) << hudyshift),
-            G_TX_RENDERTILE,
-            (0 << 5), (t << 5),
-            (1 << 12 >> hudxshift), (1 << 12 >> hudyshift));
+        gSPTextureRectangle(GFX1++, x, y, xh, yh + y, G_TX_RENDERTILE,
+                            (0 << 5), (t << 5), dsdx, dtdy);
 
-        height -= yh;
-        t += yh;
+        height -= th;
+        t += th;
         y += yh;
     }
 
