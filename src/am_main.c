@@ -5,11 +5,13 @@
 #include "r_local.h"
 #include "st_main.h"
 
+#define COLOR_WHITE   0xF0F0F0FF
 #define COLOR_RED     0xA40000FF
-#define COLOR_GREEN   0x00C000FF
-#define COLOR_BROWN   0x8A5C30ff
+#define COLOR_GREEN   0x00A400FF
+#define COLOR_BLUE    0x0000A4FF
+#define COLOR_BROWN   0x603818FF
 #define COLOR_YELLOW  0xCCCC00FF
-#define COLOR_GREY    0x808080FF
+#define COLOR_GREY    0x181818FF
 #define COLOR_AQUA    0x3373B3FF
 
 #define MAXSCALE	1500
@@ -385,58 +387,67 @@ void AM_Drawer (void) // 800009AC
     }
 
     /* SHOW ALL MAP THINGS (CHEAT) */
-    if (p->cheats & CF_ALLMAP)
+    if (!linemode)
+        thingscale = FixedDiv2(FRACUNIT, boxscale);
+
+    R_RenderFilter(filt_sprites);
+
+    for (mo = mobjhead.next; mo != (void*) &mobjhead; mo = next)
     {
+        next = mo->next;
 
-        if (!linemode)
-            thingscale = FixedDiv2(FRACUNIT, boxscale);
+        /* [nova] - always draw keys on automap */
+        if (!(p->cheats & CF_ALLMAP)
+                && mo->type != MT_ITEM_BLUECARDKEY
+                && mo->type != MT_ITEM_REDCARDKEY
+                && mo->type != MT_ITEM_YELLOWCARDKEY
+                && mo->type != MT_ITEM_YELLOWSKULLKEY
+                && mo->type != MT_ITEM_REDSKULLKEY
+                && mo->type != MT_ITEM_BLUESKULLKEY)
+            continue;
 
-        R_RenderFilter(filt_sprites);
+        if (mo == p->mo)
+            continue;  /* Ignore player */
 
-        for (mo = mobjhead.next; mo != (void*) &mobjhead; mo = next)
+        if (mo->flags & (MF_NOSECTOR|MF_RENDERLASER))
+            continue;
+
+        if ((players->artifacts & 1) != 0 && mo->type == MT_ITEM_ARTIFACT1) continue;
+        if ((players->artifacts & 2) != 0 && mo->type == MT_ITEM_ARTIFACT2) continue;
+        if ((players->artifacts & 4) != 0 && mo->type == MT_ITEM_ARTIFACT3) continue;
+
+        if (mo->flags & (MF_SHOOTABLE|MF_MISSILE))
+            color = COLOR_WHITE;
+        else
+            color = COLOR_AQUA;
+
+        if (linemode)
+        {
+            fixed_t bbox[4];
+
+            bbox[BOXTOP   ] = mo->y + 0x2d413c; // sqrt(2) * 32
+            bbox[BOXBOTTOM] = mo->y - 0x2d413c;
+            bbox[BOXRIGHT ] = mo->x + 0x2d413c;
+            bbox[BOXLEFT  ] = mo->x - 0x2d413c;
+
+            if (!M_BoxIntersect(bbox, screen_box))
+                continue;
+
+            if (I_GFXFull())
+                break;
+
+            AM_DrawThingTriangle(mo->x, mo->y, mo->angle, color);
+
+            gSPLine3D(GFX1++, 0, 1, 0 /*flag*/);
+            gSPLine3D(GFX1++, 1, 2, 0 /*flag*/);
+            gSPLine3D(GFX1++, 2, 0, 0 /*flag*/);
+        }
+        else
         {
             if (I_GFXFull())
                 break;
 
-            next = mo->next;
-
-            if (mo == p->mo)
-                continue;  /* Ignore player */
-
-            if (mo->flags & (MF_NOSECTOR|MF_RENDERLASER))
-                continue;
-
-            if ((players->artifacts & 1) != 0 && mo->type == MT_ITEM_ARTIFACT1) continue;
-            if ((players->artifacts & 2) != 0 && mo->type == MT_ITEM_ARTIFACT2) continue;
-            if ((players->artifacts & 4) != 0 && mo->type == MT_ITEM_ARTIFACT3) continue;
-
-            if (mo->flags & (MF_SHOOTABLE|MF_MISSILE))
-                color = COLOR_RED;
-            else
-                color = COLOR_AQUA;
-
-            if (linemode)
-            {
-                fixed_t bbox[4];
-
-                bbox[BOXTOP   ] = mo->y + 0x2d413c; // sqrt(2) * 32
-                bbox[BOXBOTTOM] = mo->y - 0x2d413c;
-                bbox[BOXRIGHT ] = mo->x + 0x2d413c;
-                bbox[BOXLEFT  ] = mo->x - 0x2d413c;
-
-                if (!M_BoxIntersect(bbox, screen_box))
-                    continue;
-
-                AM_DrawThingTriangle(mo->x, mo->y, mo->angle, color);
-
-                gSPLine3D(GFX1++, 0, 1, 0 /*flag*/);
-                gSPLine3D(GFX1++, 1, 2, 0 /*flag*/);
-                gSPLine3D(GFX1++, 2, 0, 0 /*flag*/);
-            }
-            else
-            {
-                AM_DrawThing(mo, p->mo->angle, ts, tc, xpos, ypos, thingscale);
-            }
+            AM_DrawThing(mo, p->mo->angle, ts, tc, xpos, ypos, thingscale);
         }
     }
 
@@ -654,7 +665,7 @@ void AM_DrawLines(player_t *player, fixed_t bbox[static 4]) // 800014C8
         if (!M_BoxIntersect(bbox, l->bbox))
             continue;
 
-        if(((l->flags & ML_MAPPED) || player->powers[pw_allmap]) || (player->cheats & CF_ALLMAP))
+        if((l->flags & ML_MAPPED) || player->powers[pw_allmap] || (player->cheats & CF_ALLMAP))
         {
             if (I_GFXFull())
                 break;
@@ -664,14 +675,23 @@ void AM_DrawLines(player_t *player, fixed_t bbox[static 4]) // 800014C8
             /* */
             color = COLOR_BROWN;
 
-            if((player->powers[pw_allmap] || (player->cheats & CF_ALLMAP)) && !(l->flags & ML_MAPPED))
+            if(player->powers[pw_allmap] && !(player->cheats & CF_ALLMAP) && !(l->flags & ML_MAPPED))
                 color = COLOR_GREY;
             else if (l->flags & ML_SECRET)
-                color = COLOR_RED;
+                color = COLOR_WHITE;
             else if(l->special && !(l->flags & ML_HIDEAUTOMAPTRIGGER))
-                color = COLOR_YELLOW;
+            {
+                if(l->special & MLU_BLUE)
+                    color = COLOR_BLUE;
+                else if(l->special & MLU_YELLOW)
+                    color = COLOR_YELLOW;
+                else if(l->special & MLU_RED)
+                    color = COLOR_RED;
+                else
+                    color = COLOR_GREEN;
+            }
             else if (!(l->flags & ML_TWOSIDED)) /* ONE-SIDED LINE */
-                color = COLOR_RED;
+                color = COLOR_WHITE;
 
             gSPVertex(GFX1++, (VTX1), 2, 0);
             gSPLine3D(GFX1++, 0, 1, 0);

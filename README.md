@@ -15,6 +15,7 @@ A fork of [Doom 64-RE] with the goal of creating a base for enhanced mods.
 - Persistent saves to SRAM (no more controller pak requirement)
 - Quick saves (for saving/loading during a level)
 - Per-monster colored blood particles
+- Keys and key doors display on the automap
 - Lots of bugfixes and optimizations
 - Expanded difficulty settings
   - "Hardcore!" from Complete Edition
