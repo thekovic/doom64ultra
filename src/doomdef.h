@@ -338,42 +338,42 @@ typedef struct laser_s
 /* */
 /* mobj flags */
 /* */
-#define	MF_SPECIAL		1			/* call P_SpecialThing when touched */
-#define	MF_SOLID		2
-#define	MF_SHOOTABLE	4
-#define	MF_NOSECTOR		8			/* don't use the sector links */
-									/* (invisible but touchable)  */
-#define	MF_NOBLOCKMAP	16			/* don't use the blocklinks  */
-									/* (inert but displayable) */
-#define	MF_AMBUSH		32
-#define	MF_JUSTHIT		64			/* try to attack right back */
-#define	MF_JUSTATTACKED	128			/* take at least one step before attacking */
-#define	MF_SPAWNCEILING	256			/* hang from ceiling instead of floor */
-//#define	MF_NOGRAVITY	512			/* don't apply gravity every tic */
-#define	MF_GRAVITY	512			    /* apply gravity every tic */
+#define MF_SPECIAL      0x1         /* call P_SpecialThing when touched */
+#define MF_SOLID        0x2
+#define MF_SHOOTABLE    0x4
+#define MF_NOSECTOR     0x8         /* don't use the sector links */
+                                    /* (invisible but touchable)  */
+#define MF_NOBLOCKMAP   0x10        /* don't use the blocklinks  */
+                                    /* (inert but displayable) */
+#define MF_AMBUSH       0x20
+#define MF_JUSTHIT      0x40        /* try to attack right back */
+#define MF_JUSTATTACKED 0x80        /* take at least one step before attacking */
+#define MF_SPAWNCEILING 0x100       /* hang from ceiling instead of floor */
+//#define MF_NOGRAVITY  0x200       /* don't apply gravity every tic */
+#define MF_GRAVITY      0x200       /* apply gravity every tic */
 
 /* movement flags */
-#define	MF_DROPOFF		0x400		/* allow jumps from high places */
-#define	MF_PICKUP		0x800		/* for players to pick up items */
-#define	MF_NOCLIP		0x1000		/* player cheat */
-#define	MF_TRIGDEATH	0x2000		/* [d64] trigger line special on death */
-#define	MF_FLOAT		0x4000		/* allow moves to any height, no gravity */
-#define	MF_TELEPORT		0x8000		/* don't cross lines or look at heights */
-#define MF_MISSILE		0x10000		/* don't hit same species, explode on block */
+#define MF_DROPOFF      0x400       /* allow jumps from high places */
+#define MF_PICKUP       0x800       /* for players to pick up items */
+#define MF_NOCLIP       0x1000      /* player cheat */
+#define MF_TRIGDEATH    0x2000      /* [d64] trigger line special on death */
+#define MF_FLOAT        0x4000      /* allow moves to any height, no gravity */
+#define MF_TELEPORT     0x8000      /* don't cross lines or look at heights */
+#define MF_MISSILE      0x10000     /* don't hit same species, explode on block */
 
-#define	MF_DROPPED		0x20000		/* dropped by a demon, not level spawned */
-#define	MF_TRIGTOUCH	0x40000		/* [d64] trigger line special on touch/pickup */
-#define	MF_NOBLOOD		0x80000		/* don't bleed when shot (use puff) */
-#define	MF_CORPSE		0x100000	/* don't stop moving halfway off a step */
-#define	MF_INFLOAT		0x200000	/* floating to a height for a move, don't */
-									/* auto float to target's height */
-#define	MF_COUNTKILL	0x400000	/* count towards intermission kill total */
-#define	MF_COUNTITEM	0x800000	/* count towards intermission item total */
+#define MF_DROPPED      0x20000     /* dropped by a demon, not level spawned */
+#define MF_TRIGTOUCH    0x40000     /* [d64] trigger line special on touch/pickup */
+#define MF_NOBLOOD      0x80000     /* don't bleed when shot (use puff) */
+#define MF_CORPSE       0x100000    /* don't stop moving halfway off a step */
+#define MF_INFLOAT      0x200000    /* floating to a height for a move, don't */
+                                    /* auto float to target's height */
+#define MF_COUNTKILL    0x400000    /* count towards intermission kill total */
+#define MF_COUNTITEM    0x800000    /* count towards intermission item total */
 
-#define	MF_SKULLFLY		0x1000000	/* skull in flight */
-#define	MF_NOTDMATCH	0x2000000	/* don't spawn in death match (key cards) */
+#define MF_SKULLFLY     0x1000000   /* skull in flight */
+#define MF_NOTDMATCH    0x2000000   /* don't spawn in death match (key cards) */
 
-#define	MF_SEETARGET	0x4000000	/* is target visible? */
+#define MF_SEETARGET    0x4000000   /* is target visible? */
 
 /* Doom 64 New Flags */
 #define	MF_COUNTSECRET  0x8000000   /* [d64] Count as secret when picked up (for intermissions) */
