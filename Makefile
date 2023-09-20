@@ -185,9 +185,12 @@ LIBULTRA_CFLAGS :=
 ifneq (,$(filter 0,$(DEBUG))$(filter 1,$(DEBUGOPT)))
     FAST_CFLAGS += -Ofast -fno-unroll-loops -fno-peel-loops -flto=auto --param case-values-threshold=20 \
                    -fno-inline -finline-functions-called-once --param max-completely-peeled-insns=8
-    SIZE_CFLAGS += -Os -finline-functions-called-once -ffast-math -falign-functions=32 -flto=auto
-    LIBULTRA_CFLAGS += -Os -ffast-math -falign-functions=32 -flto=auto -fuse-linker-plugin
-    LDFLAGS += -Wl,--gc-sections -flto=auto -fuse-linker-plugin -Os
+    SIZE_CFLAGS += -Oz -finline-functions-called-once -ffast-math -falign-functions=32 -flto=auto
+    LIBULTRA_CFLAGS += -Oz -ffast-math -falign-functions=32 -flto=auto -fuse-linker-plugin
+    LDFLAGS += -Wl,--gc-sections -flto=auto -fuse-linker-plugin -Oz
+else
+    CFLAGS += -Og
+    LIBULTRA_CFLAGS += -Og
 endif
 
 OPT_CFLAGS :=

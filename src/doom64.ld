@@ -27,6 +27,7 @@ SECTIONS
         _gp = ALIGN(16) + 0x8000;
         *.o(.sdata);
         :*.o(.text.hot);
+        */libultra*.a:exceptasm.o(.text);
         */libdoom64.a:*.o(.text.hot);
         *.ltrans.o(.text);
         */libdoom64.a:*.o(.text);

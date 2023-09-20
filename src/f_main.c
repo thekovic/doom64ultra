@@ -953,7 +953,7 @@ void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int x
         return;
 
     if (invscale != FRACUNIT)
-        invscale = FixedDiv(FRACUNIT, invscale);
+        invscale = FixedDiv2(FRACUNIT, invscale);
     invyscale = invscale;
     if (ScreenAspect)
         invscale = FixedMul(invscale, invaspectscale[ScreenAspect]);
