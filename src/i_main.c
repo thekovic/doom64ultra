@@ -1,6 +1,7 @@
 #include <ultra64.h>
 #include <PR/ramrom.h>	/* needed for argument passing into the app */
 #include <os_internal.h>
+#include <internal/viint.h>
 #include <stdarg.h>
 
 #include "i_main.h"
@@ -583,9 +584,10 @@ void I_Init(void) // 80005C50
 
     osCreateMesgQueue(&joy_cmd_msgque, &joy_cmd_msg, 1);
 
+    int mask = __osDisableInt();
+
     // Init the video mode...
     I_RefreshVideo();
-    osViBlack(TRUE);
 
     Z_Reserve(AUDIO_HEAP_ADDR, AUDIO_HEAP_SIZE + CFB_SIZE);
 
@@ -595,11 +597,10 @@ void I_Init(void) // 80005C50
         D_memset(CFB1_ADDR, 0, CFB_SIZE);
 
         osViSwapBuffer(fb);
-
-        while (osViGetCurrentFramebuffer() != fb) {}
+        __osViSwapContext();
     }
 
-    osViBlack(FALSE);
+    __osRestoreInt(mask);
 
     osSetEventMesg( OS_EVENT_SP, &sys_ticker_queue, (OSMesg)VID_MSG_RSP );
     osSetEventMesg( OS_EVENT_DP, &sys_ticker_queue, (OSMesg)VID_MSG_RDP );
