@@ -214,10 +214,7 @@ SEC_GAME boolean	PIT_UseLines (line_t *li) // 80016A28
 	/* */
 	/* check bounding box first */
 	/* */
-	if (usebbox[BOXRIGHT] <= li->bbox[BOXLEFT]
-	||	usebbox[BOXLEFT] >= li->bbox[BOXRIGHT]
-	||	usebbox[BOXTOP] <= li->bbox[BOXBOTTOM]
-	||	usebbox[BOXBOTTOM] >= li->bbox[BOXTOP] )
+	if (!M_BoxIntersect(usebbox, li->bbox))
 		return true;
 
     if(!li->special)

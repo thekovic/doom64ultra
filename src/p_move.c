@@ -451,10 +451,7 @@ boolean PM_BoxCrossLine (line_t *ld) // 8001A280
 {
 	boolean		side1 = false, side2 = false;
 
-	if (tmbbox[BOXRIGHT] <= ld->bbox[BOXLEFT]
-	||	tmbbox[BOXLEFT] >= ld->bbox[BOXRIGHT]
-	||	tmbbox[BOXTOP] <= ld->bbox[BOXBOTTOM]
-	||	tmbbox[BOXBOTTOM] >= ld->bbox[BOXTOP] )
+	if (!M_BoxIntersect(tmbbox, ld->bbox))
 		return false;
 
     switch(ld->slopetype)

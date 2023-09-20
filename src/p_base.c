@@ -703,13 +703,8 @@ boolean PB_BoxCrossLine(line_t *ld) // 8000920
 	boolean side1, side2;
 
     // entirely outside bounding box of line?
-    if(testbbox[BOXRIGHT ] <= ld->bbox[BOXLEFT  ] ||
-       testbbox[BOXLEFT  ] >= ld->bbox[BOXRIGHT ] ||
-       testbbox[BOXTOP   ] <= ld->bbox[BOXBOTTOM] ||
-       testbbox[BOXBOTTOM] >= ld->bbox[BOXTOP   ])
-    {
-        return false;
-    }
+	if(!M_BoxIntersect(testbbox, ld->bbox))
+		return false;
 
 	if (ld->slopetype == ST_POSITIVE)
     {
