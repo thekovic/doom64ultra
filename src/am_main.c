@@ -73,7 +73,9 @@ void AM_Control (player_t *player) // 800004F4
         return;
     }
 
-    if ((buttons & cbuttons->BT_MAP) && !(oldbuttons & cbuttons->BT_MAP))
+    /* allow zoom to take precedence if it is bound to the map button */
+    if ((!(cbuttons->BT_MAP & (PAD_L_TRIG|PAD_R_TRIG)) || !(buttons & cbuttons->BT_USE))
+            && (buttons & cbuttons->BT_MAP) && !(oldbuttons & cbuttons->BT_MAP))
     {
         if(player->automapflags & AF_SUBSEC)
         {
