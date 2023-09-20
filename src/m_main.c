@@ -705,7 +705,7 @@ int M_ControllerPak(void) // 80007724
             MenuCall = M_MenuTitleDrawer;
             cursorpos = 0;
 
-            MiniLoop(M_FadeInStart, NULL, M_MenuTicker, M_MenuGameDrawer);
+            exit = MiniLoop(M_FadeInStart, NULL, M_MenuTicker, M_MenuGameDrawer);
             M_FadeOutStart(ga_exit);
 
             if (exit == ga_exit)
@@ -725,7 +725,7 @@ int M_ControllerPak(void) // 80007724
             MenuCall = M_MenuTitleDrawer;
             cursorpos = 0;
 
-            MiniLoop(M_FadeInStart, NULL, M_MenuTicker, M_MenuGameDrawer);
+            exit = MiniLoop(M_FadeInStart, NULL, M_MenuTicker, M_MenuGameDrawer);
             M_FadeOutStart(ga_exit);
 
             if (exit == ga_exit)
@@ -2686,6 +2686,7 @@ int M_MenuTicker(void) // 80007E0C
 
                     S_StartSound(NULL, sfx_pistol);
                     M_SaveMenuData();
+                    exit = ga_nothing;
                     for (int i = 0; i < ARRAYLEN(cred_drawers); i++)
                     {
                         MenuCall = cred_drawers[i];
