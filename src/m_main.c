@@ -3254,7 +3254,7 @@ void M_MovementDrawer(void) // 80009738
 
 void M_VideoDrawer(void) // 80009884
 {
-    char *text;
+    const char *text;
     const menuitem_t *item;
     int i, alpha;
     menuentry_t casepos;
@@ -3492,10 +3492,10 @@ void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
     int width, height;
     int xh, yh, tileh, stileh, sheight, t, th;
     int offset;
-    byte *data;
+    gfxN64_t *data;
     int dsdx, dtdy;
 
-    data = (byte *)W_CacheLumpName(name, PU_CACHE, dec_jag, sizeof(gfxN64_t));
+    data = W_CacheLumpName(name, PU_CACHE, dec_jag, sizeof(gfxN64_t));
 
     gDPPipeSync(GFX1++);
     gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
@@ -3519,14 +3519,13 @@ void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
 
     gDPSetPrimColorD64(GFX1++, 0, 0, color);
 
-    width = ((gfxN64_t*)data)->width;
-    height = ((gfxN64_t*)data)->height;
+    width = data->width;
+    height = data->height;
 
     // Load Palette Data
-    offset = (width * height);
-    offset = (offset + 7) & ~7;
+    offset = ALIGN(width * height, 8);
     gDPSetTextureImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b ,
-                        1, data + offset + sizeof(gfxN64_t));
+                        1, data->texels + offset);
 
     gDPTileSync(GFX1++);
     gDPSetTile(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_4b, 0, 256, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
@@ -3537,7 +3536,7 @@ void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
     gDPPipeSync(GFX1++);
 
     xh = (width + x) << hudxshift;
-    tileh = 2048 / ((width + 7) & ~7);
+    tileh = 2048 / ALIGN(width, 8);
     sheight = height << hudyshift;
 
     if (osTvType == OS_TV_PAL)
@@ -3568,7 +3567,7 @@ void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
 
         // Load Image Data
         gDPSetTextureImage(GFX1++, G_IM_FMT_CI, G_IM_SIZ_8b ,
-                           width, data + sizeof(gfxN64_t));
+                           width, data->texels);
 
          // Clip Rectangle From Image
         gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_8b,

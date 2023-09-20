@@ -16,8 +16,8 @@ typedef struct
 
 extern boolean tryopen[6]; // 800A81E0
 
-extern byte *sfontlump;     // 800A81F8
-extern byte *statuslump;   // 800A81FC
+extern spriteN64_t *sfontlump;     // 800A81F8
+extern spriteN64_t *statuslump;   // 800A81FC
 extern int symbolslump;    // 800A8204
 
 #define FIRST_SYMBOL   0x80

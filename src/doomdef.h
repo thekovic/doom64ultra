@@ -1603,6 +1603,7 @@ typedef struct
 	short numpal;
 	short width;
 	short height;
+    byte  texels[];
 } gfxN64_t;
 
 typedef struct

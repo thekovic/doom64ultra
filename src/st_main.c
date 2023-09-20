@@ -11,8 +11,8 @@ extern void P_RefreshBrightness(void);
 static sbflash_t flashCards[6];    // 800A8180
 boolean tryopen[6]; // 800A81E0
 
-byte *sfontlump;     // 800A81F8
-byte *statuslump;   // 800A81FC
+spriteN64_t *sfontlump;     // 800A81F8
+spriteN64_t *statuslump;   // 800A81FC
 int symbolslump;    // 800A8204
 
 typedef struct
@@ -129,8 +129,8 @@ static int card_x[6] = {78, 89, 100, 78, 89, 100};      // 8005b870
 
 void ST_Init(void) // 80029BA0
 {
-  sfontlump = (byte *)W_CacheLumpName("SFONT",PU_STATIC,dec_jag, sizeof(spriteN64_t));
-  statuslump = (byte *)W_CacheLumpName("STATUS",PU_STATIC,dec_jag, sizeof(spriteN64_t));
+  sfontlump = W_CacheLumpName("SFONT",PU_STATIC,dec_jag, sizeof(spriteN64_t));
+  statuslump = W_CacheLumpName("STATUS",PU_STATIC,dec_jag, sizeof(spriteN64_t));
   symbolslump = W_GetNumForName("SYMBOLS");
 }
 
@@ -420,7 +420,7 @@ void ST_Drawer (void) // 80029DC0
             gDPSetRenderMode(GFX1++, G_RM_XLU_SURF_CLAMP, G_RM_XLU_SURF2_CLAMP);
         }
 
-        src = statuslump+sizeof(spriteN64_t);
+        src = (byte *) &statuslump[1];
 
         gDPSetTextureImage(GFX1++, G_IM_FMT_CI, G_IM_SIZ_16b , 1, src);
         gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
@@ -649,7 +649,7 @@ void ST_Message(int x,int y,const char *text,int color) // 8002A36C
         gDPSetCombineMode(GFX1++, G_CC_D64COMB04, G_CC_D64COMB04);
         gDPSetRenderMode(GFX1++, G_RM_XLU_SURF_CLAMP, G_RM_XLU_SURF2_CLAMP);
 
-        src = sfontlump+sizeof(spriteN64_t);
+        src = (byte *) &sfontlump[1];
 
         gDPSetTextureImage(GFX1++, G_IM_FMT_CI, G_IM_SIZ_16b , 1, src);
 
