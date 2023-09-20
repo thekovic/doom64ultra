@@ -20,7 +20,8 @@ int am_plycolor;    // 80063120
 int am_plyblink;    // 80063124
 
 void AM_DrawSubsectors(player_t *player, fixed_t cx, fixed_t cy, fixed_t bbox[static 4]);
-void AM_DrawThings(fixed_t x, fixed_t y, angle_t angle, int color);
+void AM_DrawThing(mobj_t *thing, angle_t angle, fixed_t sin, fixed_t cos, fixed_t cx, fixed_t cy, fixed_t scale);
+void AM_DrawThingTriangle(fixed_t x, fixed_t y, angle_t angle, int color);
 void AM_DrawLines(player_t *player, fixed_t bbox[static 4]);
 
 /*================================================================= */
@@ -237,6 +238,7 @@ void AM_Drawer (void) // 800009AC
     fixed_t     screen_box[4];
     fixed_t     boxscale;
     bool        linemode;
+    fixed_t     thingscale = 0;
 
     hcot = aspectscale[ScreenAspect];
     vcot = aspectratios[0];
@@ -385,7 +387,11 @@ void AM_Drawer (void) // 800009AC
     /* SHOW ALL MAP THINGS (CHEAT) */
     if (p->cheats & CF_ALLMAP)
     {
-        fixed_t bbox[4];
+
+        if (!linemode)
+            thingscale = FixedDiv2(FRACUNIT, boxscale);
+
+        R_RenderFilter(filt_sprites);
 
         for (mo = mobjhead.next; mo != (void*) &mobjhead; mo = next)
         {
@@ -409,18 +415,19 @@ void AM_Drawer (void) // 800009AC
             else
                 color = COLOR_AQUA;
 
-            bbox[BOXTOP   ] = mo->y + 0x2d413c; // sqrt(2) * 32;
-            bbox[BOXBOTTOM] = mo->y - 0x2d413c;
-            bbox[BOXRIGHT ] = mo->x + 0x2d413c;
-            bbox[BOXLEFT  ] = mo->x - 0x2d413c;
-
-            if (!M_BoxIntersect(bbox, screen_box))
-                continue;
-
-            AM_DrawThings(mo->x, mo->y, mo->angle, color);
-
             if (linemode)
             {
+                fixed_t bbox[4];
+
+                bbox[BOXTOP   ] = mo->y + 0x2d413c; // sqrt(2) * 32
+                bbox[BOXBOTTOM] = mo->y - 0x2d413c;
+                bbox[BOXRIGHT ] = mo->x + 0x2d413c;
+                bbox[BOXLEFT  ] = mo->x - 0x2d413c;
+
+                if (!M_BoxIntersect(bbox, screen_box))
+                    continue;
+
+                AM_DrawThingTriangle(mo->x, mo->y, mo->angle, color);
 
                 gSPLine3D(GFX1++, 0, 1, 0 /*flag*/);
                 gSPLine3D(GFX1++, 1, 2, 0 /*flag*/);
@@ -428,17 +435,16 @@ void AM_Drawer (void) // 800009AC
             }
             else
             {
-                gSP1Triangle(GFX1++, 0, 1, 2, 0 /*flag*/);
-                DEBUG_COUNTER(LastVisTriangles += 1);
+                AM_DrawThing(mo, p->mo->angle, ts, tc, xpos, ypos, thingscale);
             }
         }
     }
 
     /* SHOW PLAYERS */
-    AM_DrawThings(p->mo->x, p->mo->y, p->mo->angle, am_plycolor << 16 | 0xff);
-
     if (linemode)
     {
+        AM_DrawThingTriangle(p->mo->x, p->mo->y, p->mo->angle, am_plycolor << 16 | 0xff);
+
         gSPLine3D(GFX1++, 0, 1, 0 /*flag*/);
         gSPLine3D(GFX1++, 1, 2, 0 /*flag*/);
         gSPLine3D(GFX1++, 2, 0, 0 /*flag*/);
@@ -448,8 +454,7 @@ void AM_Drawer (void) // 800009AC
     }
     else
     {
-        gSP1Triangle(GFX1++, 0, 1, 2, 0 /*flag*/);
-        DEBUG_COUNTER(LastVisTriangles += 1);
+        AM_DrawThing(p->mo, p->mo->angle, ts, tc, xpos, ypos, thingscale);
     }
 
 
@@ -465,17 +470,16 @@ void AM_Drawer (void) // 800009AC
             ST_Message(2+HUDmargin,HUDmargin, p->message, 196 | p->messagecolor);
         }
     }
-	
 
-	// [Immorpher] kill count
-	if(MapStats) {
-		sprintf(buf, "KILLS: %d/%d", players[0].killcount, totalkills);
-		ST_Message(2+HUDmargin, 212-HUDmargin, buf, 196 | 0xffffff00);
-		sprintf(buf, "ITEMS: %d/%d", players[0].itemcount, totalitems);
-		ST_Message(2+HUDmargin, 222-HUDmargin, buf, 196| 0xffffff00);
-		sprintf(buf, "SECRETS: %d/%d", players[0].secretcount, totalsecret);
-		ST_Message(2+HUDmargin, 232-HUDmargin, buf, 196 | 0xffffff00);
-	}
+    // [Immorpher] kill count
+    if(MapStats) {
+        sprintf(buf, "KILLS: %d/%d", players[0].killcount, totalkills);
+        ST_Message(2+HUDmargin, 212-HUDmargin, buf, 196 | 0xffffff00);
+        sprintf(buf, "ITEMS: %d/%d", players[0].itemcount, totalitems);
+        ST_Message(2+HUDmargin, 222-HUDmargin, buf, 196| 0xffffff00);
+        sprintf(buf, "SECRETS: %d/%d", players[0].secretcount, totalsecret);
+        ST_Message(2+HUDmargin, 232-HUDmargin, buf, 196 | 0xffffff00);
+    }
 
     xpos = 297-HUDmargin;
     artflag = 4;
@@ -695,12 +699,12 @@ void AM_DrawLines(player_t *player, fixed_t bbox[static 4]) // 800014C8
 /*
 ==================
 =
-= AM_DrawThings
+= AM_DrawThingTriangle
 =
 ==================
 */
 
-void AM_DrawThings(fixed_t x, fixed_t y, angle_t angle, int color) // 80001834
+void AM_DrawThingTriangle(fixed_t x, fixed_t y, angle_t angle, int color) // 80001834
 {
     angle_t ang;
 
@@ -723,4 +727,49 @@ void AM_DrawThings(fixed_t x, fixed_t y, angle_t angle, int color) // 80001834
     *(int *)VTX1[0].v.cn = *(int *)VTX1[1].v.cn = *(int *)VTX1[2].v.cn = color;
 
     VTX1 += 3;
+}
+
+void AM_DrawThing(mobj_t *thing, angle_t angle, fixed_t sin, fixed_t cos, fixed_t cx, fixed_t cy, fixed_t scale)
+{
+    int rot;
+    int color;
+    fixed_t x, y, tx;
+    sector_t *sector;
+
+    rot = ((angle - thing->angle) + ((unsigned int)(ANG45 / 2) * 9)) >> 29;
+
+    // translate and rotate to camera space
+    x = thing->x - cx;
+    y = thing->y - cy;
+
+    tx = x;
+    x = ((s64) tx * (s64) cos - (s64) y * (s64) sin) >> FRACBITS;
+    y = ((s64) tx * (s64) sin + (s64) y * (s64) cos) >> FRACBITS;
+
+    // scale to screen space
+    if (ScreenAspect)
+        x = FixedMul(x, aspectscale[ScreenAspect]);
+
+    x = FixedMul(scale, x);
+    y = -FixedMul(scale, y);
+
+    // translate by screen bounds
+    x += (SCREEN_WD<<(FRACBITS-1));
+    y += (SCREEN_HT<<(FRACBITS-1));
+
+    sector = thing->subsector->sector;
+    if (thing->flags & MTF_NIGHTMARE)
+    {
+        color = PACKRGBA(64, 255, 0, 0);
+    }
+    else
+    {
+        if (thing->frame & FF_FULLBRIGHT)
+            color = PACKRGBA(255, 255, 255, 0);
+        else
+            color = lights[sector->colors[2]].rgba & 0xffffff00;
+    }
+
+    BufferedDrawSprite(thing->type, thing->state, rot, color | thing->alpha,
+                       x >> FRACBITS, y >> FRACBITS, scale);
 }
