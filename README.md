@@ -44,8 +44,21 @@ sudo apt-get install binutils-mips-n64 gcc-mips-n64 newlib-mips-n64 n64sdk-commo
 
 The data files from the original game must be placed in the `data` folder in
 order to build. The required files are: DOOM64.WAD, DOOM64.WMD, DOOM64.WSD,
-DOOM64.WDD. Currently these can be extracted from the original game ROM using the
-[extractor tool from DOOM64-RE](https://github.com/Erick194/DOOM64-RE/tree/f3792388b43d6fcef087b953f117f4df1bfd261e/doom64/Tools).
+DOOM64.WDD. Currently these can be extracted from the original game ROM using
+the [d64make] utility. See the d64make README for instructions on how to
+install it.
+
+```sh
+d64make build /path/to/doom64.z64 -o data/DOOM64.WAD
+```
+
+Using the data from the 2020 Remaster is also supported, and is recommended due
+to its higher quality sound effects. The data must be converted by d64make to
+the N64 format in order to use it:
+
+```sh
+d64make build /path/to/Doom64/DOOM64.WAD -o data/DOOM64.WAD
+```
 
 Once the SDK packages are installed and the data is in place, the rom can be
 built by invoking "make":
@@ -98,6 +111,7 @@ make clean && bear -- make -j DEBUG=1 && sed -i 's/.*=vr4300".*//' compile_comma
 
 Join the Doom 64 Discord: https://discord.gg/Ktxz8nz
 
+[d64make]: https://github.com/d64u/d64make/
 [Doom 64-RE]: https://github.com/Erick194/DOOM64-RE
 [Merciless]: https://github.com/jnmartin84/Doom-64-Merciless-Edition/tree/modern
 [eXpanded]: https://github.com/Immorpher/DOOM64XE
