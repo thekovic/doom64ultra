@@ -76,7 +76,7 @@ u64 sys_rcp_stack[SP_DRAM_STACK_SIZE64];    /* used for matrix stack */  // 8009
 #endif
 
 #define	SYS_YIELD_SIZE  OS_YIELD_DATA_SIZE
-u64 gfx_yield_buff[SYS_YIELD_SIZE];     // 800919E0
+u64 gfx_yield_buff[SYS_YIELD_SIZE] ALIGNED(16);     // 800919E0
 
 OSTask vid_rsptask[2] = // 8005A590
 {
