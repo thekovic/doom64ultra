@@ -1164,6 +1164,7 @@ int I_Random (void) HOT; // [Immorpher] new random table
 void M_ClearRandom (void);
 void M_ClearBox (fixed_t *box) HOT;
 void M_AddToBox (fixed_t *box, fixed_t x, fixed_t y) HOT;
+bool M_BoxIntersect(fixed_t a[static 4], fixed_t b[static 4]);
 
 /*---------*/
 /* S_SOUND */
