@@ -380,11 +380,13 @@ void AM_Drawer (void) // 800009AC
     /* SHOW ALL MAP THINGS (CHEAT) */
     if (p->cheats & CF_ALLMAP)
     {
+        fixed_t bbox[4];
+
         for (mo = mobjhead.next; mo != (void*) &mobjhead; mo = next)
         {
-            fixed_t bbox[4];
+            if (I_GFXFull())
+                break;
 
-            I_CheckGFX();
             next = mo->next;
 
             if (mo == p->mo)
@@ -510,7 +512,8 @@ static bool AM_DrawSubsector(player_t *player, int bspnum)
     if((sec->flags & MS_HIDESSECTOR) || (sec->floorpic == -1))
         return true;
 
-    I_CheckGFX();
+    if (I_GFXFull())
+        return true;
 
     DEBUG_COUNTER(LastVisSubsectors += 1);
 
@@ -644,7 +647,8 @@ void AM_DrawLines(player_t *player, fixed_t bbox[static 4]) // 800014C8
 
         if(((l->flags & ML_MAPPED) || player->powers[pw_allmap]) || (player->cheats & CF_ALLMAP))
         {
-            I_CheckGFX();
+            if (I_GFXFull())
+                break;
 
             /* */
             /* Figure out color */

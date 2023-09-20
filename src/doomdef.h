@@ -815,6 +815,7 @@ void    Z_Free2 (memzone_t *mainzone,void *ptr);
 
 void	Z_FreeTags(memzone_t *mainzone, int tag);
 void    Z_Touch(void *ptr);
+bool    Z_Stale(void *ptr);
 void	Z_CheckZone (memzone_t *mainzone);
 void	Z_ChangeTag (void *ptr, int tag);
 int 	Z_FreeMemory (memzone_t *mainzone);
@@ -1285,6 +1286,7 @@ extern boolean doLoadSave;
 int I_GetControllerData(int pad); // 800060D0
 
 void I_CheckGFX(void) HOT; // 800060E8
+bool I_GFXFull(void);
 void I_ClearFrame(void) HOT; // 8000637C
 void I_DrawFrame(void) HOT;  // 80006570
 void I_GetScreenGrab(void); // 800066C0

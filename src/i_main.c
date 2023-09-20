@@ -215,8 +215,15 @@ SDATA Vtx *VTX2;	// 800A4A0C
 SDATA Mtx *MTX1;	// 800A4A10
 SDATA Mtx *MTX2;	// 800A4A14
 
+#define GFX_ALLOC_THRESHOLD 1024
+#define VTX_ALLOC_THRESHOLD 615
+
 static Gfx *GfxBlocks[8] = {0,0,0,0,0,0,0,0}; // 8005A748
 static Vtx *VtxBlocks[8] = {0,0,0,0,0,0,0,0}; // 8005A768
+static SDATA u8 GfxBlocksOccupied = 0;
+static SDATA u8 VtxBlocksOccupied = 0;
+static SDATA u8 GfxBlocksUsed = 0;
+static SDATA u8 VtxBlocksUsed = 0;
 
 volatile u32 LastFrameCycles = 0;
 static u32 LastCpuStart = 0;
@@ -644,8 +651,6 @@ int I_GetControllerData(int pad) // 800060D0
 
 void I_CheckGFX(void) // 800060E8
 {
-	memblock_t *block;
-
 	Gfx **Gfx_Blocks;
 	Vtx **Vtx_Blocks;
 
@@ -657,37 +662,37 @@ void I_CheckGFX(void) // 800060E8
 	if (index > MAX_GFX)
 		I_Error("I_CheckGFX: GFX Overflow by %d\n",index);
 
-	if ((index < (MAX_GFX-1024)) == 0)
+	if ((index < (MAX_GFX-GFX_ALLOC_THRESHOLD)) == 0)
 	{
 		Gfx_Blocks = GfxBlocks;
 		block_idx = -1;
 
-		for(i = 0; i < 8; i++)
+		for(i = 0; i < ARRAYLEN(GfxBlocks); i++)
 		{
-			block = (memblock_t *)((byte *)*Gfx_Blocks - sizeof(memblock_t));
-
 			if (*Gfx_Blocks)
 			{
-				if(((u32)block->lockframe < NextFrameIdx - 1) == 0)
-                {
-                    Gfx_Blocks++;
-                    continue;
-                }
+				if(!Z_Stale(*Gfx_Blocks))
+				{
+					Gfx_Blocks++;
+					continue;
+				}
 
-                block->lockframe = NextFrameIdx;
-                GFX2 = (Gfx *)*Gfx_Blocks;
-                goto move_gfx;
+				Z_Touch(*Gfx_Blocks);
+				GFX2 = (Gfx *)*Gfx_Blocks;
+				goto move_gfx;
 			}
 
-            block_idx = i;
+			block_idx = i;
 		}
 
 		if (block_idx < 0)
 			I_Error("I_CheckGFX: GFX Cache overflow");
 
 		GFX2 = (Gfx *)Z_Malloc(MAX_GFX * sizeof(Gfx), PU_CACHE, &GfxBlocks[block_idx]);
+		GfxBlocksOccupied++;
 
-	move_gfx:
+move_gfx:
+		GfxBlocksUsed++;
 		gSPBranchList(GFX1,GFX2);
 		GFX1 = GFX2;
 		GfxIndex += index;
@@ -698,44 +703,63 @@ void I_CheckGFX(void) // 800060E8
 	if (index > MAX_VTX)
 		I_Error("I_CheckVTX: VTX Overflow by %d\n",index);
 
-	if ((index < (MAX_VTX-615)) == 0)
+	if ((index < (MAX_VTX-VTX_ALLOC_THRESHOLD)) == 0)
 	{
 		Vtx_Blocks = VtxBlocks;
 		block_idx = -1;
 
-		for(i = 0; i < 8; i++)
+		for(i = 0; i < ARRAYLEN(VtxBlocks); i++)
 		{
-		    block = (memblock_t *)((byte *)*Vtx_Blocks - sizeof(memblock_t));
-
 			if (*Vtx_Blocks)
 			{
-				if(((u32)block->lockframe < NextFrameIdx - 1) == 0)
-                {
-                    Vtx_Blocks++;
-                    continue;
-                }
+				if(!Z_Stale(*Vtx_Blocks))
+				{
+					Vtx_Blocks++;
+					continue;
+				}
 
-                block->lockframe = NextFrameIdx;
-                VTX2 = (Vtx *)*Vtx_Blocks;
-                goto move_vtx;
+				Z_Touch(*Vtx_Blocks);
+				VTX2 = (Vtx *)*Vtx_Blocks;
+				goto move_vtx;
 			}
 
-            block_idx = i;
+			block_idx = i;
 		}
 
 		if (block_idx < 0)
 			I_Error("I_CheckGFX: VTX Cache overflow");
 
-        VTX2 = (Vtx *)Z_Malloc(MAX_VTX * sizeof(Vtx), PU_CACHE, &VtxBlocks[block_idx]);
+		VTX2 = (Vtx *)Z_Malloc(MAX_VTX * sizeof(Vtx), PU_CACHE, &VtxBlocks[block_idx]);
+		VtxBlocksOccupied++;
 
-	move_vtx:
+move_vtx:
+		VtxBlocksUsed++;
 		VTX1 = VTX2;
 		VtxIndex += index;
 	}
 }
 
+// check if close to overflowing the caches
+bool I_GFXFull(void)
+{
+    I_CheckGFX();
+
+    // try to only fill half the blocks per frame to avoid flicker
+    if ((GfxBlocksOccupied == ARRAYLEN(GfxBlocks) || GfxBlocksUsed == (ARRAYLEN(GfxBlocks) / 2))
+            && GFX1 - GFX2 + GFX_ALLOC_THRESHOLD > MAX_GFX)
+        return true;
+    if ((VtxBlocksOccupied == ARRAYLEN(VtxBlocks) || VtxBlocksUsed == (ARRAYLEN(VtxBlocks) / 2))
+            && VTX1 - VTX2 + VTX_ALLOC_THRESHOLD > MAX_VTX)
+        return true;
+
+    return false;
+}
+
 void I_ClearFrame(void) // 8000637C
 {
+    Gfx **Gfx_Blocks;
+    Vtx **Vtx_Blocks;
+
     NextFrameIdx += 1;
 
     GFX1 = Gfx_base[vid_side];
@@ -776,6 +800,25 @@ void I_ClearFrame(void) // 8000637C
 
     globallump = -1;
     globalcm = 0;
+
+    VtxBlocksOccupied = 0;
+    GfxBlocksOccupied = 0;
+    VtxBlocksUsed = 0;
+    GfxBlocksUsed = 0;
+    Gfx_Blocks = GfxBlocks;
+    for(int i = 0; i < ARRAYLEN(GfxBlocks); i++)
+    {
+        if (*Gfx_Blocks && !Z_Stale(*Gfx_Blocks))
+            GfxBlocksOccupied++;
+        Gfx_Blocks++;
+    }
+    Vtx_Blocks = VtxBlocks;
+    for(int i = 0; i < ARRAYLEN(VtxBlocks); i++)
+    {
+        if (*Vtx_Blocks && !Z_Stale(*Vtx_Blocks))
+            VtxBlocksOccupied++;
+        Vtx_Blocks++;
+    }
 }
 
 void I_DrawFrame(void)  // 80006570

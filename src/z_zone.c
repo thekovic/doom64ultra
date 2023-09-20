@@ -548,12 +548,25 @@ void Z_Touch(void *ptr) // 8002CF9C
     memblock_t    *block;
 
     block = (memblock_t *)((byte *)ptr - sizeof(memblock_t));
+#ifdef DEBUG_MEM
     if (block->id != ZONEID)
         I_Error("Z_Touch: touched a pointer without ZONEID");
+#endif
 
     block->lockframe = NextFrameIdx;
 }
 
+bool Z_Stale(void *ptr)
+{
+    memblock_t    *block;
+
+    block = (memblock_t *)((byte *)ptr - sizeof(memblock_t));
+#ifdef DEBUG_MEM
+    if (block->id != ZONEID)
+        I_Error("Z_Stale: inspected a pointer without ZONEID");
+#endif
+    return (u32)block->lockframe < NextFrameIdx - 1;
+}
 
 /*
 ========================
