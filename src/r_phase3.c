@@ -853,7 +853,7 @@ void R_RenderThings(subsector_t *sub) // 80028248
             lump = vissprite_p->lump;
             flip = vissprite_p->flip;
 
-            nightmare = !!(thing->flags & MTF_NIGHTMARE);
+            nightmare = !!(thing->flags & MF_NIGHTMARE);
 
             if (nightmare)
             {

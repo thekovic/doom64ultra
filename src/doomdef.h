@@ -378,6 +378,7 @@ typedef struct laser_s
 /* Doom 64 New Flags */
 #define	MF_COUNTSECRET  0x8000000   /* [d64] Count as secret when picked up (for intermissions) */
 #define	MF_RENDERLASER  0x10000000  /* [d64] Exclusive to MT_LASERMARKER only */
+#define	MF_NIGHTMARE    0x20000000  /* [nova] nightmare monster */
 #define	MF_SHADOW       0x40000000  /* temporary player invisibility powerup. */
 #define	MF_NOINFIGHTING 0x80000000  /* [d64] Do not switch targets */
 

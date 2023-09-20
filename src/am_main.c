@@ -758,7 +758,7 @@ void AM_DrawThing(mobj_t *thing, angle_t angle, fixed_t sin, fixed_t cos, fixed_
     y += (SCREEN_HT<<(FRACBITS-1));
 
     sector = thing->subsector->sector;
-    if (thing->flags & MTF_NIGHTMARE)
+    if (thing->flags & MF_NIGHTMARE)
     {
         color = PACKRGBA(64, 255, 0, 0);
     }
