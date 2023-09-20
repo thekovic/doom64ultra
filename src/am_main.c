@@ -225,8 +225,7 @@ void AM_Drawer (void) // 800009AC
 	mobj_t		*mo;
 	mobj_t		*next;
 	fixed_t		xpos, ypos;
-	fixed_t		ox, oy;
-	fixed_t		c, s, ts, tc;
+	fixed_t     c, s, ts, tc;
 	angle_t     angle;
 	int			color;
 	int			scale;
@@ -251,7 +250,7 @@ void AM_Drawer (void) // 800009AC
 
     p = &players[0];
 
-    scale = (p->automapscale << 16);
+    scale = (p->automapscale << FRACBITS);
     xpos = p->mo->x;
     ypos = p->mo->y;
 
@@ -263,11 +262,15 @@ void AM_Drawer (void) // 800009AC
 
     if (p->automapflags & AF_FOLLOW)
     {
+        s64	ox, oy;
+
         angle = (p->mo->angle + ANG270) >> ANGLETOFINESHIFT;
-        ox = (p->automapx - xpos) >> 16;
-        oy = (p->automapy - ypos) >> 16;
-        xpos += ((ox * finecosine(angle)) - (oy * finesine(angle)));
-        ypos += ((ox * finesine(angle)));
+        ox = p->automapx - xpos;
+        oy = p->automapy - ypos;
+        s = finesine(angle);
+        c = finecosine(angle);
+        xpos += (ox * (s64)c - oy * (s64)s) >> FRACBITS;
+        ypos += (ox * (s64)s + oy * (s64)c) >> FRACBITS;
     }
 
     angle = p->mo->angle >> ANGLETOFINESHIFT;
