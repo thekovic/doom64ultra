@@ -97,7 +97,6 @@ int DrawerStatus;
     _F(MTXT_DEBUG_DISPLAY, "DISPLAY") \
     _F(MTXT_SECTOR_COLORS, "SECTOR COLORS") \
     _F(MTXT_FULL_BRIGHT, "FULL BRIGHT") \
-    _F(MTXT_EXIT, "Exit") \
     \
     _F(MTXT_OPTIONS, "Options") \
     \
@@ -336,7 +335,7 @@ const menuitem_t Menu_Features[] =
     { MTXT_CREDITS,        40, 160},
     { MTXT_DEBUG,          40, 170},
 
-    { MTXT_EXIT,           40, 190},
+    { MTXT_MRETURN,        40, 190},
 };
 
 const menuitem_t Menu_Debug[] =
@@ -347,7 +346,7 @@ const menuitem_t Menu_Debug[] =
 
     { MTXT_RECORD_DEMO,   40, 160},
 
-    { MTXT_EXIT,          40, 180},
+    { MTXT_MRETURN,       40, 180},
 };
 
 typedef struct
@@ -1232,7 +1231,6 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
 
-            case MTXT_EXIT:
             case MTXT_RETURN:
             case MTXT_MRETURN:
             case MTXT_DONT_SAVE:
