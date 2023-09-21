@@ -837,7 +837,13 @@ void F_Drawer(void) // 800039DC
             ypos = textypos;
             for(i = 0; i < textline; i++)
             {
-                ST_DrawString(-1, ypos, endcluster6[i], 0xc0c0c0ff);
+                if (ypos >= 16)
+                    alpha = 0xff;
+                else if (ypos > 0)
+                    alpha = ypos<<4;
+                else
+                    alpha = 0;
+                ST_DrawString(-1, ypos, endcluster6[i], alpha | 0xc0c0c000);
                 ypos += 14;
             }
 
