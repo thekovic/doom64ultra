@@ -9,13 +9,13 @@
 /*
 ===================
 =
-= LightGetHSV
+= C_LightGetHSV
 = Set HSV values based on given RGB
 =
 ===================
 */
 
-int LightGetHSV(int r,int g,int b) // 800020BC
+int C_LightGetHSV(int r,int g,int b) // 800020BC
 {
     unsigned char min, max;
 	unsigned char h_, s_, v_;
@@ -54,13 +54,13 @@ int LightGetHSV(int r,int g,int b) // 800020BC
 /*
 ===================
 =
-= LightGetRGB
+= C_LightGetRGB
 = Set RGB values based on given HSV
 =
 ===================
 */
 
-int LightGetRGB(int h,int s,int v) // 8000248C
+int C_LightGetRGB(int h,int s,int v) // 8000248C
 {
     unsigned char r,g,b;
     unsigned char region, remainder, p, q, t;
@@ -112,4 +112,42 @@ int LightGetRGB(int h,int s,int v) // 8000248C
     }
 
     return (((r&0xff) << 16) | ((g&0xff) << 8) | (b&0xff)) & 0x00FFFFFF;
+}
+
+u32 C_AddColors(u32 c1, u32 c2)
+{
+    u32 e1, e2, er, r = 0;
+
+    for (unsigned i = 0; i <= 24; i += 8)
+    {
+        e1 = (((unsigned) c1) >> i) & 0xff;
+        e2 = (((unsigned) c2) >> i) & 0xff;
+        er = e1 + e2;
+        er = MIN(er, 0xff);
+        r |= er << i;
+    }
+
+    return r;
+}
+
+u32 C_LerpColors(u32 a, u32 b, u32 fac)
+{
+    fac = MIN(fac, 256);
+    u32 nfac = 256 - fac;
+    return (((((a>>24) * nfac + (b>>24) * fac))&0xff00)<<16)
+        | ((((((a>>16)&0xff) * nfac + ((b>>16)&0xff) * fac))&0xff00)<<8)
+        | (((((a>>8)&0xff) * nfac + ((b>>8)&0xff) * fac))&0xff00)
+        | (((((a&0xff) * nfac + (b&0xff) * fac))&0xff00)>>8);
+}
+
+u32 C_MultColor(u32 c, u8 fac)
+{
+    u32 v, r = c & 0xff;
+    for (unsigned i = 8; i <= 24; i += 8)
+    {
+        v = (((c>>i)&0xff)*((u32)fac))>>8;
+        v = MIN(v, 0xff);
+        r |= (v<<i);
+    }
+    return r;
 }

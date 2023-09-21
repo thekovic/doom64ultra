@@ -906,7 +906,6 @@ void ST_UpdateFlash(void) // 8002AC30
     player_t *plyr;
 	int		cnt;
 	int		bzc;
-	int		bnc;
 
 
 	plyr = &players[0];
@@ -942,27 +941,25 @@ void ST_UpdateFlash(void) // 8002AC30
         if (bzc == 1)
             bzc = 0;
 
-        FlashEnvColor = PACKRGBA(MAX(bzc, cnt), 0, 0, 255);
-
-        /* bfg flash (green)*/
-        if(plyr->bfgcount)
-            FlashEnvColor += PACKRGBA(0, plyr->bfgcount, 0, 0);
+        cnt = MAX(bzc, cnt);
 
         /* suit flash (green/yellow) */
         if(plyr->powers[pw_ironfeet] >= 61 || plyr->powers[pw_ironfeet] & 8)
-            FlashEnvColor += PACKRGBA(0, 32, 4, 0);
+            FlashEnvColor = C_LerpColors(PACKRGBA(0, 32, 4, 0), PACKRGBA(255, 0, 0, 0), cnt);
+        else
+            FlashEnvColor = PACKRGBA(cnt, 0, 0, 0);
+
+        /* bfg flash (green)*/
+        if(plyr->bfgcount)
+            FlashEnvColor = C_LerpColors(FlashEnvColor, PACKRGBA(0, 255, 0, 0), plyr->bfgcount);
 
         /* bonus flash (yellow) */
         if (plyr->bonuscount)
         {
-            cnt = FlashBrightness*((plyr->bonuscount + 7) >> 3)/32;
+            cnt = ((FlashBrightness*(MIN(plyr->bonuscount, ST_MAXBONCOUNT) + 7)*41)>>10);
+            cnt = MIN(cnt, 256);
 
-            if (cnt > ST_MAXBONCOUNT)
-                cnt = ST_MAXBONCOUNT;
-
-            bnc = ((cnt << 2) + cnt) << 1;
-
-            FlashEnvColor = R_AddColors(FlashEnvColor, PACKRGBA(bnc, bnc, cnt, 0));
+            FlashEnvColor = C_LerpColors(FlashEnvColor, PACKRGBA(250, 250, 25, 0), cnt);
         }
     }
 }

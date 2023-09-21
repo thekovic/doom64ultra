@@ -50,8 +50,11 @@
 #include "doominfo.h"//"info.h"
 
 /* c_convert.c  */
-extern int LightGetHSV(int r,int g,int b); // 800020BC
-extern int LightGetRGB(int h,int s,int v); // 8000248C
+int C_LightGetHSV(int r,int g,int b); // 800020BC
+int C_LightGetRGB(int h,int s,int v); // 8000248C
+u32 C_AddColors(u32 c1, u32 c2);
+u32 C_LerpColors(u32 a, u32 b, u32 fac);
+u32 C_MultColor(u32 c, u8 fac);
 
 /*
 ===============================================================================

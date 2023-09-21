@@ -261,40 +261,12 @@ void R_RenderCloudSky(void) // 800255B8
     }
 }
 
-u32 R_AddColors(u32 c1, u32 c2)
-{
-    u32 e1, e2, er, r = 0;
-
-    for (unsigned i = 0; i <= 24; i += 8)
-    {
-        e1 = (((unsigned) c1) >> i) & 0xff;
-        e2 = (((unsigned) c2) >> i) & 0xff;
-        er = e1 + e2;
-        er = MIN(er, 0xff);
-        r |= er << i;
-    }
-
-    return r;
-}
-
-static u32 R_MultColor(u32 c, u8 fac)
-{
-    u32 v, r = c & 0xff;
-    for (unsigned i = 8; i <= 24; i += 8)
-    {
-        v = (((c>>i)&0xff)*((u32)fac))>>8;
-        v = MIN(v, 0xff);
-        r |= (v<<i);
-    }
-    return r;
-}
-
 void R_RenderVoidSky(void) // 800256B4
 {
     u32 color = SkyVoidColor;
 
-    color = R_MultColor(color, lights[255].rgba >> 8);
-    color = R_AddColors(color, FlashEnvColor & 0xffffff00);
+    color = C_MultColor(color, lights[255].rgba >> 8);
+    color = C_AddColors(color, FlashEnvColor & 0xffffff00);
     gDPSetCycleType(GFX1++, G_CYC_FILL);
     gDPSetRenderMode(GFX1++,G_RM_NOOP,G_RM_NOOP2);
 
@@ -523,8 +495,8 @@ void R_RenderFireSky(void) // 80025F68
     if (pitchoffset < YResolution)
     {
         color = *(int*)SkyFireVertex[2].v.cn;
-        color = R_MultColor(color, lights[255].rgba >> 8);
-        color = R_AddColors(color, FlashEnvColor & 0xffffff00);
+        color = C_MultColor(color, lights[255].rgba >> 8);
+        color = C_AddColors(color, FlashEnvColor & 0xffffff00);
         if (BitDepth == BITDEPTH_16)
         {
             color = RGBATO5551(color);

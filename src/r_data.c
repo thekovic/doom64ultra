@@ -277,8 +277,8 @@ void R_PaletteChangeHSV(u16 *dest, const u16 *src, int h, int s, int v)
         c = src[i];
         if (c & 1)
         {
-            hsv = LightGetHSV((c&0xf800)>>8, (c&0x7c0)>>3, (c&0x3e)<<2);
-            c = (LightGetRGB(((hsv >> 16) + h) & 0xff,
+            hsv = C_LightGetHSV((c&0xf800)>>8, (c&0x7c0)>>3, (c&0x3e)<<2);
+            c = (C_LightGetRGB(((hsv >> 16) + h) & 0xff,
                              CLAMP(((hsv >> 8) & 0xff) + s, 0, 255),
                              CLAMP((hsv & 0xff) + v, 0, 255)) << 8) | 0xff;
             dest[i] = RGBATO5551(c);

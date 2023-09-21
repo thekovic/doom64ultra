@@ -711,7 +711,7 @@ void P_SetLightFactor(int lightfactor) // 8000F458
     {
         if (i > 255)
         {
-            int hsv = LightGetHSV(maplight->r, maplight->g, maplight->b);
+            int hsv = C_LightGetHSV(maplight->r, maplight->g, maplight->b);
             h = (hsv >> 16) & 0xFF;
             s = (hsv >>  8) & 0xFF;
             v = (hsv      ) & 0xFF;
@@ -732,7 +732,7 @@ void P_SetLightFactor(int lightfactor) // 8000F458
 
         if (i > 255)
         {
-            int rgb = LightGetRGB(h, s, v);
+            int rgb = C_LightGetRGB(h, s, v);
             base_r = (rgb >> 16) & 0xFF;
             base_g = (rgb >>  8) & 0xFF;
             base_b = (rgb      ) & 0xFF;
