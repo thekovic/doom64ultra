@@ -1398,9 +1398,9 @@ void A_FireLaser(player_t *player, pspdef_t *psp) // 8001CAC0
         slopey = finesine(angleoffs >> ANGLETOFINESHIFT);
 
         damage = ((P_Random() & 7) * 10) + 10;
-        angleoffs += spread;
 
         P_LineAttack(mobj, angleoffs, laserheight, LASERRANGE, slopez, damage);
+        angleoffs += spread;
 
         if (hittarget.type != ht_none)
         {
