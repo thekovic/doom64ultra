@@ -7,7 +7,7 @@ void A_Fall (mobj_t *actor);
 
 typedef enum
 {
-	DP_STRAIGHT,
+    DP_STRAIGHT,
     DP_LEFT,
     DP_RIGHT
 } dirproj_e;
@@ -17,7 +17,7 @@ mobj_t* P_MissileAttack(mobj_t *actor, dirproj_e direction);
 /*
 ===============================================================================
 
-							ENEMY THINKING
+                            ENEMY THINKING
 
 enemies are allways spawned with targetplayer = -1, threshold = 0
 Most monsters are spawned unaware of all players, but some can be made preaware
@@ -35,21 +35,21 @@ Most monsters are spawned unaware of all players, but some can be made preaware
 
 boolean P_CheckMeleeRange (mobj_t *actor) // 80010B90
 {
-	mobj_t		*pl;
-	fixed_t		dist;
+    mobj_t      *pl;
+    fixed_t     dist;
 
-	if (!(actor->flags&MF_SEETARGET))
-		return false;
+    if (!(actor->flags&MF_SEETARGET))
+        return false;
 
-	if (!actor->target)
-		return false;
+    if (!actor->target)
+        return false;
 
-	pl = actor->target;
-	dist = P_AproxDistance (pl->x-actor->x, pl->y-actor->y);
-	if (dist >= MELEERANGE)
-		return false;
+    pl = actor->target;
+    dist = P_AproxDistance (pl->x-actor->x, pl->y-actor->y);
+    if (dist >= MELEERANGE)
+        return false;
 
-	return true;
+    return true;
 }
 
 /*
@@ -62,41 +62,41 @@ boolean P_CheckMeleeRange (mobj_t *actor) // 80010B90
 
 boolean P_CheckMissileRange (mobj_t *actor) // 80010C10
 {
-	fixed_t		dist;
+    fixed_t     dist;
 
-	if (!(actor->flags & MF_SEETARGET))
-		return false;
+    if (!(actor->flags & MF_SEETARGET))
+        return false;
 
-	if (actor->flags & MF_JUSTHIT)
-	{	/* the target just hit the enemy, so fight back! */
-		actor->flags &= ~MF_JUSTHIT;
-		return true;
-	}
-	
+    if (actor->flags & MF_JUSTHIT)
+    {   /* the target just hit the enemy, so fight back! */
+        actor->flags &= ~MF_JUSTHIT;
+        return true;
+    }
+
     if (customskill.monster_reactions && I_Random() < 16) // [Immorpher] Early attack on nightmare
     {
         return true;        // super sneak attack mofo!
     }
 
-	if (actor->reactiontime)
-		return false;		/* don't attack yet */
+    if (actor->reactiontime)
+        return false;       /* don't attack yet */
 
-	dist = P_AproxDistance ( actor->x-actor->target->x, actor->y-actor->target->y) - 64*FRACUNIT;
-	if (!actor->info->meleestate)
-		dist -= 128*FRACUNIT;		/* no melee attack, so fire more */
+    dist = P_AproxDistance ( actor->x-actor->target->x, actor->y-actor->target->y) - 64*FRACUNIT;
+    if (!actor->info->meleestate)
+        dist -= 128*FRACUNIT;       /* no melee attack, so fire more */
 
-	dist >>= 16;
+    dist >>= 16;
 
-	if (actor->type == MT_SKULL)
-		dist >>= 1;
+    if (actor->type == MT_SKULL)
+        dist >>= 1;
 
-	if (dist > 200)
-		dist = 200;
+    if (dist > 200)
+        dist = 200;
 
-	if (P_Random() < dist)
-		return false;
+    if (P_Random() < dist)
+        return false;
 
-	return true;
+    return true;
 }
 
 
@@ -110,19 +110,19 @@ boolean P_CheckMissileRange (mobj_t *actor) // 80010C10
 ================
 */
 
-fixed_t	xspeed[8] = {FRACUNIT,47000,0,-47000,-FRACUNIT,-47000,0,47000};// 8005ACC0
+fixed_t xspeed[8] = {FRACUNIT,47000,0,-47000,-FRACUNIT,-47000,0,47000};// 8005ACC0
 fixed_t yspeed[8] = {0,47000,FRACUNIT,47000,0,-47000,-FRACUNIT,-47000};// 8005ACE0
 
-extern	line_t *blockline; // 800A5D9C
+extern  line_t *blockline; // 800A5D9C
 
 boolean P_Move (mobj_t *actor) // 80010D08
 {
-	fixed_t	tryx, tryy;
-	boolean		good;
-	line_t		*blkline;
+    fixed_t tryx, tryy;
+    boolean     good;
+    line_t      *blkline;
 
-	if (actor->movedir == DI_NODIR)
-		return false;
+    if (actor->movedir == DI_NODIR)
+        return false;
 
     if((actor->flags & MF_GRAVITY) != 0)
     {
@@ -132,41 +132,41 @@ boolean P_Move (mobj_t *actor) // 80010D08
         }
     }
 
-	tryx = actor->x + actor->info->speed * xspeed[actor->movedir];
-	tryy = actor->y + actor->info->speed * yspeed[actor->movedir];
+    tryx = actor->x + actor->info->speed * xspeed[actor->movedir];
+    tryy = actor->y + actor->info->speed * yspeed[actor->movedir];
 
-	if (!P_TryMove (actor, tryx, tryy) )
-	{	/* open any specials */
-		if (actor->flags & MF_FLOAT && floatok)
-		{	/* must adjust height */
-			if (actor->z < tmfloorz)
-				actor->z += FLOATSPEED;
-			else
-				actor->z -= FLOATSPEED;
+    if (!P_TryMove (actor, tryx, tryy) )
+    {   /* open any specials */
+        if (actor->flags & MF_FLOAT && floatok)
+        {   /* must adjust height */
+            if (actor->z < tmfloorz)
+                actor->z += FLOATSPEED;
+            else
+                actor->z -= FLOATSPEED;
 
-			//actor->flags |= MF_INFLOAT;
-			return true;
-		}
+            //actor->flags |= MF_INFLOAT;
+            return true;
+        }
 
-		blkline = blockline;//(line_t *)DSPRead (&blockline);
-		if (!blkline || !blkline->special)
-			return false;
+        blkline = blockline;//(line_t *)DSPRead (&blockline);
+        if (!blkline || !blkline->special)
+            return false;
 
-		actor->movedir = DI_NODIR;
-		good = false;
+        actor->movedir = DI_NODIR;
+        good = false;
 
         if(blockline->special & MLU_USE)
             good = P_UseSpecialLine (blkline, actor);
 
-		return good;
-	}
-	//else
-	//	actor->flags &= ~MF_INFLOAT;
+        return good;
+    }
+    //else
+    //  actor->flags &= ~MF_INFLOAT;
 
-	//if (!(actor->flags & MF_FLOAT))
-	//	actor->z = actor->floorz;
+    //if (!(actor->flags & MF_FLOAT))
+    //  actor->z = actor->floorz;
 
-	return true;
+    return true;
 }
 
 
@@ -186,11 +186,11 @@ boolean P_Move (mobj_t *actor) // 80010D08
 
 boolean P_TryWalk (mobj_t *actor) // 80010E88
 {
-	if (!P_Move (actor))
-		return false;
+    if (!P_Move (actor))
+        return false;
 
-	actor->movecount = P_Random()&7;
-	return true;
+    actor->movecount = P_Random()&7;
+    return true;
 }
 
 
@@ -210,111 +210,111 @@ dirtype_t diags[] = {DI_NORTHWEST,DI_NORTHEAST,DI_SOUTHWEST,DI_SOUTHEAST}; // 80
 
 void P_NewChaseDir (mobj_t *actor) // 80010ED0
 {
-	fixed_t		deltax,deltay;
-	dirtype_t	d[3];
-	dirtype_t	tdir, olddir, turnaround;
+    fixed_t     deltax,deltay;
+    dirtype_t   d[3];
+    dirtype_t   tdir, olddir, turnaround;
 
-	if (!actor->target)
-		I_Error ("P_NewChaseDir: called with no target");
+    if (!actor->target)
+        I_Error ("P_NewChaseDir: called with no target");
 
-	olddir = actor->movedir;
-	turnaround=opposite[olddir];
+    olddir = actor->movedir;
+    turnaround=opposite[olddir];
 
-	deltax = actor->target->x - actor->x;
-	deltay = actor->target->y - actor->y;
+    deltax = actor->target->x - actor->x;
+    deltay = actor->target->y - actor->y;
 
-	if (deltax>10*FRACUNIT)
-		d[1]= DI_EAST;
-	else if (deltax<-10*FRACUNIT)
-		d[1]= DI_WEST;
-	else
-		d[1]=DI_NODIR;
+    if (deltax>10*FRACUNIT)
+        d[1]= DI_EAST;
+    else if (deltax<-10*FRACUNIT)
+        d[1]= DI_WEST;
+    else
+        d[1]=DI_NODIR;
 
-	if (deltay<-10*FRACUNIT)
-		d[2]= DI_SOUTH;
-	else if (deltay>10*FRACUNIT)
-		d[2]= DI_NORTH;
-	else
-		d[2]=DI_NODIR;
+    if (deltay<-10*FRACUNIT)
+        d[2]= DI_SOUTH;
+    else if (deltay>10*FRACUNIT)
+        d[2]= DI_NORTH;
+    else
+        d[2]=DI_NODIR;
 
 /* try direct route */
-	if (d[1] != DI_NODIR && d[2] != DI_NODIR)
-	{
-		actor->movedir = diags[((deltay<0)<<1)+(deltax>0)];
-		if (actor->movedir != turnaround && P_TryWalk(actor))
-			return;
-	}
+    if (d[1] != DI_NODIR && d[2] != DI_NODIR)
+    {
+        actor->movedir = diags[((deltay<0)<<1)+(deltax>0)];
+        if (actor->movedir != turnaround && P_TryWalk(actor))
+            return;
+    }
 
 /* try other directions */
-	if (P_Random() > 200 ||  D_abs(deltay)>D_abs(deltax))
-	{
-		tdir=d[1];
-		d[1]=d[2];
-		d[2]=tdir;
-	}
+    if (P_Random() > 200 ||  D_abs(deltay)>D_abs(deltax))
+    {
+        tdir=d[1];
+        d[1]=d[2];
+        d[2]=tdir;
+    }
 
-	if (d[1]==turnaround)
-		d[1]=DI_NODIR;
+    if (d[1]==turnaround)
+        d[1]=DI_NODIR;
 
-	if (d[2]==turnaround)
-		d[2]=DI_NODIR;
+    if (d[2]==turnaround)
+        d[2]=DI_NODIR;
 
-	if (d[1]!=DI_NODIR)
-	{
-		actor->movedir = d[1];
-		if (P_TryWalk(actor))
-			return;     /*either moved forward or attacked*/
-	}
+    if (d[1]!=DI_NODIR)
+    {
+        actor->movedir = d[1];
+        if (P_TryWalk(actor))
+            return;     /*either moved forward or attacked*/
+    }
 
-	if (d[2]!=DI_NODIR)
-	{
-		actor->movedir =d[2];
-		if (P_TryWalk(actor))
-			return;
-	}
+    if (d[2]!=DI_NODIR)
+    {
+        actor->movedir =d[2];
+        if (P_TryWalk(actor))
+            return;
+    }
 
 /* there is no direct path to the player, so pick another direction */
 
-	if (olddir!=DI_NODIR)
-	{
-		actor->movedir =olddir;
-		if (P_TryWalk(actor))
-			return;
-	}
+    if (olddir!=DI_NODIR)
+    {
+        actor->movedir =olddir;
+        if (P_TryWalk(actor))
+            return;
+    }
 
-	if (P_Random()&1) 	/*randomly determine direction of search*/
-	{
-		for (tdir=DI_EAST ; tdir<=DI_SOUTHEAST ; tdir++)
-		{
-			if (tdir!=turnaround)
-			{
-				actor->movedir =tdir;
-				if ( P_TryWalk(actor) )
-					return;
-			}
-		}
-	}
-	else
-	{
-		for (tdir=DI_SOUTHEAST ; (int)tdir >= (int)DI_EAST;tdir--)
-		{
-			if (tdir!=turnaround)
-			{
-				actor->movedir =tdir;
-				if ( P_TryWalk(actor) )
-				return;
-			}
-		}
-	}
+    if (P_Random()&1)   /*randomly determine direction of search*/
+    {
+        for (tdir=DI_EAST ; tdir<=DI_SOUTHEAST ; tdir++)
+        {
+            if (tdir!=turnaround)
+            {
+                actor->movedir =tdir;
+                if ( P_TryWalk(actor) )
+                    return;
+            }
+        }
+    }
+    else
+    {
+        for (tdir=DI_SOUTHEAST ; (int)tdir >= (int)DI_EAST;tdir--)
+        {
+            if (tdir!=turnaround)
+            {
+                actor->movedir =tdir;
+                if ( P_TryWalk(actor) )
+                return;
+            }
+        }
+    }
 
-	if (turnaround !=  DI_NODIR)
-	{
-		actor->movedir =turnaround;
-		if ( P_TryWalk(actor) )
-			return;
-	}
+    if (turnaround !=  DI_NODIR)
+    {
+        actor->movedir =turnaround;
+        if ( P_TryWalk(actor) )
+            return;
+    }
 
-	actor->movedir = DI_NODIR;		/* can't move */
+    actor->movedir = DI_NODIR;      /* can't move */
 }
 
 
@@ -330,14 +330,14 @@ void P_NewChaseDir (mobj_t *actor) // 80010ED0
 
 boolean P_LookForPlayers (mobj_t *actor, boolean allaround) // 8001115C
 {
-	angle_t		an;
-	fixed_t		dist, dist2;
-	mobj_t		*mo;
-	mobj_t		*mobj;
+    angle_t     an;
+    fixed_t     dist, dist2;
+    mobj_t      *mo;
+    mobj_t      *mobj;
 
-	mo = actor->target;
-	if (!mo || mo->health <= 0 || !(actor->flags & MF_SEETARGET))
-	{
+    mo = actor->target;
+    if (!mo || mo->health <= 0 || !(actor->flags & MF_SEETARGET))
+    {
         if(actor->type > MT_PLAYERBOT3)   /* for monsters with immorpher fun for intro at skill 6 */
         {
             actor->target = players[0].mo;
@@ -367,10 +367,10 @@ boolean P_LookForPlayers (mobj_t *actor, boolean allaround) // 8001115C
             }
         }
 
-		return false;
-	}
+        return false;
+    }
 
-	if (!actor->subsector->sector->soundtarget)
+    if (!actor->subsector->sector->soundtarget)
     {
         if (!allaround)
         {
@@ -380,19 +380,19 @@ boolean P_LookForPlayers (mobj_t *actor, boolean allaround) // 8001115C
                 dist = P_AproxDistance (mo->x - actor->x, mo->y - actor->y);
                 /* if real close, react anyway */
                 if (dist > MELEERANGE)
-                    return false;		/* behind back */
+                    return false;       /* behind back */
             }
         }
     }
 
-	return true;
+    return true;
 }
 
 
 /*
 ===============================================================================
 
-						ACTION ROUTINES
+                        ACTION ROUTINES
 
 ===============================================================================
 */
@@ -409,46 +409,46 @@ boolean P_LookForPlayers (mobj_t *actor, boolean allaround) // 8001115C
 
 void A_Look (mobj_t *actor) // 80011340
 {
-	mobj_t	*targ;
-	int		sound;
+    mobj_t  *targ;
+    int     sound;
 
-	/* if current target is visible, start attacking */
-	if (!P_LookForPlayers(actor, false))
-	{
-		/* if the sector has a living soundtarget, make that the new target */
-		actor->threshold = 0;		/* any shot will wake up */
-		targ = actor->subsector->sector->soundtarget;
-		if (targ == NULL || !(targ->flags & MF_SHOOTABLE) || (actor->flags & MF_AMBUSH))
-			return;
-		actor->target = targ;
-	}
+    /* if current target is visible, start attacking */
+    if (!P_LookForPlayers(actor, false))
+    {
+        /* if the sector has a living soundtarget, make that the new target */
+        actor->threshold = 0;       /* any shot will wake up */
+        targ = actor->subsector->sector->soundtarget;
+        if (targ == NULL || !(targ->flags & MF_SHOOTABLE) || (actor->flags & MF_AMBUSH))
+            return;
+        actor->target = targ;
+    }
 
-	/* go into chase state */
-	if (actor->info->seesound)
-	{
-		switch (actor->info->seesound)
-		{
-		case sfx_possit1://sfx_posit1:
-		case sfx_possit2://sfx_posit2:
-		case sfx_possit3://sfx_posit3:
-			sound = sfx_possit1+P_Random()%3; // [Immorpher] integer rounding to have 0,1,2 and restore missing sounds
-			break;
-		case sfx_impsit1://sfx_bgsit1:
-		case sfx_impsit2://sfx_bgsit2:
-			sound = sfx_impsit1+(P_Random()&1);
-			break;
-		default:
-			sound = actor->info->seesound;
-			break;
-		}
+    /* go into chase state */
+    if (actor->info->seesound)
+    {
+        switch (actor->info->seesound)
+        {
+        case sfx_possit1://sfx_posit1:
+        case sfx_possit2://sfx_posit2:
+        case sfx_possit3://sfx_posit3:
+            sound = sfx_possit1+P_Random()%3; // [Immorpher] integer rounding to have 0,1,2 and restore missing sounds
+            break;
+        case sfx_impsit1://sfx_bgsit1:
+        case sfx_impsit2://sfx_bgsit2:
+            sound = sfx_impsit1+(P_Random()&1);
+            break;
+        default:
+            sound = actor->info->seesound;
+            break;
+        }
 
-		if (actor->type == MT_RESURRECTOR || actor->type == MT_CYBORG)
-			S_StartSound(NULL, sound);	// full volume
-		else
-			S_StartSound(actor, sound);
-	}
-	
-	P_SetMobjState (actor, actor->info->seestate);
+        if (actor->type == MT_RESURRECTOR || actor->type == MT_CYBORG)
+            S_StartSound(NULL, sound);  // full volume
+        else
+            S_StartSound(actor, sound);
+    }
+
+    P_SetMobjState (actor, actor->info->seestate);
 }
 
 
@@ -464,87 +464,87 @@ void A_Look (mobj_t *actor) // 80011340
 
 void A_Chase (mobj_t *actor) // 8001146C
 {
-	int		delta;
+    int     delta;
 
-	if (actor->reactiontime)
-		actor->reactiontime--;
+    if (actor->reactiontime)
+        actor->reactiontime--;
 
-	/* */
-	/* modify target threshold */
-	/* */
-	if (actor->threshold)
-		actor->threshold--;
+    /* */
+    /* modify target threshold */
+    /* */
+    if (actor->threshold)
+        actor->threshold--;
 
-	/* */
-	/* turn towards movement direction if not there yet */
-	/* */
-	if (actor->movedir < 8)
-	{
-		actor->angle &= (7<<29);
-		delta = actor->angle - (actor->movedir << 29);
-		if (delta > 0)
-			actor->angle -= ANG90/2;
-		else if (delta < 0)
-			actor->angle += ANG90/2;
-	}
+    /* */
+    /* turn towards movement direction if not there yet */
+    /* */
+    if (actor->movedir < 8)
+    {
+        actor->angle &= (7<<29);
+        delta = actor->angle - (actor->movedir << 29);
+        if (delta > 0)
+            actor->angle -= ANG90/2;
+        else if (delta < 0)
+            actor->angle += ANG90/2;
+    }
 
-	if (!actor->target || !(actor->target->flags&MF_SHOOTABLE))
-	{	/* look for a new target */
-		if (P_LookForPlayers(actor,true))
-			return;		/* got a new target */
-		P_SetMobjState (actor, actor->info->spawnstate);
-		return;
-	}
+    if (!actor->target || !(actor->target->flags&MF_SHOOTABLE))
+    {   /* look for a new target */
+        if (P_LookForPlayers(actor,true))
+            return;     /* got a new target */
+        P_SetMobjState (actor, actor->info->spawnstate);
+        return;
+    }
 
-	/* */
-	/* don't attack twice in a row */
-	/* */
-	if (actor->flags & MF_JUSTATTACKED)
-	{
-		actor->flags &= ~MF_JUSTATTACKED;
-		P_NewChaseDir (actor);
-		return;
-	}
+    /* */
+    /* don't attack twice in a row */
+    /* */
+    if (actor->flags & MF_JUSTATTACKED)
+    {
+        actor->flags &= ~MF_JUSTATTACKED;
+        P_NewChaseDir (actor);
+        return;
+    }
 
-	/* */
-	/* check for melee attack */
-	/* */
-	if (actor->info->meleestate && P_CheckMeleeRange (actor))
-	{
-		if (actor->info->attacksound)
-			S_StartSound (actor, actor->info->attacksound);
-		P_SetMobjState (actor, actor->info->meleestate);
-		return;
-	}
+    /* */
+    /* check for melee attack */
+    /* */
+    if (actor->info->meleestate && P_CheckMeleeRange (actor))
+    {
+        if (actor->info->attacksound)
+            S_StartSound (actor, actor->info->attacksound);
+        P_SetMobjState (actor, actor->info->meleestate);
+        return;
+    }
 
-	/* */
-	/* check for missile attack */
-	/* */
-	if ((customskill.monster_reactions || !actor->movecount) && actor->info->missilestate
-	&& P_CheckMissileRange (actor))
-	{
-		P_SetMobjState (actor, actor->info->missilestate);
-		if (!customskill.monster_reactions)
-			actor->flags |= MF_JUSTATTACKED;
-		else if (I_Random() < 16) // [Immorpher] slim chance in nightmare mode to break attack for unpredictability
-			actor->flags |= MF_JUSTATTACKED;
-		return;
-	}
+    /* */
+    /* check for missile attack */
+    /* */
+    if ((customskill.monster_reactions || !actor->movecount) && actor->info->missilestate
+    && P_CheckMissileRange (actor))
+    {
+        P_SetMobjState (actor, actor->info->missilestate);
+        if (!customskill.monster_reactions)
+            actor->flags |= MF_JUSTATTACKED;
+        else if (I_Random() < 16) // [Immorpher] slim chance in nightmare mode to break attack for unpredictability
+            actor->flags |= MF_JUSTATTACKED;
+        return;
+    }
 
 
 
-	/* */
-	/* chase towards player */
-	/* */
-	if (--actor->movecount<0 || !P_Move (actor))
-		P_NewChaseDir (actor);
+    /* */
+    /* chase towards player */
+    /* */
+    if (--actor->movecount<0 || !P_Move (actor))
+        P_NewChaseDir (actor);
 
-	/* */
-	/* make active sound */
-	/* */
-	if (actor->info->activesound && P_Random () < 3) {
-		S_StartSound (actor, actor->info->activesound);
-	}
+    /* */
+    /* make active sound */
+    /* */
+    if (actor->info->activesound && P_Random () < 3) {
+        S_StartSound (actor, actor->info->activesound);
+    }
 }
 
 
@@ -561,17 +561,17 @@ void A_Chase (mobj_t *actor) // 8001146C
 void A_FaceTarget (mobj_t *actor) // 800116A8
 {
     int rnd1, rnd2;
-	if (!actor->target)
-		return;
+    if (!actor->target)
+        return;
 
-	actor->flags &= ~MF_AMBUSH;
-	actor->angle = R_PointToAngle2 (actor->x, actor->y , actor->target->x, actor->target->y);
+    actor->flags &= ~MF_AMBUSH;
+    actor->angle = R_PointToAngle2 (actor->x, actor->y , actor->target->x, actor->target->y);
 
-	if (actor->target->flags & MF_SHADOW)
+    if (actor->target->flags & MF_SHADOW)
     {
         rnd1 = P_Random();
         rnd2 = P_Random();
-		actor->angle += (rnd2 - rnd1) << 21;
+        actor->angle += (rnd2 - rnd1) << 21;
     }
 }
 
@@ -585,28 +585,28 @@ void A_FaceTarget (mobj_t *actor) // 800116A8
 
 void A_Scream (mobj_t *actor) // 80011740
 {
-	int		sound;
+    int     sound;
 
-	switch (actor->info->deathsound)
-	{
-	case 0:
-		return;
+    switch (actor->info->deathsound)
+    {
+    case 0:
+        return;
 
-	case sfx_posdie1://sfx_podth1:
-	case sfx_posdie2://sfx_podth2:
-	case sfx_posdie3://sfx_podth3:
-		sound = sfx_posdie1 + P_Random()%3; // [Immorpher] now the third death sound happens given integer rounding
-		break;
+    case sfx_posdie1://sfx_podth1:
+    case sfx_posdie2://sfx_podth2:
+    case sfx_posdie3://sfx_podth3:
+        sound = sfx_posdie1 + P_Random()%3; // [Immorpher] now the third death sound happens given integer rounding
+        break;
 
-	case sfx_impdth1://sfx_bgdth1:
-	case sfx_impdth2://sfx_bgdth2:
-		sound = sfx_impdth1 + (P_Random ()&1);
-		break;
+    case sfx_impdth1://sfx_bgdth1:
+    case sfx_impdth2://sfx_bgdth2:
+        sound = sfx_impdth1 + (P_Random ()&1);
+        break;
 
-	default:
-		sound = actor->info->deathsound;
-		break;
-	}
+    default:
+        sound = actor->info->deathsound;
+        break;
+    }
 
     S_StartSound(actor, sound);
 }
@@ -621,7 +621,7 @@ void A_Scream (mobj_t *actor) // 80011740
 
 void A_XScream (mobj_t *actor) // 800117E4
 {
-	S_StartSound (actor, sfx_slop);
+    S_StartSound (actor, sfx_slop);
 }
 
 /*
@@ -654,7 +654,7 @@ void A_Pain (mobj_t *actor) // 80011804
 void A_Fall (mobj_t *actor) // 8001185C
 {
 /* actor is on ground, it can be walked over */
-	actor->flags &= ~MF_SOLID;
+    actor->flags &= ~MF_SOLID;
 }
 
 
@@ -668,7 +668,7 @@ void A_Fall (mobj_t *actor) // 8001185C
 
 void A_Explode (mobj_t *thingy) // 80011870
 {
-	P_RadiusAttack(thingy, thingy->target, 128);
+    P_RadiusAttack(thingy, thingy->target, 128);
 }
 
 
@@ -683,7 +683,7 @@ void A_Explode (mobj_t *thingy) // 80011870
 
 void A_OnDeathTrigger (mobj_t *mo) // 80011894
 {
-	mobj_t		*mo2;
+    mobj_t      *mo2;
 
     if(!(mo->flags & MF_TRIGDEATH))
         return;
@@ -727,24 +727,24 @@ SEC_GAME fixed_t P_SlopeToTarget(mobj_t *actor, fixed_t zheight)
 
 void A_PosAttack (mobj_t *actor) // 80011954
 {
-	int		angle, damage, rnd1, rnd2, slope;
+    int     angle, damage, rnd1, rnd2, slope;
 
-	if (!actor->target)
-		return;
+    if (!actor->target)
+        return;
 
-	A_FaceTarget (actor);
-	angle = actor->angle;
+    A_FaceTarget (actor);
+    angle = actor->angle;
 
-	S_StartSound (actor, sfx_pistol);
+    S_StartSound (actor, sfx_pistol);
 
     slope = P_SlopeToTarget(actor, 0);
 
     rnd1 = P_Random();
     rnd2 = P_Random();
-	angle += (rnd2-rnd1)<<20;
+    angle += (rnd2-rnd1)<<20;
 
-	damage = ((P_Random() & 7) * 3) + 3;
-	P_LineAttack (actor, angle, 0, MISSILERANGE, slope, damage);
+    damage = ((P_Random() & 7) * 3) + 3;
+    P_LineAttack (actor, angle, 0, MISSILERANGE, slope, damage);
 }
 
 /*
@@ -757,24 +757,24 @@ void A_PosAttack (mobj_t *actor) // 80011954
 
 void A_SPosAttack (mobj_t *actor) // 800119FC
 {
-	int		i;
-	int		angle, bangle, damage, slope;
+    int     i;
+    int     angle, bangle, damage, slope;
 
-	if (!actor->target)
-		return;
+    if (!actor->target)
+        return;
 
-	S_StartSound (actor, sfx_shotgun);
-	A_FaceTarget (actor);
-	bangle = actor->angle;
+    S_StartSound (actor, sfx_shotgun);
+    A_FaceTarget (actor);
+    bangle = actor->angle;
 
     slope = P_SlopeToTarget(actor, 0);
 
-	for (i=0 ; i<3 ; i++)
-	{
-		angle = bangle + ((P_Random()-P_Random())<<20);
-		damage = ((P_Random() % 5) * 3) + 3;
-		P_LineAttack (actor, angle, 0, MISSILERANGE, slope, damage);
-	}
+    for (i=0 ; i<3 ; i++)
+    {
+        angle = bangle + ((P_Random()-P_Random())<<20);
+        damage = ((P_Random() % 5) * 3) + 3;
+        P_LineAttack (actor, angle, 0, MISSILERANGE, slope, damage);
+    }
 }
 
 /*
@@ -787,23 +787,23 @@ void A_SPosAttack (mobj_t *actor) // 800119FC
 
 void A_PlayAttack(mobj_t* actor) // 80011b1C
 {
-	int		angle;
-	int		bangle;
-	int		damage;
-	int		slope;
+    int     angle;
+    int     bangle;
+    int     damage;
+    int     slope;
 
-	if (!actor->target)
-		return;
+    if (!actor->target)
+        return;
 
-	S_StartSound(actor, sfx_pistol);
-	A_FaceTarget(actor);
-	bangle = actor->angle;
+    S_StartSound(actor, sfx_pistol);
+    A_FaceTarget(actor);
+    bangle = actor->angle;
 
     slope = P_SlopeToTarget(actor, 0);
 
-	angle = bangle + ((P_Random() - P_Random()) << 20);
-	damage = ((P_Random() % 5) * 3) + 3;
-	P_LineAttack(actor, angle, 0, MISSILERANGE, slope, damage);
+    angle = bangle + ((P_Random() - P_Random()) << 20);
+    damage = ((P_Random() % 5) * 3) + 3;
+    P_LineAttack(actor, angle, 0, MISSILERANGE, slope, damage);
 }
 
 /*
@@ -816,16 +816,16 @@ void A_PlayAttack(mobj_t* actor) // 80011b1C
 
 void A_CPosRefire(mobj_t* actor) // 80011BD4
 {
-	A_FaceTarget(actor);
+    A_FaceTarget(actor);
 
-	if (P_Random() < 40)
-		return;
+    if (P_Random() < 40)
+        return;
 
-	if (!actor->target || actor->target->health <= 0
-		|| !P_CheckSight(actor, actor->target))
-	{
-		P_SetMobjState(actor, actor->info->seestate);
-	}
+    if (!actor->target || actor->target->health <= 0
+        || !P_CheckSight(actor, actor->target))
+    {
+        P_SetMobjState(actor, actor->info->seestate);
+    }
 }
 
 /*
@@ -838,7 +838,7 @@ void A_CPosRefire(mobj_t* actor) // 80011BD4
 
 void A_BspiFaceTarget(mobj_t *actor) // 80011C50
 {
-	A_FaceTarget(actor);
+    A_FaceTarget(actor);
     actor->extradata = (int *)5;
 }
 
@@ -852,15 +852,15 @@ void A_BspiFaceTarget(mobj_t *actor) // 80011C50
 
 void A_BspiAttack(mobj_t *actor) // 80011C74
 {
-	if (!actor->target)
-		return;
+    if (!actor->target)
+        return;
 
-	A_FaceTarget(actor);
+    A_FaceTarget(actor);
 
 /* */
 /* launch a missile */
 /* */
-	P_MissileAttack(actor, DP_LEFT);
+    P_MissileAttack(actor, DP_LEFT);
     P_MissileAttack(actor, DP_RIGHT);
 }
 
@@ -874,19 +874,19 @@ void A_BspiAttack(mobj_t *actor) // 80011C74
 
 void A_SpidRefire (mobj_t *actor) // 80011CBC
 {
-	A_FaceTarget (actor);
+    A_FaceTarget (actor);
 
-	if (P_Random () < 10)
-		return;
+    if (P_Random () < 10)
+        return;
 
-	if (!actor->target || actor->target->health <= 0 || !(actor->flags&MF_SEETARGET) )
+    if (!actor->target || actor->target->health <= 0 || !(actor->flags&MF_SEETARGET) )
     {
-		P_SetMobjState (actor, actor->info->seestate);
-		actor->extradata = (int *)5;
-		return;
+        P_SetMobjState (actor, actor->info->seestate);
+        actor->extradata = (int *)5;
+        return;
     }
 
-	actor->extradata = ((char *)actor->extradata - 1);
+    actor->extradata = ((char *)actor->extradata - 1);
     if((int)actor->extradata <= 0)
     {
         P_SetMobjState(actor, actor->info->missilestate);
@@ -928,15 +928,15 @@ void A_TroopMelee(mobj_t* actor) // 80011D78
 
 void A_TroopAttack (mobj_t *actor) // 80011DEC
 {
-	if (!actor->target)
-		return;
+    if (!actor->target)
+        return;
 
     A_FaceTarget (actor);
 
 /* */
 /* launch a missile */
 /* */
-	P_MissileAttack(actor, DP_STRAIGHT);
+    P_MissileAttack(actor, DP_STRAIGHT);
 }
 
 /*
@@ -949,13 +949,13 @@ void A_TroopAttack (mobj_t *actor) // 80011DEC
 
 void A_SargAttack (mobj_t *actor) // 80011E28
 {
-	int		damage;
+    int     damage;
 
-	if (!actor->target)
-		return;
+    if (!actor->target)
+        return;
 
-	A_FaceTarget (actor);
-	if(P_CheckMeleeRange(actor))
+    A_FaceTarget (actor);
+    if(P_CheckMeleeRange(actor))
     {
         damage = ((P_Random() & 7) * 4) + 4;
         P_DamageMobj(actor->target, actor, actor, damage);
@@ -972,22 +972,22 @@ void A_SargAttack (mobj_t *actor) // 80011E28
 
 void A_HeadAttack (mobj_t *actor) // 80011E90
 {
-	int		damage;
+    int     damage;
 
-	if (!actor->target)
-		return;
+    if (!actor->target)
+        return;
 
-	A_FaceTarget (actor);
-	if (P_CheckMeleeRange (actor))
-	{
-		damage = ((P_Random() & 7) * 8) + 8;
-		P_DamageMobj (actor->target, actor, actor, damage);
-		return;
-	}
+    A_FaceTarget (actor);
+    if (P_CheckMeleeRange (actor))
+    {
+        damage = ((P_Random() & 7) * 8) + 8;
+        P_DamageMobj (actor->target, actor, actor, damage);
+        return;
+    }
 /* */
 /* launch a missile */
 /* */
-	P_MissileAttack(actor, DP_STRAIGHT);
+    P_MissileAttack(actor, DP_STRAIGHT);
 }
 
 /*
@@ -1000,11 +1000,11 @@ void A_HeadAttack (mobj_t *actor) // 80011E90
 
 void A_CyberAttack (mobj_t *actor) // 80011F08
 {
-	if (!actor->target)
-		return;
+    if (!actor->target)
+        return;
 
-	A_FaceTarget (actor);
-	P_MissileAttack(actor, DP_LEFT);
+    A_FaceTarget (actor);
+    P_MissileAttack(actor, DP_LEFT);
 }
 
 /*
@@ -1040,25 +1040,25 @@ void A_CyberDeathEvent(mobj_t* actor) // 80011F44
 
 void A_BruisAttack (mobj_t *actor) // 80011FC4
 {
-	int		damage;
+    int     damage;
 
-	if (!actor->target)
-		return;
+    if (!actor->target)
+        return;
 
     // [nova] fix barons/knights facing the wrong way on liast attack frame
-	A_FaceTarget (actor);
+    A_FaceTarget (actor);
 
-	if (P_CheckMeleeRange (actor))
-	{
-		S_StartSound (actor, sfx_scratch);
-		damage = ((P_Random() & 7) * 11) + 11;
-		P_DamageMobj (actor->target, actor, actor, damage);
-		return;
-	}
+    if (P_CheckMeleeRange (actor))
+    {
+        S_StartSound (actor, sfx_scratch);
+        damage = ((P_Random() & 7) * 11) + 11;
+        P_DamageMobj (actor->target, actor, actor, damage);
+        return;
+    }
 /* */
 /* launch a missile */
 /* */
-	P_MissileAttack(actor, DP_STRAIGHT);
+    P_MissileAttack(actor, DP_STRAIGHT);
 }
 
 /*
@@ -1089,11 +1089,11 @@ void A_SpawnSmoke(mobj_t *actor) // 8001204C
 
 void A_Tracer(mobj_t *actor) // 80012088
 {
-	angle_t	exact;
-	fixed_t	dist;
-	fixed_t	slope;
-	mobj_t *dest;
-	mobj_t *th;
+    angle_t exact;
+    fixed_t dist;
+    fixed_t slope;
+    mobj_t *dest;
+    mobj_t *th;
 
     th = P_SpawnMobj(actor->x - actor->momx, actor->y - actor->momy, actor->z, MT_SMOKE_RED);
 
@@ -1163,12 +1163,12 @@ void A_Tracer(mobj_t *actor) // 80012088
 ==============
 */
 
-#define	FATSPREAD	(ANG90/4)
+#define FATSPREAD   (ANG90/4)
 
 void A_FatRaise(mobj_t *actor) // 800122F4
 {
-	A_FaceTarget(actor);
-	S_StartSound(actor, sfx_fattatk);
+    A_FaceTarget(actor);
+    S_StartSound(actor, sfx_fattatk);
 }
 
 /*
@@ -1181,19 +1181,19 @@ void A_FatRaise(mobj_t *actor) // 800122F4
 
 void A_FatAttack1(mobj_t *actor) // 80012320
 {
-	mobj_t  *mo;
-	int	    an;
+    mobj_t  *mo;
+    int     an;
 
-	A_FaceTarget(actor);
+    A_FaceTarget(actor);
 
-	// Change direction  to ...
-	P_MissileAttack(actor, DP_RIGHT);
-	mo = P_MissileAttack(actor, DP_LEFT);
+    // Change direction  to ...
+    P_MissileAttack(actor, DP_RIGHT);
+    mo = P_MissileAttack(actor, DP_LEFT);
 
-	mo->angle += FATSPREAD;
-	an = mo->angle >> ANGLETOFINESHIFT;
-	mo->momx = (mo->info->speed * finecosine(an));
-	mo->momy = (mo->info->speed * finesine(an));
+    mo->angle += FATSPREAD;
+    an = mo->angle >> ANGLETOFINESHIFT;
+    mo->momx = (mo->info->speed * finecosine(an));
+    mo->momy = (mo->info->speed * finesine(an));
 }
 
 /*
@@ -1207,18 +1207,18 @@ void A_FatAttack1(mobj_t *actor) // 80012320
 void A_FatAttack2(mobj_t *actor) // 800123B0
 {
     mobj_t  *mo;
-	int	    an;
+    int     an;
 
-	A_FaceTarget(actor);
+    A_FaceTarget(actor);
 
-	// Now here choose opposite deviation.
-	P_MissileAttack(actor, DP_LEFT);
-	mo = P_MissileAttack(actor, DP_RIGHT);
+    // Now here choose opposite deviation.
+    P_MissileAttack(actor, DP_LEFT);
+    mo = P_MissileAttack(actor, DP_RIGHT);
 
-	mo->angle -= FATSPREAD;
-	an = mo->angle >> ANGLETOFINESHIFT;
-	mo->momx = (mo->info->speed * finecosine(an));
-	mo->momy = (mo->info->speed * finesine(an));
+    mo->angle -= FATSPREAD;
+    an = mo->angle >> ANGLETOFINESHIFT;
+    mo->momx = (mo->info->speed * finecosine(an));
+    mo->momy = (mo->info->speed * finesine(an));
 }
 
 /*
@@ -1232,21 +1232,21 @@ void A_FatAttack2(mobj_t *actor) // 800123B0
 void A_FatAttack3(mobj_t *actor) // 80012440
 {
     mobj_t  *mo;
-	int	    an;
+    int     an;
 
-	A_FaceTarget(actor);
+    A_FaceTarget(actor);
 
-	mo = P_MissileAttack(actor, DP_RIGHT);
-	mo->angle -= FATSPREAD / 4;
-	an = mo->angle >> ANGLETOFINESHIFT;
-	mo->momx = (mo->info->speed * finecosine(an));
-	mo->momy = (mo->info->speed * finesine(an));
+    mo = P_MissileAttack(actor, DP_RIGHT);
+    mo->angle -= FATSPREAD / 4;
+    an = mo->angle >> ANGLETOFINESHIFT;
+    mo->momx = (mo->info->speed * finecosine(an));
+    mo->momy = (mo->info->speed * finesine(an));
 
-	mo = P_MissileAttack(actor, DP_LEFT);
-	mo->angle += FATSPREAD / 4;
-	an = mo->angle >> ANGLETOFINESHIFT;
-	mo->momx = (mo->info->speed * finecosine(an));
-	mo->momy = (mo->info->speed * finesine(an));
+    mo = P_MissileAttack(actor, DP_LEFT);
+    mo->angle += FATSPREAD / 4;
+    an = mo->angle >> ANGLETOFINESHIFT;
+    mo->momx = (mo->info->speed * finecosine(an));
+    mo->momy = (mo->info->speed * finesine(an));
 }
 
 
@@ -1260,30 +1260,30 @@ void A_FatAttack3(mobj_t *actor) // 80012440
 ==================
 */
 
-#define	SKULLSPEED		(40*FRACUNIT)
+#define SKULLSPEED      (40*FRACUNIT)
 
 void A_SkullAttack (mobj_t *actor) // 80012528
 {
-	mobj_t			*dest;
-	angle_t			an;
-	int				dist;
+    mobj_t          *dest;
+    angle_t         an;
+    int             dist;
 
-	if (!actor->target)
-		return;
+    if (!actor->target)
+        return;
 
-	dest = actor->target;
-	actor->flags |= MF_SKULLFLY;
+    dest = actor->target;
+    actor->flags |= MF_SKULLFLY;
 
-	S_StartSound (actor, actor->info->attacksound);
-	A_FaceTarget (actor);
-	an = actor->angle >> ANGLETOFINESHIFT;
-	actor->momx = (finecosine(an) * (SKULLSPEED/FRACUNIT));
-	actor->momy = (finesine(an) * (SKULLSPEED/FRACUNIT));
-	dist = P_AproxDistance (dest->x - actor->x, dest->y - actor->y);
-	dist = dist / SKULLSPEED;
-	if (dist < 1)
-		dist = 1;
-	actor->momz = (dest->z+(dest->height>>1) - actor->z) / dist;
+    S_StartSound (actor, actor->info->attacksound);
+    A_FaceTarget (actor);
+    an = actor->angle >> ANGLETOFINESHIFT;
+    actor->momx = (finecosine(an) * (SKULLSPEED/FRACUNIT));
+    actor->momy = (finesine(an) * (SKULLSPEED/FRACUNIT));
+    dist = P_AproxDistance (dest->x - actor->x, dest->y - actor->y);
+    dist = dist / SKULLSPEED;
+    if (dist < 1)
+        dist = 1;
+    actor->momz = (dest->z+(dest->height>>1) - actor->z) / dist;
 }
 
 
@@ -1312,22 +1312,22 @@ boolean PIT_PainCheckLine(intercept_t *in) // 80012654
 
 void A_PainShootSkull(mobj_t *actor, angle_t angle) // 8001267C
 {
-	fixed_t	x;
-	fixed_t	y;
-	fixed_t	z;
+    fixed_t x;
+    fixed_t y;
+    fixed_t z;
 
-	mobj_t*	newmobj;
-	angle_t	an;
-	int		prestep;
-	int		count;
+    mobj_t* newmobj;
+    angle_t an;
+    int     prestep;
+    int     count;
 
-	mobj_t	*mo;
+    mobj_t  *mo;
 
-	// count total number of skull currently on the level
-	count = 0;
-	for (mo=mobjhead.next ; mo != (void*) &mobjhead ; mo=mo->next)
-	{
-		if (mo->type == MT_SKULL)
+    // count total number of skull currently on the level
+    count = 0;
+    for (mo=mobjhead.next ; mo != (void*) &mobjhead ; mo=mo->next)
+    {
+        if (mo->type == MT_SKULL)
         {
             count++;
 
@@ -1336,32 +1336,32 @@ void A_PainShootSkull(mobj_t *actor, angle_t angle) // 8001267C
             if (count >= 17)
                 return;
         }
-	}
+    }
 
-	// okay, there's playe for another one
-	an = angle >> ANGLETOFINESHIFT;
+    // okay, there's playe for another one
+    an = angle >> ANGLETOFINESHIFT;
 
-	prestep = (mobjinfo[MT_SKULL].radius + (4 * FRACUNIT) + actor->info->radius) >> FRACBITS;
+    prestep = (mobjinfo[MT_SKULL].radius + (4 * FRACUNIT) + actor->info->radius) >> FRACBITS;
 
-	x = actor->x + (finecosine(an) * prestep);
-	y = actor->y + (finesine(an) * prestep);
-	z = actor->z + 16 * FRACUNIT;
+    x = actor->x + (finecosine(an) * prestep);
+    y = actor->y + (finesine(an) * prestep);
+    z = actor->z + 16 * FRACUNIT;
 
-	newmobj = P_SpawnMobj(x, y, z, MT_SKULL);
+    newmobj = P_SpawnMobj(x, y, z, MT_SKULL);
 
-	// Check for movements.
-	if (!P_PathTraverse(actor->x, actor->y, newmobj->x, newmobj->y, PT_ADDLINES, PIT_PainCheckLine) ||
+    // Check for movements.
+    if (!P_PathTraverse(actor->x, actor->y, newmobj->x, newmobj->y, PT_ADDLINES, PIT_PainCheckLine) ||
         !P_TryMove(newmobj, newmobj->x, newmobj->y))
-	{
-		// kill it immediately
-		P_DamageMobj(newmobj, actor, actor, 10000);
+    {
+        // kill it immediately
+        P_DamageMobj(newmobj, actor, actor, 10000);
         P_RadiusAttack(newmobj, newmobj, 128);
-		return;
-	}
+        return;
+    }
 
-	newmobj->target = actor->target;
-	P_SetMobjState(newmobj,newmobj->info->missilestate);
-	A_SkullAttack(newmobj);
+    newmobj->target = actor->target;
+    P_SetMobjState(newmobj,newmobj->info->missilestate);
+    A_SkullAttack(newmobj);
 }
 
 /*
@@ -1374,12 +1374,12 @@ void A_PainShootSkull(mobj_t *actor, angle_t angle) // 8001267C
 
 void A_PainAttack(mobj_t *actor) // 80012804
 {
-	if (!actor->target)
-		return;
+    if (!actor->target)
+        return;
 
-	A_FaceTarget(actor);
-	A_PainShootSkull(actor, actor->angle-0x15550000);
-	A_PainShootSkull(actor, actor->angle+0x15550000);
+    A_FaceTarget(actor);
+    A_PainShootSkull(actor, actor->angle-0x15550000);
+    A_PainShootSkull(actor, actor->angle+0x15550000);
 }
 
 /*
@@ -1392,12 +1392,12 @@ void A_PainAttack(mobj_t *actor) // 80012804
 
 void A_PainDie(mobj_t *actor) // 8001285C
 {
-	A_Fall(actor);
-	A_PainShootSkull(actor, actor->angle + ANG90);
-	A_PainShootSkull(actor, actor->angle + ANG180);
-	A_PainShootSkull(actor, actor->angle + ANG270);
+    A_Fall(actor);
+    A_PainShootSkull(actor, actor->angle + ANG90);
+    A_PainShootSkull(actor, actor->angle + ANG180);
+    A_PainShootSkull(actor, actor->angle + ANG270);
 
-	A_OnDeathTrigger(actor);
+    A_OnDeathTrigger(actor);
 }
 
 
@@ -1694,8 +1694,8 @@ void A_BarrelExplode(mobj_t* actor) // 80013070
 
 void A_Hoof (mobj_t *mo) // 800130E0
 {
-	S_StartSound(mo, sfx_cybhoof);
-	A_Chase(mo);
+    S_StartSound(mo, sfx_cybhoof);
+    A_Chase(mo);
 }
 
 /*
@@ -1708,8 +1708,8 @@ void A_Hoof (mobj_t *mo) // 800130E0
 
 void A_Metal (mobj_t *mo) // 80013110
 {
-	S_StartSound(mo, sfx_metal);
-	A_Chase(mo);
+    S_StartSound(mo, sfx_metal);
+    A_Chase(mo);
 }
 
 /*
@@ -1722,8 +1722,8 @@ void A_Metal (mobj_t *mo) // 80013110
 
 void A_BabyMetal(mobj_t* mo) // 80013140
 {
-	S_StartSound(mo, sfx_bspistomp);
-	A_Chase(mo);
+    S_StartSound(mo, sfx_bspistomp);
+    A_Chase(mo);
 }
 
 /*============================================================================= */
@@ -1732,11 +1732,11 @@ void A_BabyMetal(mobj_t* mo) // 80013140
 #if 0
 void L_CrossSpecial (mobj_t *mo)
 {
-	line_t	*line;
+    line_t  *line;
 
-	line = (line_t *)(mo->extradata & ~1);
+    line = (line_t *)(mo->extradata & ~1);
 
-	P_CrossSpecialLine (line, mo);
+    P_CrossSpecialLine (line, mo);
 }
 #endif
 
@@ -1751,22 +1751,22 @@ void L_CrossSpecial (mobj_t *mo)
 /* a move in p_base.c caused a missile to hit another thing or wall */
 void L_MissileHit (mobj_t *mo) // 80013170
 {
-	int	damage;
-	mobj_t	*missilething;
+    int damage;
+    mobj_t  *missilething;
 
-	missilething = (mobj_t *)mo->extradata;
-	damage = 0;
+    missilething = (mobj_t *)mo->extradata;
+    damage = 0;
 
-	if (missilething)
-	{
-		damage = ((P_Random()&7)+1)*mo->info->damage;
-		P_DamageMobj (missilething, mo, mo->target, damage);
+    if (missilething)
+    {
+        damage = ((P_Random()&7)+1)*mo->info->damage;
+        P_DamageMobj (missilething, mo, mo->target, damage);
 
         if ((mo->type == MT_PROJ_RECTFIRE) && (missilething->player))
         {
             missilething->momz = (1500*FRACUNIT) / missilething->info->mass;
         }
-	}
+    }
 
     if (mo->type == MT_PROJ_DART)
     {
@@ -1780,7 +1780,7 @@ void L_MissileHit (mobj_t *mo) // 80013170
             P_SpawnPuff(mo->x, mo->y, mo->z);
         }
     }
-	P_ExplodeMissile (mo);
+    P_ExplodeMissile (mo);
 }
 
 /*
@@ -1794,20 +1794,20 @@ void L_MissileHit (mobj_t *mo) // 80013170
 /* a move in p_base.c caused a flying skull to hit another thing or a wall */
 void L_SkullBash (mobj_t *mo) // 800132AC
 {
-	int	damage;
-	mobj_t	*skullthing;
+    int damage;
+    mobj_t  *skullthing;
 
-	skullthing = (mobj_t *)mo->extradata;
+    skullthing = (mobj_t *)mo->extradata;
 
-	if (skullthing)
-	{
-		damage = ((P_Random()&7)+1)*mo->info->damage;
-		P_DamageMobj (skullthing, mo, mo, damage);
-	}
+    if (skullthing)
+    {
+        damage = ((P_Random()&7)+1)*mo->info->damage;
+        P_DamageMobj (skullthing, mo, mo, damage);
+    }
 
-	mo->flags &= ~MF_SKULLFLY;
-	mo->momx = mo->momy = mo->momz = 0;
-	P_SetMobjState (mo, mo->info->spawnstate);
+    mo->flags &= ~MF_SKULLFLY;
+    mo->momx = mo->momy = mo->momz = 0;
+    P_SetMobjState (mo, mo->info->spawnstate);
 }
 
 /*

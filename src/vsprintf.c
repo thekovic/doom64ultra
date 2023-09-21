@@ -37,7 +37,7 @@ int D_vsprintf(char *string, const char *format, va_list args) // 80001D24
       /* get the fieldwidth if any */
       fieldsize = 0;
       while (*format >= '0' && *format <= '9')
-	fieldsize = fieldsize * 10 + *(format++) - '0';
+    fieldsize = fieldsize * 10 + *(format++) - '0';
 
       /* get rid of 'l' if present */
       if (*format == 'l')
@@ -49,16 +49,16 @@ int D_vsprintf(char *string, const char *format, va_list args) // 80001D24
       div = 10;
       if (*format == 'c')
       {
-	*(string++) = va_arg(args, int);
-	format++;
+    *(string++) = va_arg(args, int);
+    format++;
       }
       else if (*format == 's')
       {
-	str = va_arg(args, char *);
-	len = mystrlen(str);
-	while (fieldsize-- > len) *(string++) = padchar; /* do field pad */
-	while (*str) *(string++) = *(str++); /* copy string */
-	format++;
+    str = va_arg(args, char *);
+    len = mystrlen(str);
+    while (fieldsize-- > len) *(string++) = padchar; /* do field pad */
+    while (*str) *(string++) = *(str++); /* copy string */
+    format++;
       }
       else
       {
@@ -66,55 +66,55 @@ int D_vsprintf(char *string, const char *format, va_list args) // 80001D24
         {
           div = 8;
           if (uselong)
-	    num = va_arg(args, unsigned long);
-	  else
-	    num = va_arg(args, unsigned);
-/*	  printf("o=0%o\n", num); */
+        num = va_arg(args, unsigned long);
+      else
+        num = va_arg(args, unsigned);
+/*    printf("o=0%o\n", num); */
         }
         else if (*format == 'x' || *format == 'X')  /* hex */
         {
           div = 16;
           if (uselong)
-	    num = va_arg(args, unsigned long);
-	  else
-	    num = va_arg(args, unsigned);
-/*	  printf("x=%x\n", num); */
-	}
+        num = va_arg(args, unsigned long);
+      else
+        num = va_arg(args, unsigned);
+/*    printf("x=%x\n", num); */
+    }
         else if (*format == 'i' || *format == 'd' || *format == 'u') /* decimal */
         {
           div = 10;
           if (uselong)
-	    snum = va_arg(args, long);
-	  else
-	    snum = va_arg(args, int);
-	  if (snum < 0 && *format != 'u') /* handle negative %i or %d */
-	  {
-	    *(string++) = '-';
-	    num = -snum;
-	    if (fieldsize) fieldsize--;
-	  } else num = snum;
-	}
-	else return -1; /* unrecognized format specifier */
+        snum = va_arg(args, long);
+      else
+        snum = va_arg(args, int);
+      if (snum < 0 && *format != 'u') /* handle negative %i or %d */
+      {
+        *(string++) = '-';
+        num = -snum;
+        if (fieldsize) fieldsize--;
+      } else num = snum;
+    }
+    else return -1; /* unrecognized format specifier */
 
-	/* print any decimal or hex integer */
-	len = 0;
-	while (num || fieldsize || !len)
-	{
-	  for (i=len ; i ; i--) string[i] = string[i-1]; /* shift right */
-	  if (len && fieldsize && !num) *string = padchar; /* pad out */
-	  else
-	  {
-	    /* put in a hex or decimal digit */
-	    *string = num % div;
-	    *string += *string > 9 ? 'A'-10 : '0';
-/*	    printf("d = %c\n", *string); */
-	    num /= div;
-	  }
-	  len++;
-	  if (fieldsize) fieldsize--;
-	}
-	string += len;
-	format++;
+    /* print any decimal or hex integer */
+    len = 0;
+    while (num || fieldsize || !len)
+    {
+      for (i=len ; i ; i--) string[i] = string[i-1]; /* shift right */
+      if (len && fieldsize && !num) *string = padchar; /* pad out */
+      else
+      {
+        /* put in a hex or decimal digit */
+        *string = num % div;
+        *string += *string > 9 ? 'A'-10 : '0';
+/*      printf("d = %c\n", *string); */
+        num /= div;
+      }
+      len++;
+      if (fieldsize) fieldsize--;
+    }
+    string += len;
+    format++;
       }
     }
   }

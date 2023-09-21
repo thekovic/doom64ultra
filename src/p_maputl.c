@@ -17,11 +17,11 @@
 
 fixed_t P_AproxDistance (fixed_t dx, fixed_t dy) // 80017F00
 {
-	dx = D_abs(dx);
-	dy = D_abs(dy);
-	if (dx < dy)
-		return dx+dy-(dx>>1);
-	return dx+dy-(dy>>1);
+    dx = D_abs(dx);
+    dy = D_abs(dy);
+    if (dx < dy)
+        return dx+dy-(dx>>1);
+    return dx+dy-(dy>>1);
 }
 
 /*
@@ -35,39 +35,39 @@ fixed_t P_AproxDistance (fixed_t dx, fixed_t dy) // 80017F00
 #if 0
 int P_PointOnDivlineSide (fixed_t x, fixed_t y, divline_t *line)//L8001C598()
 {
-	fixed_t	dx,dy;
-	fixed_t	left, right;
+    fixed_t dx,dy;
+    fixed_t left, right;
 
-	if (!line->dx)
-	{
-		if (x <= line->x)
-			return line->dy > 0;
-		return line->dy < 0;
-	}
-	if (!line->dy)
-	{
-		if (y <= line->y)
-			return line->dx < 0;
-		return line->dx > 0;
-	}
+    if (!line->dx)
+    {
+        if (x <= line->x)
+            return line->dy > 0;
+        return line->dy < 0;
+    }
+    if (!line->dy)
+    {
+        if (y <= line->y)
+            return line->dx < 0;
+        return line->dx > 0;
+    }
 
-	dx = (x - line->x);
-	dy = (y - line->y);
+    dx = (x - line->x);
+    dy = (y - line->y);
 
 /* try to quickly decide by looking at sign bits */
-	if ( (line->dy ^ line->dx ^ dx ^ dy)&0x80000000 )
-	{
-		if ( (line->dy ^ dx) & 0x80000000 )
-			return 1;	/* (left is negative) */
-		return 0;
-	}
+    if ( (line->dy ^ line->dx ^ dx ^ dy)&0x80000000 )
+    {
+        if ( (line->dy ^ dx) & 0x80000000 )
+            return 1;   /* (left is negative) */
+        return 0;
+    }
 
-	left  = FixedMul ( line->dy>>8, dx>>8 );
-	right = FixedMul ( dy>>8 , line->dx>>8 );
+    left  = FixedMul ( line->dy>>8, dx>>8 );
+    right = FixedMul ( dy>>8 , line->dx>>8 );
 
-	if (right < left)
-		return 0;		/* front side */
-	return 1;			/* back side */
+    if (right < left)
+        return 0;       /* front side */
+    return 1;           /* back side */
 }
 
 
@@ -82,10 +82,10 @@ int P_PointOnDivlineSide (fixed_t x, fixed_t y, divline_t *line)//L8001C598()
 
 void P_MakeDivline (line_t *li, divline_t *dl)//L8001C68C()
 {
-	dl->x = li->v1->x;
-	dl->y = li->v1->y;
-	dl->dx = li->dx;
-	dl->dy = li->dy;
+    dl->x = li->v1->x;
+    dl->y = li->v1->y;
+    dl->dx = li->dx;
+    dl->dy = li->dy;
 }
 #endif // 0
 
@@ -101,44 +101,44 @@ void P_MakeDivline (line_t *li, divline_t *dl)//L8001C68C()
 */
 
 SDATA fixed_t opentop, openbottom, openrange; // 800A5740, 800A5744, 800A5748
-SDATA fixed_t	lowfloor; // 800A574C
+SDATA fixed_t   lowfloor; // 800A574C
 
 void P_LineOpening (line_t *linedef) // 80017F40
 {
-	sector_t	*front, *back;
+    sector_t    *front, *back;
 
-	//if (linedef->sidenum[1] == -1)
-	if (linedef->backsector == 0) // D64 change this line
-	{	/* single sided line */
-		openrange = 0;
-		return;
-	}
+    //if (linedef->sidenum[1] == -1)
+    if (linedef->backsector == 0) // D64 change this line
+    {   /* single sided line */
+        openrange = 0;
+        return;
+    }
 
-	front = linedef->frontsector;
-	back = linedef->backsector;
+    front = linedef->frontsector;
+    back = linedef->backsector;
 
-	if (front->ceilingheight < back->ceilingheight)
-		opentop = front->ceilingheight;
-	else
-		opentop = back->ceilingheight;
-	if (front->floorheight > back->floorheight)
-	{
-		openbottom = front->floorheight;
-		lowfloor = back->floorheight;
-	}
-	else
-	{
-		openbottom = back->floorheight;
-		lowfloor = front->floorheight;
-	}
+    if (front->ceilingheight < back->ceilingheight)
+        opentop = front->ceilingheight;
+    else
+        opentop = back->ceilingheight;
+    if (front->floorheight > back->floorheight)
+    {
+        openbottom = front->floorheight;
+        lowfloor = back->floorheight;
+    }
+    else
+    {
+        openbottom = back->floorheight;
+        lowfloor = front->floorheight;
+    }
 
-	openrange = opentop - openbottom;
+    openrange = opentop - openbottom;
 }
 
 /*
 ===============================================================================
 
-						BLOCK MAP ITERATORS
+                        BLOCK MAP ITERATORS
 
 For each line/thing in the given mapblock, call the passed function.
 If the function returns false, exit with false without checking anything else.
@@ -159,28 +159,28 @@ If the function returns false, exit with false without checking anything else.
 
 boolean P_BlockLinesIterator (int x, int y, boolean(*func)(line_t*) ) // 80017FE8
 {
-	int			offset;
-	short		*list;
-	line_t		*ld;
+    int         offset;
+    short       *list;
+    line_t      *ld;
 
-	if (x<0 || y<0 || x>=bmapwidth || y>=bmapheight)
-		return true;
-	offset = y*bmapwidth+x;
+    if (x<0 || y<0 || x>=bmapwidth || y>=bmapheight)
+        return true;
+    offset = y*bmapwidth+x;
 
-	offset = *(blockmap+offset);
+    offset = *(blockmap+offset);
 
-	for ( list = blockmaplump+offset ; *list != -1 ; list++)
-	{
-		ld = &lines[*list];
-		if (ld->validcount == validcount)
-			continue;		/* line has already been checked */
-		ld->validcount = validcount;
+    for ( list = blockmaplump+offset ; *list != -1 ; list++)
+    {
+        ld = &lines[*list];
+        if (ld->validcount == validcount)
+            continue;       /* line has already been checked */
+        ld->validcount = validcount;
 
-		if ( !func(ld) )
-			return false;
-	}
+        if ( !func(ld) )
+            return false;
+    }
 
-	return true;		/* everything was checked */
+    return true;        /* everything was checked */
 }
 
 
@@ -197,21 +197,21 @@ boolean PIT_ChangeSector (mobj_t *thing);
 
 boolean P_BlockThingsIterator (int x, int y, boolean(*func)(mobj_t*) ) // 8001811C
 {
-	mobj_t		*mobj;
+    mobj_t      *mobj;
 
-	if (x<0 || y<0 || x>=bmapwidth || y>=bmapheight)
-		return true;
+    if (x<0 || y<0 || x>=bmapwidth || y>=bmapheight)
+        return true;
 
-	for (mobj = blocklinks[y*bmapwidth+x] ; mobj ; mobj = mobj->bnext)
+    for (mobj = blocklinks[y*bmapwidth+x] ; mobj ; mobj = mobj->bnext)
     {
-		if (!func( mobj ) )
-			return false;
+        if (!func( mobj ) )
+            return false;
     }
 
     // [nova] include blockmap fix from inter-doom
 
     // [JN] Do not apply following BLOCKMAP fix for explosion radius damage.
-    // Otherwise, explosion damage will be multiplied on ammount of BLOCKMAP 
+    // Otherwise, explosion damage will be multiplied on ammount of BLOCKMAP
     // blocks object placed in.
     // Also do not apply for crusher damage, same reason as above.
     if (func == PIT_RadiusAttack || func == PIT_ChangeSector)
@@ -316,7 +316,7 @@ boolean P_BlockThingsIterator (int x, int y, boolean(*func)(mobj_t*) ) // 800181
         }
     }
 
-	return true;
+    return true;
 }
 
 /*

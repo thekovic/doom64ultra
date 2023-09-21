@@ -29,14 +29,14 @@ enum VoiceRestartFlag { NoVoiceRestart, YesVoiceRestart };
 
 /* used by wess_sequence_status function */
 enum SequenceStatus { SEQUENCE_INVALID,
-		      SEQUENCE_INACTIVE,
-		      SEQUENCE_STOPPED,
-		      SEQUENCE_PLAYING };
+              SEQUENCE_INACTIVE,
+              SEQUENCE_STOPPED,
+              SEQUENCE_PLAYING };
 
     /*
         wess_set_decompression_callback - set a callback for runtime decompression
 
-	passing NULL removes the callback
+    passing NULL removes the callback
 
         If the sound system source files are compressed, this callback will happen
         inside the following functions:
@@ -47,23 +47,23 @@ enum SequenceStatus { SEQUENCE_INVALID,
 
         wess_seq_load, wess_seq_range_load, or wess_seq_list_load
 
-	when the callback occurs you must run the decompression type
-	that matches the decomp_type parameter from the source file at a given
-	offset into memory.
+    when the callback occurs you must run the decompression type
+    that matches the decomp_type parameter from the source file at a given
+    offset into memory.
 
-	if the decompression is not available or something goes wrong, then return
-	a negative number and the sound system call that issued the callback will
-	abort.
+    if the decompression is not available or something goes wrong, then return
+    a negative number and the sound system call that issued the callback will
+    abort.
     */
 
 #define NO_DECOMPRESSION            0  /* you will never actually get this as a decomp type */
 #define MARKG_INFLATE_DECOMPRESSION 1
 
 typedef int (*WessDecompCallbackProc)( unsigned char decomp_type,
-				       char          *fileref,
-				       unsigned long file_offset,
-				       char          *ramdest,
-				       unsigned long uncompressed_size );
+                       char          *fileref,
+                       unsigned long file_offset,
+                       char          *ramdest,
+                       unsigned long uncompressed_size );
 
 extern void wess_set_decomp_callback( WessDecompCallbackProc decompcall ) SEC_STARTUP;
 

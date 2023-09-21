@@ -7,41 +7,41 @@
 
 extern int nextmap;
 
-#define T_NULL	    ""
+#define T_NULL      ""
 
-#define MI_TXT01	"Staging Area"
-#define MI_TXT02	"The Terraformer"
-#define MI_TXT03	"Main Engineering"
-#define MI_TXT04	"Holding Area"
-#define MI_TXT05	"Tech Center"
-#define MI_TXT06	"Alpha Quadrant"
-#define MI_TXT07	"Research Lab"
-#define MI_TXT08	"Final Outpost"
-#define MI_TXT09	"Even Simpler"
-#define MI_TXT10	"The Bleeding"
-#define MI_TXT11	"Terror Core"
-#define MI_TXT12	"Altar of Pain"
-#define MI_TXT13	"Dark Citadel"
-#define MI_TXT14	"Eye of the Storm"
-#define MI_TXT15	"Dark Entries"
-#define MI_TXT16	"Blood Keep"
-#define MI_TXT17	"Watch Your Step"
-#define MI_TXT18	"Spawned Fear"
-#define MI_TXT19	"The Spiral"
-#define MI_TXT20	"Breakdown"
-#define MI_TXT21	"Pitfalls"
-#define MI_TXT22	"Burnt Offerings"
-#define MI_TXT23	"Unholy Temple"
-#define MI_TXT24	"No Escape"
-#define MI_TXT25	"Cat And Mouse"
-#define MI_TXT26	"HardCore"
-#define MI_TXT27	"Playground"
-#define MI_TXT28	"The Absolution"
-#define MI_TXT29	"Outpost Omega"
-#define MI_TXT30	"The Lair"
-#define MI_TXT31	"In The Void"
-#define MI_TXT32	"Hectic"
-#define MI_TXT33	"TITLE"
+#define MI_TXT01    "Staging Area"
+#define MI_TXT02    "The Terraformer"
+#define MI_TXT03    "Main Engineering"
+#define MI_TXT04    "Holding Area"
+#define MI_TXT05    "Tech Center"
+#define MI_TXT06    "Alpha Quadrant"
+#define MI_TXT07    "Research Lab"
+#define MI_TXT08    "Final Outpost"
+#define MI_TXT09    "Even Simpler"
+#define MI_TXT10    "The Bleeding"
+#define MI_TXT11    "Terror Core"
+#define MI_TXT12    "Altar of Pain"
+#define MI_TXT13    "Dark Citadel"
+#define MI_TXT14    "Eye of the Storm"
+#define MI_TXT15    "Dark Entries"
+#define MI_TXT16    "Blood Keep"
+#define MI_TXT17    "Watch Your Step"
+#define MI_TXT18    "Spawned Fear"
+#define MI_TXT19    "The Spiral"
+#define MI_TXT20    "Breakdown"
+#define MI_TXT21    "Pitfalls"
+#define MI_TXT22    "Burnt Offerings"
+#define MI_TXT23    "Unholy Temple"
+#define MI_TXT24    "No Escape"
+#define MI_TXT25    "Cat And Mouse"
+#define MI_TXT26    "HardCore"
+#define MI_TXT27    "Playground"
+#define MI_TXT28    "The Absolution"
+#define MI_TXT29    "Outpost Omega"
+#define MI_TXT30    "The Lair"
+#define MI_TXT31    "In The Void"
+#define MI_TXT32    "Hectic"
+#define MI_TXT33    "TITLE"
 
 mapinfo_t MapInfo[] = //8005A478
 {
@@ -84,13 +84,13 @@ mapinfo_t MapInfo[] = //8005A478
 
 typedef struct pstats_s
 {
-	int		killpercent;
-	int		itempercent;
-	int		secretpercent;
+    int     killpercent;
+    int     itempercent;
+    int     secretpercent;
 } pstats_t;
 
-int			killvalue, itemvalue, secretvalue; // 800633B8, 800633BC, 800633C0
-pstats_t	pstats; // 800633C4
+int         killvalue, itemvalue, secretvalue; // 800633B8, 800633BC, 800633C0
+pstats_t    pstats; // 800633C4
 
 // used to accelerate or skip a stage
 int acceleratestage; // 800633B0
@@ -102,7 +102,7 @@ int end_time;       // 80063394
 
 void IN_Start(void) // 80004AF0
 {
-	int time;
+    int time;
 
     killvalue = itemvalue = secretvalue = -1;
 
@@ -131,27 +131,27 @@ void IN_Start(void) // 80004AF0
     }
 
     nextstage = 0;
-	acceleratestage = 0;
-	last_ticon = 0;
-	text_alpha = 255;
+    acceleratestage = 0;
+    last_ticon = 0;
+    text_alpha = 255;
 
     if ((nextmap >= 0) && (nextmap < LASTLEVEL))
-	{
+    {
         PasswordPresent = M_EncodePassword(Passwordbuff);
         if (PasswordPresent)
             CurPasswordSlot = 16;
         else
             CurPasswordSlot = 0;
-	}
+    }
 
-	S_StartMusic(114);
+    S_StartMusic(114);
 }
 
 extern const menuitem_t Menu_Save[3];
 
 void IN_Stop(int exit) // 80004DB0
 {
-	S_StopMusic();
+    S_StopMusic();
 
     if ((nextmap >= 0) && (nextmap < LASTLEVEL))
     {
@@ -189,8 +189,8 @@ void IN_Stop(int exit) // 80004DB0
 
 int IN_Ticker(void) // 80004E24
 {
-	boolean state;
-	int buttons, oldbuttons;
+    boolean state;
+    int buttons, oldbuttons;
 
     buttons = ticbuttons[0] & 0xffff0000;
     oldbuttons = oldticbuttons[0] & 0xffff0000;
@@ -291,24 +291,24 @@ int IN_Ticker(void) // 80004E24
         S_StartSound(NULL, sfx_pistol);
     }
 
-	return ga_nothing;
+    return ga_nothing;
 }
 
 void IN_Drawer(void) // 80005164
 {
-	int i, c;
-	char password[32];
-	char *pbuff;
+    int i, c;
+    char password[32];
+    char *pbuff;
 
-	I_ClearFrame();
+    I_ClearFrame();
 
     I_ClearFB(0x000000ff);
 
-	M_DrawBackground(63, 25, 128, "EVIL");
+    M_DrawBackground(63, 25, 128, "EVIL");
 
-	ST_DrawString(-1, 20, MapInfo[gamemap].name, PACKRGBA(255, 255, 255, text_alpha));
+    ST_DrawString(-1, 20, MapInfo[gamemap].name, PACKRGBA(255, 255, 255, text_alpha));
 
-	ST_DrawString(-1, 36, "Finished", PACKRGBA(255, 255, 255, text_alpha));
+    ST_DrawString(-1, 36, "Finished", PACKRGBA(255, 255, 255, text_alpha));
 
     if ((nextstage > 0) && (killvalue > -1))
     {
@@ -337,16 +337,16 @@ void IN_Drawer(void) // 80005164
         ST_DrawString(210, 120, timetext, PACKRGBA(192, 0, 0, text_alpha));
     }
 
-	if ((nextstage > 4) && (nextmap < LASTLEVEL) && PasswordPresent)
-	{
+    if ((nextstage > 4) && (nextmap < LASTLEVEL) && PasswordPresent)
+    {
         ST_DrawString(-1, 145, "Entering", PACKRGBA(255, 255, 255, text_alpha));
         ST_DrawString(-1, 161, MapInfo[nextmap].name, PACKRGBA(255, 255, 255, text_alpha));
 
         ST_DrawString(-1, 187, "Password", PACKRGBA(255, 255, 255, text_alpha));
 
         pbuff = password;
-		for (i = 0; i < 16; i++)
-		{
+        for (i = 0; i < 16; i++)
+        {
             c = i & 3;
             if ((i < 0) && (c != 0)) {
                 c -= 4;
@@ -355,12 +355,12 @@ void IN_Drawer(void) // 80005164
                 *pbuff++ = ' ';
             }
 
-			*pbuff++ = passwordChar[Passwordbuff[i]];
-		}
-		*pbuff = 0;
+            *pbuff++ = passwordChar[Passwordbuff[i]];
+        }
+        *pbuff = 0;
 
-		ST_DrawString(-1, 203, password, PACKRGBA(255, 255, 255, text_alpha));
-	}
+        ST_DrawString(-1, 203, password, PACKRGBA(255, 255, 255, text_alpha));
+    }
 
-	I_DrawFrame();
+    I_DrawFrame();
 }

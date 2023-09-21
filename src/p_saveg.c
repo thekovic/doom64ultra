@@ -219,7 +219,7 @@ typedef struct ALIGNED(8) {
     s16 xoffset;
     s16 yoffset;
     u16 soundtarget;
-    u16	colors[5];
+    u16 colors[5];
 } savedsector_t;
 
 u32 P_ArchiveSectors (u8 *savep, u32 savepsize, u32 *start)

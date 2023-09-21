@@ -29,13 +29,13 @@ enum OpenSeqHandleFlag {NoOpenSeqHandle,YesOpenSeqHandle};
     */
 
 extern int wess_seq_loader_sizeof( void *input_pm_stat,
-				   char *seqfile );
+                   char *seqfile );
 
 extern int wess_seq_loader_init( void *input_pm_stat,
-				 char *seqfile, 
-				 enum OpenSeqHandleFlag flag,
-				 char *memory_pointer,
-				 int   memory_allowance);
+                 char *seqfile,
+                 enum OpenSeqHandleFlag flag,
+                 char *memory_pointer,
+                 int   memory_allowance);
 
 extern int wess_seq_loader_count( void );
 

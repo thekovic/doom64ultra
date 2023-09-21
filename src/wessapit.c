@@ -1,6 +1,6 @@
 
 /* WESS API INCLUDES */
-#include "wessapi.h"	// audio stuff...
+#include "wessapi.h"    // audio stuff...
 #include "seqload.h"
 #include "soundhw.h"
 #include "wessarc.h"
@@ -29,105 +29,105 @@ enum MuteRelease { NoMuteRelease, YesMuteRelease};
 
 void wess_seq_trigger_type(int seq_num, unsigned long seq_type) // 80032160
 {
-	sequence_data *psq_info;
+    sequence_data *psq_info;
 
-	psq_info = pm_stat->pmod_info->pseq_info + seq_num; /* pointer math */
+    psq_info = pm_stat->pmod_info->pseq_info + seq_num; /* pointer math */
 
-	wess_seq_structrig(psq_info, seq_num, seq_type, NoHandle, NULL);
+    wess_seq_structrig(psq_info, seq_num, seq_type, NoHandle, NULL);
 }
 
 void wess_seq_trigger_type_special(int seq_num, unsigned long seq_type, TriggerPlayAttr *attr) // 800321A8
 {
-	sequence_data *psq_info;
+    sequence_data *psq_info;
 
-	psq_info = pm_stat->pmod_info->pseq_info + seq_num; /* pointer math */
+    psq_info = pm_stat->pmod_info->pseq_info + seq_num; /* pointer math */
 
-	wess_seq_structrig(psq_info, seq_num, seq_type, NoHandle, attr);
+    wess_seq_structrig(psq_info, seq_num, seq_type, NoHandle, attr);
 }
 
 void updatetrackstat(track_status *ptk_stat, TriggerPlayAttr *attr) // 800321FC
 {
-	int tempmask;
-	u8 *temp;
-	u8 tmpppos[4];
+    int tempmask;
+    u8 *temp;
+    u8 tmpppos[4];
 
-	if ((attr == NULL) || (!attr->mask))
-		return;
+    if ((attr == NULL) || (!attr->mask))
+        return;
 
-	tempmask = attr->mask;
+    tempmask = attr->mask;
 
-	if (tempmask & TRIGGER_VOLUME) //0x01
-	{
-		temp = ptk_stat->ppos; //copy
+    if (tempmask & TRIGGER_VOLUME) //0x01
+    {
+        temp = ptk_stat->ppos; //copy
 
-		// set tmp buffer ppos
-		ptk_stat->ppos = tmpppos;
-		ptk_stat->ppos[0] = VolumeMod;
-		ptk_stat->ppos[1] = attr->volume;
+        // set tmp buffer ppos
+        ptk_stat->ppos = tmpppos;
+        ptk_stat->ppos[0] = VolumeMod;
+        ptk_stat->ppos[1] = attr->volume;
 
-		CmdFuncArr[ptk_stat->patchtype][VolumeMod](ptk_stat);
-		ptk_stat->ppos = temp; //restore
-	}
+        CmdFuncArr[ptk_stat->patchtype][VolumeMod](ptk_stat);
+        ptk_stat->ppos = temp; //restore
+    }
 
-	if (tempmask & TRIGGER_PAN)
-	{
-		temp = ptk_stat->ppos; //copy
+    if (tempmask & TRIGGER_PAN)
+    {
+        temp = ptk_stat->ppos; //copy
 
-		// set tmp buffer ppos
-		ptk_stat->ppos = tmpppos;
-		ptk_stat->ppos[0] = PanMod;
-		ptk_stat->ppos[1] = attr->pan;
+        // set tmp buffer ppos
+        ptk_stat->ppos = tmpppos;
+        ptk_stat->ppos[0] = PanMod;
+        ptk_stat->ppos[1] = attr->pan;
 
-		CmdFuncArr[ptk_stat->patchtype][PanMod](ptk_stat);
-		ptk_stat->ppos = temp; //restore
-	}
+        CmdFuncArr[ptk_stat->patchtype][PanMod](ptk_stat);
+        ptk_stat->ppos = temp; //restore
+    }
 
-	if (tempmask & TRIGGER_PATCH) //0x04
-	{
-		ptk_stat->patchnum = attr->patch;
-	}
+    if (tempmask & TRIGGER_PATCH) //0x04
+    {
+        ptk_stat->patchnum = attr->patch;
+    }
 
-	if (tempmask & TRIGGER_PITCH) //0x08
-	{
-		temp = ptk_stat->ppos; //copy
+    if (tempmask & TRIGGER_PITCH) //0x08
+    {
+        temp = ptk_stat->ppos; //copy
 
-		// set tmp buffer ppos
-		ptk_stat->ppos = tmpppos;
-		ptk_stat->ppos[0] = PitchMod;
-		ptk_stat->ppos[1] = (char)(attr->pitch & 0xff);
-		ptk_stat->ppos[2] = (char)(attr->pitch >> 8);
+        // set tmp buffer ppos
+        ptk_stat->ppos = tmpppos;
+        ptk_stat->ppos[0] = PitchMod;
+        ptk_stat->ppos[1] = (char)(attr->pitch & 0xff);
+        ptk_stat->ppos[2] = (char)(attr->pitch >> 8);
 
-		CmdFuncArr[ptk_stat->patchtype][PitchMod](ptk_stat);
-		ptk_stat->ppos = temp; //restore
-	}
+        CmdFuncArr[ptk_stat->patchtype][PitchMod](ptk_stat);
+        ptk_stat->ppos = temp; //restore
+    }
 
-	if (tempmask & TRIGGER_MUTEMODE) //0x10
-	{
-		if (ptk_stat->mutemask & (1 << attr->mutemode))
-		{
-			ptk_stat->flags |= TRK_MUTE;
-		}
-		else {
-			ptk_stat->flags &= ~TRK_MUTE;
-		}
-	}
+    if (tempmask & TRIGGER_MUTEMODE) //0x10
+    {
+        if (ptk_stat->mutemask & (1 << attr->mutemode))
+        {
+            ptk_stat->flags |= TRK_MUTE;
+        }
+        else {
+            ptk_stat->flags &= ~TRK_MUTE;
+        }
+    }
 
-	if (tempmask & TRIGGER_TEMPO) //0x20
-	{
-		ptk_stat->qpm = attr->tempo;
-		ptk_stat->ppi = CalcPartsPerInt(GetIntsPerSec(), ptk_stat->ppq, ptk_stat->qpm);
-	}
+    if (tempmask & TRIGGER_TEMPO) //0x20
+    {
+        ptk_stat->qpm = attr->tempo;
+        ptk_stat->ppi = CalcPartsPerInt(GetIntsPerSec(), ptk_stat->ppq, ptk_stat->qpm);
+    }
 
-	if (tempmask & TRIGGER_TIMED) //0x40
-	{
-		ptk_stat->endppi = ptk_stat->totppi + attr->timeppq;
-		ptk_stat->flags |= TRK_TIMED;
-	}
+    if (tempmask & TRIGGER_TIMED) //0x40
+    {
+        ptk_stat->endppi = ptk_stat->totppi + attr->timeppq;
+        ptk_stat->flags |= TRK_TIMED;
+    }
 
-	if (tempmask&TRIGGER_LOOPED) //0x80
-	{
-		ptk_stat->flags |= TRK_LOOPED;
-	}
+    if (tempmask&TRIGGER_LOOPED) //0x80
+    {
+        ptk_stat->flags |= TRK_LOOPED;
+    }
 }
 
 void wess_seq_update_type_special(unsigned long seq_type, TriggerPlayAttr *attr) // 80032460
@@ -138,521 +138,521 @@ void wess_seq_update_type_special(unsigned long seq_type, TriggerPlayAttr *attr)
     _seq_type = seq_type;
     _attr = attr;
 
-	wess_disable();
+    wess_disable();
 
-	queue_the_function(QUEUE_SEQ_UPDATE_TYPE_SPECIAL);
-	queue_the_data(&_seq_type, sizeof(unsigned long));
-	queue_the_data(&_attr, sizeof(TriggerPlayAttr));
+    queue_the_function(QUEUE_SEQ_UPDATE_TYPE_SPECIAL);
+    queue_the_data(&_seq_type, sizeof(unsigned long));
+    queue_the_data(&_attr, sizeof(TriggerPlayAttr));
 
-	wess_enable();
+    wess_enable();
 }
 
 void queue_wess_seq_update_type_special(unsigned long seq_type, TriggerPlayAttr *attr);
 
 void run_queue_wess_seq_update_type_special(void) // 800324AC
 {
-	unsigned long seq_type;
-	TriggerPlayAttr attr;
+    unsigned long seq_type;
+    TriggerPlayAttr attr;
 
-	unqueue_the_data(&seq_type, sizeof(unsigned long));
-	unqueue_the_data(&attr, sizeof(TriggerPlayAttr));
-	queue_wess_seq_update_type_special(seq_type, &attr);
+    unqueue_the_data(&seq_type, sizeof(unsigned long));
+    unqueue_the_data(&attr, sizeof(TriggerPlayAttr));
+    queue_wess_seq_update_type_special(seq_type, &attr);
 }
 
 void queue_wess_seq_update_type_special(unsigned long seq_type, TriggerPlayAttr *attr) // 800324E8
 {
-	/* immediate stop of sequence */
-	char nt, na;
-	sequence_status *psq_stat;
-	track_status *ptmp;
-	char *lpdest;
-	int li, lj;
+    /* immediate stop of sequence */
+    char nt, na;
+    sequence_status *psq_stat;
+    track_status *ptmp;
+    char *lpdest;
+    int li, lj;
 
-	unsigned long _seq_type;
-	TriggerPlayAttr *_attr;
+    unsigned long _seq_type;
+    TriggerPlayAttr *_attr;
 
-	_seq_type = seq_type;
-	_attr = attr;
+    _seq_type = seq_type;
+    _attr = attr;
 
-	if (!Is_Module_Loaded())
-	{
-		return;
-	}
+    if (!Is_Module_Loaded())
+    {
+        return;
+    }
 
-	wess_disable();
+    wess_disable();
 
-	/* search for all sequences with this number and turn them off */
-	nt = wess_driver_sequences;
-	na = pm_stat->seqs_active;
-	psq_stat = pm_stat->pseqstattbl;
-	if (na)
-	{
-		while (nt--)
-		{
-			if (psq_stat->flags & SEQ_ACTIVE)
-			{
-				if (psq_stat->seq_type == _seq_type)
-				{
-					li = psq_stat->tracks_active;
-					lj = pm_stat->max_trks_perseq;
-					/* *lpdest refers to an active track if not 0xFF */
-					lpdest = psq_stat->ptrk_indxs;
-					while (lj--)
-					{
-						if (*lpdest != (char) 0xFF)
-						{
-							ptmp = (pm_stat->ptrkstattbl + (*lpdest));
-							if (_attr != 0)
-							{
-								updatetrackstat(ptmp, _attr);
-							}
-							if (!--li) break;
-						}
-						lpdest++;
-					}
-				}
-				if (!--na) break;
-			}
-			psq_stat++;
-		}
-	}
+    /* search for all sequences with this number and turn them off */
+    nt = wess_driver_sequences;
+    na = pm_stat->seqs_active;
+    psq_stat = pm_stat->pseqstattbl;
+    if (na)
+    {
+        while (nt--)
+        {
+            if (psq_stat->flags & SEQ_ACTIVE)
+            {
+                if (psq_stat->seq_type == _seq_type)
+                {
+                    li = psq_stat->tracks_active;
+                    lj = pm_stat->max_trks_perseq;
+                    /* *lpdest refers to an active track if not 0xFF */
+                    lpdest = psq_stat->ptrk_indxs;
+                    while (lj--)
+                    {
+                        if (*lpdest != (char) 0xFF)
+                        {
+                            ptmp = (pm_stat->ptrkstattbl + (*lpdest));
+                            if (_attr != 0)
+                            {
+                                updatetrackstat(ptmp, _attr);
+                            }
+                            if (!--li) break;
+                        }
+                        lpdest++;
+                    }
+                }
+                if (!--na) break;
+            }
+            psq_stat++;
+        }
+    }
 
-	wess_enable();
+    wess_enable();
 }
 
 int wess_seq_type_status(unsigned long sequence_type) // 8003266C
 {
-	char nt, na;
-	sequence_status *psq_stat;
-	int status;
+    char nt, na;
+    sequence_status *psq_stat;
+    int status;
 
-	unsigned long _sequence_type;
+    unsigned long _sequence_type;
 
-	_sequence_type = sequence_type;
+    _sequence_type = sequence_type;
 
-	if (!Is_Module_Loaded())
-	{
-		return(SEQUENCE_INACTIVE);
-	}
+    if (!Is_Module_Loaded())
+    {
+        return(SEQUENCE_INACTIVE);
+    }
 
-	wess_disable();
+    wess_disable();
 
-	status = SEQUENCE_INACTIVE;
+    status = SEQUENCE_INACTIVE;
 
-	/* search for all sequences with this number and turn them off */
-	nt = wess_driver_sequences;
-	na = pm_stat->seqs_active;
-	psq_stat = pm_stat->pseqstattbl;
-	if (na)
-	{
-		while (nt--)
-		{
-			if (psq_stat->flags & SEQ_ACTIVE)
-			{
-				if (psq_stat->seq_type == _sequence_type)
-				{
-					if (psq_stat->playmode == SEQ_STATE_STOPPED)
-					{
-						status = SEQUENCE_STOPPED;
-					}
-					else if (psq_stat->playmode == SEQ_STATE_PLAYING) {
-						status = SEQUENCE_PLAYING;
-					}
-				}
+    /* search for all sequences with this number and turn them off */
+    nt = wess_driver_sequences;
+    na = pm_stat->seqs_active;
+    psq_stat = pm_stat->pseqstattbl;
+    if (na)
+    {
+        while (nt--)
+        {
+            if (psq_stat->flags & SEQ_ACTIVE)
+            {
+                if (psq_stat->seq_type == _sequence_type)
+                {
+                    if (psq_stat->playmode == SEQ_STATE_STOPPED)
+                    {
+                        status = SEQUENCE_STOPPED;
+                    }
+                    else if (psq_stat->playmode == SEQ_STATE_PLAYING) {
+                        status = SEQUENCE_PLAYING;
+                    }
+                }
 
-				if (!--na) break;
-			}
-			psq_stat++;
-		}
-	}
+                if (!--na) break;
+            }
+            psq_stat++;
+        }
+    }
 
-	wess_enable();
+    wess_enable();
 
-	return(status);
+    return(status);
 }
 
 void __wess_seq_stoptype(unsigned long sequence_type, enum MuteRelease mrelease, int millisec) // 80032758
 {
-	char nt, na;
-	sequence_status *psq_stat;
+    char nt, na;
+    sequence_status *psq_stat;
 
-	unsigned long _sequence_type;
-	enum MuteRelease _mrelease;
-	int _millisec;
+    unsigned long _sequence_type;
+    enum MuteRelease _mrelease;
+    int _millisec;
 
-	_sequence_type = sequence_type;
-	_mrelease = mrelease;
-	_millisec = millisec;
+    _sequence_type = sequence_type;
+    _mrelease = mrelease;
+    _millisec = millisec;
 
-	if (!Is_Module_Loaded())
-	{
-		return;
-	}
-
-
-	wess_disable();
+    if (!Is_Module_Loaded())
+    {
+        return;
+    }
 
 
-	/* search for all sequences with this number and turn them off */
-	nt = wess_driver_sequences;
-	na = pm_stat->seqs_active;
-	psq_stat = pm_stat->pseqstattbl;
-	if (na)
-	{
-		while (nt--)
-		{
-			if (psq_stat->flags & SEQ_ACTIVE)
-			{
-				if (psq_stat->seq_type == _sequence_type)
-				{
-					psq_stat->flags = (psq_stat->flags | SEQ_STOP) & ~(SEQ_PAUSE|SEQ_RESTART);
-				}
+    wess_disable();
 
-				if (!--na) break;
-			}
-			psq_stat++;
-		}
-	}
 
-	if (_mrelease)
-	{
-		queue_the_function(QUEUE_SEQ_STOPTYPE_AND_VOICERAMP);
-		queue_the_data(&_millisec, sizeof(int));
-	}
-	else
-	{
-		queue_the_function(QUEUE_SEQ_STOPTYPE);
-	}
-	queue_the_data(&_sequence_type, sizeof(int));
-	wess_enable();
+    /* search for all sequences with this number and turn them off */
+    nt = wess_driver_sequences;
+    na = pm_stat->seqs_active;
+    psq_stat = pm_stat->pseqstattbl;
+    if (na)
+    {
+        while (nt--)
+        {
+            if (psq_stat->flags & SEQ_ACTIVE)
+            {
+                if (psq_stat->seq_type == _sequence_type)
+                {
+                    psq_stat->flags = (psq_stat->flags | SEQ_STOP) & ~(SEQ_PAUSE|SEQ_RESTART);
+                }
+
+                if (!--na) break;
+            }
+            psq_stat++;
+        }
+    }
+
+    if (_mrelease)
+    {
+        queue_the_function(QUEUE_SEQ_STOPTYPE_AND_VOICERAMP);
+        queue_the_data(&_millisec, sizeof(int));
+    }
+    else
+    {
+        queue_the_function(QUEUE_SEQ_STOPTYPE);
+    }
+    queue_the_data(&_sequence_type, sizeof(int));
+    wess_enable();
 }
 
 void wess_seq_stoptype(unsigned long sequence_type) // 80032868
 {
-	__wess_seq_stoptype(sequence_type, NoMuteRelease, 0);
+    __wess_seq_stoptype(sequence_type, NoMuteRelease, 0);
 }
 
 void wess_seq_stoptype_and_voiceramp(unsigned long sequence_type, int millisec) // 8003288C
 {
-	__wess_seq_stoptype(sequence_type, YesMuteRelease, millisec);
+    __wess_seq_stoptype(sequence_type, YesMuteRelease, millisec);
 }
 
 void queue_wess_seq_stoptype(unsigned long sequence_type, enum MuteRelease mrelease, int millisec);
 
 void run_queue_wess_seq_stoptype(void) // 800328B0
 {
-	unsigned long sequence_type;
+    unsigned long sequence_type;
 
-	unqueue_the_data(&sequence_type, sizeof(unsigned long));
-	queue_wess_seq_stoptype(sequence_type, NoMuteRelease, 0);
+    unqueue_the_data(&sequence_type, sizeof(unsigned long));
+    queue_wess_seq_stoptype(sequence_type, NoMuteRelease, 0);
 }
 
 void run_queue_wess_seq_stoptype_and_voiceramp(void) // 800328E4
 {
-	int millisec;
-	unsigned long sequence_type;
+    int millisec;
+    unsigned long sequence_type;
 
-	unqueue_the_data(&millisec, sizeof(int));
-	unqueue_the_data(&sequence_type, sizeof(unsigned long));
-	queue_wess_seq_stoptype(sequence_type, YesMuteRelease, millisec);
+    unqueue_the_data(&millisec, sizeof(int));
+    unqueue_the_data(&sequence_type, sizeof(unsigned long));
+    queue_wess_seq_stoptype(sequence_type, YesMuteRelease, millisec);
 }
 
 void queue_wess_seq_stoptype(unsigned long sequence_type, enum MuteRelease mrelease, int millisec) // 80032924
 {
-	char nt, na;
-	sequence_status *psq_stat;
-	track_status *ptmp;
-	char *lpdest;
-	int li, lj;
-	int get_millisec = 0;
+    char nt, na;
+    sequence_status *psq_stat;
+    track_status *ptmp;
+    char *lpdest;
+    int li, lj;
+    int get_millisec = 0;
 
-	unsigned long _sequence_type;
-	enum MuteRelease _mrelease;
-	int _millisec;
+    unsigned long _sequence_type;
+    enum MuteRelease _mrelease;
+    int _millisec;
 
-	_sequence_type = sequence_type;
-	_mrelease = mrelease;
-	_millisec = millisec;
+    _sequence_type = sequence_type;
+    _mrelease = mrelease;
+    _millisec = millisec;
 
-	if (!Is_Module_Loaded())
-	{
-		return;
-	}
+    if (!Is_Module_Loaded())
+    {
+        return;
+    }
 
-	wess_disable();
+    wess_disable();
 
 
-	/* search for all sequences with this number and turn them off */
-	nt = wess_driver_sequences;
-	na = pm_stat->seqs_active;
-	psq_stat = pm_stat->pseqstattbl;
-	if (na)
-	{
-		if (_mrelease)
-		{
-			get_millisec = wess_get_mute_release();
-			wess_set_mute_release(_millisec);
-		}
+    /* search for all sequences with this number and turn them off */
+    nt = wess_driver_sequences;
+    na = pm_stat->seqs_active;
+    psq_stat = pm_stat->pseqstattbl;
+    if (na)
+    {
+        if (_mrelease)
+        {
+            get_millisec = wess_get_mute_release();
+            wess_set_mute_release(_millisec);
+        }
 
-		while (nt--)
-		{
-			if (psq_stat->flags & SEQ_ACTIVE)
-			{
-				if (psq_stat->seq_type == _sequence_type)
-				{
-					if (psq_stat->flags & SEQ_STOP)
-					{
-						psq_stat->flags &= ~SEQ_STOP;
+        while (nt--)
+        {
+            if (psq_stat->flags & SEQ_ACTIVE)
+            {
+                if (psq_stat->seq_type == _sequence_type)
+                {
+                    if (psq_stat->flags & SEQ_STOP)
+                    {
+                        psq_stat->flags &= ~SEQ_STOP;
 
-						li = psq_stat->tracks_active;
-						lj = pm_stat->max_trks_perseq;
-						/* *lpdest refers to an active track if not 0xFF */
-						lpdest = psq_stat->ptrk_indxs;
-						while (lj--)
-						{
-							if (*lpdest != (char) 0xFF)
-							{
-								ptmp = (pm_stat->ptrkstattbl + (*lpdest));
-								CmdFuncArr[ptmp->patchtype][TrkOff](ptmp);
+                        li = psq_stat->tracks_active;
+                        lj = pm_stat->max_trks_perseq;
+                        /* *lpdest refers to an active track if not 0xFF */
+                        lpdest = psq_stat->ptrk_indxs;
+                        while (lj--)
+                        {
+                            if (*lpdest != (char) 0xFF)
+                            {
+                                ptmp = (pm_stat->ptrkstattbl + (*lpdest));
+                                CmdFuncArr[ptmp->patchtype][TrkOff](ptmp);
 
-								if (!--li) break;
-							}
-							lpdest++;
-						}
-					}
-				}
+                                if (!--li) break;
+                            }
+                            lpdest++;
+                        }
+                    }
+                }
 
-				if (!--na) break;
-			}
-			psq_stat++;
-		}
-	}
+                if (!--na) break;
+            }
+            psq_stat++;
+        }
+    }
 
-	if (_mrelease)
-	{
-		wess_set_mute_release(get_millisec);
-	}
+    if (_mrelease)
+    {
+        wess_set_mute_release(get_millisec);
+    }
 
-	wess_enable();
+    wess_enable();
 }
 
 int wess_get_seq_num_active(int seq_num) // 80032B24
 {
-	char nt, na;
-	sequence_status *psq_stat;
-	int seq_count;
+    char nt, na;
+    sequence_status *psq_stat;
+    int seq_count;
 
-	int _seq_num;
+    int _seq_num;
 
-	_seq_num = seq_num;
+    _seq_num = seq_num;
 
-	if (!Is_Seq_Num_Valid(_seq_num))
-	{
-		return(0);
-	}
+    if (!Is_Seq_Num_Valid(_seq_num))
+    {
+        return(0);
+    }
 
-	seq_count = 0;
+    seq_count = 0;
 
-	wess_disable();
+    wess_disable();
 
-	/* search for all sequences with this number and turn them off */
-	nt = wess_driver_sequences;
-	na = pm_stat->seqs_active;
-	psq_stat = pm_stat->pseqstattbl;
-	if (na)
-	{
-		while (nt--)
-		{
-			if (psq_stat->flags & SEQ_ACTIVE)
-			{
-				if (psq_stat->seq_num == _seq_num)
-				{
-					seq_count++;
-				}
+    /* search for all sequences with this number and turn them off */
+    nt = wess_driver_sequences;
+    na = pm_stat->seqs_active;
+    psq_stat = pm_stat->pseqstattbl;
+    if (na)
+    {
+        while (nt--)
+        {
+            if (psq_stat->flags & SEQ_ACTIVE)
+            {
+                if (psq_stat->seq_num == _seq_num)
+                {
+                    seq_count++;
+                }
 
-				if (!--na) break;
-			}
-			psq_stat++;
-		}
-	}
+                if (!--na) break;
+            }
+            psq_stat++;
+        }
+    }
 
-	wess_enable();
+    wess_enable();
 
-	return (seq_count);
+    return (seq_count);
 }
 
 int wess_copy_all_seq_num_active(int *seq_num_list) // 80032BE8
 {
-	char nt, na;
-	sequence_status *psq_stat;
-	int i, seq_count, sikip_set_seq;
-	int *list_temp;
+    char nt, na;
+    sequence_status *psq_stat;
+    int i, seq_count, sikip_set_seq;
+    int *list_temp;
 
-	int *_seq_num_list;
+    int *_seq_num_list;
 
-	_seq_num_list = seq_num_list;
+    _seq_num_list = seq_num_list;
 
-	if (!Is_Module_Loaded())
-	{
-		return(0);
-	}
+    if (!Is_Module_Loaded())
+    {
+        return(0);
+    }
 
-	seq_count = 0;
+    seq_count = 0;
 
-	wess_disable();
+    wess_disable();
 
-	/* search for all sequences with this number and turn them off */
-	nt = wess_driver_sequences;
-	na = pm_stat->seqs_active;
-	psq_stat = pm_stat->pseqstattbl;
-	if (na)
-	{
-		while (nt--)
-		{
-			sikip_set_seq = 0;
-			if (psq_stat->flags & SEQ_ACTIVE)
-			{
-				i = 0;
-				if(seq_count > 0)
-				{
-					list_temp = _seq_num_list;
-					do
-					{
-						if (psq_stat->seq_num == *list_temp)
-						{
-							sikip_set_seq = 1;
-							break;
-						}
-						list_temp++;
-						i++;
-					}while (i != seq_count);
-				}
+    /* search for all sequences with this number and turn them off */
+    nt = wess_driver_sequences;
+    na = pm_stat->seqs_active;
+    psq_stat = pm_stat->pseqstattbl;
+    if (na)
+    {
+        while (nt--)
+        {
+            sikip_set_seq = 0;
+            if (psq_stat->flags & SEQ_ACTIVE)
+            {
+                i = 0;
+                if(seq_count > 0)
+                {
+                    list_temp = _seq_num_list;
+                    do
+                    {
+                        if (psq_stat->seq_num == *list_temp)
+                        {
+                            sikip_set_seq = 1;
+                            break;
+                        }
+                        list_temp++;
+                        i++;
+                    }while (i != seq_count);
+                }
 
-				if (!sikip_set_seq)
-				{
-					list_temp = (_seq_num_list + seq_count);
-					*list_temp = psq_stat->seq_num;
-					seq_count++;
-				}
+                if (!sikip_set_seq)
+                {
+                    list_temp = (_seq_num_list + seq_count);
+                    *list_temp = psq_stat->seq_num;
+                    seq_count++;
+                }
 
-				if (!--na) break;
-			}
-			psq_stat++;
-		}
-	}
+                if (!--na) break;
+            }
+            psq_stat++;
+        }
+    }
 
-	wess_enable();
+    wess_enable();
 
-	return (seq_count);
+    return (seq_count);
 }
 
 int wess_get_seq_type_active(int seq_type) // 80032CD4
 {
-	char nt, na;
-	sequence_status *psq_stat;
-	int seq_count;
+    char nt, na;
+    sequence_status *psq_stat;
+    int seq_count;
 
-	int _seq_type;
+    int _seq_type;
 
-	_seq_type = seq_type;
+    _seq_type = seq_type;
 
-	if (!Is_Module_Loaded())
-	{
-		return(0);
-	}
+    if (!Is_Module_Loaded())
+    {
+        return(0);
+    }
 
-	seq_count = 0;
+    seq_count = 0;
 
-	wess_disable();
+    wess_disable();
 
-	/* search for all sequences with this number and turn them off */
-	nt = wess_driver_sequences;
-	na = pm_stat->seqs_active;
-	psq_stat = pm_stat->pseqstattbl;
-	if (na)
-	{
-		while (nt--)
-		{
-			if (psq_stat->flags & SEQ_ACTIVE)
-			{
-				if (psq_stat->seq_type == _seq_type)
-				{
-					seq_count++;
-				}
+    /* search for all sequences with this number and turn them off */
+    nt = wess_driver_sequences;
+    na = pm_stat->seqs_active;
+    psq_stat = pm_stat->pseqstattbl;
+    if (na)
+    {
+        while (nt--)
+        {
+            if (psq_stat->flags & SEQ_ACTIVE)
+            {
+                if (psq_stat->seq_type == _seq_type)
+                {
+                    seq_count++;
+                }
 
-				if (!--na) break;
-			}
-			psq_stat++;
-		}
-	}
+                if (!--na) break;
+            }
+            psq_stat++;
+        }
+    }
 
-	wess_enable();
+    wess_enable();
 
-	return (seq_count);
+    return (seq_count);
 }
 
 int wess_copy_all_seq_type_active(int *seq_type_list) // 80032D8C
 {
-	char nt, na;
-	sequence_status *psq_stat;
-	int i, seq_count, sikip_set_seq;
-	int *list_temp;
+    char nt, na;
+    sequence_status *psq_stat;
+    int i, seq_count, sikip_set_seq;
+    int *list_temp;
 
-	int *_seq_type_list;
+    int *_seq_type_list;
 
-	_seq_type_list = seq_type_list;
+    _seq_type_list = seq_type_list;
 
-	if (!Is_Module_Loaded())
-	{
-		return(0);
-	}
+    if (!Is_Module_Loaded())
+    {
+        return(0);
+    }
 
-	wess_disable();
+    wess_disable();
 
-	seq_count = 0;
+    seq_count = 0;
 
-	/* search for all sequences with this number and turn them off */
-	nt = wess_driver_sequences;
-	na = pm_stat->seqs_active;
-	psq_stat = pm_stat->pseqstattbl;
-	if (na)
-	{
-		while (nt--)
-		{
-			sikip_set_seq = 0;
-			if (psq_stat->flags & SEQ_ACTIVE)
-			{
-				i = 0;
-				if (seq_count > 0)
-				{
-					list_temp = _seq_type_list;
-					do
-					{
-						if (psq_stat->seq_type == *list_temp)
-						{
-							sikip_set_seq = 1;
-							break;
-						}
-						list_temp++;
-						i++;
-					} while (i != seq_count);
-				}
+    /* search for all sequences with this number and turn them off */
+    nt = wess_driver_sequences;
+    na = pm_stat->seqs_active;
+    psq_stat = pm_stat->pseqstattbl;
+    if (na)
+    {
+        while (nt--)
+        {
+            sikip_set_seq = 0;
+            if (psq_stat->flags & SEQ_ACTIVE)
+            {
+                i = 0;
+                if (seq_count > 0)
+                {
+                    list_temp = _seq_type_list;
+                    do
+                    {
+                        if (psq_stat->seq_type == *list_temp)
+                        {
+                            sikip_set_seq = 1;
+                            break;
+                        }
+                        list_temp++;
+                        i++;
+                    } while (i != seq_count);
+                }
 
-				if (!sikip_set_seq)
-				{
-					list_temp = (_seq_type_list + seq_count);
-					*list_temp = psq_stat->seq_type;
-					seq_count++;
-				}
+                if (!sikip_set_seq)
+                {
+                    list_temp = (_seq_type_list + seq_count);
+                    *list_temp = psq_stat->seq_type;
+                    seq_count++;
+                }
 
-				if (!--na) break;
-			}
-			psq_stat++;
-		}
-	}
+                if (!--na) break;
+            }
+            psq_stat++;
+        }
+    }
 
-	wess_enable();
+    wess_enable();
 
-	return (seq_count);
+    return (seq_count);
 }
 #endif

@@ -25,7 +25,7 @@ boolean R_CheckBBox(fixed_t bspcoord[4]) HOT;
 void    R_Subsector(int num) HOT;
 void    R_AddLine(seg_t *line) HOT;
 void    R_AddSprite(subsector_t *sub) HOT;
-void	R_RenderFilter(filtertype_t type) HOT; // [Immorpher] Rendering function to set filter
+void    R_RenderFilter(filtertype_t type) HOT; // [Immorpher] Rendering function to set filter
 boolean R_CheckClipRange(angle_t startAngle, angle_t endAngle) HOT;
 void R_AddClipRange(angle_t startangle, angle_t endangle) HOT;
 void R_ClipClear(void);
@@ -60,8 +60,8 @@ void R_BSP(void) // 80023F30
     count = numdrawsubsectors;
     while(count)
     {
-        R_AddSprite(*sub);	/* Render each sprite */
-        sub++;				/* Inc the sprite pointer */
+        R_AddSprite(*sub);  /* Render each sprite */
+        sub++;              /* Inc the sprite pointer */
         count--;
     }
 
@@ -354,7 +354,7 @@ void R_AddLine(seg_t *line) // 80024604
     angle1 = R_PointToAngle2(0, 0, y1, -x1);
     angle2 = R_PointToAngle2(0, 0, y2, -x2);
 
-    // Back side, i.e. backface culling	- read: endAngle >= startAngle!
+    // Back side, i.e. backface culling - read: endAngle >= startAngle!
     if (angle2 - angle1 < ANG180)
       return;
     if (!R_CheckClipRange(angle2, angle1))
@@ -535,13 +535,13 @@ void R_AddSprite(subsector_t *sub) // 80024A98
 #if 0
 static void R_RenderBSPNodeNoClip(int bspnum) // 80024E64
 {
-	subsector_t *sub;
-	seg_t       *line;
-	int          count;
-	node_t      *bsp;
-	int          side;
-	fixed_t	     dx, dy;
-	fixed_t	     left, right;
+    subsector_t *sub;
+    seg_t       *line;
+    int          count;
+    node_t      *bsp;
+    int          side;
+    fixed_t      dx, dy;
+    fixed_t      left, right;
 
     while(!(bspnum & NF_SUBSECTOR))
     {
@@ -556,9 +556,9 @@ static void R_RenderBSPNodeNoClip(int bspnum) // 80024E64
         right = (dy >> 16) * (bsp->line.dx >> 16);
 
         if (right < left)
-            side = 1;		/* back side */
+            side = 1;       /* back side */
         else
-            side = 0;		/* front side */
+            side = 0;       /* front side */
 
         R_RenderBSPNodeNoClip(bsp->children[side ^ 1]);
 
@@ -582,8 +582,8 @@ static void R_RenderBSPNodeNoClip(int bspnum) // 80024E64
     count = sub->numlines;
     do
     {
-        line->flags |= 1;	/* Render each line */
-        ++line;				/* Inc the line pointer */
-    } while (--count);		/* All done? */
+        line->flags |= 1;   /* Render each line */
+        ++line;             /* Inc the line pointer */
+    } while (--count);      /* All done? */
 }
 #endif

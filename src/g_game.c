@@ -26,7 +26,7 @@ void G_DoLoadLevel (void);
 gameaction_t    gameaction;                 // 80063230
 SDATA customskill_t   customskill;
 int             gamemap;                    // 80063238
-int				nextmap;				    // 8006323C /* the map to go to after the stats */
+int             nextmap;                    // 8006323C /* the map to go to after the stats */
 
 //boolean         playeringame[MAXPLAYERS]; //
 SDATA player_t        players[MAXPLAYERS];        // 80063240
@@ -41,11 +41,11 @@ SDATA playerconfig_t  playerconfigs[MAXPLAYERS] = {
 //char            demoname[32];
 boolean         demorecording;          // 800633A4
 boolean         demoplayback;           // 800633A8
-int		        *demo_p = NULL, *demobuffer = NULL;   // 8005A180, 8005a184
+int             *demo_p = NULL, *demobuffer = NULL;   // 8005A180, 8005a184
 int             demosize;
 
-//mapthing_t	deathmatchstarts[10], *deathmatch_p;    // 80097e4c, 80077E8C
-mapthing_t	playerstarts[MAXPLAYERS];   // 800a8c60
+//mapthing_t    deathmatchstarts[10], *deathmatch_p;    // 80097e4c, 80077E8C
+mapthing_t  playerstarts[MAXPLAYERS];   // 800a8c60
 
 /*
 ==============
@@ -57,19 +57,19 @@ mapthing_t	playerstarts[MAXPLAYERS];   // 800a8c60
 
 void G_DoLoadLevel (void) // 80004530
 {
-	if (customskill.pistol_start || ((gameaction == ga_restart) || (gameaction == ga_warped)) || (players[0].playerstate == PST_DEAD))
-		players[0].playerstate = PST_REBORN;
+    if (customskill.pistol_start || ((gameaction == ga_restart) || (gameaction == ga_warped)) || (players[0].playerstate == PST_DEAD))
+        players[0].playerstate = PST_REBORN;
 
-	P_SetupLevel(gamemap);
+    P_SetupLevel(gamemap);
     P_FinishSetupLevel();
-	gameaction = ga_nothing;
+    gameaction = ga_nothing;
 }
 
 
 /*
 ==============================================================================
 
-						PLAYER STRUCTURE FUNCTIONS
+                        PLAYER STRUCTURE FUNCTIONS
 
 also see P_SpawnPlayer in P_Mobj
 ==============================================================================
@@ -86,18 +86,18 @@ also see P_SpawnPlayer in P_Mobj
 
 void G_PlayerFinishLevel (int player) // 80004598
 {
-	player_t *p;
+    player_t *p;
 
-	p = &players[player];
+    p = &players[player];
 
-	D_memset (p->powers, 0, sizeof (p->powers));
-	D_memset (p->cards, 0, sizeof (p->cards));
-	p->mo->flags &= ~MF_SHADOW; /* cancel invisibility  */
-	p->damagecount = 0;                     /* no palette changes  */
-	p->bonuscount = 0;
+    D_memset (p->powers, 0, sizeof (p->powers));
+    D_memset (p->cards, 0, sizeof (p->cards));
+    p->mo->flags &= ~MF_SHADOW; /* cancel invisibility  */
+    p->damagecount = 0;                     /* no palette changes  */
+    p->bonuscount = 0;
     p->bfgcount = 0;
     p->automapflags = 0;
-    p->messagetic = 0; 
+    p->messagetic = 0;
     p->messagetic1 = 0;  // [Immorpher] Clear messages
     p->messagetic2 = 0;  // [Immorpher] Clear messages
     p->messagetic3 = 0;  // [Immorpher] Clear messages
@@ -117,18 +117,18 @@ int globalcheats = 0; // [GEC]
 
 void G_PlayerReborn (int player) // 80004630
 {
-	player_t *p;
+    player_t *p;
 
-	p = &players[player];
-	D_memset(p, 0, sizeof(*p));
+    p = &players[player];
+    D_memset(p, 0, sizeof(*p));
 
-	p->usedown = true; // don't do anything immediately
-	p->playerstate = PST_LIVE;
-	p->health = MAXHEALTH;
-	p->readyweapon = p->pendingweapon = wp_pistol;
-	p->weaponowned[wp_fist] = true;
-	p->weaponowned[wp_pistol] = true;
-	p->ammo[am_clip] = 50;
+    p->usedown = true; // don't do anything immediately
+    p->playerstate = PST_LIVE;
+    p->health = MAXHEALTH;
+    p->readyweapon = p->pendingweapon = wp_pistol;
+    p->weaponowned[wp_fist] = true;
+    p->weaponowned[wp_pistol] = true;
+    p->ammo[am_clip] = 50;
     p->maxammo[am_clip] = maxammo[am_clip];
     p->maxammo[am_shell] = maxammo[am_shell];
     p->maxammo[am_cell] = maxammo[am_cell];
@@ -152,7 +152,7 @@ void G_PlayerReborn (int player) // 80004630
 
 void G_CompleteLevel (void) // 800046E4
 {
-	gameaction = ga_completed;
+    gameaction = ga_completed;
 }
 
 /*
@@ -167,25 +167,25 @@ mobj_t emptymobj; // 80063158
 
 void G_InitNew (customskill_t skill, int map, gametype_t gametype) // 800046F4
 {
-	//printf ("G_InitNew, skill %d, map %d\n", skill, map);
+    //printf ("G_InitNew, skill %d, map %d\n", skill, map);
 
-	/* free all tags except the PU_STATIC tag */
-	Z_FreeTags(mainzone, ~PU_STATIC); // (PU_LEVEL | PU_LEVSPEC | PU_CACHE)
+    /* free all tags except the PU_STATIC tag */
+    Z_FreeTags(mainzone, ~PU_STATIC); // (PU_LEVEL | PU_LEVSPEC | PU_CACHE)
 
-	M_ClearRandom ();
+    M_ClearRandom ();
 
 /* force players to be initialized upon first level load          */
     players[0].playerstate = PST_REBORN;
 
 /* these may be reset by I_NetSetup */
-	customskill = skill;
-	gamemap = map;
+    customskill = skill;
+    gamemap = map;
 
-	D_memset(&emptymobj, 0, sizeof(emptymobj));
-	players[0].mo = &emptymobj;	/* for net consistancy checks */
+    D_memset(&emptymobj, 0, sizeof(emptymobj));
+    players[0].mo = &emptymobj; /* for net consistancy checks */
 
-	demorecording = false;
-	demoplayback = false;
+    demorecording = false;
+    demoplayback = false;
 
     G_InitSkill (skill);
 }
@@ -377,8 +377,8 @@ void M_QuickLoadFailed(void);
 
 void G_RunGame (void) // 80004794
 {
-	while (1)
-	{
+    while (1)
+    {
         /* load a level */
         if (gameaction == ga_loadquicksave)
         {
@@ -401,23 +401,23 @@ void G_RunGame (void) // 80004794
 
         //printf("RUN P_Start\n");
         //PRINTF_D2(WHITE, 0, 28, "RUN P_Start\n");
-		/* run a level until death or completion */
-		MiniLoop (P_Start, P_Stop, P_Ticker, P_Drawer);
+        /* run a level until death or completion */
+        MiniLoop (P_Start, P_Stop, P_Ticker, P_Drawer);
 
         if (gameaction == ga_recorddemo)
             G_RecordDemo();
 
         if(gameaction == ga_warped || gameaction == ga_loadquicksave)
-			continue; /* skip intermission */
+            continue; /* skip intermission */
 
         if ((gameaction == ga_died) || (gameaction == ga_restart))
-			continue;			/* died, so restart the level */
+            continue;           /* died, so restart the level */
 
         if (gameaction == ga_exitdemo)
             return;
 
         /* run a stats intermission - [Immorpher] Removed Hectic exception */
-		MiniLoop(IN_Start, IN_Stop, IN_Ticker, IN_Drawer);
+        MiniLoop(IN_Start, IN_Stop, IN_Ticker, IN_Drawer);
 
 #ifdef USB
         /* back to title screen from a custom map */
@@ -462,17 +462,17 @@ void G_RunGame (void) // 80004794
 
         /* Set Next Level */
         gamemap = nextmap;
-	}
+    }
 }
 
 int G_PlayDemoPtr (customskill_t skill, int map) // 800049D0
 {
-	int		exit;
+    int     exit;
     controls_t controls[MAXPLAYERS];
     playerconfig_t configs[MAXPLAYERS];
     gametype_t gametype;
 
-	demobuffer = demo_p;
+    demobuffer = demo_p;
 
     for (int i = 0; i < MAXPLAYERS; i++)
     {
@@ -528,12 +528,12 @@ int G_PlayDemoPtr (customskill_t skill, int map) // 800049D0
         gametype = gt_single;
     }
 
-	/* play demo game */
-	G_InitNew (skill, map, gametype);
-	G_DoLoadLevel ();
-	demoplayback = true;
-	exit = MiniLoop (P_Start, P_Stop, P_Ticker, P_Drawer);
-	demoplayback = false;
+    /* play demo game */
+    G_InitNew (skill, map, gametype);
+    G_DoLoadLevel ();
+    demoplayback = true;
+    exit = MiniLoop (P_Start, P_Stop, P_Ticker, P_Drawer);
+    demoplayback = false;
 
     for (int i = 0; i < MAXPLAYERS; i++)
     {
@@ -543,10 +543,10 @@ int G_PlayDemoPtr (customskill_t skill, int map) // 800049D0
         D_memcpy(&playerconfigs[i], &configs[i], sizeof(playerconfig_t));
     }
 
-	/* free all tags except the PU_STATIC tag */
-	Z_FreeTags(mainzone, ~PU_STATIC); // (PU_LEVEL | PU_LEVSPEC | PU_CACHE)
+    /* free all tags except the PU_STATIC tag */
+    Z_FreeTags(mainzone, ~PU_STATIC); // (PU_LEVEL | PU_LEVSPEC | PU_CACHE)
 
-	return exit;
+    return exit;
 }
 
 void G_RecordDemo (void)//80013D0C

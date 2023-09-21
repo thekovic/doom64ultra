@@ -33,7 +33,7 @@ extern char _bss_end[];
  */
 
 #define BASEPROG_SIZE (ALIGN(_bss_end, 32) - (u32)BASE_RAM_ADDR)
-#define AUDIO_HEAP_SIZE	ALIGN( \
+#define AUDIO_HEAP_SIZE ALIGN( \
         AUDIO_HEAP_BASE_SIZE \
         + ALIGN(_doom64_wmdSegmentRomEnd - _doom64_wmdSegmentRomStart, 16) \
         + ALIGN(_doom64_wsdSegmentRomEnd - _doom64_wsdSegmentRomStart, 16) \

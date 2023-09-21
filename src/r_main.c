@@ -8,55 +8,55 @@
 /* */
 /* subsectors */
 /* */
-//subsector_t		*vissubsectors[MAXVISSSEC], **lastvissubsector;
+//subsector_t       *vissubsectors[MAXVISSSEC], **lastvissubsector;
 
 /* */
 /* walls */
 /* */
-//viswall_t	viswalls[MAXWALLCMDS], *lastwallcmd;
+//viswall_t viswalls[MAXWALLCMDS], *lastwallcmd;
 
 /* */
 /* planes */
 /* */
-//visplane_t	visplanes[MAXVISPLANES], *lastvisplane;
+//visplane_t    visplanes[MAXVISPLANES], *lastvisplane;
 
 /* */
 /* sprites */
 /* */
-//vissprite_t	vissprites[MAXVISSPRITES], *lastsprite_p, *vissprite_p;
+//vissprite_t   vissprites[MAXVISSPRITES], *lastsprite_p, *vissprite_p;
 
 /* */
 /* openings / misc refresh memory */
 /* */
-//unsigned short	openings[MAXOPENINGS], *lastopening;
+//unsigned short    openings[MAXOPENINGS], *lastopening;
 
 
 /*===================================== */
 
-SDATA fixed_t		viewx, viewy, viewz;    // 800A6890, 800A6894, 800A6898
-angle_t		viewangle;              // 800A689C
-SDATA fixed_t		viewcos, viewsin;       // 800A68A0,
-SDATA angle_t		viewpitch;
-SDATA fixed_t		viewpitchsin, viewpitchcos;
-SDATA angle_t		viewmaxhalffov;
-fixed_t 	viewhcot, viewvcot; // cotangents of the horizontal and vertical fov half angles
-fixed_t 	viewinvhcot, viewinvvcot;
-player_t	*viewplayer;            // 800A688C, 800a68a4
+SDATA fixed_t       viewx, viewy, viewz;    // 800A6890, 800A6894, 800A6898
+angle_t     viewangle;              // 800A689C
+SDATA fixed_t       viewcos, viewsin;       // 800A68A0,
+SDATA angle_t       viewpitch;
+SDATA fixed_t       viewpitchsin, viewpitchcos;
+SDATA angle_t       viewmaxhalffov;
+fixed_t     viewhcot, viewvcot; // cotangents of the horizontal and vertical fov half angles
+fixed_t     viewinvhcot, viewinvvcot;
+player_t    *viewplayer;            // 800A688C, 800a68a4
 
-SDATA int			validcount;		/* increment every time a check is made */ // 800A6900
-//int			framecount;		    /* incremented every frame */
+SDATA int           validcount;     /* increment every time a check is made */ // 800A6900
+//int           framecount;         /* incremented every frame */
 
 /* */
 /* sky mapping */
 /* */
 boolean     rendersky = false; // 800A68A8
 
-subsector_t *solidsubsectors[MAXSUBSECTORS];	// 800A6488  /* List of valid ranges to scan through */
-SDATA subsector_t **endsubsector;				        // 800A6888    /* Pointer to the first free entry */
+subsector_t *solidsubsectors[MAXSUBSECTORS];    // 800A6488  /* List of valid ranges to scan through */
+SDATA subsector_t **endsubsector;                       // 800A6888    /* Pointer to the first free entry */
 SDATA int numdrawsubsectors;                          // 800A68AC
 
-vissprite_t	vissprites[MAXVISSPRITES];          // 800A6908
-SDATA vissprite_t	*visspritehead;                     // 800A8108
+vissprite_t vissprites[MAXVISSPRITES];          // 800A6908
+SDATA vissprite_t   *visspritehead;                     // 800A8108
 SDATA int numdrawvissprites;                          // 800A68B0
 
 SDATA int globallump;                                 // 800A68f8
@@ -65,26 +65,26 @@ SDATA int globalcm;                                   // 800A68FC
 Mtx R_ProjectionMatrix = { 0, };                     // 800A68B8
 /*Mtx R_ProjectionMatrix =                          // 800A68B8
 {
-    0x00010000,	0x00000000,
-    0x00000001,	0x00000000,
-    0x00000000,	0xfffeffff,
-    0x00000000,	0xffef0000,
-    0x00000000,	0x00000000,
-    0x00005555,	0x00000000,
-    0x00000000,	0xfeed0000,
-    0x00000000,	0xf7610000
+    0x00010000, 0x00000000,
+    0x00000001, 0x00000000,
+    0x00000000, 0xfffeffff,
+    0x00000000, 0xffef0000,
+    0x00000000, 0x00000000,
+    0x00005555, 0x00000000,
+    0x00000000, 0xfeed0000,
+    0x00000000, 0xf7610000
 };*/
 
 Mtx R_ModelMatrix =                             // 8005b0C8
 { .m = {
-    {0x00010000,	0x00000000,
-     0x00000001,	0x00000000},
-    {0x00000000,	0x00010000,
-     0x00000000,	0x00000001},
-    {0x00000000,	0x00000000,
-     0x00000000,	0x00000000},
-    {0x00000000,	0x00000000,
-     0x00000000,	0x00000000}
+    {0x00010000,    0x00000000,
+     0x00000001,    0x00000000},
+    {0x00000000,    0x00010000,
+     0x00000000,    0x00000001},
+    {0x00000000,    0x00000000,
+     0x00000000,    0x00000000},
+    {0x00000000,    0x00000000,
+     0x00000000,    0x00000000}
 } };
 
 /* */
@@ -100,7 +100,7 @@ mobj_t      *cameratarget;  // 800A5D70
 angle_t     camviewpitch;   // 800A811C
 
 SDATA fixed_t     scrollfrac;     // 800A812C
-SDATA sector_t    *frontsector;	// 800A6340
+SDATA sector_t    *frontsector; // 800A6340
 
 /*============================================================================= */
 
@@ -138,7 +138,7 @@ void R_Init(void) // 800233E0
 
 void R_RotateCameraMatrix(void)
 {
-	fixed_t sin, cos;
+    fixed_t sin, cos;
 
     sin = viewpitchsin;
     cos = viewpitchcos;
@@ -342,33 +342,33 @@ void R_RenderPlayerView(void) // 80023448
 = Returns side 0 (front) or 1 (back)
 ===============================================================================
 */
-int	R_PointOnSide(int x, int y, node_t *node) // 80023B6C
+int R_PointOnSide(int x, int y, node_t *node) // 80023B6C
 {
-	fixed_t	dx, dy;
-	fixed_t	left, right;
+    fixed_t dx, dy;
+    fixed_t left, right;
 
-	if (!node->line.dx)
-	{
-		if (x <= node->line.x)
-			return (node->line.dy > 0);
-		return (node->line.dy < 0);
-	}
-	if (!node->line.dy)
-	{
-		if (y <= node->line.y)
-			return (node->line.dx < 0);
-		return (node->line.dx > 0);
-	}
+    if (!node->line.dx)
+    {
+        if (x <= node->line.x)
+            return (node->line.dy > 0);
+        return (node->line.dy < 0);
+    }
+    if (!node->line.dy)
+    {
+        if (y <= node->line.y)
+            return (node->line.dx < 0);
+        return (node->line.dx > 0);
+    }
 
-	dx = (x - node->line.x);
-	dy = (y - node->line.y);
+    dx = (x - node->line.x);
+    dy = (y - node->line.y);
 
-	left = (node->line.dy >> 16) * (dx >> 16);
-	right = (dy >> 16) * (node->line.dx >> 16);
+    left = (node->line.dy >> 16) * (dx >> 16);
+    right = (dy >> 16) * (node->line.dx >> 16);
 
-	if (right < left)
-		return 0;		/* front side */
-	return 1;			/* back side */
+    if (right < left)
+        return 0;       /* front side */
+    return 1;           /* back side */
 }
 
 /*
@@ -381,22 +381,22 @@ int	R_PointOnSide(int x, int y, node_t *node) // 80023B6C
 
 struct subsector_s *R_PointInSubsector(fixed_t x, fixed_t y) // 80023C44
 {
-	node_t	*node;
-	int		side, nodenum;
+    node_t  *node;
+    int     side, nodenum;
 
-	if (!numnodes)				/* single subsector is a special case */
-		return subsectors;
+    if (!numnodes)              /* single subsector is a special case */
+        return subsectors;
 
-	nodenum = numnodes - 1;
+    nodenum = numnodes - 1;
 
-	while (!(nodenum & NF_SUBSECTOR))
-	{
-		node = &nodes[nodenum];
-		side = R_PointOnSide(x, y, node);
-		nodenum = node->children[side];
-	}
+    while (!(nodenum & NF_SUBSECTOR))
+    {
+        node = &nodes[nodenum];
+        side = R_PointOnSide(x, y, node);
+        nodenum = node->children[side];
+    }
 
-	return &subsectors[nodenum & ~NF_SUBSECTOR];
+    return &subsectors[nodenum & ~NF_SUBSECTOR];
 }
 
 /*
@@ -407,65 +407,65 @@ struct subsector_s *R_PointInSubsector(fixed_t x, fixed_t y) // 80023C44
 ===============================================================================
 */
 
-//extern	angle_t	tantoangle(SLOPERANGE + 1);
+//extern    angle_t tantoangle(SLOPERANGE + 1);
 
 static int SlopeDiv(unsigned num, unsigned den) // 80023D10
 {
-	unsigned ans;
-	if (den < 512)
-		return SLOPERANGE;
-	ans = (num << 3) / (den >> 8);
-	return ans <= SLOPERANGE ? ans : SLOPERANGE;
+    unsigned ans;
+    if (den < 512)
+        return SLOPERANGE;
+    ans = (num << 3) / (den >> 8);
+    return ans <= SLOPERANGE ? ans : SLOPERANGE;
 }
 
 angle_t R_PointToAngle2(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2) // 80023D60
 {
-	int		x;
-	int		y;
+    int     x;
+    int     y;
 
-	x = x2 - x1;
-	y = y2 - y1;
+    x = x2 - x1;
+    y = y2 - y1;
 
-	if ((!x) && (!y))
-		return 0;
+    if ((!x) && (!y))
+        return 0;
 
-	if (x >= 0)
-	{	/* x >=0 */
-		if (y >= 0)
-		{	/* y>= 0 */
-			if (x>y)
-				return tantoangle(SlopeDiv(y, x));     /* octant 0 */
-			else
-				return ANG90 - 1 - tantoangle(SlopeDiv(x, y));  /* octant 1 */
-		}
-		else
-		{	/* y<0 */
-			y = -y;
-			if (x>y)
-				return -tantoangle(SlopeDiv(y, x));  /* octant 8 */
-			else
-				return ANG270 + tantoangle(SlopeDiv(x, y));  /* octant 7 */
-		}
-	}
-	else
-	{	/* x<0 */
-		x = -x;
-		if (y >= 0)
-		{	/* y>= 0 */
-			if (x>y)
-				return ANG180 - 1 - tantoangle(SlopeDiv(y, x)); /* octant 3 */
-			else
-				return ANG90 + tantoangle(SlopeDiv(x, y));  /* octant 2 */
-		}
-		else
-		{	/* y<0 */
-			y = -y;
-			if (x>y)
-				return ANG180 + tantoangle(SlopeDiv(y, x));  /* octant 4 */
-			else
-				return ANG270 - 1 - tantoangle(SlopeDiv(x, y));  /* octant 5 */
-		}
-	}
+    if (x >= 0)
+    {   /* x >=0 */
+        if (y >= 0)
+        {   /* y>= 0 */
+            if (x>y)
+                return tantoangle(SlopeDiv(y, x));     /* octant 0 */
+            else
+                return ANG90 - 1 - tantoangle(SlopeDiv(x, y));  /* octant 1 */
+        }
+        else
+        {   /* y<0 */
+            y = -y;
+            if (x>y)
+                return -tantoangle(SlopeDiv(y, x));  /* octant 8 */
+            else
+                return ANG270 + tantoangle(SlopeDiv(x, y));  /* octant 7 */
+        }
+    }
+    else
+    {   /* x<0 */
+        x = -x;
+        if (y >= 0)
+        {   /* y>= 0 */
+            if (x>y)
+                return ANG180 - 1 - tantoangle(SlopeDiv(y, x)); /* octant 3 */
+            else
+                return ANG90 + tantoangle(SlopeDiv(x, y));  /* octant 2 */
+        }
+        else
+        {   /* y<0 */
+            y = -y;
+            if (x>y)
+                return ANG180 + tantoangle(SlopeDiv(y, x));  /* octant 4 */
+            else
+                return ANG270 - 1 - tantoangle(SlopeDiv(x, y));  /* octant 5 */
+        }
+    }
 }
 
 SDATA static int cur_filter = -1;

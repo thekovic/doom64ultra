@@ -1,5 +1,5 @@
 #include <ultra64.h>
-#include <PR/ramrom.h>	/* needed for argument passing into the app */
+#include <PR/ramrom.h>  /* needed for argument passing into the app */
 #include <os_internal.h>
 #include <internal/viint.h>
 #include <stdarg.h>
@@ -29,8 +29,8 @@ extern char _codeSegmentEnd[];
  */
 
 /* this stack size is in bytes */
-#define	BOOT_STACKSIZE	0x100
-vu64	bootStack[BOOT_STACKSIZE/sizeof(u64)];
+#define BOOT_STACKSIZE  0x100
+vu64    bootStack[BOOT_STACKSIZE/sizeof(u64)];
 
 SDATA u16 SCREEN_HT = 240;
 SDATA u32 CFB_SIZE;
@@ -39,7 +39,7 @@ extern int globallump; // 800A68f8 r_local.h
 extern int globalcm;   // 800A68fC r_local.h
 
 //"\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91"
-//static char	sysmbols[] = {0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91};
+//static char   sysmbols[] = {0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91};
 
 //----------
 
@@ -48,25 +48,25 @@ extern int globalcm;   // 800A68fC r_local.h
 #define SYS_THREAD_ID_TICKER 3
 #define SYS_THREAD_ID_JOY 4
 
-OSThread	idle_thread;                        // 800A4A18
+OSThread    idle_thread;                        // 800A4A18
 
 #define SYS_MAIN_STACKSIZE 0xA000
-OSThread	main_thread;                        // 800A4BC8
-vu64	main_stack[SYS_MAIN_STACKSIZE/sizeof(u64)]; // 80099A00
+OSThread    main_thread;                        // 800A4BC8
+vu64    main_stack[SYS_MAIN_STACKSIZE/sizeof(u64)]; // 80099A00
 
-#define	JOY_STACKSIZE	0x200
-OSThread	joy_thread;
-vu64	joy_stack[JOY_STACKSIZE/sizeof(u64)];
+#define JOY_STACKSIZE   0x200
+OSThread    joy_thread;
+vu64    joy_stack[JOY_STACKSIZE/sizeof(u64)];
 
 #define SYS_TICKER_STACKSIZE 0x800
-OSThread	sys_ticker_thread;                          // 800A4D78
-vu64	sys_ticker_stack[SYS_TICKER_STACKSIZE/sizeof(u64)]; // 800A3A00
+OSThread    sys_ticker_thread;                          // 800A4D78
+vu64    sys_ticker_stack[SYS_TICKER_STACKSIZE/sizeof(u64)]; // 800A3A00
 
 #define SYS_MSGBUF_SIZE_PI 128
 OSMesgQueue msgque_Pi;                  // 800A4FA0
 OSMesg msgbuf_Pi[SYS_MSGBUF_SIZE_PI];   // 800A4FD0
 
-#define	SYS_FIFO_SIZE	512
+#define SYS_FIFO_SIZE   512
 
 #if __GNUC__ /* for GNU compiler */
 u64 fifo_buff[2][SYS_FIFO_SIZE] ALIGNED(16);          /* buffer for RDP DL */      // 800633E0
@@ -76,7 +76,7 @@ u64 fifo_buff[2][SYS_FIFO_SIZE];            /* buffer for RDP DL */      // 8006
 u64 sys_rcp_stack[SP_DRAM_STACK_SIZE64];    /* used for matrix stack */  // 800915E0
 #endif
 
-#define	SYS_YIELD_SIZE  OS_YIELD_DATA_SIZE
+#define SYS_YIELD_SIZE  OS_YIELD_DATA_SIZE
 u64 gfx_yield_buff[SYS_YIELD_SIZE] ALIGNED(16);     // 800919E0
 
 OSTask vid_rsptask[2] = // 8005A590
@@ -121,32 +121,32 @@ OSTask vid_rsptask[2] = // 8005A590
 
 Vp vid_viewport = { // 8005A610
     .vp = {
-        {0, 0, G_MAXZ,   0},		/* scale */
-        {0, 0,      0,   0},		/* translate */
+        {0, 0, G_MAXZ,   0},        /* scale */
+        {0, 0,      0,   0},        /* translate */
     } };
 
 OSMesgQueue romcopy_msgque; // 800A4F70
-OSMesg		romcopy_msgbuf; // 800A51D0
+OSMesg      romcopy_msgbuf; // 800A51D0
 
 OSMesgQueue sys_msgque_joy; // 800A4F88
-OSMesg		sys_msg_joy;    // 800A51D4
+OSMesg      sys_msg_joy;    // 800A51D4
 
 OSMesgQueue joy_cmd_msgque;
-OSMesg		joy_cmd_msg;
+OSMesg      joy_cmd_msg;
 
 #define SYS_MSGBUF_SIZE_VID 16
 OSMesgQueue sys_ticker_queue; // 800A4FB8
-OSMesg		sys_ticker_msgbuf[SYS_MSGBUF_SIZE_VID]; // 800A51E0
+OSMesg      sys_ticker_msgbuf[SYS_MSGBUF_SIZE_VID]; // 800A51E0
 
 #define SYS_MSGBUF_SIZE_VID2 2
 OSMesgQueue rdp_done_queue; // 800A4F28
-OSMesg		rdp_done_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A51D8
+OSMesg      rdp_done_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A51D8
 
 OSMesgQueue vid_task_queue; // 800A4F40
-OSMesg		vid_task_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A5220
+OSMesg      vid_task_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A5220
 
 OSMesgQueue audio_task_queue; // 800A4F58
-OSMesg		audio_task_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A5228
+OSMesg      audio_task_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A5228
 
 OSContStatus gamepad_status[MAXCONTROLLERS]; // 800a5230
 volatile int *gamepad_data;    // 800A5240
@@ -207,14 +207,14 @@ Gfx Gfx_base[2][MAX_GFX];    // 800653E0
 Mtx Mtx_base[2][MAX_MTX];    // 800793E0
 Vtx Vtx_base[2][MAX_VTX];    // 800795E0
 
-SDATA Gfx *GFX1;	// 800A4A00
-SDATA Gfx *GFX2;	// 800A4A04
+SDATA Gfx *GFX1;    // 800A4A00
+SDATA Gfx *GFX2;    // 800A4A04
 
-SDATA Vtx *VTX1;	// 800A4A08
-SDATA Vtx *VTX2;	// 800A4A0C
+SDATA Vtx *VTX1;    // 800A4A08
+SDATA Vtx *VTX2;    // 800A4A0C
 
-SDATA Mtx *MTX1;	// 800A4A10
-SDATA Mtx *MTX2;	// 800A4A14
+SDATA Mtx *MTX1;    // 800A4A10
+SDATA Mtx *MTX2;    // 800A4A14
 
 #define GFX_ALLOC_THRESHOLD 1024
 #define VTX_ALLOC_THRESHOLD 615
@@ -395,7 +395,7 @@ void I_SystemTicker(void *arg) // 80005730
 
         switch (vbi_msg)
         {
-            case VID_MSG_RSP:				// end of signal processing
+            case VID_MSG_RSP:               // end of signal processing
                 {
                     //D_printf("VID_MSG_RSP || type(%lu)\n", rspTask->t.type);
 
@@ -572,8 +572,8 @@ void I_ReadPads(void)
 
 void I_Init(void) // 80005C50
 {
-    vid_rsptask[0].t.ucode_boot_size = (int)rspbootTextEnd - (int)rspbootTextStart;	// set ucode size (waste but who cares)
-    vid_rsptask[1].t.ucode_boot_size = (int)rspbootTextEnd - (int)rspbootTextStart;	// set ucode size (waste but who cares)
+    vid_rsptask[0].t.ucode_boot_size = (int)rspbootTextEnd - (int)rspbootTextStart; // set ucode size (waste but who cares)
+    vid_rsptask[1].t.ucode_boot_size = (int)rspbootTextEnd - (int)rspbootTextStart; // set ucode size (waste but who cares)
 
     osCreateMesgQueue( &romcopy_msgque, &romcopy_msgbuf, 1 );
 
@@ -653,92 +653,92 @@ int I_GetControllerData(int pad) // 800060D0
 
 void I_CheckGFX(void) // 800060E8
 {
-	Gfx **Gfx_Blocks;
-	Vtx **Vtx_Blocks;
+    Gfx **Gfx_Blocks;
+    Vtx **Vtx_Blocks;
 
-	int i, index;
-	int block_idx;
+    int i, index;
+    int block_idx;
 
-	index = (int)((int)GFX1 - (int)GFX2) / sizeof(Gfx);
+    index = (int)((int)GFX1 - (int)GFX2) / sizeof(Gfx);
 
-	if (index > MAX_GFX)
-		I_Error("I_CheckGFX: GFX Overflow by %d\n",index);
+    if (index > MAX_GFX)
+        I_Error("I_CheckGFX: GFX Overflow by %d\n",index);
 
-	if ((index < (MAX_GFX-GFX_ALLOC_THRESHOLD)) == 0)
-	{
-		Gfx_Blocks = GfxBlocks;
-		block_idx = -1;
+    if ((index < (MAX_GFX-GFX_ALLOC_THRESHOLD)) == 0)
+    {
+        Gfx_Blocks = GfxBlocks;
+        block_idx = -1;
 
-		for(i = 0; i < ARRAYLEN(GfxBlocks); i++)
-		{
-			if (*Gfx_Blocks)
-			{
-				if(!Z_Stale(*Gfx_Blocks))
-				{
-					Gfx_Blocks++;
-					continue;
-				}
+        for(i = 0; i < ARRAYLEN(GfxBlocks); i++)
+        {
+            if (*Gfx_Blocks)
+            {
+                if(!Z_Stale(*Gfx_Blocks))
+                {
+                    Gfx_Blocks++;
+                    continue;
+                }
 
-				Z_Touch(*Gfx_Blocks);
-				GFX2 = (Gfx *)*Gfx_Blocks;
-				goto move_gfx;
-			}
+                Z_Touch(*Gfx_Blocks);
+                GFX2 = (Gfx *)*Gfx_Blocks;
+                goto move_gfx;
+            }
 
-			block_idx = i;
-		}
+            block_idx = i;
+        }
 
-		if (block_idx < 0)
-			I_Error("I_CheckGFX: GFX Cache overflow");
+        if (block_idx < 0)
+            I_Error("I_CheckGFX: GFX Cache overflow");
 
-		GFX2 = (Gfx *)Z_Malloc(MAX_GFX * sizeof(Gfx), PU_CACHE, &GfxBlocks[block_idx]);
-		GfxBlocksOccupied++;
+        GFX2 = (Gfx *)Z_Malloc(MAX_GFX * sizeof(Gfx), PU_CACHE, &GfxBlocks[block_idx]);
+        GfxBlocksOccupied++;
 
 move_gfx:
-		GfxBlocksUsed++;
-		gSPBranchList(GFX1,GFX2);
-		GFX1 = GFX2;
-		GfxIndex += index;
-	}
+        GfxBlocksUsed++;
+        gSPBranchList(GFX1,GFX2);
+        GFX1 = GFX2;
+        GfxIndex += index;
+    }
 
-	index = (int)((int)VTX1 - (int)VTX2) / sizeof(Vtx);
+    index = (int)((int)VTX1 - (int)VTX2) / sizeof(Vtx);
 
-	if (index > MAX_VTX)
-		I_Error("I_CheckVTX: VTX Overflow by %d\n",index);
+    if (index > MAX_VTX)
+        I_Error("I_CheckVTX: VTX Overflow by %d\n",index);
 
-	if ((index < (MAX_VTX-VTX_ALLOC_THRESHOLD)) == 0)
-	{
-		Vtx_Blocks = VtxBlocks;
-		block_idx = -1;
+    if ((index < (MAX_VTX-VTX_ALLOC_THRESHOLD)) == 0)
+    {
+        Vtx_Blocks = VtxBlocks;
+        block_idx = -1;
 
-		for(i = 0; i < ARRAYLEN(VtxBlocks); i++)
-		{
-			if (*Vtx_Blocks)
-			{
-				if(!Z_Stale(*Vtx_Blocks))
-				{
-					Vtx_Blocks++;
-					continue;
-				}
+        for(i = 0; i < ARRAYLEN(VtxBlocks); i++)
+        {
+            if (*Vtx_Blocks)
+            {
+                if(!Z_Stale(*Vtx_Blocks))
+                {
+                    Vtx_Blocks++;
+                    continue;
+                }
 
-				Z_Touch(*Vtx_Blocks);
-				VTX2 = (Vtx *)*Vtx_Blocks;
-				goto move_vtx;
-			}
+                Z_Touch(*Vtx_Blocks);
+                VTX2 = (Vtx *)*Vtx_Blocks;
+                goto move_vtx;
+            }
 
-			block_idx = i;
-		}
+            block_idx = i;
+        }
 
-		if (block_idx < 0)
-			I_Error("I_CheckGFX: VTX Cache overflow");
+        if (block_idx < 0)
+            I_Error("I_CheckGFX: VTX Cache overflow");
 
-		VTX2 = (Vtx *)Z_Malloc(MAX_VTX * sizeof(Vtx), PU_CACHE, &VtxBlocks[block_idx]);
-		VtxBlocksOccupied++;
+        VTX2 = (Vtx *)Z_Malloc(MAX_VTX * sizeof(Vtx), PU_CACHE, &VtxBlocks[block_idx]);
+        VtxBlocksOccupied++;
 
 move_vtx:
-		VtxBlocksUsed++;
-		VTX1 = VTX2;
-		VtxIndex += index;
-	}
+        VtxBlocksUsed++;
+        VTX1 = VTX2;
+        VtxIndex += index;
+    }
 }
 
 // check if close to overflowing the caches
@@ -832,12 +832,12 @@ void I_DrawFrame(void)  // 80006570
     gSPEndDisplayList(GFX1++);
 
     index = (int)((int)GFX1 - (int)GFX2) / sizeof(Gfx);
-	if (index > MAX_GFX)
-		I_Error("I_DrawFrame: GFX Overflow by %d\n\n",index);
+    if (index > MAX_GFX)
+        I_Error("I_DrawFrame: GFX Overflow by %d\n\n",index);
 
     index = (int)((int)VTX1 - (int)VTX2) / sizeof(Vtx);
-	if (index > MAX_VTX)
-		I_Error("I_DrawFrame: VTX Overflow by %d\n",index);
+    if (index > MAX_VTX)
+        I_Error("I_DrawFrame: VTX Overflow by %d\n",index);
 
     vid_task->t.data_ptr = (u64 *) Gfx_base[vid_side];
     vid_task->t.data_size = (u32)((((int)((int)GFX1 - (int)GFX2) / sizeof(Gfx)) + GfxIndex) * sizeof(Gfx));

@@ -51,129 +51,129 @@ long imask; // 800B4218
 
 void wess_set_decomp_callback(WessDecompCallbackProc decompcall) // 800352C8
 {
-	wessdecomp = decompcall;
+    wessdecomp = decompcall;
 }
 
 int wess_decomp(unsigned char decomp_type,
-	char          *fileref,
-	unsigned long file_offset,
-	char          *ramdest,
-	unsigned long uncompressed_size) // 800352D4
+    char          *fileref,
+    unsigned long file_offset,
+    char          *ramdest,
+    unsigned long uncompressed_size) // 800352D4
 {
-	if (wessdecomp != 0)
-	{
-		return wessdecomp(decomp_type, fileref, file_offset, ramdest, uncompressed_size);
-	}
+    if (wessdecomp != 0)
+    {
+        return wessdecomp(decomp_type, fileref, file_offset, ramdest, uncompressed_size);
+    }
 
-	return(-1);
+    return(-1);
 }
 
 void wess_low_level_init(void) // 8003531C
 {
-	//Nothing
+    //Nothing
 }
 
 void wess_low_level_exit(void) // 80035324
 {
-	//Nothing
+    //Nothing
 }
 
 char *wess_malloc(char *mem) // 8003532C
 {
-	return NULL;
+    return NULL;
 }
 
 void wess_free(char *mem) // 80035338
 {
-	//Nothing
+    //Nothing
 }
 
 void wess_engine_off(void) // 80035340
 {
-	SeqOn = 0;
+    SeqOn = 0;
 }
 
 void wess_engine_on(void) // 8003534C
 {
-	SeqOn = 1;
+    SeqOn = 1;
 }
 
 void wess_disable(void) // 8003535C
 {
-	if (disabledeep == 0)
-	{
-		imask = wesssys_disable_ints();
-	}
-	disabledeep += 1;
+    if (disabledeep == 0)
+    {
+        imask = wesssys_disable_ints();
+    }
+    disabledeep += 1;
 }
 
 void wess_enable(void) // 8003539C
 {
-	disabledeep += -1;
-	if (disabledeep == 0)
-	{
-		wesssys_restore_ints(imask);
-	}
+    disabledeep += -1;
+    if (disabledeep == 0)
+    {
+        wesssys_restore_ints(imask);
+    }
 }
 
 short GetIntsPerSec(void) // 800353DC
 {
-	return(120);
+    return(120);
 }
 
 
 unsigned long CalcPartsPerInt(short ips, short ppq, short qpm) // 800353E4
 {
 #if 0
-	register unsigned long arg0;
-	register unsigned long ppi;
+    register unsigned long arg0;
+    register unsigned long ppi;
 
     __ll_mul((s32) qpm >> 31, qpm, 0, (1<<16));
-    asm("move	%0,$2":"=r"(arg0) : );
-	asm("move	%0,$3":"=r"(ppi) : );
+    asm("move   %0,$2":"=r"(arg0) : );
+    asm("move   %0,$3":"=r"(ppi) : );
     __ll_mul(arg0, (u32) ppi, (s32) ppq >> 31, ppq);
-    asm("move	%0,$2":"=r"(arg0) : );
-	asm("move	%0,$3":"=r"(ppi) : );
+    asm("move   %0,$2":"=r"(arg0) : );
+    asm("move   %0,$3":"=r"(ppi) : );
     __ull_div(arg0, (u32) ppi, 0, 60);
-    asm("move	%0,$2":"=r"(arg0) : );
-	asm("move	%0,$3":"=r"(ppi) : );
-	__ull_div(arg0, (u32) ppi, (s32) ips >> 31, ips);
-	asm("move	%0,$2":"=r"(arg0) : );
-	asm("move	%0,$3":"=r"(ppi) : );
+    asm("move   %0,$2":"=r"(arg0) : );
+    asm("move   %0,$3":"=r"(ppi) : );
+    __ull_div(arg0, (u32) ppi, (s32) ips >> 31, ips);
+    asm("move   %0,$2":"=r"(arg0) : );
+    asm("move   %0,$3":"=r"(ppi) : );
     return (u32) ppi;
 #endif
-	return (u32) ((s32)qpm  * (s32)ppq * 1092) / (u32)ips;
+    return (u32) ((s32)qpm  * (s32)ppq * 1092) / (u32)ips;
 }
 
 long WessInterruptHandler(void) // 80035458
 {
-	accmpi += 0x85555;
-	millicount += (accmpi >> 16);
-	accmpi &= 65535;
+    accmpi += 0x85555;
+    millicount += (accmpi >> 16);
+    accmpi &= 65535;
 
-	T2counter++;
-	if (SeqOn)
-	{
-		process_function_queue();
-		SeqEngine();
-	}
-	return(0);
+    T2counter++;
+    if (SeqOn)
+    {
+        process_function_queue();
+        SeqEngine();
+    }
+    return(0);
 }
 
 void init_WessTimer(void) // 800354DC
 {
-	SeqOn = 0;
-	WessTimerActive = 1;
+    SeqOn = 0;
+    WessTimerActive = 1;
 }
 
 void exit_WessTimer(void) // 800354F4
 {
-	WessTimerActive = 0;
+    WessTimerActive = 0;
 }
 
 int Wess_init_for_LoadFileData(char *filename) // 80035500
 {
-	return(1);
+    return(1);
 }
 
 char alignbuf[28]; // 800B41E4 unused
@@ -182,342 +182,342 @@ Wess_Data_IO_Struct data_fileref; // 800B4208
 
 Wess_File_IO_Struct *module_open(char *filename) // 8003550C
 {
-	module_fileref.start = filename;
-	module_fileref.src = filename;
-	return &module_fileref;
+    module_fileref.start = filename;
+    module_fileref.src = filename;
+    return &module_fileref;
 }
 
 int module_read(void *destptr, int readbytes, Wess_File_IO_Struct *fileptr) // 80035520
 {
-	wess_rom_copy(fileptr->src, (char *)destptr, readbytes);
-	fileptr->src += readbytes;
-	return readbytes;
+    wess_rom_copy(fileptr->src, (char *)destptr, readbytes);
+    fileptr->src += readbytes;
+    return readbytes;
 }
 
 int module_seek(Wess_File_IO_Struct *fileptr, int seekpos, int seekmode) // 80035574
 {
-	if (seekmode == SEEK_SET)
-	{
-		fileptr->src = fileptr->start + seekpos;
-	}
-	else if (seekmode == SEEK_CUR)
-	{
-		fileptr->src += seekpos;
-	}
-	return 0;
+    if (seekmode == SEEK_SET)
+    {
+        fileptr->src = fileptr->start + seekpos;
+    }
+    else if (seekmode == SEEK_CUR)
+    {
+        fileptr->src += seekpos;
+    }
+    return 0;
 }
 
 unsigned long module_tell(Wess_File_IO_Struct *fileptr) // 800355B0
 {
-	return (unsigned long)fileptr->src;
+    return (unsigned long)fileptr->src;
 }
 
 void module_close(Wess_File_IO_Struct *fileptr) // 800355BC
 {
-	return;
+    return;
 }
 
 int get_num_Wess_Sound_Drivers(int **settings_tag_lists) // 800355C4
 {
-	return(1);
+    return(1);
 }
 
 Wess_File_IO_Struct *data_open(char *filename) // 800355D0
 {
-	return &data_fileref;
+    return &data_fileref;
 }
 
 int data_read(Wess_Data_IO_Struct *fileptr, void *destptr, int readbytes, int filepos) //800355E0
 {
-	return 0;
+    return 0;
 }
 
 void data_close(Wess_Data_IO_Struct *fileptr) // 800355F8
 {
-	return;
+    return;
 }
 
 static unsigned char sequence_table[128]; // 800B4220
 
 char *get_sequence_table(void) // 80035600
 {
-	master_status_structure *pm_stat_ptr;
-	int sequences;
-	int i;
+    master_status_structure *pm_stat_ptr;
+    int sequences;
+    int i;
 
-	pm_stat_ptr = (master_status_structure *)wess_get_master_status();
+    pm_stat_ptr = (master_status_structure *)wess_get_master_status();
 
-	sequences = wess_driver_sequences;
-	if (sequences > 127)
-		sequences = 127;
+    sequences = wess_driver_sequences;
+    if (sequences > 127)
+        sequences = 127;
 
-	if (pm_stat_ptr)
-	{
-		i = 0;
-		if (sequences > 0)
-		{
-			if (sequences & 3)
-			{
-				do
-				{
-					if ((pm_stat_ptr->pseqstattbl + i)->flags & SEQ_ACTIVE)
-						sequence_table[i] = '1';
-					else
-						sequence_table[i] = '0';
+    if (pm_stat_ptr)
+    {
+        i = 0;
+        if (sequences > 0)
+        {
+            if (sequences & 3)
+            {
+                do
+                {
+                    if ((pm_stat_ptr->pseqstattbl + i)->flags & SEQ_ACTIVE)
+                        sequence_table[i] = '1';
+                    else
+                        sequence_table[i] = '0';
 
-					i++;
-				} while ((sequences & 3) != i);
-			}
-		}
+                    i++;
+                } while ((sequences & 3) != i);
+            }
+        }
 
-		if (i != sequences)
-		{
-			do
-			{
-				if ((pm_stat_ptr->pseqstattbl + i)->flags & SEQ_ACTIVE)
-					sequence_table[i] = '1';
-				else
-					sequence_table[i] = '0';
+        if (i != sequences)
+        {
+            do
+            {
+                if ((pm_stat_ptr->pseqstattbl + i)->flags & SEQ_ACTIVE)
+                    sequence_table[i] = '1';
+                else
+                    sequence_table[i] = '0';
 
-				if ((pm_stat_ptr->pseqstattbl + (i + 1))->flags & SEQ_ACTIVE)
-					sequence_table[i + 1] = '1';
-				else
-					sequence_table[i + 1] = '0';
+                if ((pm_stat_ptr->pseqstattbl + (i + 1))->flags & SEQ_ACTIVE)
+                    sequence_table[i + 1] = '1';
+                else
+                    sequence_table[i + 1] = '0';
 
-				if ((pm_stat_ptr->pseqstattbl + (i + 2))->flags & SEQ_ACTIVE)
-					sequence_table[i + 2] = '1';
-				else
-					sequence_table[i + 2] = '0';
+                if ((pm_stat_ptr->pseqstattbl + (i + 2))->flags & SEQ_ACTIVE)
+                    sequence_table[i + 2] = '1';
+                else
+                    sequence_table[i + 2] = '0';
 
-				if ((pm_stat_ptr->pseqstattbl + (i + 3))->flags & SEQ_ACTIVE)
-					sequence_table[i + 3] = '1';
-				else
-					sequence_table[i + 3] = '0';
+                if ((pm_stat_ptr->pseqstattbl + (i + 3))->flags & SEQ_ACTIVE)
+                    sequence_table[i + 3] = '1';
+                else
+                    sequence_table[i + 3] = '0';
 
-				i += 4;
-			} while (sequences != i);
-		}
+                i += 4;
+            } while (sequences != i);
+        }
 
-		sequence_table[sequences] = '\0';
-	}
+        sequence_table[sequences] = '\0';
+    }
 
-	return (char *)&sequence_table;
+    return (char *)&sequence_table;
 }
 
 static unsigned char tracks_table[128]; // 800B42A0
 
 char *get_tracks_table(void) // 800357A0
 {
-	master_status_structure *pm_stat_ptr;
-	int tracks;
-	int i;
+    master_status_structure *pm_stat_ptr;
+    int tracks;
+    int i;
 
-	pm_stat_ptr = (master_status_structure *)wess_get_master_status();
+    pm_stat_ptr = (master_status_structure *)wess_get_master_status();
 
-	tracks = wess_driver_tracks;
-	if (tracks > 127)
-		tracks = 127;
+    tracks = wess_driver_tracks;
+    if (tracks > 127)
+        tracks = 127;
 
-	if (pm_stat_ptr)
-	{
-		i = 0;
-		if (tracks > 0)
-		{
-			if (tracks & 3)
-			{
-				do
-				{
-					if ((pm_stat_ptr->ptrkstattbl + i)->flags & TRK_ACTIVE)
-						tracks_table[i] = '1';
-					else
-						tracks_table[i] = '0';
+    if (pm_stat_ptr)
+    {
+        i = 0;
+        if (tracks > 0)
+        {
+            if (tracks & 3)
+            {
+                do
+                {
+                    if ((pm_stat_ptr->ptrkstattbl + i)->flags & TRK_ACTIVE)
+                        tracks_table[i] = '1';
+                    else
+                        tracks_table[i] = '0';
 
-					i++;
-				} while ((tracks & 3) != i);
-			}
-		}
+                    i++;
+                } while ((tracks & 3) != i);
+            }
+        }
 
-		if (i != tracks)
-		{
-			do
-			{
-				if ((pm_stat_ptr->ptrkstattbl + i)->flags & TRK_ACTIVE)
-					tracks_table[i] = '1';
-				else
-					tracks_table[i] = '0';
+        if (i != tracks)
+        {
+            do
+            {
+                if ((pm_stat_ptr->ptrkstattbl + i)->flags & TRK_ACTIVE)
+                    tracks_table[i] = '1';
+                else
+                    tracks_table[i] = '0';
 
-				if ((pm_stat_ptr->ptrkstattbl + (i + 1))->flags & TRK_ACTIVE)
-					tracks_table[i + 1] = '1';
-				else
-					tracks_table[i + 1] = '0';
+                if ((pm_stat_ptr->ptrkstattbl + (i + 1))->flags & TRK_ACTIVE)
+                    tracks_table[i + 1] = '1';
+                else
+                    tracks_table[i + 1] = '0';
 
-				if ((pm_stat_ptr->ptrkstattbl + (i + 2))->flags & TRK_ACTIVE)
-					tracks_table[i + 2] = '1';
-				else
-					tracks_table[i + 2] = '0';
+                if ((pm_stat_ptr->ptrkstattbl + (i + 2))->flags & TRK_ACTIVE)
+                    tracks_table[i + 2] = '1';
+                else
+                    tracks_table[i + 2] = '0';
 
-				if ((pm_stat_ptr->ptrkstattbl + (i + 3))->flags & TRK_ACTIVE)
-					tracks_table[i + 3] = '1';
-				else
-					tracks_table[i + 3] = '0';
+                if ((pm_stat_ptr->ptrkstattbl + (i + 3))->flags & TRK_ACTIVE)
+                    tracks_table[i + 3] = '1';
+                else
+                    tracks_table[i + 3] = '0';
 
-				i += 4;
-			} while (tracks != i);
-		}
+                i += 4;
+            } while (tracks != i);
+        }
 
-		tracks_table[tracks] = '\0';
-	}
+        tracks_table[tracks] = '\0';
+    }
 
-	return (char *)&tracks_table;
+    return (char *)&tracks_table;
 }
 
 int get_track_volume_cntrl(int track) // 8003593C
 {
-	master_status_structure *pm_stat_ptr;
+    master_status_structure *pm_stat_ptr;
 
-	pm_stat_ptr = (master_status_structure *)wess_get_master_status();
+    pm_stat_ptr = (master_status_structure *)wess_get_master_status();
 
-	if (pm_stat_ptr)
-	{
-		return (pm_stat_ptr->ptrkstattbl + track)->volume_cntrl;
-	}
+    if (pm_stat_ptr)
+    {
+        return (pm_stat_ptr->ptrkstattbl + track)->volume_cntrl;
+    }
 
-	return -1;
+    return -1;
 }
 
 static unsigned char voices_active_table[128]; // 800B4320
 
 char *get_voices_active_table(void) // L80035988
 {
-	master_status_structure *pm_stat_ptr;
-	int voices;
-	int i;
+    master_status_structure *pm_stat_ptr;
+    int voices;
+    int i;
 
-	pm_stat_ptr = (master_status_structure *)wess_get_master_status();
+    pm_stat_ptr = (master_status_structure *)wess_get_master_status();
 
-	voices = wess_driver_voices;
+    voices = wess_driver_voices;
 
-	if (!(voices < 128))
-		voices = 127;
+    if (!(voices < 128))
+        voices = 127;
 
-	if (pm_stat_ptr)
-	{
-		i = 0;
-		if (voices > 0)
-		{
-			if (voices & 3)
-			{
-				do
-				{
-					if ((pm_stat_ptr->pvoicestattbl + i)->flags & VOICE_ACTIVE)
-						voices_active_table[i] = '1';
-					else
-						voices_active_table[i] = '0';
+    if (pm_stat_ptr)
+    {
+        i = 0;
+        if (voices > 0)
+        {
+            if (voices & 3)
+            {
+                do
+                {
+                    if ((pm_stat_ptr->pvoicestattbl + i)->flags & VOICE_ACTIVE)
+                        voices_active_table[i] = '1';
+                    else
+                        voices_active_table[i] = '0';
 
-					i++;
-				} while ((voices & 3) != i);
-			}
-		}
+                    i++;
+                } while ((voices & 3) != i);
+            }
+        }
 
-		if (i != voices)
-		{
-			do
-			{
-				if ((pm_stat_ptr->pvoicestattbl + i)->flags & VOICE_ACTIVE)
-					voices_active_table[i] = '1';
-				else
-					voices_active_table[i] = '0';
+        if (i != voices)
+        {
+            do
+            {
+                if ((pm_stat_ptr->pvoicestattbl + i)->flags & VOICE_ACTIVE)
+                    voices_active_table[i] = '1';
+                else
+                    voices_active_table[i] = '0';
 
-				if ((pm_stat_ptr->pvoicestattbl + (i + 1))->flags & VOICE_ACTIVE)
-					voices_active_table[i + 1] = '1';
-				else
-					voices_active_table[i + 1] = '0';
+                if ((pm_stat_ptr->pvoicestattbl + (i + 1))->flags & VOICE_ACTIVE)
+                    voices_active_table[i + 1] = '1';
+                else
+                    voices_active_table[i + 1] = '0';
 
-				if ((pm_stat_ptr->pvoicestattbl + (i + 2))->flags & VOICE_ACTIVE)
-					voices_active_table[i + 2] = '1';
-				else
-					voices_active_table[i + 2] = '0';
+                if ((pm_stat_ptr->pvoicestattbl + (i + 2))->flags & VOICE_ACTIVE)
+                    voices_active_table[i + 2] = '1';
+                else
+                    voices_active_table[i + 2] = '0';
 
-				if ((pm_stat_ptr->pvoicestattbl + (i + 3))->flags & VOICE_ACTIVE)
-					voices_active_table[i + 3] = '1';
-				else
-					voices_active_table[i + 3] = '0';
+                if ((pm_stat_ptr->pvoicestattbl + (i + 3))->flags & VOICE_ACTIVE)
+                    voices_active_table[i + 3] = '1';
+                else
+                    voices_active_table[i + 3] = '0';
 
-				i += 4;
-			} while (voices != i);
-		}
+                i += 4;
+            } while (voices != i);
+        }
 
-		voices_active_table[voices] = '\0';
-	}
+        voices_active_table[voices] = '\0';
+    }
 
-	return (char *)&voices_active_table;
+    return (char *)&voices_active_table;
 }
 
 static unsigned char voices_handle_table[128]; // 800B43A0
 
 char *get_voices_handle_table(void) // 80035B24
 {
-	master_status_structure *pm_stat_ptr;
-	int voices;
-	int i;
+    master_status_structure *pm_stat_ptr;
+    int voices;
+    int i;
 
-	pm_stat_ptr = (master_status_structure *)wess_get_master_status();
+    pm_stat_ptr = (master_status_structure *)wess_get_master_status();
 
-	voices = wess_driver_voices;
+    voices = wess_driver_voices;
 
-	if (!(voices < 128))
-		voices = 127;
+    if (!(voices < 128))
+        voices = 127;
 
-	if (pm_stat_ptr)
-	{
-		i = 0;
-		if (voices > 0)
-		{
-			if (voices & 3)
-			{
-				do
-				{
-					if ((pm_stat_ptr->pvoicestattbl + i)->flags & VOICE_RELEASE)
-						voices_handle_table[i] = '1';
-					else
-						voices_handle_table[i] = '0';
+    if (pm_stat_ptr)
+    {
+        i = 0;
+        if (voices > 0)
+        {
+            if (voices & 3)
+            {
+                do
+                {
+                    if ((pm_stat_ptr->pvoicestattbl + i)->flags & VOICE_RELEASE)
+                        voices_handle_table[i] = '1';
+                    else
+                        voices_handle_table[i] = '0';
 
-					i++;
-				} while ((voices & 3) != i);
-			}
-		}
+                    i++;
+                } while ((voices & 3) != i);
+            }
+        }
 
-		if (i != voices)
-		{
-			do
-			{
-				if ((pm_stat_ptr->pvoicestattbl + i)->flags & VOICE_RELEASE)
-					voices_handle_table[i] = '1';
-				else
-					voices_handle_table[i] = '0';
+        if (i != voices)
+        {
+            do
+            {
+                if ((pm_stat_ptr->pvoicestattbl + i)->flags & VOICE_RELEASE)
+                    voices_handle_table[i] = '1';
+                else
+                    voices_handle_table[i] = '0';
 
-				if ((pm_stat_ptr->pvoicestattbl + (i + 1))->flags & VOICE_RELEASE)
-					voices_handle_table[i + 1] = '1';
-				else
-					voices_handle_table[i + 1] = '0';
+                if ((pm_stat_ptr->pvoicestattbl + (i + 1))->flags & VOICE_RELEASE)
+                    voices_handle_table[i + 1] = '1';
+                else
+                    voices_handle_table[i + 1] = '0';
 
-				if ((pm_stat_ptr->pvoicestattbl + (i + 2))->flags & VOICE_RELEASE)
-					voices_handle_table[i + 2] = '1';
-				else
-					voices_handle_table[i + 2] = '0';
+                if ((pm_stat_ptr->pvoicestattbl + (i + 2))->flags & VOICE_RELEASE)
+                    voices_handle_table[i + 2] = '1';
+                else
+                    voices_handle_table[i + 2] = '0';
 
-				if ((pm_stat_ptr->pvoicestattbl + (i + 3))->flags & VOICE_RELEASE)
-					voices_handle_table[i + 3] = '1';
-				else
-					voices_handle_table[i + 3] = '0';
+                if ((pm_stat_ptr->pvoicestattbl + (i + 3))->flags & VOICE_RELEASE)
+                    voices_handle_table[i + 3] = '1';
+                else
+                    voices_handle_table[i + 3] = '0';
 
-				i += 4;
-			} while (voices != i);
-		}
+                i += 4;
+            } while (voices != i);
+        }
 
-		voices_handle_table[voices] = '\0';
-	}
+        voices_handle_table[voices] = '\0';
+    }
 
-	return (char *)&voices_handle_table;
+    return (char *)&voices_handle_table;
 }
 #endif

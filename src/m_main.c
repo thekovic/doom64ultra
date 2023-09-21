@@ -157,7 +157,7 @@ const menuitem_t Menu_Title[] =
 {
     { MTXT_NEW_GAME,  115, 170 },
     { MTXT_LOAD_GAME, 115, 190 },
-	{ MTXT_OPTIONS,   115, 210 },
+    { MTXT_OPTIONS,   115, 210 },
 };
 
 const menuitem_t Menu_Skill[] =

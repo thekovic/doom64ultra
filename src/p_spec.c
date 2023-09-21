@@ -7,29 +7,29 @@
 extern mapthing_t  *spawnlist;     // 800A5D74
 extern int         spawncount;     // 800A5D78
 
-line_t	    **linespeciallist;  // 800A5F60
-int		    numlinespecials;    // 800A5F64
+line_t      **linespeciallist;  // 800A5F60
+int         numlinespecials;    // 800A5F64
 
 sector_t    **sectorspeciallist;// 800A5F68
 int         numsectorspecials;  // 800A5F6C
 
-animdef_t		animdefs[MAXANIMS] = // 8005AE80
+animdef_t       animdefs[MAXANIMS] = // 8005AE80
 {
-	{ 15, "SMONAA", 4, 7, false, false },
-	{  0, "SMONBA", 4, 1, false, false },
-	{  0, "SMONCA", 4, 7, false, false },
-	{ 90, "CFACEA", 3, 3,  true, false },
-	{  0, "SMONDA", 4, 3, false, false },
-	{ 10, "SMONEA", 4, 7, false, false },
-	{  0, "SPORTA", 9, 3, false,  true },
-	{ 10,  "SMONF", 5, 1,  true,  true },
-	{ 10, "STRAKR", 5, 1,  true,  true },
-	{ 10, "STRAKB", 5, 1,  true,  true },
-	{ 10, "STRAKY", 5, 1,  true,  true },
-	{ 50,  "C307B", 5, 1,  true,  true },
-	{  0,   "CTEL", 8, 3, false,  true },
-	{  0,"CASFL98", 5, 7,  true,  true },
-	{  0,  "HTELA", 4, 1,  true, false }
+    { 15, "SMONAA", 4, 7, false, false },
+    {  0, "SMONBA", 4, 1, false, false },
+    {  0, "SMONCA", 4, 7, false, false },
+    { 90, "CFACEA", 3, 3,  true, false },
+    {  0, "SMONDA", 4, 3, false, false },
+    { 10, "SMONEA", 4, 7, false, false },
+    {  0, "SPORTA", 9, 3, false,  true },
+    { 10,  "SMONF", 5, 1,  true,  true },
+    { 10, "STRAKR", 5, 1,  true,  true },
+    { 10, "STRAKB", 5, 1,  true,  true },
+    { 10, "STRAKY", 5, 1,  true,  true },
+    { 50,  "C307B", 5, 1,  true,  true },
+    {  0,   "CTEL", 8, 3, false,  true },
+    {  0,"CASFL98", 5, 7,  true,  true },
+    {  0,  "HTELA", 4, 1,  true, false }
 };
 
 /*----------
@@ -37,7 +37,7 @@ animdef_t		animdefs[MAXANIMS] = // 8005AE80
 / For some reason Doom 64 is 8,
 / I will leave it at 15 to avoid problems loading data into this pointer.
 /---------*/
-anim_t	anims[MAXANIMS], *lastanim; // 800A5F70, 800A6090
+anim_t  anims[MAXANIMS], *lastanim; // 800A5F70, 800A6090
 
 card_t      MapBlueKeyType;     //0x80077E9C
 card_t      MapRedKeyType;      //0x8007821C
@@ -55,22 +55,22 @@ void P_AddSectorSpecial(sector_t *sec);
 
 void P_Init (void) // 8001F340
 {
-	int i;
-	sector_t    *sector;
-	side_t      *side;
+    int i;
+    sector_t    *sector;
+    side_t      *side;
 
-	side = sides;
-	for (i = 0; i < numsides; i++, side++)
-	{
+    side = sides;
+    for (i = 0; i < numsides; i++, side++)
+    {
         W_CacheLumpNum(side->toptexture + firsttex    , PU_LEVEL, dec_d64, sizeof(textureN64_t));
         W_CacheLumpNum(side->bottomtexture + firsttex , PU_LEVEL, dec_d64, sizeof(textureN64_t));
         W_CacheLumpNum(side->midtexture + firsttex    , PU_LEVEL, dec_d64, sizeof(textureN64_t));
-	}
+    }
 
-	sector = sectors;
-	for (i = 0; i < numsectors; i++, sector++)
-	{
-		if (sector->ceilingpic >= 0)
+    sector = sectors;
+    for (i = 0; i < numsectors; i++, sector++)
+    {
+        if (sector->ceilingpic >= 0)
             W_CacheLumpNum(sector->ceilingpic + firsttex, PU_LEVEL, dec_d64, sizeof(textureN64_t));
 
         if (sector->floorpic >= 0)
@@ -78,13 +78,13 @@ void P_Init (void) // 8001F340
 
         if (sector->flags & MS_LIQUIDFLOOR)
             W_CacheLumpNum(sector->floorpic + firsttex + 1, PU_LEVEL,dec_d64, sizeof(textureN64_t));
-	}
+    }
 }
 
 /*
 ==============================================================================
 
-							SPECIAL SPAWNING
+                            SPECIAL SPAWNING
 
 ==============================================================================
 */
@@ -101,18 +101,18 @@ void P_Init (void) // 8001F340
 void P_SpawnSpecials (void) // 8001F490
 {
     mobj_t      *mo;
-	sector_t    *sector;
-	line_t      *line;
-	int         i, j;
-	int         lump;
+    sector_t    *sector;
+    line_t      *line;
+    int         i, j;
+    int         lump;
 
-	/* */
-	/*	Init animation aka (P_InitPicAnims) */
-	/* */
-	lastanim = anims;
-	for (i=0 ; i < MAXANIMS ; i++)
-	{
-	    lump = W_GetNumForName(animdefs[i].startname);
+    /* */
+    /*  Init animation aka (P_InitPicAnims) */
+    /* */
+    lastanim = anims;
+    for (i=0 ; i < MAXANIMS ; i++)
+    {
+        lump = W_GetNumForName(animdefs[i].startname);
 
         lastanim->basepic   = (lump - firsttex);
         lastanim->tics      = animdefs[i].speed;
@@ -120,8 +120,8 @@ void P_SpawnSpecials (void) // 8001F490
         lastanim->delaycnt  = lastanim->delay;
         lastanim->isreverse = animdefs[i].isreverse;
 
-	    if (animdefs[i].ispalcycle == false)
-	    {
+        if (animdefs[i].ispalcycle == false)
+        {
             lastanim->current   = (lump << 4);
             lastanim->picstart  = (lump << 4);
             lastanim->picend    = (animdefs[i].frames + lump - 1) << 4;
@@ -133,8 +133,8 @@ void P_SpawnSpecials (void) // 8001F490
                 W_CacheLumpNum(lump, PU_LEVEL, dec_d64, sizeof(textureN64_t));
                 lump++;
             }
-	    }
-	    else
+        }
+        else
         {
             lastanim->current   = (lump << 4);
             lastanim->picstart  = (lump << 4);
@@ -142,12 +142,12 @@ void P_SpawnSpecials (void) // 8001F490
             lastanim->frame     = 1;
         }
 
-		lastanim++;
-	}
+        lastanim++;
+    }
 
-	/* */
-	/*	Init Macro Variables */
-	/* */
+    /* */
+    /*  Init Macro Variables */
+    /* */
     activemacro = NULL;
     macrocounter = 0;
     macroidx1 = 0;
@@ -156,13 +156,13 @@ void P_SpawnSpecials (void) // 8001F490
     DEBUG_COUNTER(activethinkers = 0);
     DEBUG_COUNTER(activemobjs = 0);
 
-	/* */
-	/*	Init special SECTORs */
-	/* */
-	scrollfrac = 0;
-	numsectorspecials = 0; // Restart count
-	sector = sectors;
-	for(i = 0; i < numsectors; i++, sector++)
+    /* */
+    /*  Init special SECTORs */
+    /* */
+    scrollfrac = 0;
+    numsectorspecials = 0; // Restart count
+    sector = sectors;
+    for(i = 0; i < numsectors; i++, sector++)
     {
         P_AddSectorSpecial(sector);
         if(sector->flags & MS_SECRET)
@@ -179,7 +179,7 @@ void P_SpawnSpecials (void) // 8001F490
 
     sectorspeciallist = (sector_t**)Z_Malloc(numsectorspecials*sizeof(void*), PU_LEVEL, NULL);
     sector = sectors;
-	for(i = 0, j = 0; i < numsectors; i++, sector++)
+    for(i = 0, j = 0; i < numsectors; i++, sector++)
     {
         if(sector->flags & (MS_SCROLLCEILING | MS_SCROLLFLOOR|
         MS_SCROLLLEFT | MS_SCROLLRIGHT| MS_SCROLLUP| MS_SCROLLDOWN))
@@ -189,12 +189,12 @@ void P_SpawnSpecials (void) // 8001F490
         }
     }
 
-	/* */
-	/*	Init line EFFECTs */
-	/* */
-	numlinespecials = 0;
-	line = lines;
-	for (i = 0;i < numlines; i++, line++)
+    /* */
+    /*  Init line EFFECTs */
+    /* */
+    numlinespecials = 0;
+    line = lines;
+    for (i = 0;i < numlines; i++, line++)
     {
         if(line->flags & (ML_SCROLLRIGHT|ML_SCROLLLEFT|ML_SCROLLUP|ML_SCROLLDOWN))
         {
@@ -204,7 +204,7 @@ void P_SpawnSpecials (void) // 8001F490
 
     linespeciallist = (line_t**)Z_Malloc(numlinespecials*sizeof(void*), PU_LEVEL, NULL);
     line = lines;
-	for (i = 0, j = 0; i < numlines; i++, line++)
+    for (i = 0, j = 0; i < numlines; i++, line++)
     {
         if(line->flags & (ML_SCROLLRIGHT|ML_SCROLLLEFT|ML_SCROLLUP|ML_SCROLLDOWN))
         {
@@ -214,8 +214,8 @@ void P_SpawnSpecials (void) // 8001F490
     }
 
     /* */
-	/*	Init Keys */
-	/* */
+    /*  Init Keys */
+    /* */
 
     MapBlueKeyType   = it_bluecard;
     MapYellowKeyType = it_yellowcard;
@@ -260,254 +260,254 @@ void P_SpawnSpecials (void) // 8001F490
             MapRedKeyType   = it_redskull;*/
     }
 
-	/* */
-	/*	Init other misc stuff */
-	/* */
-	D_memset(activeceilings, 0, MAXCEILINGS * sizeof(ceiling_t*));
-	D_memset(activeplats, 0, MAXPLATS * sizeof(plat_t*));
-	D_memset(buttonlist, 0, MAXBUTTONS * sizeof(button_t));
+    /* */
+    /*  Init other misc stuff */
+    /* */
+    D_memset(activeceilings, 0, MAXCEILINGS * sizeof(ceiling_t*));
+    D_memset(activeplats, 0, MAXPLATS * sizeof(plat_t*));
+    D_memset(buttonlist, 0, MAXBUTTONS * sizeof(button_t));
 }
 
 /*
 ==============================================================================
 
-							UTILITIES
+                            UTILITIES
 
 ==============================================================================
 */
 
 /*================================================================== */
 /* */
-/*	Return sector_t * of sector next to current. NULL if not two-sided line */
+/*  Return sector_t * of sector next to current. NULL if not two-sided line */
 /* */
 /*================================================================== */
 sector_t *getNextSector(line_t *line,sector_t *sec) // 8001F96C
 {
-	if (!(line->flags & ML_TWOSIDED))
-		return NULL;
+    if (!(line->flags & ML_TWOSIDED))
+        return NULL;
 
-	if (line->frontsector == sec)
-		return line->backsector;
+    if (line->frontsector == sec)
+        return line->backsector;
 
-	return line->frontsector;
+    return line->frontsector;
 }
 
 /*================================================================== */
 /* */
-/*	FIND LOWEST FLOOR HEIGHT IN SURROUNDING SECTORS */
+/*  FIND LOWEST FLOOR HEIGHT IN SURROUNDING SECTORS */
 /* */
 /*================================================================== */
-fixed_t	P_FindLowestFloorSurrounding(sector_t *sec) // 8001F9AC
+fixed_t P_FindLowestFloorSurrounding(sector_t *sec) // 8001F9AC
 {
-	int			i;
-	line_t		*check;
-	sector_t	*other;
-	fixed_t		floor = sec->floorheight;
+    int         i;
+    line_t      *check;
+    sector_t    *other;
+    fixed_t     floor = sec->floorheight;
 
-	for (i=0 ;i < sec->linecount ; i++)
-	{
-		check = sec->lines[i];
-		other = getNextSector(check,sec);
-		if (!other)
-			continue;
-		if (other->floorheight < floor)
-			floor = other->floorheight;
-	}
-	return floor;
+    for (i=0 ;i < sec->linecount ; i++)
+    {
+        check = sec->lines[i];
+        other = getNextSector(check,sec);
+        if (!other)
+            continue;
+        if (other->floorheight < floor)
+            floor = other->floorheight;
+    }
+    return floor;
 }
 
 /*================================================================== */
 /* */
-/*	FIND HIGHEST FLOOR HEIGHT IN SURROUNDING SECTORS */
+/*  FIND HIGHEST FLOOR HEIGHT IN SURROUNDING SECTORS */
 /* */
 /*================================================================== */
-fixed_t	P_FindHighestFloorSurrounding(sector_t *sec) // 8001FA48
+fixed_t P_FindHighestFloorSurrounding(sector_t *sec) // 8001FA48
 {
-	int			i;
-	line_t		*check;
-	sector_t	*other;
-	fixed_t		floor = -500*FRACUNIT;
+    int         i;
+    line_t      *check;
+    sector_t    *other;
+    fixed_t     floor = -500*FRACUNIT;
 
-	for (i=0 ;i < sec->linecount ; i++)
-	{
-		check = sec->lines[i];
-		other = getNextSector(check,sec);
-		if (!other)
-			continue;
-		if (other->floorheight > floor)
-			floor = other->floorheight;
-	}
-	return floor;
+    for (i=0 ;i < sec->linecount ; i++)
+    {
+        check = sec->lines[i];
+        other = getNextSector(check,sec);
+        if (!other)
+            continue;
+        if (other->floorheight > floor)
+            floor = other->floorheight;
+    }
+    return floor;
 }
 
 /*================================================================== */
 /* */
-/*	FIND NEXT HIGHEST FLOOR IN SURROUNDING SECTORS */
+/*  FIND NEXT HIGHEST FLOOR IN SURROUNDING SECTORS */
 /* */
 /*================================================================== */
-fixed_t	P_FindNextHighestFloor(sector_t *sec,int currentheight) // 8001FAE4
+fixed_t P_FindNextHighestFloor(sector_t *sec,int currentheight) // 8001FAE4
 {
-	int			i;
-	int			h;
-	int			min;
-	line_t		*check;
-	sector_t	*other;
-	fixed_t		height = currentheight;
-	fixed_t		heightlist[20];		/* 20 adjoining sectors max! */
+    int         i;
+    int         h;
+    int         min;
+    line_t      *check;
+    sector_t    *other;
+    fixed_t     height = currentheight;
+    fixed_t     heightlist[20];     /* 20 adjoining sectors max! */
 
-	D_memset(heightlist, 0, 20*sizeof(fixed_t));
+    D_memset(heightlist, 0, 20*sizeof(fixed_t));
 
-	for (i =0,h = 0 ;i < sec->linecount ; i++)
-	{
-		check = sec->lines[i];
-		other = getNextSector(check,sec);
-		if (!other)
-			continue;
-		if (other->floorheight > height)
-			heightlist[h++] = other->floorheight;
-	}
+    for (i =0,h = 0 ;i < sec->linecount ; i++)
+    {
+        check = sec->lines[i];
+        other = getNextSector(check,sec);
+        if (!other)
+            continue;
+        if (other->floorheight > height)
+            heightlist[h++] = other->floorheight;
+    }
 
-	/* */
-	/* Find lowest height in list */
-	/* */
-	min = heightlist[0];
-	for (i = 1;i < h;i++)
-		if (heightlist[i] < min)
-			min = heightlist[i];
+    /* */
+    /* Find lowest height in list */
+    /* */
+    min = heightlist[0];
+    for (i = 1;i < h;i++)
+        if (heightlist[i] < min)
+            min = heightlist[i];
 
-	return min;
+    return min;
 }
 
 /*================================================================== */
 /* */
-/*	FIND LOWEST CEILING IN THE SURROUNDING SECTORS */
+/*  FIND LOWEST CEILING IN THE SURROUNDING SECTORS */
 /* */
 /*================================================================== */
-fixed_t	P_FindLowestCeilingSurrounding(sector_t *sec) // 8001FC68
+fixed_t P_FindLowestCeilingSurrounding(sector_t *sec) // 8001FC68
 {
-	int			i;
-	line_t		*check;
-	sector_t	*other;
-	fixed_t		height = MAXINT;
+    int         i;
+    line_t      *check;
+    sector_t    *other;
+    fixed_t     height = MAXINT;
 
-	for (i=0 ;i < sec->linecount ; i++)
-	{
-		check = sec->lines[i];
-		other = getNextSector(check,sec);
-		if (!other)
-			continue;
-		if (other->ceilingheight < height)
-			height = other->ceilingheight;
-	}
-	return height;
+    for (i=0 ;i < sec->linecount ; i++)
+    {
+        check = sec->lines[i];
+        other = getNextSector(check,sec);
+        if (!other)
+            continue;
+        if (other->ceilingheight < height)
+            height = other->ceilingheight;
+    }
+    return height;
 }
 
 /*================================================================== */
 /* */
-/*	FIND HIGHEST CEILING IN THE SURROUNDING SECTORS */
+/*  FIND HIGHEST CEILING IN THE SURROUNDING SECTORS */
 /* */
 /*================================================================== */
-fixed_t	P_FindHighestCeilingSurrounding(sector_t *sec) // 8001FD08
+fixed_t P_FindHighestCeilingSurrounding(sector_t *sec) // 8001FD08
 {
-	int	i;
-	line_t	*check;
-	sector_t	*other;
-	fixed_t	height = 0;
+    int i;
+    line_t  *check;
+    sector_t    *other;
+    fixed_t height = 0;
 
-	for (i=0 ;i < sec->linecount ; i++)
-	{
-		check = sec->lines[i];
-		other = getNextSector(check,sec);
-		if (!other)
-			continue;
-		if (other->ceilingheight > height)
-			height = other->ceilingheight;
-	}
-	return height;
+    for (i=0 ;i < sec->linecount ; i++)
+    {
+        check = sec->lines[i];
+        other = getNextSector(check,sec);
+        if (!other)
+            continue;
+        if (other->ceilingheight > height)
+            height = other->ceilingheight;
+    }
+    return height;
 }
 
 /*================================================================== */
 /* */
-/*	RETURN NEXT SECTOR # THAT LINE TAG REFERS TO */
+/*  RETURN NEXT SECTOR # THAT LINE TAG REFERS TO */
 /* */
 /*================================================================== */
-int	P_FindSectorFromLineTag(int tag,int start) // 8001FDA4
+int P_FindSectorFromLineTag(int tag,int start) // 8001FDA4
 {
-	int	i;
+    int i;
 
-	for (i=start+1;i<numsectors;i++)
-		if (sectors[i].tag == tag)
-			return i;
-	return -1;
+    for (i=start+1;i<numsectors;i++)
+        if (sectors[i].tag == tag)
+            return i;
+    return -1;
 }
 
 /*================================================================== */
 /* */
-/*	RETURN NEXT LIGHT # THAT LINE TAG REFERS TO */
-/*	Exclusive Doom 64 */
+/*  RETURN NEXT LIGHT # THAT LINE TAG REFERS TO */
+/*  Exclusive Doom 64 */
 /* */
 /*================================================================== */
 int P_FindLightFromLightTag(int tag,int start) // 8001FE08
 {
-	int	i;
+    int i;
 
-	for (i=(start+256+1);i<numlights;i++)
-		if (lights[i].tag == tag)
-			return i;
-	return -1;
+    for (i=(start+256+1);i<numlights;i++)
+        if (lights[i].tag == tag)
+            return i;
+    return -1;
 }
 
 /*================================================================== */
 /* */
-/*	RETURN TRUE OR FALSE */
-/*	Exclusive Doom 64 */
+/*  RETURN TRUE OR FALSE */
+/*  Exclusive Doom 64 */
 /* */
 /*================================================================== */
 boolean P_ActivateLineByTag(int tag,mobj_t *thing) // 8001FE64
 {
-	int	i;
-	line_t *li;
+    int i;
+    line_t *li;
 
-	li = lines;
-	for (i=0;i<numlines;i++,li++)
+    li = lines;
+    for (i=0;i<numlines;i++,li++)
     {
-		if (li->tag == tag)
-			return P_UseSpecialLine(li, thing);
+        if (li->tag == tag)
+            return P_UseSpecialLine(li, thing);
     }
-	return false;
+    return false;
 }
 
 #if 0
 /*================================================================== */
 /* */
-/*	Find minimum light from an adjacent sector */
+/*  Find minimum light from an adjacent sector */
 /* */
 /*================================================================== */
-int	P_FindMinSurroundingLight(sector_t *sector,int max)//L80026C10()
+int P_FindMinSurroundingLight(sector_t *sector,int max)//L80026C10()
 {
-	int			i;
-	int			min;
-	line_t		*line;
-	sector_t	*check;
+    int         i;
+    int         min;
+    line_t      *line;
+    sector_t    *check;
 
-	min = max;
-	for (i=0 ; i < sector->linecount ; i++)
-	{
-		line = sector->lines[i];
-		check = getNextSector(line,sector);
-		if (!check)
-			continue;
-		if (check->lightlevel < min)
-			min = check->lightlevel;
-	}
-	return min;
+    min = max;
+    for (i=0 ; i < sector->linecount ; i++)
+    {
+        line = sector->lines[i];
+        check = getNextSector(line,sector);
+        if (!check)
+            continue;
+        if (check->lightlevel < min)
+            min = check->lightlevel;
+    }
+    return min;
 }
 #endif // 0
 
 /*
 ==============================================================================
 
-							EVENTS
+                            EVENTS
 
 Events are operations triggered by using, crossing, or shooting special lines, or by timed thinkers
 
@@ -527,24 +527,24 @@ Events are operations triggered by using, crossing, or shooting special lines, o
 
 void P_UpdateSpecials (void) // 8001FEC0
 {
-	anim_t		*anim;
-	line_t		*line;
-	sector_t	*sector;
-	fixed_t     speed;
-	int			i;
-	int         neg;
+    anim_t      *anim;
+    line_t      *line;
+    sector_t    *sector;
+    fixed_t     speed;
+    int         i;
+    int         neg;
 
-	/* */
-	/*	ANIMATE FLATS AND TEXTURES GLOBALY */
-	/* */
-	for (anim = anims ; anim < lastanim ; anim++)
-	{
-	    anim->delaycnt--;
-		if ((anim->delaycnt <= 0) && !(gametic & anim->tics))
-		{
-		    anim->current += anim->frame;
+    /* */
+    /*  ANIMATE FLATS AND TEXTURES GLOBALY */
+    /* */
+    for (anim = anims ; anim < lastanim ; anim++)
+    {
+        anim->delaycnt--;
+        if ((anim->delaycnt <= 0) && !(gametic & anim->tics))
+        {
+            anim->current += anim->frame;
 
-		    if ((anim->current < anim->picstart) || (anim->picend < anim->current))
+            if ((anim->current < anim->picstart) || (anim->picend < anim->current))
             {
                 neg = -anim->frame;
 
@@ -565,17 +565,17 @@ void P_UpdateSpecials (void) // 8001FEC0
             }
 
             textures[anim->basepic] = anim->current;
-		}
-	}
+        }
+    }
 
-	/* */
-	/*	ANIMATE LINE SPECIALS */
-	/* */
-	for (i = 0; i < numlinespecials; i++)
-	{
-		line = linespeciallist[i];
+    /* */
+    /*  ANIMATE LINE SPECIALS */
+    /* */
+    for (i = 0; i < numlinespecials; i++)
+    {
+        line = linespeciallist[i];
 
-		if(line->flags & ML_SCROLLRIGHT)
+        if(line->flags & ML_SCROLLRIGHT)
         {
             sides[line->sidenum[0]].textureoffset += FRACUNIT;
             sides[line->sidenum[0]].textureoffset &= SCROLLLIMIT;
@@ -596,19 +596,19 @@ void P_UpdateSpecials (void) // 8001FEC0
             sides[line->sidenum[0]].rowoffset -= FRACUNIT;
             sides[line->sidenum[0]].rowoffset &= SCROLLLIMIT;
         }
-	}
+    }
 
-	/* */
-	/*	ANIMATE SECTOR SPECIALS */
-	/* */
+    /* */
+    /*  ANIMATE SECTOR SPECIALS */
+    /* */
 
     scrollfrac = (scrollfrac + (FRACUNIT / 2));
 
     for (i = 0; i < numsectorspecials; i++)
-	{
-		sector = sectorspeciallist[i];
+    {
+        sector = sectorspeciallist[i];
 
-		if(sector->flags & MS_SCROLLFAST)
+        if(sector->flags & MS_SCROLLFAST)
             speed = 3*FRACUNIT;
         else
             speed = FRACUNIT;
@@ -630,77 +630,77 @@ void P_UpdateSpecials (void) // 8001FEC0
         {
             sector->yoffset += speed;
         }
-	}
+    }
 
-	/* */
-	/*	DO BUTTONS */
-	/* */
-	for (i = 0; i < MAXBUTTONS; i++)
-	{
-		if (buttonlist[i].btimer > 0)
-		{
-			buttonlist[i].btimer -= vblsinframe[0];
+    /* */
+    /*  DO BUTTONS */
+    /* */
+    for (i = 0; i < MAXBUTTONS; i++)
+    {
+        if (buttonlist[i].btimer > 0)
+        {
+            buttonlist[i].btimer -= vblsinframe[0];
 
-			if (buttonlist[i].btimer <= 0)
-			{
-				switch (buttonlist[i].where)
-				{
-				case top:
-					buttonlist[i].side->toptexture = buttonlist[i].btexture;
-					break;
-				case middle:
-					buttonlist[i].side->midtexture = buttonlist[i].btexture;
-					break;
-				case bottom:
-					buttonlist[i].side->bottomtexture = buttonlist[i].btexture;
-					break;
-				}
-				P_StartSwitchSound(buttonlist[i].line, sfx_switch1);
-				D_memset(&buttonlist[i], 0, sizeof(button_t)); // ? Doom 64 elimina esta linea
-			}
-		}
-	}
+            if (buttonlist[i].btimer <= 0)
+            {
+                switch (buttonlist[i].where)
+                {
+                case top:
+                    buttonlist[i].side->toptexture = buttonlist[i].btexture;
+                    break;
+                case middle:
+                    buttonlist[i].side->midtexture = buttonlist[i].btexture;
+                    break;
+                case bottom:
+                    buttonlist[i].side->bottomtexture = buttonlist[i].btexture;
+                    break;
+                }
+                P_StartSwitchSound(buttonlist[i].line, sfx_switch1);
+                D_memset(&buttonlist[i], 0, sizeof(button_t)); // ? Doom 64 elimina esta linea
+            }
+        }
+    }
 }
 
 /*
 ==============================================================================
 
-							UTILITIES
+                            UTILITIES
 
 ==============================================================================
 */
 
 /* */
-/*	Will return a side_t* given the number of the current sector, */
-/*		the line number, and the side (0/1) that you want. */
+/*  Will return a side_t* given the number of the current sector, */
+/*      the line number, and the side (0/1) that you want. */
 /* */
 side_t *getSide(int currentSector,int line, int side) // 8002026C
 {
-	return &sides[ (sectors[currentSector].lines[line])->sidenum[side] ];
+    return &sides[ (sectors[currentSector].lines[line])->sidenum[side] ];
 }
 
 /* */
-/*	Will return a sector_t* given the number of the current sector, */
-/*		the line number and the side (0/1) that you want. */
+/*  Will return a sector_t* given the number of the current sector, */
+/*      the line number and the side (0/1) that you want. */
 /* */
 sector_t *getSector(int currentSector,int line,int side) // 800202BC
 {
-	return sides[ (sectors[currentSector].lines[line])->sidenum[side] ].sector;
+    return sides[ (sectors[currentSector].lines[line])->sidenum[side] ].sector;
 }
 
 /* */
-/*	Given the sector number and the line number, will tell you whether */
-/*		the line is two-sided or not. */
+/*  Given the sector number and the line number, will tell you whether */
+/*      the line is two-sided or not. */
 /* */
-int	twoSided(int sector,int line) // 80020314
+int twoSided(int sector,int line) // 80020314
 {
-	return (sectors[sector].lines[line])->flags & ML_TWOSIDED;
+    return (sectors[sector].lines[line])->flags & ML_TWOSIDED;
 }
 
 /*
 ==============================================================================
 
-							EVENTS
+                            EVENTS
 
 Events are operations triggered by using, crossing, or shooting special lines, or by timed thinkers
 
@@ -803,12 +803,12 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
 
     player = thing->player;
 
-	/* */
-	/*	Switches that other things can activate */
-	/* */
-	if (!player)
-	{
-	    /* Missiles should NOT trigger specials... */
+    /* */
+    /*  Switches that other things can activate */
+    /* */
+    if (!player)
+    {
+        /* Missiles should NOT trigger specials... */
         if(thing->flags & MF_MISSILE)
             return false;
 
@@ -845,7 +845,7 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
             {
                 player->message = "You need a blue key.";
                 player->messagetic = MSGTICS;
-				player->messagecolor = 0x0080ff00;
+                player->messagecolor = 0x0080ff00;
                 S_StartSound(thing, sfx_oof);
 
                 if (player == &players[0])
@@ -861,7 +861,7 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
             {
                 player->message = "You need a yellow key.";
                 player->messagetic = MSGTICS;
-				player->messagecolor = 0xC4C40000;
+                player->messagecolor = 0xC4C40000;
                 S_StartSound(thing, sfx_oof);
 
                 if (player == &players[0])
@@ -877,7 +877,7 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
             {
                 player->message = "You need a red key.";
                 player->messagetic = MSGTICS;
-				player->messagecolor = 0xff404000;
+                player->messagecolor = 0xff404000;
                 S_StartSound(thing, sfx_oof);   // ?? line missing on Doom64
 
                 if (player == &players[0])
@@ -910,104 +910,104 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
 
     ok = false;
 
-	/* */
-	/* do something */
-	/*	*/
-	switch(SPECIALMASK(line->special))
-	{
-        case 1:			/* Vertical Door */
-		case 31:		/* Manual Door Open */
-		case 117:		/* Blazing Door Raise */
-		case 118:		/* Blazing Door Open */
+    /* */
+    /* do something */
+    /*  */
+    switch(SPECIALMASK(line->special))
+    {
+        case 1:         /* Vertical Door */
+        case 31:        /* Manual Door Open */
+        case 117:       /* Blazing Door Raise */
+        case 118:       /* Blazing Door Open */
             EV_VerticalDoor(line, thing);
             ok = true;
-			break;
-        case 2:			/* Open Door */
-			ok = EV_DoDoor(line, DoorOpen);
-			break;
-		case 3:			/* Close Door */
-			ok = EV_DoDoor(line, DoorClose);
-			break;
-		case 4:			/* Raise Door */
-			ok = EV_DoDoor(line, Normal);
-			break;
-		case 5:			/* Raise Floor */
-			ok = EV_DoFloor(line, raiseFloor, FLOORSPEED);
-			break;
-		case 6:			/* Fast Ceiling Crush & Raise */
-			ok = EV_DoCeiling(line, fastCrushAndRaise, CEILSPEED*2);
-			break;
-		case 8:			/* Build Stairs */
-			ok = EV_BuildStairs(line, build8);
-			break;
-		case 10:		/* PlatDownWaitUp */
-			ok = EV_DoPlat(line, downWaitUpStay, 0);
-			break;
-        case 16:		/* Close Door 30 */
-			ok = EV_DoDoor(line, Close30ThenOpen);
-			break;
-		case 17:		/* Start Light Strobing */
-			ok = EV_StartLightStrobing(line);
-			break;
-		case 19:		/* Lower Floor */
-			ok = EV_DoFloor(line, lowerFloor, FLOORSPEED);
-			break;
-		case 22:		/* Raise floor to nearest height and change texture */
-			ok = EV_DoPlat(line, raiseToNearestAndChange, 0);
-			break;
-		case 25:		/* Ceiling Crush and Raise */
-			ok = EV_DoCeiling(line, crushAndRaise, CEILSPEED);
-			break;
-		case 30:		/* Raise floor to shortest texture height on either side of lines */
-			ok = EV_DoFloor(line, raiseToTexture, FLOORSPEED);
-			break;
-		case 36:		/* Lower Floor (TURBO) */
-			ok = EV_DoFloor(line, turboLower, FLOORSPEED * 4);
-			break;
-		case 37:		/* LowerAndChange */
-			ok = EV_DoFloor(line, lowerAndChange, FLOORSPEED);
-			break;
-		case 38:		/* Lower Floor To Lowest */
-			ok = EV_DoFloor(line, lowerFloorToLowest, FLOORSPEED);
-			break;
-		case 39:		/* TELEPORT! */
-			EV_Teleport(line, thing);
-			ok = false;
-			break;
-        case 43:		/* Lower Ceiling to Floor */
-			ok = EV_DoCeiling(line, lowerToFloor, CEILSPEED);
-			break;
-        case 44:		/* Ceiling Crush */
-			ok = EV_DoCeiling(line, lowerAndCrush, CEILSPEED);
-			break;
-        case 52:		/* EXIT! */
-			P_ExitLevel();//G_ExitLevel
-			ok = true;
-			break;
-        case 53:		/* Perpetual Platform Raise */
-			ok = EV_DoPlat(line, perpetualRaise, 0);
-			break;
-        case 54:		/* Platform Stop */
-			ok = EV_StopPlat(line);
-			break;
-        case 56:		/* Raise Floor Crush */
-			ok = EV_DoFloor(line, raiseFloorCrush, FLOORSPEED);
-			break;
-        case 57:		/* Ceiling Crush Stop */
-			ok = EV_CeilingCrushStop(line);
-			break;
-        case 58:		/* Raise Floor 24 */
-			ok = EV_DoFloor(line, raiseFloor24, FLOORSPEED);
-			break;
-		case 59:		/* Raise Floor 24 And Change */
-			ok = EV_DoFloor(line, raiseFloor24AndChange, FLOORSPEED);
-			break;
-        case 66:		/* Raise Floor 24 and change texture */
-			ok = EV_DoPlat(line, raiseAndChange, 24);
-			break;
-        case 67:		/* Raise Floor 32 and change texture */
-			ok = EV_DoPlat(line, raiseAndChange, 32);
-			break;
+            break;
+        case 2:         /* Open Door */
+            ok = EV_DoDoor(line, DoorOpen);
+            break;
+        case 3:         /* Close Door */
+            ok = EV_DoDoor(line, DoorClose);
+            break;
+        case 4:         /* Raise Door */
+            ok = EV_DoDoor(line, Normal);
+            break;
+        case 5:         /* Raise Floor */
+            ok = EV_DoFloor(line, raiseFloor, FLOORSPEED);
+            break;
+        case 6:         /* Fast Ceiling Crush & Raise */
+            ok = EV_DoCeiling(line, fastCrushAndRaise, CEILSPEED*2);
+            break;
+        case 8:         /* Build Stairs */
+            ok = EV_BuildStairs(line, build8);
+            break;
+        case 10:        /* PlatDownWaitUp */
+            ok = EV_DoPlat(line, downWaitUpStay, 0);
+            break;
+        case 16:        /* Close Door 30 */
+            ok = EV_DoDoor(line, Close30ThenOpen);
+            break;
+        case 17:        /* Start Light Strobing */
+            ok = EV_StartLightStrobing(line);
+            break;
+        case 19:        /* Lower Floor */
+            ok = EV_DoFloor(line, lowerFloor, FLOORSPEED);
+            break;
+        case 22:        /* Raise floor to nearest height and change texture */
+            ok = EV_DoPlat(line, raiseToNearestAndChange, 0);
+            break;
+        case 25:        /* Ceiling Crush and Raise */
+            ok = EV_DoCeiling(line, crushAndRaise, CEILSPEED);
+            break;
+        case 30:        /* Raise floor to shortest texture height on either side of lines */
+            ok = EV_DoFloor(line, raiseToTexture, FLOORSPEED);
+            break;
+        case 36:        /* Lower Floor (TURBO) */
+            ok = EV_DoFloor(line, turboLower, FLOORSPEED * 4);
+            break;
+        case 37:        /* LowerAndChange */
+            ok = EV_DoFloor(line, lowerAndChange, FLOORSPEED);
+            break;
+        case 38:        /* Lower Floor To Lowest */
+            ok = EV_DoFloor(line, lowerFloorToLowest, FLOORSPEED);
+            break;
+        case 39:        /* TELEPORT! */
+            EV_Teleport(line, thing);
+            ok = false;
+            break;
+        case 43:        /* Lower Ceiling to Floor */
+            ok = EV_DoCeiling(line, lowerToFloor, CEILSPEED);
+            break;
+        case 44:        /* Ceiling Crush */
+            ok = EV_DoCeiling(line, lowerAndCrush, CEILSPEED);
+            break;
+        case 52:        /* EXIT! */
+            P_ExitLevel();//G_ExitLevel
+            ok = true;
+            break;
+        case 53:        /* Perpetual Platform Raise */
+            ok = EV_DoPlat(line, perpetualRaise, 0);
+            break;
+        case 54:        /* Platform Stop */
+            ok = EV_StopPlat(line);
+            break;
+        case 56:        /* Raise Floor Crush */
+            ok = EV_DoFloor(line, raiseFloorCrush, FLOORSPEED);
+            break;
+        case 57:        /* Ceiling Crush Stop */
+            ok = EV_CeilingCrushStop(line);
+            break;
+        case 58:        /* Raise Floor 24 */
+            ok = EV_DoFloor(line, raiseFloor24, FLOORSPEED);
+            break;
+        case 59:        /* Raise Floor 24 And Change */
+            ok = EV_DoFloor(line, raiseFloor24AndChange, FLOORSPEED);
+            break;
+        case 66:        /* Raise Floor 24 and change texture */
+            ok = EV_DoPlat(line, raiseAndChange, 24);
+            break;
+        case 67:        /* Raise Floor 32 and change texture */
+            ok = EV_DoPlat(line, raiseAndChange, 32);
+            break;
         case 90:        /* Artifact Switch 1 */
         case 91:        /* Artifact Switch 2 */
         case 92:        /* Artifact Switch 3 */
@@ -1019,44 +1019,44 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
         case 94:        /* Noise Alert */
             ok = P_AlertTaggedMobj(line->tag, thing);
             break;
-        case 100:		/* Build Stairs Turbo 16 */
-			ok = EV_BuildStairs(line, turbo16);
-			break;
-        case 108:		/* Blazing Door Raise (faster than TURBO!) */
-			ok = EV_DoDoor(line, BlazeRaise);
-			break;
-        case 109:		/* Blazing Door Open (faster than TURBO!) */
-			ok = EV_DoDoor(line, BlazeOpen);
-			break;
-        case 110:		/* Blazing Door Close (faster than TURBO!) */
-			ok = EV_DoDoor(line, BlazeClose);
-			break;
-        case 119:		/* Raise floor to nearest surr. floor */
-			ok = EV_DoFloor(line, raiseFloorToNearest, FLOORSPEED);
-			break;
-        case 121:		/* Blazing PlatDownWaitUpStay */
-			ok = EV_DoPlat(line, blazeDWUS, 0);
-			break;
-        case 122:		/* PlatDownWaitUpStay */
-			ok = EV_DoPlat(line, upWaitDownStay, 0);
-			break;
-        case 123:		/* Blazing PlatUpWaitDownStay */
-			ok = EV_DoPlat(line, blazeUWDS, 0);
-			break;
-        case 124:		/* Secret EXIT */
-			P_SecretExitLevel(line->tag);//(G_SecretExitLevel)
-			ok = true;
-			break;
-        case 125:		/* TELEPORT MonsterONLY */
-			if (!thing->player)
-			{
-				EV_Teleport(line, thing);
-				ok = false;
-			}
-			break;
-        case 141:		/* Silent Ceiling Crush & Raise (Demon Disposer)*/
-			ok = EV_DoCeiling(line, silentCrushAndRaise, CEILSPEED*2);
-			break;
+        case 100:       /* Build Stairs Turbo 16 */
+            ok = EV_BuildStairs(line, turbo16);
+            break;
+        case 108:       /* Blazing Door Raise (faster than TURBO!) */
+            ok = EV_DoDoor(line, BlazeRaise);
+            break;
+        case 109:       /* Blazing Door Open (faster than TURBO!) */
+            ok = EV_DoDoor(line, BlazeOpen);
+            break;
+        case 110:       /* Blazing Door Close (faster than TURBO!) */
+            ok = EV_DoDoor(line, BlazeClose);
+            break;
+        case 119:       /* Raise floor to nearest surr. floor */
+            ok = EV_DoFloor(line, raiseFloorToNearest, FLOORSPEED);
+            break;
+        case 121:       /* Blazing PlatDownWaitUpStay */
+            ok = EV_DoPlat(line, blazeDWUS, 0);
+            break;
+        case 122:       /* PlatDownWaitUpStay */
+            ok = EV_DoPlat(line, upWaitDownStay, 0);
+            break;
+        case 123:       /* Blazing PlatUpWaitDownStay */
+            ok = EV_DoPlat(line, blazeUWDS, 0);
+            break;
+        case 124:       /* Secret EXIT */
+            P_SecretExitLevel(line->tag);//(G_SecretExitLevel)
+            ok = true;
+            break;
+        case 125:       /* TELEPORT MonsterONLY */
+            if (!thing->player)
+            {
+                EV_Teleport(line, thing);
+                ok = false;
+            }
+            break;
+        case 141:       /* Silent Ceiling Crush & Raise (Demon Disposer)*/
+            ok = EV_DoCeiling(line, silentCrushAndRaise, CEILSPEED*2);
+            break;
         case 200:       /* Set Lookat Camera */
             ok = P_SetAimCamera(line, true);
             break;
@@ -1219,9 +1219,9 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
 
         default:
             return false;
-	}
+    }
 
-	if (ok)
+    if (ok)
     {
         if (line == &macrotempline)
             return true;
@@ -1241,71 +1241,71 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
 
 /*============================================================ */
 /* */
-/*	Special Stuff that can't be categorized */
+/*  Special Stuff that can't be categorized */
 /* */
 /*============================================================ */
 int EV_DoDonut(line_t *line)//L8002796C()
 {
-	sector_t	*s1;
-	sector_t	*s2;
-	sector_t	*s3;
-	int			secnum;
-	int			rtn;
-	int			i;
-	floormove_t		*floor;
+    sector_t    *s1;
+    sector_t    *s2;
+    sector_t    *s3;
+    int         secnum;
+    int         rtn;
+    int         i;
+    floormove_t     *floor;
 
-	secnum = -1;
-	rtn = 0;
-	while ((secnum = P_FindSectorFromLineTag(line->tag,secnum)) >= 0)
-	{
-		s1 = &sectors[secnum];
+    secnum = -1;
+    rtn = 0;
+    while ((secnum = P_FindSectorFromLineTag(line->tag,secnum)) >= 0)
+    {
+        s1 = &sectors[secnum];
 
-		/*	ALREADY MOVING?  IF SO, KEEP GOING... */
-		if (s1->specialdata)
-			continue;
+        /*  ALREADY MOVING?  IF SO, KEEP GOING... */
+        if (s1->specialdata)
+            continue;
 
-		rtn = 1;
-		s2 = getNextSector(s1->lines[0],s1);
-		for (i = 0;i < s2->linecount;i++)
-		{
-			if (//(!s2->lines[i]->flags & ML_TWOSIDED) ||
-				(s2->lines[i]->backsector == s1))
-				continue;
-			s3 = s2->lines[i]->backsector;
+        rtn = 1;
+        s2 = getNextSector(s1->lines[0],s1);
+        for (i = 0;i < s2->linecount;i++)
+        {
+            if (//(!s2->lines[i]->flags & ML_TWOSIDED) ||
+                (s2->lines[i]->backsector == s1))
+                continue;
+            s3 = s2->lines[i]->backsector;
 
-			/* */
-			/*	Spawn rising slime */
-			/* */
-			floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
-			P_AddThinker (&floor->thinker);
-			s2->specialdata = floor;
-			floor->thinker.function = T_MoveFloor;
-			floor->type = donutRaise;
-			floor->crush = false;
-			floor->direction = 1;
-			floor->sector = s2;
-			floor->speed = FLOORSPEED / 2;
-			floor->texture = s3->floorpic;
-			floor->newspecial = 0;
-			floor->floordestheight = s3->floorheight;
+            /* */
+            /*  Spawn rising slime */
+            /* */
+            floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
+            P_AddThinker (&floor->thinker);
+            s2->specialdata = floor;
+            floor->thinker.function = T_MoveFloor;
+            floor->type = donutRaise;
+            floor->crush = false;
+            floor->direction = 1;
+            floor->sector = s2;
+            floor->speed = FLOORSPEED / 2;
+            floor->texture = s3->floorpic;
+            floor->newspecial = 0;
+            floor->floordestheight = s3->floorheight;
 
-			/* */
-			/*	Spawn lowering donut-hole */
-			/* */
-			floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
-			P_AddThinker (&floor->thinker);
-			s1->specialdata = floor;
-			floor->thinker.function = T_MoveFloor;
-			floor->type = lowerFloor;
-			floor->crush = false;
-			floor->direction = -1;
-			floor->sector = s1;
-			floor->speed = FLOORSPEED / 2;
-			floor->floordestheight = s3->floorheight;
-			break;
-		}
-	}
-	return rtn;
+            /* */
+            /*  Spawn lowering donut-hole */
+            /* */
+            floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
+            P_AddThinker (&floor->thinker);
+            s1->specialdata = floor;
+            floor->thinker.function = T_MoveFloor;
+            floor->type = lowerFloor;
+            floor->crush = false;
+            floor->direction = -1;
+            floor->sector = s1;
+            floor->speed = FLOORSPEED / 2;
+            floor->floordestheight = s3->floorheight;
+            break;
+        }
+    }
+    return rtn;
 }
 
 #endif // 0

@@ -5,25 +5,25 @@
 #include "doomdef.h"
 
 /* proper screen size would be 160*100, stretched to 224 is 2.2 scale */
-#define	STRETCH				(22*FRACUNIT/10)
+#define STRETCH             (22*FRACUNIT/10)
 
-#define	CENTERX				(SCREENWIDTH/2)
-#define	CENTERY				(SCREENHEIGHT/2)
-#define	CENTERXFRAC			(SCREENWIDTH/2*FRACUNIT)
-#define	CENTERYFRAC			(SCREENHEIGHT/2*FRACUNIT)
-#define	PROJECTION			CENTERXFRAC
+#define CENTERX             (SCREENWIDTH/2)
+#define CENTERY             (SCREENHEIGHT/2)
+#define CENTERXFRAC         (SCREENWIDTH/2*FRACUNIT)
+#define CENTERYFRAC         (SCREENHEIGHT/2*FRACUNIT)
+#define PROJECTION          CENTERXFRAC
 
-#define	ANGLETOSKYSHIFT		22		/* sky map is 256*128*4 maps */
+#define ANGLETOSKYSHIFT     22      /* sky map is 256*128*4 maps */
 
-#define	BASEYCENTER			100
+#define BASEYCENTER         100
 
-#define	CENTERY				(SCREENHEIGHT/2)
-#define	WINDOWHEIGHT		(SCREENHEIGHT-SBARHEIGHT)
+#define CENTERY             (SCREENHEIGHT/2)
+#define WINDOWHEIGHT        (SCREENHEIGHT-SBARHEIGHT)
 
-#define	MINZ				8
-#define	MAXZ				256
+#define MINZ                8
+#define MAXZ                256
 
-#define	FIELDOFVIEW			2048   /* fineangles in the SCREENWIDTH wide window */
+#define FIELDOFVIEW         2048   /* fineangles in the SCREENWIDTH wide window */
 
 /* */
 /* Seg flags */
@@ -34,13 +34,13 @@
 /* */
 /* lighting constants */
 /* */
-#define	LIGHTLEVELS			256		/* number of diminishing */
-#define	INVERSECOLORMAP		255
+#define LIGHTLEVELS         256     /* number of diminishing */
+#define INVERSECOLORMAP     255
 
 /*
 ==============================================================================
 
-					INTERNAL MAP TYPES
+                    INTERNAL MAP TYPES
 
 ==============================================================================
 */
@@ -49,66 +49,66 @@
 
 typedef struct
 {
-	fixed_t	x, y, dx, dy;
+    fixed_t x, y, dx, dy;
 } divline_t;
 
 typedef struct
 {
-	fixed_t x, y;
-	fixed_t vx, vy;
-	int     validcount;
+    fixed_t x, y;
+    fixed_t vx, vy;
+    int     validcount;
 } vertex_t;
 
 struct line_s;
 struct subsector_s;
 
-typedef	struct sector_s
+typedef struct sector_s
 {
-	fixed_t		floorheight, ceilingheight;
-	VINT		floorpic, ceilingpic;	/* if ceilingpic == -1,draw sky */
-	int		    colors[5];			// Doom 64 New
-	int		    lightlevel;
-	VINT		special, tag;
+    fixed_t     floorheight, ceilingheight;
+    VINT        floorpic, ceilingpic;   /* if ceilingpic == -1,draw sky */
+    int         colors[5];          // Doom 64 New
+    int         lightlevel;
+    VINT        special, tag;
 
-	VINT        xoffset, yoffset;   // Doom 64 New
+    VINT        xoffset, yoffset;   // Doom 64 New
 
-	VINT		soundtraversed;		/* 0 = untraversed, 1,2 = sndlines -1 */
-	mobj_t		*soundtarget;		/* thing that made a sound (or null) */
+    VINT        soundtraversed;     /* 0 = untraversed, 1,2 = sndlines -1 */
+    mobj_t      *soundtarget;       /* thing that made a sound (or null) */
 
-	VINT	    flags;	            // Psx Doom / Doom 64 New
-	VINT		blockbox[4];		/* mapblock bounding box for height changes */
+    VINT        flags;              // Psx Doom / Doom 64 New
+    VINT        blockbox[4];        /* mapblock bounding box for height changes */
     fixed_t     center_x, center_y; // [nova] remove degenmobj_t
 
-	int			validcount;			/* if == validcount, already checked */
-	mobj_t		*thinglist;			/* list of mobjs in sector */
-	void		*specialdata;		/* thinker_t for reversable actions */
-	VINT		linecount;
-	struct line_s	**lines;			/* [linecount] size */
+    int         validcount;         /* if == validcount, already checked */
+    mobj_t      *thinglist;         /* list of mobjs in sector */
+    void        *specialdata;       /* thinker_t for reversable actions */
+    VINT        linecount;
+    struct line_s   **lines;            /* [linecount] size */
 } sector_t;
 
 typedef struct
 {
-	fixed_t		textureoffset;		/* add this to the calculated texture col */
-	fixed_t		rowoffset;			/* add this to the calculated texture top */
-	VINT		toptexture, bottomtexture, midtexture;
-	sector_t	*sector;
+    fixed_t     textureoffset;      /* add this to the calculated texture col */
+    fixed_t     rowoffset;          /* add this to the calculated texture top */
+    VINT        toptexture, bottomtexture, midtexture;
+    sector_t    *sector;
 } side_t;
 
 typedef enum {ST_HORIZONTAL, ST_VERTICAL, ST_POSITIVE, ST_NEGATIVE} slopetype_t;
 
 typedef struct line_s
 {
-	vertex_t	*v1, *v2;
-	fixed_t		dx,dy;				/* v2 - v1 for side checking */
-	VINT		flags;
-	VINT		special, tag;
-	VINT		sidenum[2];			/* sidenum[1] will be -1 if one sided */
-	fixed_t		bbox[4];
-	slopetype_t	slopetype;			/* to aid move clipping */
-	sector_t	*frontsector, *backsector;
-	int			validcount;			/* if == validcount, already checked */
-	void		*specialdata;		/* thinker_t for reversable actions */
-	int			fineangle;			/* to get sine / cosine for sliding */
+    vertex_t    *v1, *v2;
+    fixed_t     dx,dy;              /* v2 - v1 for side checking */
+    VINT        flags;
+    VINT        special, tag;
+    VINT        sidenum[2];         /* sidenum[1] will be -1 if one sided */
+    fixed_t     bbox[4];
+    slopetype_t slopetype;          /* to aid move clipping */
+    sector_t    *frontsector, *backsector;
+    int         validcount;         /* if == validcount, already checked */
+    void        *specialdata;       /* thinker_t for reversable actions */
+    int         fineangle;          /* to get sine / cosine for sliding */
 } line_t;
 
 typedef struct vissprite_s
@@ -118,53 +118,53 @@ typedef struct vissprite_s
     int         lump;       //*8
     boolean     flip;       //*12
     sector_t    *sector;    //*16
-    struct		vissprite_s *next;//*20
+    struct      vissprite_s *next;//*20
 } vissprite_t;
 
 typedef struct subsector_s
 {
-	sector_t	*sector;	//*
-	vissprite_t *vissprite; //*4
-	short		numlines;	//*8
-	short		firstline;	//*10
-	short       numverts;	//*12
-	short       leaf;	    //*14
-    short       drawindex;	//*16
-	short       padding;	//*18
+    sector_t    *sector;    //*
+    vissprite_t *vissprite; //*4
+    short       numlines;   //*8
+    short       firstline;  //*10
+    short       numverts;   //*12
+    short       leaf;       //*14
+    short       drawindex;  //*16
+    short       padding;    //*18
 } subsector_t;
 
 typedef struct seg_s
 {
-	vertex_t	*v1, *v2;
-	fixed_t		offset;
-	angle_t		angle;				/* this is not used (keep for padding) */
-	side_t		*sidedef;
-	line_t		*linedef;
-	sector_t	*frontsector;
-	sector_t	*backsector;		/* NULL for one sided lines */
-	short       flags;
-	short       length;
+    vertex_t    *v1, *v2;
+    fixed_t     offset;
+    angle_t     angle;              /* this is not used (keep for padding) */
+    side_t      *sidedef;
+    line_t      *linedef;
+    sector_t    *frontsector;
+    sector_t    *backsector;        /* NULL for one sided lines */
+    short       flags;
+    short       length;
 } seg_t;
 
 typedef struct
 {
-	//fixed_t		x,y,dx,dy;		//old
-	divline_t	line;				/* partition line */
-	fixed_t		bbox[2][4];			/* bounding box for each child */
-	int			children[2];		/* if NF_SUBSECTOR its a subsector */
+    //fixed_t       x,y,dx,dy;      //old
+    divline_t   line;               /* partition line */
+    fixed_t     bbox[2][4];         /* bounding box for each child */
+    int         children[2];        /* if NF_SUBSECTOR its a subsector */
 } node_t;
 
 typedef struct {
-	vertex_t    *vertex;
-	seg_t       *seg;//*(A24 + 4)
+    vertex_t    *vertex;
+    seg_t       *seg;//*(A24 + 4)
 } leaf_t;
 
 //
 // Light Data Doom64
 //
 typedef struct {
-	int rgba;
-	int tag;
+    int rgba;
+    int tag;
 } light_t;
 
 //
@@ -178,7 +178,7 @@ typedef struct
 /*
 ==============================================================================
 
-						OTHER TYPES
+                        OTHER TYPES
 
 ==============================================================================
 */
@@ -193,58 +193,58 @@ typedef struct
 
 #ifdef MARS
 
-int spritelump[NUMSPRITES];	/* no rotations, so just add frame num... */
+int spritelump[NUMSPRITES]; /* no rotations, so just add frame num... */
 
 #else
 
 typedef struct
 {
-	int		rotate;		/* if false use 0 for any position */
-	int			lump[8];	/* lump to use for view angles 0-7 */
-	byte		flip[8];	/* flip (1 = flip) to use for view angles 0-7 */
+    int     rotate;     /* if false use 0 for any position */
+    int         lump[8];    /* lump to use for view angles 0-7 */
+    byte        flip[8];    /* flip (1 = flip) to use for view angles 0-7 */
 } spriteframe_t;
 
 typedef struct
 {
-	spriteframe_t	*spriteframes;
-	int				numframes;
+    spriteframe_t   *spriteframes;
+    int             numframes;
 } spritedef_t;
 
-extern	spritedef_t		sprites[NUMSPRITES];
+extern  spritedef_t     sprites[NUMSPRITES];
 
 #endif
 
 /*
 ===============================================================================
 
-							MAP DATA
+                            MAP DATA
 
 ===============================================================================
 */
 
-extern	int			numvertexes;
-extern	vertex_t	*vertexes;
+extern  int         numvertexes;
+extern  vertex_t    *vertexes;
 
-extern	int			numsegs;
-extern	seg_t		*segs;
+extern  int         numsegs;
+extern  seg_t       *segs;
 
-extern	int			numsectors;
-extern	sector_t	*sectors;
+extern  int         numsectors;
+extern  sector_t    *sectors;
 
-extern	int			numsubsectors;
-extern	subsector_t	*subsectors;
+extern  int         numsubsectors;
+extern  subsector_t *subsectors;
 
-extern	int			numnodes;
-extern	node_t		*nodes;
+extern  int         numnodes;
+extern  node_t      *nodes;
 
-extern	int			numlines;
-extern	line_t		*lines;
+extern  int         numlines;
+extern  line_t      *lines;
 
-extern	int			numsides;
-extern	side_t		*sides;
+extern  int         numsides;
+extern  side_t      *sides;
 
-extern	int			numleafs;
-extern	leaf_t		*leafs;
+extern  int         numleafs;
+extern  leaf_t      *leafs;
 
 extern light_t      *lights;
 extern int          numlights;
@@ -297,13 +297,13 @@ extern void R_RenderFilter(filtertype_t type) HOT;
 /*------*/
 /*R_data*/
 /*------*/
-void	R_InitData (void) SEC_STARTUP;
+void    R_InitData (void) SEC_STARTUP;
 
 /*--------*/
 /*r_phase1*/
 /*--------*/
-void	R_BSP (void) HOT;
-void	R_RenderBSPNode (int bspnum) HOT;
+void    R_BSP (void) HOT;
+void    R_RenderBSPNode (int bspnum) HOT;
 
 /*--------*/
 /*r_phase2*/
@@ -333,40 +333,40 @@ void R_RenderPlane(leaf_t *leaf, int numverts, int zpos, int texture, int xpos, 
 /* the y (<=x) is scaled and divided by x to get a tangent (slope) value */
 /* which is looked up in the tantoangle() table.  The +1 size is to handle */
 /* the case when x==y without additional checking. */
-#define	SLOPERANGE	2048
-#define	SLOPEBITS	11
-#define	DBITS		(FRACBITS-SLOPEBITS)
+#define SLOPERANGE  2048
+#define SLOPEBITS   11
+#define DBITS       (FRACBITS-SLOPEBITS)
 
-//extern	angle_t	tantoangle(SLOPERANGE+1);
-
-
-#define	VIEW_3D_H 200
-//extern	fixed_t	yslope[VIEW_3D_H];
-
-#define	HEIGHTBITS			6
-#define	SCALEBITS			9
-
-#define	FIXEDTOSCALE		(FRACBITS-SCALEBITS)
-#define	FIXEDTOHEIGHT		(FRACBITS-HEIGHTBITS)
+//extern    angle_t tantoangle(SLOPERANGE+1);
 
 
-#define	HALF_SCREEN_W       (SCREENWIDTH/2)
+#define VIEW_3D_H 200
+//extern    fixed_t yslope[VIEW_3D_H];
 
-extern	fixed_t		viewx, viewy, viewz;    //80077D0C, 80077D10, 80077D18
-extern	angle_t		viewangle;              //800780B8
-extern	fixed_t		viewcos, viewsin;       //80077EC8, 80077EE0
-extern	angle_t		viewpitch;
-extern	fixed_t		viewpitchsin, viewpitchcos;
-extern	angle_t		viewmaxhalffov;
-extern	fixed_t 	viewhcot, viewvcot;
-extern	fixed_t		viewinvhcot, viewinvvcot;
+#define HEIGHTBITS          6
+#define SCALEBITS           9
 
-extern	player_t	*viewplayer;            //80077D60
+#define FIXEDTOSCALE        (FRACBITS-SCALEBITS)
+#define FIXEDTOHEIGHT       (FRACBITS-HEIGHTBITS)
 
-extern	fixed_t		finetangent[FINEANGLES/2];
 
-extern	int			validcount; //800779F4
-//extern	int			framecount;
+#define HALF_SCREEN_W       (SCREENWIDTH/2)
+
+extern  fixed_t     viewx, viewy, viewz;    //80077D0C, 80077D10, 80077D18
+extern  angle_t     viewangle;              //800780B8
+extern  fixed_t     viewcos, viewsin;       //80077EC8, 80077EE0
+extern  angle_t     viewpitch;
+extern  fixed_t     viewpitchsin, viewpitchcos;
+extern  angle_t     viewmaxhalffov;
+extern  fixed_t     viewhcot, viewvcot;
+extern  fixed_t     viewinvhcot, viewinvvcot;
+
+extern  player_t    *viewplayer;            //80077D60
+
+extern  fixed_t     finetangent[FINEANGLES/2];
+
+extern  int         validcount; //800779F4
+//extern    int         framecount;
 
 
 
@@ -376,37 +376,37 @@ extern	int			validcount; //800779F4
 /* */
 extern boolean rendersky;                           // 800A68A8
 
-#define	MAXSUBSECTORS	512		/* Maximum number of subsectors to scan */
-extern subsector_t *solidsubsectors[MAXSUBSECTORS];	// 800A6488 /* List of valid ranges to scan through */
-extern subsector_t **endsubsector;				    // 800A6888 /* Pointer to the first free entry */
+#define MAXSUBSECTORS   512     /* Maximum number of subsectors to scan */
+extern subsector_t *solidsubsectors[MAXSUBSECTORS]; // 800A6488 /* List of valid ranges to scan through */
+extern subsector_t **endsubsector;                  // 800A6888 /* Pointer to the first free entry */
 extern int numdrawsubsectors;                       // 800A68AC
 
-#define	MAXVISSPRITES       256
-extern	vissprite_t	vissprites[MAXVISSPRITES];  // 800A6908
-extern	vissprite_t	*visspritehead;             // 800A8108
+#define MAXVISSPRITES       256
+extern  vissprite_t vissprites[MAXVISSPRITES];  // 800A6908
+extern  vissprite_t *visspritehead;             // 800A8108
 extern int numdrawvissprites;                   // 800A68B0
 
 
-//extern	short		skypalette;
-//extern	psxobj_t	*skytexturep;
+//extern    short       skypalette;
+//extern    psxobj_t    *skytexturep;
 
-extern	int firsttex, lasttex, numtextures,firstswx;
-extern	int *textures;
-extern	int skytexture;
+extern  int firsttex, lasttex, numtextures,firstswx;
+extern  int *textures;
+extern  int skytexture;
 
-//extern	int			*flattranslation;		/* for global animation */
-//extern	int			*texturetranslation;	/* for global animation */
+//extern    int         *flattranslation;       /* for global animation */
+//extern    int         *texturetranslation;    /* for global animation */
 
-//extern	int			firstflat, lastflat,  numflats;
-//extern	psxobj_t	*texflats;
+//extern    int         firstflat, lastflat,  numflats;
+//extern    psxobj_t    *texflats;
 
-extern	int firstspritelump, lastspritelump, numspritelumps;
-//extern	int *texsprites;
+extern  int firstspritelump, lastspritelump, numspritelumps;
+//extern    int *texsprites;
 
 //#define MAX_PALETTES 26 //Final Doom 20 to 26
-//extern	short palette[MAX_PALETTES];
-//extern	short palettebase;
-//extern	light_t		*lights;
+//extern    short palette[MAX_PALETTES];
+//extern    short palettebase;
+//extern    light_t     *lights;
 
 extern int bloodlump;
 extern int giblump;

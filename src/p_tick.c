@@ -4,12 +4,12 @@
 
 extern void G_PlayerFinishLevel (int player);
 
-boolean		gamepaused = false; // 800A6270
+boolean     gamepaused = false; // 800A6270
 
 /*
 ===============================================================================
 
-								THINKERS
+                                THINKERS
 
 All thinkers should be allocated by Z_Malloc so they can be operated on uniformly.  The actual
 structures will vary in size, but the first element must be thinker_t.
@@ -19,8 +19,8 @@ processing
 ===============================================================================
 */
 
-SDATA thinker_t	thinkercap;	/* both the head and tail of the thinker list */    //80096378
-SDATA mobjhead_t mobjhead;	/* head and tail of mobj list */                    //800A8C74,
+SDATA thinker_t thinkercap; /* both the head and tail of the thinker list */    //80096378
+SDATA mobjhead_t mobjhead;  /* head and tail of mobj list */                    //800A8C74,
 DEBUG_COUNTER(SDATA int activethinkers = 0);
 
 /*
@@ -33,8 +33,8 @@ DEBUG_COUNTER(SDATA int activethinkers = 0);
 #if 0
 void P_InitThinkers (void)
 {
-	thinkercap.prev = thinkercap.next  = &thinkercap;
-	mobjhead.next = mobjhead.prev = &mobjhead;
+    thinkercap.prev = thinkercap.next  = &thinkercap;
+    mobjhead.next = mobjhead.prev = &mobjhead;
 }
 #endif // 0
 
@@ -50,10 +50,10 @@ void P_InitThinkers (void)
 
 void P_AddThinker (thinker_t *thinker) // 80021770
 {
-	thinkercap.prev->next = thinker;
-	thinker->next = &thinkercap;
-	thinker->prev = thinkercap.prev;
-	thinkercap.prev = thinker;
+    thinkercap.prev->next = thinker;
+    thinker->next = &thinkercap;
+    thinker->prev = thinkercap.prev;
+    thinkercap.prev = thinker;
 }
 
 /*
@@ -69,7 +69,7 @@ void P_AddThinker (thinker_t *thinker) // 80021770
 
 void P_RemoveThinker (thinker_t *thinker) // 8002179C
 {
-	thinker->function = (think_t)-1;
+    thinker->function = (think_t)-1;
 
     if (thinker == macrothinker) { // [D64] New lines
         macrothinker = NULL;
@@ -86,7 +86,7 @@ void P_RemoveThinker (thinker_t *thinker) // 8002179C
 
 void P_RunThinkers (void) // 800217C8
 {
-    thinker_t	*currentthinker;
+    thinker_t   *currentthinker;
 
     DEBUG_COUNTER(activethinkers = 0);
 
@@ -96,7 +96,7 @@ void P_RunThinkers (void) // 800217C8
         while (currentthinker != &thinkercap)
         {
             if (currentthinker->function == (think_t)-1)
-            {	// time to remove it
+            {   // time to remove it
                 currentthinker->next->prev = currentthinker->prev;
                 currentthinker->prev->next = currentthinker->next;
                 Z_Free (currentthinker);
@@ -125,17 +125,17 @@ void P_RunThinkers (void) // 800217C8
 #if 0
 void P_RunMobjLate (void)
 {
-	mobj_t	*mo;
-	mobj_t	*next;
+    mobj_t  *mo;
+    mobj_t  *next;
 
-	for (mo=mobjhead.next ; mo != (void*) &mobjhead ; mo=next)
-	{
-		next = mo->next;	/* in case mo is removed this time */
-		if (mo->latecall)
-		{
-			mo->latecall(mo);
-		}
-	}
+    for (mo=mobjhead.next ; mo != (void*) &mobjhead ; mo=next)
+    {
+        next = mo->next;    /* in case mo is removed this time */
+        if (mo->latecall)
+        {
+            mo->latecall(mo);
+        }
+    }
 }
 #endif // 0
 
@@ -149,12 +149,12 @@ void P_RunMobjLate (void)
 
 void P_CheckCheats (void) // 8002187C
 {
-	unsigned int buttons;
-	int exit;
+    unsigned int buttons;
+    int exit;
 
-	buttons = ticbuttons[0] & 0xffff0000;
+    buttons = ticbuttons[0] & 0xffff0000;
 
-	if (!gamepaused)
+    if (!gamepaused)
     {
         if ((buttons & PAD_START) && !(oldticbuttons[0] & PAD_START))
         {
@@ -204,37 +204,37 @@ void P_RunMobjBase (void);
 
 int P_Ticker (void)//80021A00
 {
-	player_t *pl;
+    player_t *pl;
 
-	gameaction = ga_nothing;
+    gameaction = ga_nothing;
 
-	//
-	// check for pause and cheats
-	//
-	P_CheckCheats();
+    //
+    // check for pause and cheats
+    //
+    P_CheckCheats();
 
     DEBUG_CYCLES_START(world_start);
 
-	if ((!gamepaused) && (gamevbls < gametic))
-	{
-	    P_RunThinkers();
-		P_CheckSights();
-		P_RunMobjBase();
+    if ((!gamepaused) && (gamevbls < gametic))
+    {
+        P_RunThinkers();
+        P_CheckSights();
+        P_RunMobjBase();
 
-		P_UpdateSpecials();
-		P_RunMacros();
+        P_UpdateSpecials();
+        P_RunMacros();
 
-		ST_Ticker(); // update status bar
-	}
+        ST_Ticker(); // update status bar
+    }
 
-	//ST_DebugPrint("%d",Z_FreeMemory (mainzone));
+    //ST_DebugPrint("%d",Z_FreeMemory (mainzone));
 
-	//
-	// run player actions
-	//
-	pl = players;
+    //
+    // run player actions
+    //
+    pl = players;
 
-	if (pl->playerstate == PST_REBORN)
+    if (pl->playerstate == PST_REBORN)
     {
         if (customskill.permadeath)
             gameaction = ga_exitdemo;
@@ -252,7 +252,7 @@ int P_Ticker (void)//80021A00
         LastWorldCycles = 0;
 #endif
 
-	return gameaction; // may have been set to ga_died, ga_completed, or ga_secretexit
+    return gameaction; // may have been set to ga_died, ga_completed, or ga_secretexit
 }
 
 /*
@@ -269,27 +269,27 @@ extern Mtx R_ModelMatrix;       // 8005b0C8
 
 void P_Drawer (void) // 80021AC8
 {
-	I_ClearFrame();
+    I_ClearFrame();
 
-	gMoveWd(GFX1++, G_MW_CLIP, G_MWO_CLIP_RNX, 1);
-	gMoveWd(GFX1++, G_MW_CLIP, G_MWO_CLIP_RNY, 1);
-	gMoveWd(GFX1++, G_MW_CLIP, G_MWO_CLIP_RPX, 65535);
-	gMoveWd(GFX1++, G_MW_CLIP, G_MWO_CLIP_RPY, 65535);
-	gMoveWd(GFX1++, G_MW_PERSPNORM, G_MWO_MATRIX_XX_XY_I, 68);
+    gMoveWd(GFX1++, G_MW_CLIP, G_MWO_CLIP_RNX, 1);
+    gMoveWd(GFX1++, G_MW_CLIP, G_MWO_CLIP_RNY, 1);
+    gMoveWd(GFX1++, G_MW_CLIP, G_MWO_CLIP_RPX, 65535);
+    gMoveWd(GFX1++, G_MW_CLIP, G_MWO_CLIP_RPY, 65535);
+    gMoveWd(GFX1++, G_MW_PERSPNORM, G_MWO_MATRIX_XX_XY_I, 68);
 
-	// create a projection matrix
+    // create a projection matrix
     gSPMatrix(GFX1++, OS_K0_TO_PHYSICAL(&R_ProjectionMatrix), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
 
     // create a model matrix
     gSPMatrix(GFX1++, OS_K0_TO_PHYSICAL(&R_ModelMatrix), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
 
-	if (players[0].automapflags & (AF_LINES|AF_SUBSEC))
+    if (players[0].automapflags & (AF_LINES|AF_SUBSEC))
     {
         AM_Drawer();
-	}
-	else
+    }
+    else
     {
-		R_RenderPlayerView();
+        R_RenderPlayerView();
         //ST_DebugPrint("x %d || y %d", players[0].mo->x >> 16, players[0].mo->y >> 16);
 
         if (demoplayback)
@@ -323,10 +323,10 @@ void P_Start (void) // 80021C50
         else if (gamemap == 32)  /* Remove by default God Mode in player  */
             players[0].cheats &= ~CF_GODMODE;
 
-	gamepaused = false;
-	validcount = 1;
+    gamepaused = false;
+    validcount = 1;
 
-	AM_Start();
+    AM_Start();
 
     if (gameaction == ga_loadquicksave)
     {
@@ -359,16 +359,16 @@ void P_Start (void) // 80021C50
 void P_Stop (int exit) // 80021D58
 {
     /* [d64] stop plasma buzz */
-	S_StopSound(0, sfx_electric);
+    S_StopSound(0, sfx_electric);
 
     end_time = ticon;
-	gamepaused = false;
-	DrawerStatus = 0;
+    gamepaused = false;
+    DrawerStatus = 0;
 
-	G_PlayerFinishLevel(0);
+    G_PlayerFinishLevel(0);
 
-	/* free all tags except the PU_STATIC tag */
-	Z_FreeTags(mainzone, ~PU_STATIC); // (PU_LEVEL | PU_LEVSPEC | PU_CACHE)
+    /* free all tags except the PU_STATIC tag */
+    Z_FreeTags(mainzone, ~PU_STATIC); // (PU_LEVEL | PU_LEVSPEC | PU_CACHE)
 
     if ((gamemap != 33) || (exit == ga_exit))
         S_StopMusic();

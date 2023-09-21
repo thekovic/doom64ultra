@@ -41,8 +41,8 @@ DEBUG_COUNTER(SDATA u32 LevelMem = 0);
 void Z_Init (void) // 8002C8F0
 {
 
-	/* mars doesn't have a refzone */
-	mainzone = Z_InitZone(MAIN_HEAP_ADDR, MAIN_HEAP_SIZE);
+    /* mars doesn't have a refzone */
+    mainzone = Z_InitZone(MAIN_HEAP_ADDR, MAIN_HEAP_SIZE);
 
     //PRINTF_D2(WHITE, 0, 25, "%d", (u32)size);
     //while(1){}
@@ -234,14 +234,14 @@ backtostart:
  */
 void Z_Reserve2 (memzone_t *mainzone, void *addr, int size)
 {
-	int		extra;
-	memblock_t	*block, *newblock, *base;
+    int     extra;
+    memblock_t  *block, *newblock, *base;
 
     if ((u32)(addr) % 16)
         I_Error ("Z_Reserve: invalid alignment");
 
     #if DEBUG_
-    Z_CheckZone (mainzone);	/* DEBUG */
+    Z_CheckZone (mainzone); /* DEBUG */
     #endif
 
     block = (void*)(((char*)addr) - sizeof(memblock_t));
@@ -249,7 +249,7 @@ void Z_Reserve2 (memzone_t *mainzone, void *addr, int size)
     /* */
     /* scan through the block list looking for the block containing the address */
     /* */
-    size += sizeof(memblock_t);	/* account for size of block header */
+    size += sizeof(memblock_t); /* account for size of block header */
 
     base = &mainzone->blocklist;
     while (base->next && base->next < block)
@@ -279,7 +279,7 @@ void Z_Reserve2 (memzone_t *mainzone, void *addr, int size)
 
     extra = block->size - size;
     if (extra >  MINFRAGMENT)
-    {	/* there will be a free fragment after the allocated block */
+    {   /* there will be a free fragment after the allocated block */
         newblock = (memblock_t *) ((byte *)block + size );
         newblock->prev = block;
         newblock->next = block->next;
@@ -292,12 +292,12 @@ void Z_Reserve2 (memzone_t *mainzone, void *addr, int size)
         block->size = size;
 
         newblock->size = extra;
-        newblock->user = NULL;		/* free block */
+        newblock->user = NULL;      /* free block */
         newblock->tag = 0;
         newblock->id = ZONEID;
     }
 
-    block->user = (void *)1;		/* mark as in use, but unowned	 */
+    block->user = (void *)1;        /* mark as in use, but unowned   */
 
     block->tag = PU_STATIC;
     block->id = ZONEID;
@@ -306,7 +306,7 @@ void Z_Reserve2 (memzone_t *mainzone, void *addr, int size)
         mainzone->rover3 = block;
 
 #if DEBUG_
-    Z_CheckZone (mainzone);	/* DEBUG */
+    Z_CheckZone (mainzone); /* DEBUG */
 #endif
 }
 

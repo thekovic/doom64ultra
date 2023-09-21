@@ -6,10 +6,10 @@
 #include "wessapi.h"
 #include "wessarc.h"
 
-extern unsigned char	master_sfx_volume;
-extern unsigned char	master_mus_volume;
-extern unsigned char	pan_status;
-extern int	            enabledecay;
+extern unsigned char    master_sfx_volume;
+extern unsigned char    master_mus_volume;
+extern unsigned char    pan_status;
+extern int              enabledecay;
 
 extern char *Read_Vlq(char *pstart, void *deltatime);
 extern char *Write_Vlq(char *dest, unsigned int value);

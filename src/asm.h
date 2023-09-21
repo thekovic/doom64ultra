@@ -1,12 +1,12 @@
 /************************************************************************
  Copyright (C) 1998,1999 NINTENDO Co,Ltd,
  Copyright (C) 1998,1999 MONEGI CORPORATION,
-	All Rights Reserved
-This program is a trade secret of NINTENDO Co,Ltd and MONEGI Corp. 
+    All Rights Reserved
+This program is a trade secret of NINTENDO Co,Ltd and MONEGI Corp.
 and it is not to be reproduced, published, disclosed to others, copied,
-adapted, distributed, or displayed without the prior authorization of 
-NINTENDO Co,Ltd. and MONEGI Corp. Licensee agrees to attach or embed 
-this Notice on all copies of the program, including partial copies or 
+adapted, distributed, or displayed without the prior authorization of
+NINTENDO Co,Ltd. and MONEGI Corp. Licensee agrees to attach or embed
+this Notice on all copies of the program, including partial copies or
 modified versions thereof.
 *************************************************************************/
 /************************************************************************
@@ -22,24 +22,24 @@ modified versions thereof.
 extern "C" {
 #endif
 
-#define _MIPS_ISA_MIPS1	1	/* R2/3K */
-#define _MIPS_ISA_MIPS2	2	/* R4K/6K */
-#define _MIPS_ISA_MIPS3	3	/* R4K */
-#define _MIPS_ISA_MIPS4	4	/* TFP */
+#define _MIPS_ISA_MIPS1 1   /* R2/3K */
+#define _MIPS_ISA_MIPS2 2   /* R4K/6K */
+#define _MIPS_ISA_MIPS3 3   /* R4K */
+#define _MIPS_ISA_MIPS4 4   /* TFP */
 
-#define _MIPS_SIM_ABI32		1	/* MIPS MSIG calling convention */
-#define _MIPS_SIM_NABI32	2	/* MIPS new 32-bit abi */
-		/* NABI32 is 64bit calling convention but 32bit type sizes) */
-#define _MIPS_SIM_ABI64		3	/* MIPS 64 calling convention */
+#define _MIPS_SIM_ABI32     1   /* MIPS MSIG calling convention */
+#define _MIPS_SIM_NABI32    2   /* MIPS new 32-bit abi */
+        /* NABI32 is 64bit calling convention but 32bit type sizes) */
+#define _MIPS_SIM_ABI64     3   /* MIPS 64 calling convention */
 
-#define	LEAF(x)						\
-	.globl	x;					\
-	.ent	x,0;					\
-x:;							\
-	.frame	sp,0,ra
+#define LEAF(x)                     \
+    .globl  x;                  \
+    .ent    x,0;                    \
+x:;                         \
+    .frame  sp,0,ra
 
-#define	END(proc)					\
-	.end	proc
+#define END(proc)                   \
+    .end    proc
 
 
 #ifdef __cplusplus

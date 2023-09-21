@@ -96,20 +96,20 @@ bool M_EncodePassword(byte *buff) // 8000BC10
     //
     // Get Maximun Ammo
     //
-	maxclip = maxammo[am_clip];
-	maxshell = maxammo[am_shell];
-	maxcell = maxammo[am_cell];
-	maxmisl = maxammo[am_misl];
+    maxclip = maxammo[am_clip];
+    maxshell = maxammo[am_shell];
+    maxcell = maxammo[am_cell];
+    maxmisl = maxammo[am_misl];
 
-	//
+    //
     // Backpack
     //
     if(player->backpack)
     {
         maxclip <<= 1;
-		maxshell <<= 1;
-		maxcell <<= 1;
-		maxmisl <<= 1;
+        maxshell <<= 1;
+        maxcell <<= 1;
+        maxmisl <<= 1;
         encode[5] |= PW_BACKPACK;
     }
 
@@ -117,45 +117,45 @@ bool M_EncodePassword(byte *buff) // 8000BC10
     // Clip
     //
     bit = (player->ammo[am_clip] << 3) / maxclip;
-	if ((player->ammo[am_clip] << 3) % maxclip) { bit += 1; }
-	encode[2] = bit << 4;
+    if ((player->ammo[am_clip] << 3) % maxclip) { bit += 1; }
+    encode[2] = bit << 4;
 
-	//
-	// Shell
-	//
-	bit = (player->ammo[am_shell] << 3) / maxshell;
-	if ((player->ammo[am_shell] << 3) % maxshell) { bit += 1; }
-	encode[2] |= bit;
+    //
+    // Shell
+    //
+    bit = (player->ammo[am_shell] << 3) / maxshell;
+    if ((player->ammo[am_shell] << 3) % maxshell) { bit += 1; }
+    encode[2] |= bit;
 
-	//
-	// Cell
-	//
-	bit = (player->ammo[am_cell] << 3) / maxcell;
-	if ((player->ammo[am_cell] << 3) % maxcell) { bit += 1; }
-	encode[3] = bit << 4;
+    //
+    // Cell
+    //
+    bit = (player->ammo[am_cell] << 3) / maxcell;
+    if ((player->ammo[am_cell] << 3) % maxcell) { bit += 1; }
+    encode[3] = bit << 4;
 
-	//
-	// Missile
-	//
-	bit = (player->ammo[am_misl] << 3) / maxmisl;
-	if ((player->ammo[am_misl] << 3) % maxmisl) { bit += 1; }
-	encode[3] |= bit;
+    //
+    // Missile
+    //
+    bit = (player->ammo[am_misl] << 3) / maxmisl;
+    if ((player->ammo[am_misl] << 3) % maxmisl) { bit += 1; }
+    encode[3] |= bit;
 
-	//
-	// Health
-	//
-	bit = (player->health << 3) / 200;
-	if ((player->health << 3) % 200) { bit += 1; }
-	encode[4] = bit << 4;
+    //
+    // Health
+    //
+    bit = (player->health << 3) / 200;
+    if ((player->health << 3) % 200) { bit += 1; }
+    encode[4] = bit << 4;
 
-	//
-	// Armor
-	//
-	bit = (player->armorpoints << 3) / 200;
-	if ((player->armorpoints << 3) % 200) { bit += 1; }
-	encode[4] |= bit;
+    //
+    // Armor
+    //
+    bit = (player->armorpoints << 3) / 200;
+    if ((player->armorpoints << 3) % 200) { bit += 1; }
+    encode[4] |= bit;
 
-	//
+    //
     // ArmorType
     //
     encode[5] |= player->armortype;

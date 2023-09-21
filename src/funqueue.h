@@ -6,8 +6,8 @@
 
 typedef struct
 {
-	char data[MAX_QUEUE_DATA_SIZE];			//800B4420
-	char function[MAX_QUEUE_FUNCTION_SIZE];	//800B6420
+    char data[MAX_QUEUE_DATA_SIZE];         //800B4420
+    char function[MAX_QUEUE_FUNCTION_SIZE]; //800B6420
 } QUEUE_DATA_MEMORY;
 
 extern void queue_memcpy(void *dest, void *src, int size);

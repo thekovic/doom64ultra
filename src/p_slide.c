@@ -1,10 +1,10 @@
 #include "doomdef.h"
 #include "p_local.h"
 
-#define	CLIPRADIUS	23
-#define SIDE_ON	0
-#define	SIDE_FRONT	1
-#define	SIDE_BACK	-1
+#define CLIPRADIUS  23
+#define SIDE_ON 0
+#define SIDE_FRONT  1
+#define SIDE_BACK   -1
 
 fixed_t bestslidefrac;  // 800A5728
 line_t  *bestslideline; // 800A572C
@@ -243,15 +243,15 @@ hitslideline:
 
 #if 0
 
-fixed_t slidex, slidey;		// the final position       //80077DBC|fGp000009ac, 80077DC0|fGp000009b0
-line_t *specialline;		//80077DC8, uGp000009b8
+fixed_t slidex, slidey;     // the final position       //80077DBC|fGp000009ac, 80077DC0|fGp000009b0
+line_t *specialline;        //80077DC8, uGp000009b8
 
-fixed_t		slidedx, slidedy;		// current move for completablefrac //80077E9C|fGp00000a8c, 80077EA0|fGp00000a90
+fixed_t     slidedx, slidedy;       // current move for completablefrac //80077E9C|fGp00000a8c, 80077EA0|fGp00000a90
 
-fixed_t		endbox[4];				// final proposed position //800979d0
+fixed_t     endbox[4];              // final proposed position //800979d0
 
-fixed_t blockfrac;			// the fraction of move that gets completed //8007804C|iGp00000c3c
-fixed_t blocknvx, blocknvy;	// the vector of the line that blocks move //80077FD0|fGp00000bc0, 80077FD8|fGp00000bc8
+fixed_t blockfrac;          // the fraction of move that gets completed //8007804C|iGp00000c3c
+fixed_t blocknvx, blocknvy; // the vector of the line that blocks move //80077FD0|fGp00000bc0, 80077FD8|fGp00000bc8
 
 // p1, p2 are line endpoints
 // p3, p4 are move endpoints
@@ -261,7 +261,7 @@ fixed_t blocknvx, blocknvy;	// the vector of the line that blocks move //80077FD
 /*iGp00000b08, iGp00000b14*///p4x, p4y
 
 int p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y;
-fixed_t	nvx, nvy;				// normalized line vector //fGp00000b70, fGp00000b74
+fixed_t nvx, nvy;               // normalized line vector //fGp00000b70, fGp00000b74
 
 extern mobj_t *slidething;//80077D04
 
@@ -272,7 +272,7 @@ fixed_t SL_CrossFrac (void);
 boolean CheckLineEnds (void);
 void SL_ClipToLine( void );
 boolean SL_CheckLine(line_t *ld);
-int	SL_PointOnSide2(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2, fixed_t x3, fixed_t y3);
+int SL_PointOnSide2(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2, fixed_t x3, fixed_t y3);
 void SL_CheckSpecialLines (fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2);
 
 /*
@@ -289,12 +289,12 @@ void P_SlideMove(void)//L8002553C()
     fixed_t frac, slide;
     int i;
 
-	dx = slidething->momx;
-	dy = slidething->momy;
-	slidex = slidething->x;
-	slidey = slidething->y;
+    dx = slidething->momx;
+    dy = slidething->momy;
+    slidex = slidething->x;
+    slidey = slidething->y;
 
-	if (slidething->flags & MF_NOCLIP)//Psx Doom
+    if (slidething->flags & MF_NOCLIP)//Psx Doom
     {
         frac = FRACUNIT;
         goto Skip_P_CompletableFrac;
@@ -336,10 +336,10 @@ void P_SlideMove(void)//L8002553C()
         dy = FixedMul(slide, blocknvy);
     }
 
-	// some hideous situation has happened that won't let the player slide
-	slidex = slidething->x;
-	slidey = slidething->y;
-	slidething->momx = slidething->momy = 0;
+    // some hideous situation has happened that won't let the player slide
+    slidex = slidething->x;
+    slidey = slidething->y;
+    slidething->momx = slidething->momy = 0;
 }
 
 
@@ -354,57 +354,57 @@ void P_SlideMove(void)//L8002553C()
 
 fixed_t P_CompletableFrac(fixed_t dx, fixed_t dy)//L800256CC()
 {
-	int	xl,xh,yl,yh,bx,by;
-	int			offset;
-    short		*list;
-    line_t		*ld;
+    int xl,xh,yl,yh,bx,by;
+    int         offset;
+    short       *list;
+    line_t      *ld;
 
-	blockfrac = FRACUNIT;		// the entire dist until shown otherwise
-	slidedx = dx;
-	slidedy = dy;
+    blockfrac = FRACUNIT;       // the entire dist until shown otherwise
+    slidedx = dx;
+    slidedy = dy;
 
-	endbox[BOXTOP   ] = slidey + CLIPRADIUS*FRACUNIT;
-	endbox[BOXBOTTOM] = slidey - CLIPRADIUS*FRACUNIT;
-	endbox[BOXRIGHT ] = slidex + CLIPRADIUS*FRACUNIT;
-	endbox[BOXLEFT  ] = slidex - CLIPRADIUS*FRACUNIT;
+    endbox[BOXTOP   ] = slidey + CLIPRADIUS*FRACUNIT;
+    endbox[BOXBOTTOM] = slidey - CLIPRADIUS*FRACUNIT;
+    endbox[BOXRIGHT ] = slidex + CLIPRADIUS*FRACUNIT;
+    endbox[BOXLEFT  ] = slidex - CLIPRADIUS*FRACUNIT;
 
-	if (dx > 0)
-		endbox[BOXRIGHT ] += dx;
-	else
-		endbox[BOXLEFT  ] += dx;
+    if (dx > 0)
+        endbox[BOXRIGHT ] += dx;
+    else
+        endbox[BOXLEFT  ] += dx;
 
-	if (dy > 0)
-		endbox[BOXTOP   ] += dy;
-	else
-		endbox[BOXBOTTOM] += dy;
+    if (dy > 0)
+        endbox[BOXTOP   ] += dy;
+    else
+        endbox[BOXBOTTOM] += dy;
 
-	++validcount;
+    ++validcount;
 
-	//
-	// check lines
-	//
-	xl = (endbox[BOXLEFT  ] - bmaporgx) >> MAPBLOCKSHIFT;
-	xh = (endbox[BOXRIGHT ] - bmaporgx) >> MAPBLOCKSHIFT;
-	yl = (endbox[BOXBOTTOM] - bmaporgy) >> MAPBLOCKSHIFT;
-	yh = (endbox[BOXTOP   ] - bmaporgy) >> MAPBLOCKSHIFT;
+    //
+    // check lines
+    //
+    xl = (endbox[BOXLEFT  ] - bmaporgx) >> MAPBLOCKSHIFT;
+    xh = (endbox[BOXRIGHT ] - bmaporgx) >> MAPBLOCKSHIFT;
+    yl = (endbox[BOXBOTTOM] - bmaporgy) >> MAPBLOCKSHIFT;
+    yh = (endbox[BOXTOP   ] - bmaporgy) >> MAPBLOCKSHIFT;
 
-	if (xl<0)
-		xl = 0;
-	if (yl<0)
-		yl = 0;
+    if (xl<0)
+        xl = 0;
+    if (yl<0)
+        yl = 0;
 
-	if (xh>= bmapwidth)
-		xh = bmapwidth -1;
+    if (xh>= bmapwidth)
+        xh = bmapwidth -1;
 
-	if (yh>= bmapheight)
-		yh = bmapheight -1;
+    if (yh>= bmapheight)
+        yh = bmapheight -1;
 
-	for (bx = xl; bx <= xh; bx++)
-	{
-		for (by = yl; by <= yh; by++)
-		{
-		    /*inline ??*/
-			//P_BlockLinesIterator(bx, by, SL_CheckLine);
+    for (bx = xl; bx <= xh; bx++)
+    {
+        for (by = yl; by <= yh; by++)
+        {
+            /*inline ??*/
+            //P_BlockLinesIterator(bx, by, SL_CheckLine);
 
             offset = by*bmapwidth+bx;
 
@@ -420,27 +420,27 @@ fixed_t P_CompletableFrac(fixed_t dx, fixed_t dy)//L800256CC()
                     SL_CheckLine(ld);
                 }
             }
-		}
-	}
+        }
+    }
 
-	//
-	// examine results
-	//
-	if (blockfrac < 0x1000)
-	{
-		blockfrac = 0;
-		specialline = 0;	// can't cross anything on a bad move
-		return 0;			// solid wall or thing
-	}
+    //
+    // examine results
+    //
+    if (blockfrac < 0x1000)
+    {
+        blockfrac = 0;
+        specialline = 0;    // can't cross anything on a bad move
+        return 0;           // solid wall or thing
+    }
 
-	return blockfrac;
+    return blockfrac;
 }
 
 //inline
 int SL_PointOnSide(fixed_t x, fixed_t y)//L80025970()
 {
     //checked
-    fixed_t	dx, dy, dist;
+    fixed_t dx, dy, dist;
 
     dx = x - p1x;
     dy = y - p1y;
@@ -458,7 +458,7 @@ int SL_PointOnSide(fixed_t x, fixed_t y)//L80025970()
 fixed_t SL_CrossFrac (void)//L800259E0()
 {
     //checked
-    fixed_t	dx, dy, dist1, dist2, frac;
+    fixed_t dx, dy, dist1, dist2, frac;
 
     // project move start and end points onto line normal
     dx = p3x - p1x;
@@ -471,20 +471,20 @@ fixed_t SL_CrossFrac (void)//L800259E0()
     dist2 = FixedMul(dx,nvx) + FixedMul(dy,nvy);
 
     if ((dist1 < 0) == (dist2 < 0))
-		return FRACUNIT;		// doesn't cross
+        return FRACUNIT;        // doesn't cross
 
-	frac = FixedDiv(dist1, dist1 - dist2 );
+    frac = FixedDiv(dist1, dist1 - dist2 );
 
-	return frac;
+    return frac;
 }
 
 
 boolean CheckLineEnds (void)//L80025A98()
 {
     //checked
-    fixed_t		snx, sny;		// sight normals
-    fixed_t		dist1, dist2;
-    fixed_t		dx, dy;
+    fixed_t     snx, sny;       // sight normals
+    fixed_t     dist1, dist2;
+    fixed_t     dx, dy;
 
     snx = p4y - p3y;
     sny = p3x - p4x;
@@ -503,9 +503,9 @@ boolean CheckLineEnds (void)//L80025A98()
 
     /*
     if ( (dist1<0) == (dist2<0) )
-		return false;
+        return false;
 
-	return true;
+    return true;
     */
 }
 
@@ -578,89 +578,89 @@ void SL_ClipToLine( void )//L80025B58()
 
 boolean SL_CheckLine(line_t *ld)//L80025D50()
 {
-	fixed_t		opentop, openbottom;
-	sector_t	*front, *back;
-	int			side1, temp;
+    fixed_t     opentop, openbottom;
+    sector_t    *front, *back;
+    int         side1, temp;
 
-	// check bbox first
-	if (endbox[BOXRIGHT ] < ld->bbox[BOXLEFT  ]
-	||	endbox[BOXLEFT  ] > ld->bbox[BOXRIGHT ]
-	||	endbox[BOXTOP   ] < ld->bbox[BOXBOTTOM]
-	||	endbox[BOXBOTTOM] > ld->bbox[BOXTOP   ] )
-		return true;
+    // check bbox first
+    if (endbox[BOXRIGHT ] < ld->bbox[BOXLEFT  ]
+    ||  endbox[BOXLEFT  ] > ld->bbox[BOXRIGHT ]
+    ||  endbox[BOXTOP   ] < ld->bbox[BOXBOTTOM]
+    ||  endbox[BOXBOTTOM] > ld->bbox[BOXTOP   ] )
+        return true;
 
-	// see if it can possibly block movement
-	if (!ld->backsector || ld->flags & ML_BLOCKING)
-		goto findfrac;		// explicitly blocking
+    // see if it can possibly block movement
+    if (!ld->backsector || ld->flags & ML_BLOCKING)
+        goto findfrac;      // explicitly blocking
 
-	front = ld->frontsector;
-	back = ld->backsector;
+    front = ld->frontsector;
+    back = ld->backsector;
 
-	if (front->floorheight > back->floorheight)
-		openbottom = front->floorheight;
-	else
-		openbottom = back->floorheight;
+    if (front->floorheight > back->floorheight)
+        openbottom = front->floorheight;
+    else
+        openbottom = back->floorheight;
 
-	if (openbottom - slidething->z > 24*FRACUNIT)
-		goto findfrac;		// too big of a step up
+    if (openbottom - slidething->z > 24*FRACUNIT)
+        goto findfrac;      // too big of a step up
 
-	if (front->ceilingheight < back->ceilingheight)
-		opentop = front->ceilingheight;
-	else
-		opentop = back->ceilingheight;
+    if (front->ceilingheight < back->ceilingheight)
+        opentop = front->ceilingheight;
+    else
+        opentop = back->ceilingheight;
 
-	if (opentop - openbottom >= 56*FRACUNIT)
-		return true;		// the line doesn't block movement
+    if (opentop - openbottom >= 56*FRACUNIT)
+        return true;        // the line doesn't block movement
 
-	// the line definately blocks movement
+    // the line definately blocks movement
 findfrac:
-	// p1, p2 are line endpoints
-	p1x = ld->v1->x;
-	p1y = ld->v1->y;
-	p2x = ld->v2->x;
-	p2y = ld->v2->y;
+    // p1, p2 are line endpoints
+    p1x = ld->v1->x;
+    p1y = ld->v1->y;
+    p2x = ld->v2->x;
+    p2y = ld->v2->y;
 
-	nvx = finesine(ld->fineangle);
-	nvy = -finecosine(ld->fineangle);
+    nvx = finesine(ld->fineangle);
+    nvy = -finecosine(ld->fineangle);
 
-	side1 = SL_PointOnSide (slidex, slidey);
-	if (side1 == SIDE_ON)
-		return true;
-	if (side1 == SIDE_BACK)
-	{
-		if (!ld->backsector)
-			return true;			// don't clip to backs of one sided lines
-		temp = p1x;
-		p1x = p2x;
-		p2x = temp;
-		temp = p1y;
-		p1y = p2y;
-		p2y = temp;
-		nvx = -nvx;
-		nvy = -nvy;
-	}
+    side1 = SL_PointOnSide (slidex, slidey);
+    if (side1 == SIDE_ON)
+        return true;
+    if (side1 == SIDE_BACK)
+    {
+        if (!ld->backsector)
+            return true;            // don't clip to backs of one sided lines
+        temp = p1x;
+        p1x = p2x;
+        p2x = temp;
+        temp = p1y;
+        p1y = p2y;
+        p2y = temp;
+        nvx = -nvx;
+        nvy = -nvy;
+    }
 
-	SL_ClipToLine();
-	return true;
+    SL_ClipToLine();
+    return true;
 }
 
-int	SL_PointOnSide2(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2, fixed_t x3, fixed_t y3)//L80025f9C()
+int SL_PointOnSide2(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2, fixed_t x3, fixed_t y3)//L80025f9C()
 {
     //checked
-	fixed_t	nx, ny;
-	fixed_t dist;
+    fixed_t nx, ny;
+    fixed_t dist;
 
-	x1 = (x1 - x2);
-	y1 = (y1 - y2);
+    x1 = (x1 - x2);
+    y1 = (y1 - y2);
 
-	nx = (y3 - y2);
-	ny = (x2 - x3);
+    nx = (y3 - y2);
+    ny = (x2 - x3);
 
-	dist = FixedMul(x1, nx) + FixedMul(y1, ny);
+    dist = FixedMul(x1, nx) + FixedMul(y1, ny);
 
-	if (dist < 0)
-		return SIDE_BACK;
-	return SIDE_FRONT;
+    if (dist < 0)
+        return SIDE_BACK;
+    return SIDE_FRONT;
 }
 
 static short    *list_;     //80078074|psGp00000c64
@@ -669,87 +669,87 @@ static int      offset_;    //80077DB0|iGp000009a0
 
 void SL_CheckSpecialLines (fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2)//L8002600C()
 {
-	fixed_t			bx, by, xl, xh, yl, yh, bxl, bxh, byl, byh;
-	fixed_t			x3,y3,x4,y4;
-	int			    side1, side2;
+    fixed_t         bx, by, xl, xh, yl, yh, bxl, bxh, byl, byh;
+    fixed_t         x3,y3,x4,y4;
+    int             side1, side2;
 
-	if (x1<x2) {
-		xl = x1;
-		xh = x2;
-	} else {
-		xl = x2;
-		xh = x1;
-	}
-	if (y1<y2) {
-		yl = y1;
-		yh = y2;
-	} else {
-		yl = y2;
-		yh = y1;
-	}
+    if (x1<x2) {
+        xl = x1;
+        xh = x2;
+    } else {
+        xl = x2;
+        xh = x1;
+    }
+    if (y1<y2) {
+        yl = y1;
+        yh = y2;
+    } else {
+        yl = y2;
+        yh = y1;
+    }
 
-	bxl = (xl - bmaporgx)>>MAPBLOCKSHIFT;
-	bxh = (xh - bmaporgx)>>MAPBLOCKSHIFT;
-	byl = (yl - bmaporgy)>>MAPBLOCKSHIFT;
-	byh = (yh - bmaporgy)>>MAPBLOCKSHIFT;
+    bxl = (xl - bmaporgx)>>MAPBLOCKSHIFT;
+    bxh = (xh - bmaporgx)>>MAPBLOCKSHIFT;
+    byl = (yl - bmaporgy)>>MAPBLOCKSHIFT;
+    byh = (yh - bmaporgy)>>MAPBLOCKSHIFT;
 
-	if (bxl<0)
-		bxl = 0;
-	if (byl<0)
-		byl = 0;
-	if (bxh>= bmapwidth)
-		bxh = bmapwidth -1;
-	if (byh>= bmapheight)
-		byh = bmapheight -1;
+    if (bxl<0)
+        bxl = 0;
+    if (byl<0)
+        byl = 0;
+    if (bxh>= bmapwidth)
+        bxh = bmapwidth -1;
+    if (byh>= bmapheight)
+        byh = bmapheight -1;
 
-	specialline = 0;
-	++validcount;
+    specialline = 0;
+    ++validcount;
 
-	for (bx = bxl; bx <= bxh; bx++)
-	{
-		for (by = byl; by <= byh; by++)
-		{
-			offset_ = (by*bmapwidth) + bx;
-			offset_ = *(blockmap + offset_);
+    for (bx = bxl; bx <= bxh; bx++)
+    {
+        for (by = byl; by <= byh; by++)
+        {
+            offset_ = (by*bmapwidth) + bx;
+            offset_ = *(blockmap + offset_);
 
-			for (list_ = blockmaplump + offset_; *list_ != -1; list_++)
-			{
-				ld_ = &lines[*list_];
+            for (list_ = blockmaplump + offset_; *list_ != -1; list_++)
+            {
+                ld_ = &lines[*list_];
 
-				if (!ld_->special)
-					continue;
-				if (ld_->validcount == validcount)
-					continue;		// line has already been checked
+                if (!ld_->special)
+                    continue;
+                if (ld_->validcount == validcount)
+                    continue;       // line has already been checked
 
-				ld_->validcount = validcount;
+                ld_->validcount = validcount;
 
-				if (xh < ld_->bbox[BOXLEFT]
-					|| xl > ld_->bbox[BOXRIGHT]
-					|| yh < ld_->bbox[BOXBOTTOM]
-					|| yl > ld_->bbox[BOXTOP])
-					continue;
+                if (xh < ld_->bbox[BOXLEFT]
+                    || xl > ld_->bbox[BOXRIGHT]
+                    || yh < ld_->bbox[BOXBOTTOM]
+                    || yl > ld_->bbox[BOXTOP])
+                    continue;
 
-				x3 = ld_->v1->x;
-				y3 = ld_->v1->y;
-				x4 = ld_->v2->x;
-				y4 = ld_->v2->y;
+                x3 = ld_->v1->x;
+                y3 = ld_->v1->y;
+                x4 = ld_->v2->x;
+                y4 = ld_->v2->y;
 
-				side1 = SL_PointOnSide2(x1, y1, x3, y3, x4, y4);
-				side2 = SL_PointOnSide2(x2, y2, x3, y3, x4, y4);
+                side1 = SL_PointOnSide2(x1, y1, x3, y3, x4, y4);
+                side2 = SL_PointOnSide2(x2, y2, x3, y3, x4, y4);
 
-				if (side1 == side2)
-					continue;		// move doesn't cross line
+                if (side1 == side2)
+                    continue;       // move doesn't cross line
 
-				side1 = SL_PointOnSide2(x3, y3, x1, y1, x2, y2);
-				side2 = SL_PointOnSide2(x4, y4, x1, y1, x2, y2);
+                side1 = SL_PointOnSide2(x3, y3, x1, y1, x2, y2);
+                side2 = SL_PointOnSide2(x4, y4, x1, y1, x2, y2);
 
-				if (side1 == side2)
-					continue;		// line doesn't cross move
+                if (side1 == side2)
+                    continue;       // line doesn't cross move
 
-				specialline = ld_;
-				return;
-			}
-		}
-	}
+                specialline = ld_;
+                return;
+            }
+        }
+    }
 }
 #endif // 0

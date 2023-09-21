@@ -9,7 +9,7 @@
 /*
 ==============================================================================
 
-						SECTOR HEIGHT CHANGING
+                        SECTOR HEIGHT CHANGING
 
 = After modifying a sectors floor or ceiling height, call this
 = routine to adjust the positions of all things that touch the
@@ -42,29 +42,29 @@ static boolean  nofit;      // 800A5694
 
 boolean P_ThingHeightClip (mobj_t *thing) // 80010180
 {
-	boolean		onfloor;
+    boolean     onfloor;
 
-	onfloor = (thing->z == thing->floorz);
+    onfloor = (thing->z == thing->floorz);
 
-	P_CheckPosition (thing, thing->x, thing->y);
-	/* what about stranding a monster partially off an edge? */
+    P_CheckPosition (thing, thing->x, thing->y);
+    /* what about stranding a monster partially off an edge? */
 
-	thing->floorz = tmfloorz;
-	thing->ceilingz = tmceilingz;
+    thing->floorz = tmfloorz;
+    thing->ceilingz = tmceilingz;
 
-	if (onfloor)
-	/* walking monsters rise and fall with the floor */
-		thing->z = thing->floorz;
-	else
-	{	/* don't adjust a floating monster unless forced to */
-		if (thing->z+thing->height > thing->ceilingz)
-			thing->z = thing->ceilingz - thing->height;
-	}
+    if (onfloor)
+    /* walking monsters rise and fall with the floor */
+        thing->z = thing->floorz;
+    else
+    {   /* don't adjust a floating monster unless forced to */
+        if (thing->z+thing->height > thing->ceilingz)
+            thing->z = thing->ceilingz - thing->height;
+    }
 
-	if (thing->ceilingz - thing->floorz < thing->height)
-		return false;
+    if (thing->ceilingz - thing->floorz < thing->height)
+        return false;
 
-	return true;
+    return true;
 }
 
 
@@ -78,14 +78,14 @@ boolean P_ThingHeightClip (mobj_t *thing) // 80010180
 
 boolean PIT_ChangeSector (mobj_t *thing) // 80010234
 {
-	mobj_t		*mo;
+    mobj_t      *mo;
 
-	if (P_ThingHeightClip (thing))
-		return true;		/* keep checking */
+    if (P_ThingHeightClip (thing))
+        return true;        /* keep checking */
 
-	/* crunch bodies to giblets */
-	if (thing->health <= 0 && thing->tics == -1)
-	{
+    /* crunch bodies to giblets */
+    if (thing->health <= 0 && thing->tics == -1)
+    {
         // [nova] - remove exploding monsters/objects
         if(thing->type == MT_PAIN || thing->type == MT_SKULL || thing->type == MT_PROP_BARREL)
         {
@@ -100,22 +100,22 @@ boolean PIT_ChangeSector (mobj_t *thing) // 80010234
             thing->radius = 0;
         }
 
-		return true;		/* keep checking */
-	}
+        return true;        /* keep checking */
+    }
 
-	/* crunch dropped items */
-	if (thing->flags & MF_DROPPED)
-	{
-		P_RemoveMobj (thing);
-		return true;		/* keep checking */
-	}
+    /* crunch dropped items */
+    if (thing->flags & MF_DROPPED)
+    {
+        P_RemoveMobj (thing);
+        return true;        /* keep checking */
+    }
 
-	if (!(thing->flags & MF_SHOOTABLE) )
-		return true;				/* assume it is bloody gibs or something */
+    if (!(thing->flags & MF_SHOOTABLE) )
+        return true;                /* assume it is bloody gibs or something */
 
-	nofit = true;
+    nofit = true;
 
-	//
+    //
     // [d64] insta-kill thing if sector type is 666
     //
     if(crushchange == 2)
@@ -136,7 +136,7 @@ boolean PIT_ChangeSector (mobj_t *thing) // 80010234
         }
     }
 
-	return true;		/* keep checking (crush other things)	 */
+    return true;        /* keep checking (crush other things)    */
 }
 
 /*
@@ -149,28 +149,28 @@ boolean PIT_ChangeSector (mobj_t *thing) // 80010234
 
 boolean P_ChangeSector (sector_t *sector, boolean crunch) // 800103BC
 {
-	int x,y;
+    int x,y;
 
-	/* force next sound to reflood */
+    /* force next sound to reflood */
     players[0].lastsoundsector = NULL;
 
-	nofit = false;
-	crushchange = crunch;
+    nofit = false;
+    crushchange = crunch;
 
-	// [d64] handle special case if sector's special is 666
+    // [d64] handle special case if sector's special is 666
         if(sector->special == 666)
             crushchange = 2;
 
-	/* recheck heights for all things near the moving sector */
-	for (x = sector->blockbox[BOXLEFT]; x <= sector->blockbox[BOXRIGHT]; x++)
-	{
-		for (y = sector->blockbox[BOXBOTTOM]; y <= sector->blockbox[BOXTOP]; y++)
+    /* recheck heights for all things near the moving sector */
+    for (x = sector->blockbox[BOXLEFT]; x <= sector->blockbox[BOXRIGHT]; x++)
+    {
+        for (y = sector->blockbox[BOXBOTTOM]; y <= sector->blockbox[BOXTOP]; y++)
         {
-			P_BlockThingsIterator(x, y, PIT_ChangeSector);
+            P_BlockThingsIterator(x, y, PIT_ChangeSector);
         }
-	}
+    }
 
-	return nofit;
+    return nofit;
 }
 
 

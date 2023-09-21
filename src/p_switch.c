@@ -3,7 +3,7 @@
 
 /*================================================================== */
 /* */
-/*	CHANGE THE TEXTURE OF A WALL SWITCH TO ITS OPPOSITE */
+/*  CHANGE THE TEXTURE OF A WALL SWITCH TO ITS OPPOSITE */
 /* */
 /*================================================================== */
 
@@ -47,18 +47,18 @@ void P_StartSwitchSound(line_t *line, int sound_id)
 
 /*================================================================== */
 /* */
-/*	Function that changes wall texture. */
-/*	Tell it if switch is ok to use again (1=yes, it's a button). */
+/*  Function that changes wall texture. */
+/*  Tell it if switch is ok to use again (1=yes, it's a button). */
 /* */
 /*================================================================== */
 void P_ChangeSwitchTexture(line_t *line,int useAgain) // 80021460
 {
-	int	sound;
-	int	swx;
+    int sound;
+    int swx;
 
-	/* 52  EXIT! */
-	/* 124 Secret EXIT */
-	if(SPECIALMASK(line->special) == 52 || SPECIALMASK(line->special) == 124)
+    /* 52  EXIT! */
+    /* 124 Secret EXIT */
+    if(SPECIALMASK(line->special) == 52 || SPECIALMASK(line->special) == 124)
         sound = sfx_switch2;//sfx_swtchx
     else
         sound = sfx_switch1;//sfx_swtchn
@@ -97,25 +97,25 @@ void P_ChangeSwitchTexture(line_t *line,int useAgain) // 80021460
 
 /*================================================================== */
 /* */
-/*	Start a button counting down till it turns off. */
+/*  Start a button counting down till it turns off. */
 /* */
 /*================================================================== */
 void P_StartButton(line_t *line,bwhere_e w,int texture,int time) // 80021608
 {
-	int i;
+    int i;
 
-	for (i = 0;i < MAXBUTTONS;i++)
+    for (i = 0;i < MAXBUTTONS;i++)
     {
-		if (buttonlist[i].btimer <= 0)
-		{
-			buttonlist[i].side = &sides[line->sidenum[0]];
-			buttonlist[i].where = w;
-			buttonlist[i].btexture = texture;
-			buttonlist[i].btimer = time;
-			buttonlist[i].line = line;
-			return;
-		}
+        if (buttonlist[i].btimer <= 0)
+        {
+            buttonlist[i].side = &sides[line->sidenum[0]];
+            buttonlist[i].where = w;
+            buttonlist[i].btexture = texture;
+            buttonlist[i].btimer = time;
+            buttonlist[i].line = line;
+            return;
+        }
     }
 
-	//I_Error("P_StartButton: no button slots left!");
+    //I_Error("P_StartButton: no button slots left!");
 }

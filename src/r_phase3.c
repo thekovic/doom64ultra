@@ -159,28 +159,28 @@ void R_RenderWorld(subsector_t *sub) // 80026638
 void R_WallPrep(seg_t *seg) // 80026A44
 {
     sector_t *backsector;
-	line_t *li;
-	side_t *side;
-	fixed_t f_ceilingheight;
-	fixed_t f_floorheight;
-	fixed_t b_ceilingheight;
-	fixed_t b_floorheight;
-	fixed_t m_top;
-	fixed_t m_bottom;
-	fixed_t height;
-	fixed_t rowoffs;
-	int pic;
+    line_t *li;
+    side_t *side;
+    fixed_t f_ceilingheight;
+    fixed_t f_floorheight;
+    fixed_t b_ceilingheight;
+    fixed_t b_floorheight;
+    fixed_t m_top;
+    fixed_t m_bottom;
+    fixed_t height;
+    fixed_t rowoffs;
+    int pic;
 
-	unsigned int height2;
-	unsigned int r1 = 0, g1 = 0, b1 = 0;
-	unsigned int r2 = 0, g2 = 0, b2 = 0;
-	unsigned int thingcolor = 0;
-	unsigned int upcolor = 0;
-	unsigned int lowcolor = 0;
-	unsigned int topcolor = 0;
-	unsigned int bottomcolor = 0;
-	unsigned int tmp_upcolor = 0;
-	unsigned int tmp_lowcolor = 0;
+    unsigned int height2;
+    unsigned int r1 = 0, g1 = 0, b1 = 0;
+    unsigned int r2 = 0, g2 = 0, b2 = 0;
+    unsigned int thingcolor = 0;
+    unsigned int upcolor = 0;
+    unsigned int lowcolor = 0;
+    unsigned int topcolor = 0;
+    unsigned int bottomcolor = 0;
+    unsigned int tmp_upcolor = 0;
+    unsigned int tmp_lowcolor = 0;
 
     li = seg->linedef;
     side = seg->sidedef;
@@ -1076,10 +1076,10 @@ void R_RenderLaser(mobj_t *thing) // 80028CCC
     gSPVertex(GFX1++, (VTX1), 6, 0);
 
     gSP2Triangles(GFX1++, 0, 2, 3, 1/*flag1*/,
-						  0, 1, 2, 2/*flag2*/);
+                          0, 1, 2, 2/*flag2*/);
 
     gSP2Triangles(GFX1++, 0, 3, 5, 2/*flag1*/,
-						  3, 4, 5, 2/*flag2*/);
+                          3, 4, 5, 2/*flag2*/);
     DEBUG_COUNTER(LastVisTriangles += 4);
 
     VTX1[0].v.ob[0] = (laserdata->x1 >> 16);
@@ -1118,32 +1118,32 @@ void R_RenderLaser(mobj_t *thing) // 80028CCC
 
 void R_RenderPSprites(void) // 80028f20
 {
-    int				i;
-	pspdef_t		*psp, *psptmp;
-	state_t			*state;
-	spritedef_t		*sprdef;
-	spriteframe_t	*sprframe;
-	int				lump;
-	int				flagtranslucent;
+    int             i;
+    pspdef_t        *psp, *psptmp;
+    state_t         *state;
+    spritedef_t     *sprdef;
+    spriteframe_t   *sprframe;
+    int             lump;
+    int             flagtranslucent;
 
-	boolean         palloaded;
-	spriteN64_t		*sprite;
-	byte		    *paldata;
-	byte		    *src;
+    boolean         palloaded;
+    spriteN64_t     *sprite;
+    byte            *paldata;
+    byte            *src;
 
-	int             tilecnt;
-	int             tiles;
-	int             tileh;
-	int             tilew;
-	int             width;
-	int             height;
-	int             width2;
-	int             yh;
-	int             x, y;
-	int             dsdx, dtdy;
-	int             stileh;
+    int             tilecnt;
+    int             tiles;
+    int             tileh;
+    int             tilew;
+    int             width;
+    int             height;
+    int             width2;
+    int             yh;
+    int             x, y;
+    int             dsdx, dtdy;
+    int             stileh;
 
-	I_CheckGFX();
+    I_CheckGFX();
 
     gDPPipeSync(GFX1++);
     gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
@@ -1180,12 +1180,12 @@ draw:
         dtdy = 1 << 12 >> hudyshift;
 
     for (i = 0; i < NUMPSPRITES; i++, psp++)
-	{
-		if ((state = psp->state) != 0) /* a null state means not active */
-		{
-			sprdef = &sprites[state->sprite];
-			sprframe = &sprdef->spriteframes[state->frame & FF_FRAMEMASK];
-			lump = sprframe->lump[0];
+    {
+        if ((state = psp->state) != 0) /* a null state means not active */
+        {
+            sprdef = &sprites[state->sprite];
+            sprframe = &sprdef->spriteframes[state->frame & FF_FRAMEMASK];
+            lump = sprframe->lump[0];
 
             sprite = W_CacheLumpNum(lump, PU_CACHE, dec_jag, sizeof(spriteN64_t));
 
@@ -1221,22 +1221,22 @@ draw:
                 stileh = tileh << hudyshift;
             }
 
-			if (psp->state->frame & FF_FULLBRIGHT)
-			{
-			    gDPSetPrimColorD64(GFX1, 0, 0, PACKRGBA(255,255,255,0));//0xffffff00
-			}
-			else
-			{
-			    gDPSetPrimColorD64(GFX1, 0, frontsector->lightlevel,
+            if (psp->state->frame & FF_FULLBRIGHT)
+            {
+                gDPSetPrimColorD64(GFX1, 0, 0, PACKRGBA(255,255,255,0));//0xffffff00
+            }
+            else
+            {
+                gDPSetPrimColorD64(GFX1, 0, frontsector->lightlevel,
                           lights[frontsector->colors[2]].rgba & ~255); // remove alpha value
-			}
+            }
 
-			// apply alpha value
-			if (flagtranslucent)
-			{
-				GFX1->words.w1 |= 144;
-			}
-			else
+            // apply alpha value
+            if (flagtranslucent)
+            {
+                GFX1->words.w1 |= 144;
+            }
+            else
             {
                 GFX1->words.w1 |= psp->alpha;
             }
@@ -1308,6 +1308,6 @@ draw:
                     tilecnt += 1;
                 } while (tilecnt != (int)tiles);
             }
-		}
-	}
+        }
+    }
 }

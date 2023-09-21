@@ -200,9 +200,9 @@ void D_DrawNoMemory(void)
 void D_SplashScreen(void) // 8002B988
 {
     /* */
-	/* Check if the n64 control is connected */
-	/* if not connected, it will show the Warning screen */
-	/* */
+    /* Check if the n64 control is connected */
+    /* if not connected, it will show the Warning screen */
+    /* */
     if (((*&gamepad_bit_pattern) & 1) == 0) {
         MiniLoop(NULL, NULL,D_WarningTicker,D_DrawWarning);
     }

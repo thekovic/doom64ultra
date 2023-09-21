@@ -18,22 +18,22 @@
 
 typedef struct
 {
-	char		identification[4];		/* should be IWAD */
-	int			numlumps;
-	int			infotableofs;
+    char        identification[4];      /* should be IWAD */
+    int         numlumps;
+    int         infotableofs;
 } wadinfo_t;
 
 /*============= */
 /* GLOBALS */
 /*============= */
 
-static lumpcache_t	*lumpcache;				//800B2220
-static int			numlumps;				//800B2224
-lumpinfo_t	*lumpinfo;				//800B2228 /* points directly to rom image */
+static lumpcache_t  *lumpcache;             //800B2220
+static int          numlumps;               //800B2224
+lumpinfo_t  *lumpinfo;              //800B2228 /* points directly to rom image */
 
-static int          mapnumlumps;			//800B2230 psxdoom/doom64
-static lumpinfo_t   *maplump;				//800B2234 psxdoom/doom64
-static byte         *mapfileptr;			//800B2238 psxdoom/doom64
+static int          mapnumlumps;            //800B2230 psxdoom/doom64
+static lumpinfo_t   *maplump;               //800B2234 psxdoom/doom64
+static byte         *mapfileptr;            //800B2238 psxdoom/doom64
 static u32           maplumppos;
 
 static int maxcompressedsize = 0;
@@ -50,7 +50,7 @@ void AllocDecodeWindow(void);
 /*
 ============================================================================
 
-						LUMP BASED ROUTINES
+                        LUMP BASED ROUTINES
 
 ============================================================================
 */
@@ -85,7 +85,7 @@ static void W_GetRomData(u32 offset, void *dest, u32 len, u32 usable)
 void W_Init (void) // 8002BEC0
 {
     wadinfo_t wadfileheader ALIGNED(16);
-	int infotableofs, i;
+    int infotableofs, i;
     bool intextures = false;
 
     W_GetRomData(0, &wadfileheader, sizeof(wadinfo_t), sizeof(wadinfo_t));
@@ -99,11 +99,11 @@ void W_Init (void) // 8002BEC0
     infotableofs = LONGSWAP(wadfileheader.infotableofs);
     W_GetRomData(infotableofs, lumpinfo, i, i);
 
-	//sprintf(str, "identification %s",wadfileptr->identification);
+    //sprintf(str, "identification %s",wadfileptr->identification);
     //printstr(WHITE, 0, 4, str);
-	//sprintf(str, "numlumps %d",numlumps);
+    //sprintf(str, "numlumps %d",numlumps);
     //printstr(WHITE, 0, 5, str);
-	//sprintf(str, "infotableofs %d",infotableofs);
+    //sprintf(str, "infotableofs %d",infotableofs);
     //printstr(WHITE, 0, 6, str);
 
     for(i = 0; i < numlumps; i++)
@@ -176,44 +176,44 @@ void W_Init (void) // 8002BEC0
 //int W_CheckNumForName(char *name, int unk1, int hibit1, int hibit2)    // original
 int W_CheckNumForName(const char *name, int hibit1, int hibit2) // 8002C0F4 removed unknown parameter
 {
-	char	name8[12];
-	char	c, *tmp;
-	int		i;
-	lumpinfo_t	*lump_p;
+    char    name8[12];
+    char    c, *tmp;
+    int     i;
+    lumpinfo_t  *lump_p;
 
-	/* make the name into two integers for easy compares */
+    /* make the name into two integers for easy compares */
 
-	*(int *)&name8[4] = 0;
-	*(int *)&name8[0] = 0;
+    *(int *)&name8[4] = 0;
+    *(int *)&name8[0] = 0;
 
-	tmp = name8;
-	while ((c = *name) != 0)
-	{
-		*tmp++ = c;
+    tmp = name8;
+    while ((c = *name) != 0)
+    {
+        *tmp++ = c;
 
-		if ((tmp >= name8+8))
-		{
-			break;
-		}
+        if ((tmp >= name8+8))
+        {
+            break;
+        }
 
-		name++;
-	}
+        name++;
+    }
 
-	/* scan backwards so patch lump files take precedence */
+    /* scan backwards so patch lump files take precedence */
 
-	lump_p = lumpinfo;
-	for(i = 0; i < numlumps; i++)
-	{
-		if (	(*(int *)&name8[0] == (*(int *)&lump_p->name[0] & hibit1)) &&
-			(*(int *)&name8[4] == (*(int *)&lump_p->name[4] & hibit2))	)
-		{
-			return i;
-		}
+    lump_p = lumpinfo;
+    for(i = 0; i < numlumps; i++)
+    {
+        if (    (*(int *)&name8[0] == (*(int *)&lump_p->name[0] & hibit1)) &&
+            (*(int *)&name8[4] == (*(int *)&lump_p->name[4] & hibit2))  )
+        {
+            return i;
+        }
 
-		lump_p++;
-	}
+        lump_p++;
+    }
 
-	return -1;
+    return -1;
 }
 
 /*
@@ -226,16 +226,16 @@ int W_CheckNumForName(const char *name, int hibit1, int hibit2) // 8002C0F4 remo
 ====================
 */
 
-int	W_GetNumForName (const char *name) // 8002C1B8
+int W_GetNumForName (const char *name) // 8002C1B8
 {
-	int	i;
+    int i;
 
-	i = W_CheckNumForName (name, 0x7fffffff, 0xFFFFFFFF);
-	if (i != -1)
-		return i;
+    i = W_CheckNumForName (name, 0x7fffffff, 0xFFFFFFFF);
+    if (i != -1)
+        return i;
 
-	I_Error ("W_GetNumForName: %s not found!",name);
-	return -1;
+    I_Error ("W_GetNumForName: %s not found!",name);
+    return -1;
 }
 
 
@@ -252,9 +252,9 @@ int	W_GetNumForName (const char *name) // 8002C1B8
 int W_LumpLength (int lump) // 8002C204
 {
     if ((lump < 0) || (lump >= numlumps))
-		I_Error ("W_LumpLength: lump %i out of range",lump);
+        I_Error ("W_LumpLength: lump %i out of range",lump);
 
-	return lumpinfo[lump].size;
+    return lumpinfo[lump].size;
 }
 
 bool W_IsLumpCompressed (int lump)
@@ -337,33 +337,33 @@ void *W_CacheLumpNum (int lump, int tag, decodetype dectype, int usable) // 8002
     int lumpsize;
     lumpcache_t *lc;
 
-	if ((lump < 0) || (lump >= numlumps))
-		I_Error ("W_CacheLumpNum: lump %i out of range",lump);
+    if ((lump < 0) || (lump >= numlumps))
+        I_Error ("W_CacheLumpNum: lump %i out of range",lump);
 
-	lc = &lumpcache[lump];
+    lc = &lumpcache[lump];
 
-	if (!lc->cache)
-	{	/* read the lump in */
-	    //if (dectype == dec_d64)
+    if (!lc->cache)
+    {   /* read the lump in */
+        //if (dectype == dec_d64)
             //ST_DebugPrint("W_CacheLumpNum: lump %i", lump);
 
-		if (dectype == dec_none)
-			lumpsize = lumpinfo[lump + 1].filepos - lumpinfo[lump].filepos;
-		else
-			lumpsize = lumpinfo[lump].size;
+        if (dectype == dec_none)
+            lumpsize = lumpinfo[lump + 1].filepos - lumpinfo[lump].filepos;
+        else
+            lumpsize = lumpinfo[lump].size;
 
-		Z_Malloc(lumpsize, tag, &lc->cache);
+        Z_Malloc(lumpsize, tag, &lc->cache);
 
-		W_ReadLump(lump, lc->cache, dectype, usable);
-	}
-	else
+        W_ReadLump(lump, lc->cache, dectype, usable);
+    }
+    else
     {
         if (tag & PU_CACHE) {
             Z_Touch(lc->cache);
         }
     }
 
-	return lc->cache;
+    return lc->cache;
 }
 
 /*
@@ -376,7 +376,7 @@ void *W_CacheLumpNum (int lump, int tag, decodetype dectype, int usable) // 8002
 
 void *W_CacheLumpName (char *name, int tag, decodetype dectype, int usable) // 8002C57C
 {
-	return W_CacheLumpNum (W_GetNumForName(name), tag, dectype, usable);
+    return W_CacheLumpNum (W_GetNumForName(name), tag, dectype, usable);
 }
 
 
@@ -399,8 +399,8 @@ MAP LUMP BASED ROUTINES
 
 void W_OpenMapWad(int mapnum) // 8002C5B0
 {
-	int lump, size, infotableofs, i;
-	char name [8];
+    int lump, size, infotableofs, i;
+    char name [8];
 
     if (mapnum > 0)
     {
@@ -530,10 +530,10 @@ void W_FreeMapLump(void *ptr)
 
 int W_MapLumpLength(int lump) // 8002C77C
 {
-	if (lump >= mapnumlumps)
-		I_Error("W_MapLumpLength: %i out of range", lump);
+    if (lump >= mapnumlumps)
+        I_Error("W_MapLumpLength: %i out of range", lump);
 
-	return maplump[lump].size;
+    return maplump[lump].size;
 }
 
 
@@ -548,44 +548,44 @@ int W_MapLumpLength(int lump) // 8002C77C
 
 int W_MapGetNumForName(const char *name) // 8002C7D0
 {
-    char	name8[12];
-	char	c, *tmp;
-	int		i;
-	lumpinfo_t	*lump_p;
+    char    name8[12];
+    char    c, *tmp;
+    int     i;
+    lumpinfo_t  *lump_p;
 
-	/* make the name into two integers for easy compares */
+    /* make the name into two integers for easy compares */
 
-	*(int *)&name8[4] = 0;
-	*(int *)&name8[0] = 0;
+    *(int *)&name8[4] = 0;
+    *(int *)&name8[0] = 0;
 
-	tmp = name8;
-	while ((c = *name) != 0)
-	{
-		*tmp++ = c;
+    tmp = name8;
+    while ((c = *name) != 0)
+    {
+        *tmp++ = c;
 
-		if (tmp >= (name8+8))
-		{
-			break;
-		}
+        if (tmp >= (name8+8))
+        {
+            break;
+        }
 
-		name++;
-	}
+        name++;
+    }
 
-	/* scan backwards so patch lump files take precedence */
+    /* scan backwards so patch lump files take precedence */
 
-	lump_p = maplump;
-	for(i = 0; i < mapnumlumps; i++)
-	{
-		if (	(*(int *)&name8[0] == (*(int *)&lump_p->name[0] & 0x7fffffff)) &&
-			(*(int *)&name8[4] == (*(int *)&lump_p->name[4]))	)
-		{
-			return i;
-		}
+    lump_p = maplump;
+    for(i = 0; i < mapnumlumps; i++)
+    {
+        if (    (*(int *)&name8[0] == (*(int *)&lump_p->name[0] & 0x7fffffff)) &&
+            (*(int *)&name8[4] == (*(int *)&lump_p->name[4]))   )
+        {
+            return i;
+        }
 
-	        lump_p++;
-	}
+            lump_p++;
+    }
 
-	return -1;
+    return -1;
 }
 
 /*

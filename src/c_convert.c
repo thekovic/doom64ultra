@@ -18,20 +18,20 @@
 int C_LightGetHSV(int r,int g,int b) // 800020BC
 {
     unsigned char min, max;
-	unsigned char h_, s_, v_;
+    unsigned char h_, s_, v_;
 
     min = r < g ? (r < b ? r : b) : (g < b ? g : b);
     max = r > g ? (r > b ? r : b) : (g > b ? g : b);
 
-	v_ = max;
+    v_ = max;
     if (v_ == 0)
     {
         return 0;
     }
-	
-	s_ = (255 * (long)(max - min)) / v_;
-	if (s_ == 0)
-	{
+
+    s_ = (255 * (long)(max - min)) / v_;
+    if (s_ == 0)
+    {
         return v_ & 0x000000FF;
     }
 
@@ -39,15 +39,15 @@ int C_LightGetHSV(int r,int g,int b) // 800020BC
     {
         h_ = 0 + 43 * (g - b) / (max - min);
     }
-	else if (max == g)
+    else if (max == g)
     {
         h_ = 85 + 43 * (b - r) / (max - min);
     }
-	else
+    else
     {
         h_ = 171 + 43 * (r - g) / (max - min);
     }
-	
+
     return (((h_ << 16) | (s_ << 8) | v_) & 0x00FFFFFF);
 }
 
@@ -71,7 +71,7 @@ int C_LightGetRGB(int h,int s,int v) // 8000248C
     }
 
     region = h / 43;
-    remainder = (h - (region * 43)) * 6; 
+    remainder = (h - (region * 43)) * 6;
 
     p = (v * (255 - s)) >> 8;
     q = (v * (255 - ((s * remainder) >> 8))) >> 8;

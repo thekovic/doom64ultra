@@ -4,11 +4,11 @@
 
 #define D64ULTRA_VERSION "0.1 alpha"
 
-#define	VINT	int
+#define VINT    int
 
 /* ULTRA64 LIBRARIES */
 #include <ultra64.h>
-#include <PR/ramrom.h>	/* needed for argument passing into the app */
+#include <PR/ramrom.h>  /* needed for argument passing into the app */
 #include <libaudio.h>
 
 #include "doomlib.h"
@@ -16,8 +16,8 @@
 // silence gcc warnings
 #undef OS_K0_TO_PHYSICAL
 #undef OS_K1_TO_PHYSICAL
-#define	OS_K0_TO_PHYSICAL(x) ((u32)(x)-0x80000000)
-#define	OS_K1_TO_PHYSICAL(x) ((u32)(x)-0xa0000000)
+#define OS_K0_TO_PHYSICAL(x) ((u32)(x)-0x80000000)
+#define OS_K1_TO_PHYSICAL(x) ((u32)(x)-0xa0000000)
 
 #include "i_main.h"
 
@@ -59,31 +59,31 @@ u32 C_MultColor(u32 c, u8 fac);
 /*
 ===============================================================================
 
-						GLOBAL TYPES
+                        GLOBAL TYPES
 
 ===============================================================================
 */
 
-#define MAXPLAYERS	1   		/* D64 has one player */
-#define TICRATE		30			/* number of tics / second */
+#define MAXPLAYERS  1           /* D64 has one player */
+#define TICRATE     30          /* number of tics / second */
 
-#define	FRACBITS		16
-#define	FRACUNIT		(1<<FRACBITS)
+#define FRACBITS        16
+#define FRACUNIT        (1<<FRACBITS)
 
 typedef int fixed_t;
 
-#define	ANGMAX	0xffffffff
-#define	ANG45	0x20000000
-#define	ANG90	0x40000000
-#define	ANG180	0x80000000
-#define	ANG270	0xc0000000
-#define ANG5	0x38e38e3   // (ANG90/18)
-#define ANG1	0xb60b60    // (ANG45/45)
+#define ANGMAX  0xffffffff
+#define ANG45   0x20000000
+#define ANG90   0x40000000
+#define ANG180  0x80000000
+#define ANG270  0xc0000000
+#define ANG5    0x38e38e3   // (ANG90/18)
+#define ANG1    0xb60b60    // (ANG45/45)
 typedef unsigned angle_t;
 
-#define	FINEANGLES			8192
-#define	FINEMASK			(FINEANGLES-1)
-#define	ANGLETOFINESHIFT	19	/* 0x100000000 to 0x2000 */
+#define FINEANGLES          8192
+#define FINEMASK            (FINEANGLES-1)
+#define ANGLETOFINESHIFT    19  /* 0x100000000 to 0x2000 */
 
 #define ARRAYLEN(a) (sizeof(a) / sizeof(a[0]))
 
@@ -96,8 +96,8 @@ typedef unsigned angle_t;
         _a < _min ? _min : (_a > _max ? _max : _a); \
     })
 
-//extern	fixed_t		finesine(5*FINEANGLES/4);
-//extern	fixed_t		*finecosine;
+//extern    fixed_t     finesine(5*FINEANGLES/4);
+//extern    fixed_t     *finecosine;
 /*
 extern fixed_t D_abs(fixed_t x);
 extern fixed_t finesine(int x);
@@ -187,9 +187,9 @@ static inline HOT angle_t tantoangle(int x) {
 
 typedef enum
 {
-	sk_easy = 0,
-	sk_medium = 1,
-	sk_hard = 2,
+    sk_easy = 0,
+    sk_medium = 1,
+    sk_hard = 2,
 } mapskill_t;
 
 typedef enum {
@@ -223,18 +223,18 @@ typedef struct
 
 typedef enum
 {
-	ga_nothing,
-	ga_died,
-	ga_completed,
-	ga_secretexit,// no used
-	ga_warped,
-	ga_exitdemo,
-	//News
-	ga_timeout,
-	ga_restart,
-	ga_exit,
+    ga_nothing,
+    ga_died,
+    ga_completed,
+    ga_secretexit,// no used
+    ga_warped,
+    ga_exitdemo,
+    //News
+    ga_timeout,
+    ga_restart,
+    ga_exit,
     ga_loadquicksave,
-	ga_recorddemo,
+    ga_recorddemo,
 } gameaction_t;
 
 #define LASTLEVEL 34
@@ -245,7 +245,7 @@ typedef enum
 /*
 ===============================================================================
 
-							MAPOBJ DATA
+                            MAPOBJ DATA
 
 ===============================================================================
 */
@@ -260,8 +260,8 @@ typedef void (*latecall_t) (struct mobj_s *mo);
 
 typedef struct thinker_s
 {
-	struct		thinker_s	*prev, *next;
-	think_t		function;
+    struct      thinker_s   *prev, *next;
+    think_t     function;
 } thinker_t;
 
 struct player_s;
@@ -335,8 +335,8 @@ typedef struct laser_s
 /* */
 /* frame flags */
 /* */
-#define	FF_FULLBRIGHT	0x8000		/* flag in thing->frame */
-#define FF_FRAMEMASK	0x7fff
+#define FF_FULLBRIGHT   0x8000      /* flag in thing->frame */
+#define FF_FRAMEMASK    0x7fff
 
 /* */
 /* mobj flags */
@@ -379,11 +379,11 @@ typedef struct laser_s
 #define MF_SEETARGET    0x4000000   /* is target visible? */
 
 /* Doom 64 New Flags */
-#define	MF_COUNTSECRET  0x8000000   /* [d64] Count as secret when picked up (for intermissions) */
-#define	MF_RENDERLASER  0x10000000  /* [d64] Exclusive to MT_LASERMARKER only */
-#define	MF_NIGHTMARE    0x20000000  /* [nova] nightmare monster */
-#define	MF_SHADOW       0x40000000  /* temporary player invisibility powerup. */
-#define	MF_NOINFIGHTING 0x80000000  /* [d64] Do not switch targets */
+#define MF_COUNTSECRET  0x8000000   /* [d64] Count as secret when picked up (for intermissions) */
+#define MF_RENDERLASER  0x10000000  /* [d64] Exclusive to MT_LASERMARKER only */
+#define MF_NIGHTMARE    0x20000000  /* [nova] nightmare monster */
+#define MF_SHADOW       0x40000000  /* temporary player invisibility powerup. */
+#define MF_NOINFIGHTING 0x80000000  /* [d64] Do not switch targets */
 
 //(val << 0 < 0) 0x80000000
 //(val << 1 < 0) 0x40000000
@@ -403,17 +403,17 @@ typedef struct laser_s
 //(val << f < 0) 0x10000
 
 /* Exclusive Psx Doom Flags */
-//#define	MF_BLENDMASK1	0x10000000
-//#define	MF_BLENDMASK2	0x20000000
-//#define	MF_BLENDMASK3	0x40000000
-//#define	MF_ALL_BLEND_MASKS  (MF_BLENDMASK1 | MF_BLENDMASK2 | MF_BLENDMASK3)
+//#define   MF_BLENDMASK1   0x10000000
+//#define   MF_BLENDMASK2   0x20000000
+//#define   MF_BLENDMASK3   0x40000000
+//#define   MF_ALL_BLEND_MASKS  (MF_BLENDMASK1 | MF_BLENDMASK2 | MF_BLENDMASK3)
 
 /*============================================================================= */
 typedef enum
 {
-	PST_LIVE,			/* playing */
-	PST_DEAD,			/* dead on the ground */
-	PST_REBORN			/* ready to restart */
+    PST_LIVE,           /* playing */
+    PST_DEAD,           /* dead on the ground */
+    PST_REBORN          /* ready to restart */
 } playerstate_t;
 
 
@@ -421,55 +421,55 @@ typedef enum
 /* coordinates are given for a 320*200 view screen */
 typedef enum
 {
-	ps_weapon,
-	ps_flash,
-	ps_flashalpha, // New Doom64
-	NUMPSPRITES
+    ps_weapon,
+    ps_flash,
+    ps_flashalpha, // New Doom64
+    NUMPSPRITES
 } psprnum_t;
 
 typedef struct
 {
-	state_t	*state;		/* a NULL state means not active */
-	int		tics;
-	int     alpha;
-	fixed_t	sx, sy;
+    state_t *state;     /* a NULL state means not active */
+    int     tics;
+    int     alpha;
+    fixed_t sx, sy;
 } pspdef_t;
 
 typedef enum
 {
-	it_bluecard,
-	it_yellowcard,
-	it_redcard,
-	it_blueskull,
-	it_yellowskull,
-	it_redskull,
-	NUMCARDS
+    it_bluecard,
+    it_yellowcard,
+    it_redcard,
+    it_blueskull,
+    it_yellowskull,
+    it_redskull,
+    NUMCARDS
 } card_t;
 
 typedef enum
 {
-	wp_chainsaw,
-	wp_fist,
-	wp_pistol,
-	wp_shotgun,
-	wp_supershotgun,// [psx]
-	wp_chaingun,
-	wp_missile,
-	wp_plasma,
-	wp_bfg,
-	wp_laser,       // [d64]
-	NUMWEAPONS,
-	wp_nochange
+    wp_chainsaw,
+    wp_fist,
+    wp_pistol,
+    wp_shotgun,
+    wp_supershotgun,// [psx]
+    wp_chaingun,
+    wp_missile,
+    wp_plasma,
+    wp_bfg,
+    wp_laser,       // [d64]
+    NUMWEAPONS,
+    wp_nochange
 } weapontype_t;
 
 typedef enum
 {
-	am_clip,		/* pistol / chaingun */
-	am_shell,		/* shotgun */
-	am_cell,		/* BFG / plasma / #$&%*/
-	am_misl,		/* missile launcher */
-	NUMAMMO,
-	am_noammo		/* chainsaw / fist */
+    am_clip,        /* pistol / chaingun */
+    am_shell,       /* shotgun */
+    am_cell,        /* BFG / plasma / #$&%*/
+    am_misl,        /* missile launcher */
+    NUMAMMO,
+    am_noammo       /* chainsaw / fist */
 } ammotype_t;
 
 typedef enum
@@ -481,34 +481,34 @@ typedef enum
 
 typedef struct
 {
-	ammotype_t	ammo;
-	int			upstate;
-	int			downstate;
-	int			readystate;
-	int			atkstate;
-	int			flashstate;
+    ammotype_t  ammo;
+    int         upstate;
+    int         downstate;
+    int         readystate;
+    int         atkstate;
+    int         flashstate;
 } weaponinfo_t;
 
-extern	weaponinfo_t	weaponinfo[NUMWEAPONS]; // 8005AD80
+extern  weaponinfo_t    weaponinfo[NUMWEAPONS]; // 8005AD80
 
 typedef enum
 {
-	pw_invulnerability,
-	pw_strength,
-	pw_invisibility,
-	pw_ironfeet,
-	pw_allmap,
-	pw_infrared,
-	NUMPOWERS
+    pw_invulnerability,
+    pw_strength,
+    pw_invisibility,
+    pw_ironfeet,
+    pw_allmap,
+    pw_infrared,
+    NUMPOWERS
 } powertype_t;
 
-#define	INVULNTICS		(30*30)
-#define	INVISTICS		(60*30)
-#define	INFRATICS		(120*30)
-#define	IRONTICS		(60*30)
-#define	STRTICS		    (3*30)
+#define INVULNTICS      (30*30)
+#define INVISTICS       (60*30)
+#define INFRATICS       (120*30)
+#define IRONTICS        (60*30)
+#define STRTICS         (3*30)
 
-#define	MSGTICS		    (5*30)
+#define MSGTICS         (5*30)
 
 #define STICK_MOVE   0x1
 #define STICK_TURN   0x2
@@ -646,9 +646,9 @@ typedef struct player_s
 #define CF_FLYMODE      0x100000
 #define CF_ARTIFACTS    0x200000
 
-#define	AF_LINES		1				/* automap active on lines mode */
-#define	AF_SUBSEC		2               /* automap active on subsector mode */
-#define	AF_FOLLOW		4
+#define AF_LINES        1               /* automap active on lines mode */
+#define AF_SUBSEC       2               /* automap active on subsector mode */
+#define AF_FOLLOW       4
 
 #define MAXCONTROLSETUPS 8
 extern controls_t CurrentControls[MAXPLAYERS];
@@ -669,73 +669,73 @@ typedef struct ALIGNED(4) {
 /*
 ===============================================================================
 
-					GLOBAL VARIABLES
+                    GLOBAL VARIABLES
 
 ===============================================================================
 */
 
 /*================================== */
 
-extern int gamevbls;		            // 80063130 /* may not really be vbls in multiplayer */
-extern int gametic;		                // 80063134
+extern int gamevbls;                    // 80063130 /* may not really be vbls in multiplayer */
+extern int gametic;                     // 80063134
 extern int ticsinframe;                 // 80063138 /* how many tics since last drawer */
-extern int ticon;			            // 8006313C
+extern int ticon;                       // 8006313C
 extern int lastticon;                   // 80063140
-extern int vblsinframe[MAXPLAYERS];	    // 80063144 /* range from 4 to 8 */
-extern int ticbuttons[MAXCONTROLLERS];		// 80063148
-extern int oldticbuttons[MAXCONTROLLERS];	// 8006314C
+extern int vblsinframe[MAXPLAYERS];     // 80063144 /* range from 4 to 8 */
+extern int ticbuttons[MAXCONTROLLERS];      // 80063148
+extern int oldticbuttons[MAXCONTROLLERS];   // 8006314C
 
-extern	boolean		gamepaused;
+extern  boolean     gamepaused;
 
-extern	int DrawerStatus;
+extern  int DrawerStatus;
 
-//extern	int		maxlevel;			/* highest level selectable in menu (1-25) */
+//extern    int     maxlevel;           /* highest level selectable in menu (1-25) */
 
 int MiniLoop ( void (*start)(void),  void (*stop)(int)
-		,  int (*ticker)(void), void (*drawer)(void) ) HOT;
+        ,  int (*ticker)(void), void (*drawer)(void) ) HOT;
 
-int	G_Ticker (void);
+int G_Ticker (void);
 void G_Drawer (void);
 void G_RunGame (void);
 
 /*================================== */
 
 
-extern	gameaction_t	gameaction;
+extern  gameaction_t    gameaction;
 
-#define	SBARHEIGHT	32			/* status bar height at bottom of screen */
+#define SBARHEIGHT  32          /* status bar height at bottom of screen */
 
 typedef enum
 {
-	gt_single,
-	gt_coop,
-	gt_deathmatch
+    gt_single,
+    gt_coop,
+    gt_deathmatch
 } gametype_t;
 
-//extern	gametype_t	netgame;
+//extern    gametype_t  netgame;
 
-//extern	boolean		playeringame[MAXPLAYERS];
-//extern	int			consoleplayer;		/* player taking events and displaying */
-//extern	int			displayplayer;
-extern	player_t	players[MAXPLAYERS];
+//extern    boolean     playeringame[MAXPLAYERS];
+//extern    int         consoleplayer;      /* player taking events and displaying */
+//extern    int         displayplayer;
+extern  player_t    players[MAXPLAYERS];
 
-extern	playerconfig_t	playerconfigs[MAXPLAYERS];
+extern  playerconfig_t  playerconfigs[MAXPLAYERS];
 
 #define NUMSKILLPRESETS 9
 
 extern const skillpreset_t SkillPresets[NUMSKILLPRESETS];
-extern	customskill_t		customskill;
-extern	int			gamemap;
-extern	int			nextmap;
-extern	int			totalkills, totalitems, totalsecret;	/* for intermission *///80077d4c,80077d58,80077E18
+extern  customskill_t       customskill;
+extern  int         gamemap;
+extern  int         nextmap;
+extern  int         totalkills, totalitems, totalsecret;    /* for intermission *///80077d4c,80077d58,80077E18
 
-//extern	mapthing_t	deathmatchstarts[10], *deathmatch_p;    //80097e4c,80077e8c
-extern	mapthing_t	playerstarts[MAXPLAYERS];//800a8c60
+//extern    mapthing_t  deathmatchstarts[10], *deathmatch_p;    //80097e4c,80077e8c
+extern  mapthing_t  playerstarts[MAXPLAYERS];//800a8c60
 
 /*
 ===============================================================================
 
-					GLOBAL FUNCTIONS
+                    GLOBAL FUNCTIONS
 
 ===============================================================================
 */
@@ -744,7 +744,7 @@ short BigShort(short dat);
 short LittleShort(short dat);
 long LongSwap(long dat);
 
-fixed_t	FixedMul (fixed_t a, fixed_t b);
+fixed_t FixedMul (fixed_t a, fixed_t b);
 fixed_t FixedDiv (fixed_t a, fixed_t b);
 fixed_t FixedDiv2(fixed_t a, fixed_t b);
 
@@ -755,15 +755,15 @@ char *PrintFixed(char *buf, fixed_t d);
 
 #ifdef __BIG_ENDIAN__
 
-#define	LONGSWAP(x)   (x)
-#define	LITTLESHORT(x)  (x)
-#define	BIGSHORT(x)     (x)
+#define LONGSWAP(x)   (x)
+#define LITTLESHORT(x)  (x)
+#define BIGSHORT(x)     (x)
 
 #else
 
-#define	LONGSWAP(x)     LongSwap(x)
-#define	LITTLESHORT(x)  LittleShort(x)
-#define	BIGSHORT(x)     BigShort(x)
+#define LONGSWAP(x)     LongSwap(x)
+#define LITTLESHORT(x)  LittleShort(x)
+#define BIGSHORT(x)     BigShort(x)
 
 #endif // __BIG_ENDIAN__
 
@@ -771,44 +771,44 @@ char *PrintFixed(char *buf, fixed_t d);
 /*MEMORY ZONE */
 /*----------- */
 /* tags < 8 are not overwritten until freed */
-#define	PU_STATIC		1			/* static entire execution time */
-#define	PU_LEVEL		2			/* static until level exited */
-#define	PU_LEVSPEC		4			/* a special thinker in a level */
+#define PU_STATIC       1           /* static entire execution time */
+#define PU_LEVEL        2           /* static until level exited */
+#define PU_LEVSPEC      4           /* a special thinker in a level */
 /* tags >= 8 are purgable whenever needed */
-#define	PU_PURGELEVEL	8
-#define	PU_CACHE		16
+#define PU_PURGELEVEL   8
+#define PU_CACHE        16
 
-#define	ZONEID	0x1d4a
+#define ZONEID  0x1d4a
 
 typedef struct memblock_s
 {
-	int		size;           /* including the header and possibly tiny fragments */
-	void    **user;         /* NULL if a free block */
-	int     tag;            /* purgelevel */
-	int     id;             /* should be ZONEID */
-	int		lockframe;		/* don't purge on the same frame */
-	struct memblock_s   *next;
-	struct memblock_s	*prev;
-	void    *gfxcache;      /* New on Doom64 */
+    int     size;           /* including the header and possibly tiny fragments */
+    void    **user;         /* NULL if a free block */
+    int     tag;            /* purgelevel */
+    int     id;             /* should be ZONEID */
+    int     lockframe;      /* don't purge on the same frame */
+    struct memblock_s   *next;
+    struct memblock_s   *prev;
+    void    *gfxcache;      /* New on Doom64 */
 } memblock_t;
 
 typedef struct
 {
-	int		size;				/* total bytes malloced, including header */
-	memblock_t	*rover;
-	memblock_t	*rover2;        /* New on Doom64 */
-	memblock_t	*rover3;        /* New on Doom64 */
-	memblock_t	blocklist;		/* start / end cap for linked list */
+    int     size;               /* total bytes malloced, including header */
+    memblock_t  *rover;
+    memblock_t  *rover2;        /* New on Doom64 */
+    memblock_t  *rover3;        /* New on Doom64 */
+    memblock_t  blocklist;      /* start / end cap for linked list */
 } memzone_t;
 
-extern	memzone_t	*mainzone;
+extern  memzone_t   *mainzone;
 
-void	Z_Init (void) SEC_STARTUP;
+void    Z_Init (void) SEC_STARTUP;
 memzone_t *Z_InitZone (byte *base, int size) SEC_STARTUP;
 
 void    Z_SetAllocBase(memzone_t *mainzone) SEC_STARTUP;
-void 	*Z_Malloc2 (memzone_t *mainzone, int size, int tag, void *ptr) __attribute__((malloc));
-void	*Z_Alloc2(memzone_t *mainzone, int size, int tag, void *user) __attribute__((malloc)); // PsxDoom / Doom64
+void    *Z_Malloc2 (memzone_t *mainzone, int size, int tag, void *ptr) __attribute__((malloc));
+void    *Z_Alloc2(memzone_t *mainzone, int size, int tag, void *user) __attribute__((malloc)); // PsxDoom / Doom64
 void    Z_Reserve2 (memzone_t *mainzone, void *addr, int size);
 void    Z_Free2 (memzone_t *mainzone,void *ptr);
 
@@ -817,12 +817,12 @@ void    Z_Free2 (memzone_t *mainzone,void *ptr);
 #define Z_Reserve(x,y) Z_Reserve2(mainzone,x,y)
 #define Z_Free(x) Z_Free2(mainzone,x)
 
-void	Z_FreeTags(memzone_t *mainzone, int tag);
+void    Z_FreeTags(memzone_t *mainzone, int tag);
 void    Z_Touch(void *ptr);
 bool    Z_Stale(void *ptr);
-void	Z_CheckZone (memzone_t *mainzone);
-void	Z_ChangeTag (void *ptr, int tag);
-int 	Z_FreeMemory (memzone_t *mainzone);
+void    Z_CheckZone (memzone_t *mainzone);
+void    Z_ChangeTag (void *ptr, int tag);
+int     Z_FreeMemory (memzone_t *mainzone);
 void    Z_DumpHeap(memzone_t *mainzone);
 
 #ifndef NDEBUG
@@ -838,55 +838,55 @@ extern u32 LevelMem;
 // New Doom64
 typedef enum
 {
-	dec_none,
-	dec_jag,
-	dec_d64
+    dec_none,
+    dec_jag,
+    dec_d64
 } decodetype;
 
 typedef struct
 {
-	int			filepos;					/* also texture_t * for comp lumps */
-	int			size;
-	char		name[8];
+    int         filepos;                    /* also texture_t * for comp lumps */
+    int         size;
+    char        name[8];
 } lumpinfo_t;
 
 typedef struct {
     void       *cache;
 } lumpcache_t;
 
-extern	lumpinfo_t	*lumpinfo;		/* points directly to rom image */
-//extern	int			numlumps;
-//extern	lumpcache_t	*lumpcache;
-//extern	byte		*mapfileptr;	// psxdoom/d64
-//extern	int			mapnumlumps;	// psxdoom/d64
-//extern	lumpinfo_t  *maplump;		// psxdoom/d64
+extern  lumpinfo_t  *lumpinfo;      /* points directly to rom image */
+//extern    int         numlumps;
+//extern    lumpcache_t *lumpcache;
+//extern    byte        *mapfileptr;    // psxdoom/d64
+//extern    int         mapnumlumps;    // psxdoom/d64
+//extern    lumpinfo_t  *maplump;       // psxdoom/d64
 
-void	W_Init (void) SEC_STARTUP;
+void    W_Init (void) SEC_STARTUP;
 
 int     W_CheckNumForName (const char *name, int hibit1, int hibit2);
-int		W_GetNumForName (const char *name);
+int     W_GetNumForName (const char *name);
 
-int		W_LumpLength (int lump);
-bool	W_IsLumpCompressed (int lump);
-void	W_ReadLump (int lump, void *dest, decodetype dectype, int usable) HOT;
-void	*W_GetLump(int lump, decodetype dectype, int usable);
+int     W_LumpLength (int lump);
+bool    W_IsLumpCompressed (int lump);
+void    W_ReadLump (int lump, void *dest, decodetype dectype, int usable) HOT;
+void    *W_GetLump(int lump, decodetype dectype, int usable);
 
-void	*W_CacheLumpNum (int lump, int tag, decodetype dectype, int usable) HOT;
-void	*W_CacheLumpName (char *name, int tag, decodetype dectype, int usable);
+void    *W_CacheLumpNum (int lump, int tag, decodetype dectype, int usable) HOT;
+void    *W_CacheLumpName (char *name, int tag, decodetype dectype, int usable);
 
-void	W_OpenMapWad(int mapnum) SEC_STARTUP;
+void    W_OpenMapWad(int mapnum) SEC_STARTUP;
 void    W_FreeMapLumps(void) SEC_STARTUP;
 void    W_FreeMapLump(void *ptr) SEC_STARTUP;
-int		W_MapLumpLength(int lump) SEC_STARTUP;
-int		W_MapGetNumForName(const char *name) SEC_STARTUP;
-void	*W_GetMapLump(int lump) SEC_STARTUP;
-void	W_ReadMapLump(int lump, void *ptr) SEC_STARTUP;
+int     W_MapLumpLength(int lump) SEC_STARTUP;
+int     W_MapGetNumForName(const char *name) SEC_STARTUP;
+void    *W_GetMapLump(int lump) SEC_STARTUP;
+void    W_ReadMapLump(int lump, void *ptr) SEC_STARTUP;
 
 /*---------*/
 /* DECODES */
 /*---------*/
-void	DecodeD64(unsigned char *input, unsigned char *output);
-void	DecodeJaguar(unsigned char *input, unsigned char *output) HOT;
+void    DecodeD64(unsigned char *input, unsigned char *output);
+void    DecodeJaguar(unsigned char *input, unsigned char *output) HOT;
 
 /*------------*/
 /* BASE LEVEL */
@@ -902,8 +902,8 @@ void D_DoomMain (void *arg) SEC_STARTUP NO_RETURN;
 /* GAME */
 /*------*/
 
-extern	boolean	demoplayback, demorecording;
-extern	int		*demo_p, *demobuffer;
+extern  boolean demoplayback, demorecording;
+extern  int     *demo_p, *demobuffer;
 extern int demosize;
 
 #define DEMO_MAGIC 0xFF443634 // '\xffD64'
@@ -945,17 +945,17 @@ typedef void(*menufunc_t)(void);
 
 typedef struct
 {
-	int	casepos;
-	int x;
-	int y;
+    int casepos;
+    int x;
+    int y;
 } menuitem_t;
 
 typedef struct
 {
-	const menuitem_t *menu_item;
-	int item_lines;
-	menufunc_t menu_call;
-	int cursor_pos;
+    const menuitem_t *menu_item;
+    int item_lines;
+    menufunc_t menu_call;
+    int cursor_pos;
 } menudata_t;
 
 extern menudata_t MenuData[8];      // 800A54F0
@@ -985,24 +985,24 @@ extern int ConfgNumb[MAXPLAYERS];  // 8005A7AC
 extern int Display_X;               // 8005A7B0
 extern int Display_Y;               // 8005A7B4
 extern boolean enable_messages;     // 8005A7B8
-extern int HUDopacity;    			// [Immorpher] HUD 0pacity options
+extern int HUDopacity;              // [Immorpher] HUD 0pacity options
 extern int SfxVolume;               // 8005A7C0
 extern int MusVolume;               // 8005A7C4
 extern int brightness;              // 8005A7C8
 extern int ShowDebugCounters;       // [nova] debug counters
 extern fixed_t MotionBob;           // [Immorpher] Motion Bob
-extern int VideoFilters[3];			// [nova] Independent filter select
+extern int VideoFilters[3];         // [nova] Independent filter select
 extern int TvMode;                  // [nova] interlace/aa
 extern int ScreenAspect;            // [nova] widescreen
 extern boolean NoGammaCorrect;      // [nova] real gamma option
-extern boolean DitherFilter;     	// [Immorpher] Dither Filter
-extern s8 ColorDither;     		// [Immorpher] Color Dither
-extern int FlashBrightness;     	// [Immorpher] Strobe brightness adjustment
-extern boolean runintroduction; 	// [Immorpher] New introduction text
-extern boolean StoryText; 			// [Immorpher] Enable story text
-extern boolean MapStats; 			// [Immorpher] Enable automap statistics
-extern int HUDmargin; 				// [Immorpher] HUD margin options
-extern boolean ColoredHUD;     		// [Immorpher] Colored hud
+extern boolean DitherFilter;        // [Immorpher] Dither Filter
+extern s8 ColorDither;          // [Immorpher] Color Dither
+extern int FlashBrightness;         // [Immorpher] Strobe brightness adjustment
+extern boolean runintroduction;     // [Immorpher] New introduction text
+extern boolean StoryText;           // [Immorpher] Enable story text
+extern boolean MapStats;            // [Immorpher] Enable automap statistics
+extern int HUDmargin;               // [Immorpher] HUD margin options
+extern boolean ColoredHUD;          // [Immorpher] Colored hud
 extern u8 BitDepth;
 extern s8 VideoResolution;
 extern u16 XResolution;
@@ -1156,8 +1156,8 @@ struct subsector_s *R_PointInSubsector (fixed_t x, fixed_t y) HOT;
 /*------*/
 typedef struct
 {
-	char *	name;
-	int		MusicSeq;
+    char *  name;
+    int     MusicSeq;
 } mapinfo_t;
 
 extern mapinfo_t MapInfo[];
@@ -1200,11 +1200,11 @@ void S_StartSoundAt(void *key, fixed_t x, fixed_t y, fixed_t z, int flags, int s
 
 /* vbi_wait_thread messages */
 enum VID_MSG {
-	VID_MSG_RSP = 666,
-	VID_MSG_RDP = 667,
-	VID_MSG_PRENMI = 668,
-	VID_MSG_VBI = 669,
-	VID_MSG_KICKSTART = 670,
+    VID_MSG_RSP = 666,
+    VID_MSG_RDP = 667,
+    VID_MSG_PRENMI = 668,
+    VID_MSG_VBI = 669,
+    VID_MSG_KICKSTART = 670,
 };
 
 extern OSTask *vid_task;   // 800A5244
@@ -1246,8 +1246,8 @@ extern Vtx *VTX1;    // 800A4A08
 extern Vtx *VTX2;    // 800A4A0C
 extern u32 VtxIndex; // 800A525C
 
-extern Mtx *MTX1;	// 800A4A10
-extern Mtx *MTX2;	// 800A4A14
+extern Mtx *MTX1;   // 800A4A10
+extern Mtx *MTX2;   // 800A4A14
 
 void I_Init(void) SEC_STARTUP; // 80005C50
 
@@ -1399,34 +1399,34 @@ DEBUG_COUNTER(extern u32 LastDmaCycles);
 #define G_CC_D64COMB19 1, 0, TEXEL0, PRIMITIVE, 0, 0, 0, PRIMITIVE
 
 /* DOOM 64 CUSTOM RENDER MODES */
-#define	RM_XLU_SURF_CLAMP(clk)					\
-	IM_RD | CVG_DST_CLAMP | FORCE_BL | ZMODE_OPA |		\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
+#define RM_XLU_SURF_CLAMP(clk)                  \
+    IM_RD | CVG_DST_CLAMP | FORCE_BL | ZMODE_OPA |      \
+    GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
 
-#define	G_RM_XLU_SURF_CLAMP			RM_XLU_SURF_CLAMP(1)
-#define	G_RM_XLU_SURF2_CLAMP		RM_XLU_SURF_CLAMP(2)
+#define G_RM_XLU_SURF_CLAMP         RM_XLU_SURF_CLAMP(1)
+#define G_RM_XLU_SURF2_CLAMP        RM_XLU_SURF_CLAMP(2)
 
 
-#define	RM_XLU_SURF_ADD(clk)					\
-	IM_RD | CVG_DST_SAVE | FORCE_BL | ZMODE_OPA |		\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1)
+#define RM_XLU_SURF_ADD(clk)                    \
+    IM_RD | CVG_DST_SAVE | FORCE_BL | ZMODE_OPA |       \
+    GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1)
 
-#define	G_RM_XLU_SURF_ADD		RM_XLU_SURF_ADD(1)
-#define	G_RM_XLU_SURF2_ADD		RM_XLU_SURF_ADD(2)
+#define G_RM_XLU_SURF_ADD       RM_XLU_SURF_ADD(1)
+#define G_RM_XLU_SURF2_ADD      RM_XLU_SURF_ADD(2)
 
-#define	gDPSetPrimColorD64(pkt, m, l, rgba)				\
-{									\
-	Gfx *_g = (Gfx *)(pkt);						\
-									\
-	_g->words.w0 =	(_SHIFTL(G_SETPRIMCOLOR, 24, 8) | 		\
-			 _SHIFTL(m, 8, 8) | _SHIFTL(l, 0, 8));		\
-	_g->words.w1 =  (unsigned int)(rgba);		\
+#define gDPSetPrimColorD64(pkt, m, l, rgba)             \
+{                                   \
+    Gfx *_g = (Gfx *)(pkt);                     \
+                                    \
+    _g->words.w0 =  (_SHIFTL(G_SETPRIMCOLOR, 24, 8) |       \
+             _SHIFTL(m, 8, 8) | _SHIFTL(l, 0, 8));      \
+    _g->words.w1 =  (unsigned int)(rgba);       \
 }
 
-#define	gDPSetEnvColorD64(pkt, rgba)					\
+#define gDPSetEnvColorD64(pkt, rgba)                    \
             gDPSetColor(pkt, G_SETENVCOLOR, rgba)
 
-#define	gDPSetFogColorD64(pkt, rgba)					\
+#define gDPSetFogColorD64(pkt, rgba)                    \
             gDPSetColor(pkt, G_SETFOGCOLOR, rgba)
 
 #define PACKRGBA(r,g,b,a)       (((r)<<24)|((g)<<16)|((b)<<8)|(a))
@@ -1460,7 +1460,7 @@ A_DOWN  0xAD    MAX
 
 #define CONT_A      0x8000 // 1
 #define CONT_B      0x4000 // 2
-#define CONT_G	    0x2000 // 4
+#define CONT_G      0x2000 // 4
 #define CONT_START  0x1000 // 8
 #define CONT_UP     0x0800 // 16
 #define CONT_DOWN   0x0400 // 32
@@ -1475,20 +1475,20 @@ A_DOWN  0xAD    MAX
 #define CONT_C      0x0002 // 16384
 #define CONT_F      0x0001 // 32768
 
-#define A_BUTTON	CONT_A
-#define B_BUTTON	CONT_B
-#define L_TRIG		CONT_L
-#define R_TRIG		CONT_R
-#define Z_TRIG		CONT_G
-#define START_BUTTON	CONT_START
-#define U_JPAD		CONT_UP
-#define L_JPAD		CONT_LEFT
-#define R_JPAD		CONT_RIGHT
-#define D_JPAD		CONT_DOWN
-#define U_CBUTTONS	CONT_E
-#define L_CBUTTONS	CONT_C
-#define R_CBUTTONS	CONT_F
-#define D_CBUTTONS	CONT_D
+#define A_BUTTON    CONT_A
+#define B_BUTTON    CONT_B
+#define L_TRIG      CONT_L
+#define R_TRIG      CONT_R
+#define Z_TRIG      CONT_G
+#define START_BUTTON    CONT_START
+#define U_JPAD      CONT_UP
+#define L_JPAD      CONT_LEFT
+#define R_JPAD      CONT_RIGHT
+#define D_JPAD      CONT_DOWN
+#define U_CBUTTONS  CONT_E
+#define L_CBUTTONS  CONT_C
+#define R_CBUTTONS  CONT_F
+#define D_CBUTTONS  CONT_D
 
 Swap Values
 {
@@ -1528,20 +1528,20 @@ Swap Values
     0xe03d0000  (15840) (L_TRIG|R_TRIG|U_CBUTTONS|D_CBUTTONS|R_CBUTTONS|A_BUTTON|B_BUTTON|Z_TRIG)
 }
 
-#define A_BUTTON	CONT_A
-#define B_BUTTON	CONT_B
-#define Z_TRIG		CONT_G
-#define START_BUTTON	CONT_START
-#define U_JPAD		CONT_UP
-#define D_JPAD		CONT_DOWN
-#define L_JPAD		CONT_LEFT
-#define R_JPAD		CONT_RIGHT
-#define L_TRIG		CONT_L
-#define R_TRIG		CONT_R
-#define U_CBUTTONS	CONT_E
-#define D_CBUTTONS	CONT_D
-#define L_CBUTTONS	CONT_C
-#define R_CBUTTONS	CONT_F
+#define A_BUTTON    CONT_A
+#define B_BUTTON    CONT_B
+#define Z_TRIG      CONT_G
+#define START_BUTTON    CONT_START
+#define U_JPAD      CONT_UP
+#define D_JPAD      CONT_DOWN
+#define L_JPAD      CONT_LEFT
+#define R_JPAD      CONT_RIGHT
+#define L_TRIG      CONT_L
+#define R_TRIG      CONT_R
+#define U_CBUTTONS  CONT_E
+#define D_CBUTTONS  CONT_D
+#define L_CBUTTONS  CONT_C
+#define R_CBUTTONS  CONT_F
 
 //((int)(buttons << 0) < 0) A_BUTTON || CONT_A
 //((int)(buttons << 1) < 0) B_BUTTON || CONT_B
@@ -1604,29 +1604,29 @@ Swap Values
 
 typedef struct
 {
-	short compressed;
-	short numpal;
-	short width;
-	short height;
+    short compressed;
+    short numpal;
+    short width;
+    short height;
     byte  texels[];
 } gfxN64_t;
 
 typedef struct
 {
-	short id;
-	short numpal;
-	short wshift;
-	short hshift;
+    short id;
+    short numpal;
+    short wshift;
+    short hshift;
 } textureN64_t;
 
 typedef struct
 {
-	unsigned short  tiles;      // 0
-	short           compressed; // 2
-	unsigned short  cmpsize;    // 4
-	short           xoffs;      // 6
-	short           yoffs;      // 8
-	unsigned short  width;      // 10
-	unsigned short  height;     // 12
-	unsigned short  tileheight; // 14
+    unsigned short  tiles;      // 0
+    short           compressed; // 2
+    unsigned short  cmpsize;    // 4
+    short           xoffs;      // 6
+    short           yoffs;      // 8
+    unsigned short  width;      // 10
+    unsigned short  height;     // 12
+    unsigned short  tileheight; // 14
 } spriteN64_t;

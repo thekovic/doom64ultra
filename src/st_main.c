@@ -165,52 +165,52 @@ void ST_InitEveryLevel(void) // 80029C00
 
 void ST_Ticker (void) // 80029C88
 {
-	player_t    *player;
-	int		    ind;
+    player_t    *player;
+    int         ind;
 
-	player = &players[0];
+    player = &players[0];
 
     /* */
-	/* Countdown time for the message */
-	/* */
+    /* Countdown time for the message */
+    /* */
     player->messagetic--;
     player->messagetic1--; // [Immorpher] decriment message buffer
     player->messagetic2--; // [Immorpher] decriment message buffer
     player->messagetic3--; // [Immorpher] decriment message buffer
 
-	/* */
-	/* Tried to open a CARD or SKULL door? */
-	/* */
-	for (ind = 0; ind < NUMCARDS; ind++)
-	{
-		/* CHECK FOR INITIALIZATION */
-		if (tryopen[ind])
-		{
-			tryopen[ind] = false;
-			flashCards[ind].active = true;
-			flashCards[ind].delay = FLASHDELAY-1;
-			flashCards[ind].times = FLASHTIMES+1;
-			flashCards[ind].doDraw = false;
-		}
-		/* MIGHT AS WELL DO TICKING IN THE SAME LOOP! */
-		else if (flashCards[ind].active && !--flashCards[ind].delay)
-		{
-			flashCards[ind].delay = FLASHDELAY-1;
-			flashCards[ind].doDraw ^= 1;
-			if (!--flashCards[ind].times)
-				flashCards[ind].active = false;
-			if (flashCards[ind].doDraw && flashCards[ind].active)
-				S_StartSound(NULL,sfx_itemup);
-		}
-	}
+    /* */
+    /* Tried to open a CARD or SKULL door? */
+    /* */
+    for (ind = 0; ind < NUMCARDS; ind++)
+    {
+        /* CHECK FOR INITIALIZATION */
+        if (tryopen[ind])
+        {
+            tryopen[ind] = false;
+            flashCards[ind].active = true;
+            flashCards[ind].delay = FLASHDELAY-1;
+            flashCards[ind].times = FLASHTIMES+1;
+            flashCards[ind].doDraw = false;
+        }
+        /* MIGHT AS WELL DO TICKING IN THE SAME LOOP! */
+        else if (flashCards[ind].active && !--flashCards[ind].delay)
+        {
+            flashCards[ind].delay = FLASHDELAY-1;
+            flashCards[ind].doDraw ^= 1;
+            if (!--flashCards[ind].times)
+                flashCards[ind].active = false;
+            if (flashCards[ind].doDraw && flashCards[ind].active)
+                S_StartSound(NULL,sfx_itemup);
+        }
+    }
 
-	/* */
-	/* Do flashes from damage/items */
-	/* */
-	if (cameratarget == player->mo)
+    /* */
+    /* Do flashes from damage/items */
+    /* */
+    if (cameratarget == player->mo)
     {
         ST_UpdateFlash(); // ST_doPaletteStuff();
-	}
+    }
 }
 
 
@@ -230,7 +230,7 @@ static int debugcnt = 0;
 static int debugstart = 0;
 static int debug = 0;
 
-extern memzone_t	*mainzone;
+extern memzone_t    *mainzone;
 
 void ST_DrawDebug (void)
 {
@@ -364,7 +364,7 @@ void ST_Drawer (void) // 80029DC0
     if ((enable_messages) && player->messagetic > 0) // [Immorpher] only display messages and calculate if global tic is active
     {
         if (player->messagetic != player->messagetic1) // [Immorpher] new global tic indicates new message to add
-        {	// Sequentially shift messages to lower states
+        {   // Sequentially shift messages to lower states
             player->message3 = player->message2;
             player->messagetic3 = player->messagetic2;
             player->messagecolor3 = player->messagecolor2;
@@ -735,14 +735,14 @@ void ST_DrawNumber(int x, int y, int value, int mode, int color) // 8002A79C
         width += symboldata[number[index]].w;
 
         value /= 10;
-		if (!value) break;
+        if (!value) break;
     }
 
     switch(mode)
-	{
-	    case 0:			/* Center */
-	        x -= (width / 2);
-        case 1:			/* Right */
+    {
+        case 0:         /* Center */
+            x -= (width / 2);
+        case 1:         /* Right */
             while (index >= 0)
             {
                 ST_DrawSymbol(x, y, number[index], color);
@@ -750,7 +750,7 @@ void ST_DrawNumber(int x, int y, int value, int mode, int color) // 8002A79C
                 index--;
             }
             break;
-        case 2:			/* Left */
+        case 2:         /* Left */
             i = 0;
             while (index >= 0)
             {
@@ -762,7 +762,7 @@ void ST_DrawNumber(int x, int y, int value, int mode, int color) // 8002A79C
             break;
         default:
             break;
-	}
+    }
 }
 
 void ST_DrawString(int x, int y, const char *text, int color) // 8002A930
@@ -909,13 +909,13 @@ int ST_GetCenterTextX(byte *text) // 8002AAF4
 void ST_UpdateFlash(void) // 8002AC30
 {
     player_t *plyr;
-	int		cnt;
-	int		bzc;
+    int     cnt;
+    int     bzc;
 
 
-	plyr = &players[0];
+    plyr = &players[0];
 
-	if ((plyr->powers[pw_infrared] < 120) && infraredFactor)
+    if ((plyr->powers[pw_infrared] < 120) && infraredFactor)
     {
         infraredFactor -= 4;
         if (infraredFactor < 0) {
@@ -926,16 +926,16 @@ void ST_UpdateFlash(void) // 8002AC30
     }
 
     /* invulnerability flash (white) */
-	if (plyr->powers[pw_invulnerability] >= 61 || plyr->powers[pw_invulnerability] & 8)
-	{
-		FlashEnvColor = PACKRGBA(128, 128, 128, 255);
-	}
-	else
-	{
-	    /* damage and strength flash (red) */
-	    cnt = plyr->damagecount;
+    if (plyr->powers[pw_invulnerability] >= 61 || plyr->powers[pw_invulnerability] & 8)
+    {
+        FlashEnvColor = PACKRGBA(128, 128, 128, 255);
+    }
+    else
+    {
+        /* damage and strength flash (red) */
+        cnt = plyr->damagecount;
 
-	    if (cnt)
+        if (cnt)
         {
             if((cnt + 16) > ST_MAXDMGCOUNT)
                 cnt = ST_MAXDMGCOUNT;
@@ -1057,8 +1057,8 @@ void ST_DisableDebug(void)
 
 void ST_DebugSetPrintPos(int x, int y)
 {
-	debugX = x;
-	debugY = y;
+    debugX = x;
+    debugY = y;
 }
 
 void ST_DebugPrint(const char *text, ...)

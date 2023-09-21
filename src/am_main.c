@@ -14,8 +14,8 @@
 #define COLOR_GREY    0x181818FF
 #define COLOR_AQUA    0x3373B3FF
 
-#define MAXSCALE	1500
-#define MINSCALE	200
+#define MAXSCALE    1500
+#define MINSCALE    200
 
 fixed_t am_box[4]; // 80063110
 int am_plycolor;    // 80063120
@@ -53,17 +53,17 @@ void AM_Start(void) // 800004D8
 
 void AM_Control (player_t *player) // 800004F4
 {
-	int buttons, oldbuttons;
+    int buttons, oldbuttons;
 
-	controls_t   *cbuttons;
-	fixed_t     block[8];
-	angle_t     angle;
-	fixed_t     fs, fc;
-	fixed_t     x, y, x1, y1, x2, y2;
-	int         scale, sensitivity;
-	int         i;
+    controls_t   *cbuttons;
+    fixed_t     block[8];
+    angle_t     angle;
+    fixed_t     fs, fc;
+    fixed_t     x, y, x1, y1, x2, y2;
+    int         scale, sensitivity;
+    int         i;
 
-	if (gamepaused)
+    if (gamepaused)
         return;
 
     cbuttons = player->controls;
@@ -156,7 +156,7 @@ void AM_Control (player_t *player) // 800004F4
     scale = (scale / 1500) << 8;
 
     /* Analyze analog stick movement (left / right) */
-	sensitivity = (int)(((buttons & 0xff00) >> 8) << 24) >> 24;
+    sensitivity = (int)(((buttons & 0xff00) >> 8) << 24) >> 24;
 
     if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
     {
@@ -226,16 +226,16 @@ extern Mtx R_ProjectionMatrix;
 
 void AM_Drawer (void) // 800009AC
 {
-	player_t	*p;
-	mobj_t		*mo;
-	mobj_t		*next;
-	fixed_t		xpos, ypos;
-	fixed_t     c, s, ts, tc;
-	angle_t     angle;
-	int			color;
-	int			scale;
-	int         artflag;
-	char        buf[48];
+    player_t    *p;
+    mobj_t      *mo;
+    mobj_t      *next;
+    fixed_t     xpos, ypos;
+    fixed_t     c, s, ts, tc;
+    angle_t     angle;
+    int         color;
+    int         scale;
+    int         artflag;
+    char        buf[48];
     fixed_t     hcot, vcot;
     fixed_t     screen_box[4];
     fixed_t     boxscale;
@@ -268,7 +268,7 @@ void AM_Drawer (void) // 800009AC
 
     if (p->automapflags & AF_FOLLOW)
     {
-        s64	ox, oy;
+        s64 ox, oy;
 
         angle = (p->mo->angle + ANG270) >> ANGLETOFINESHIFT;
         ox = p->automapx - xpos;

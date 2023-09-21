@@ -2,7 +2,7 @@
 
 #include "doomdef.h"
 
-#define WORDMASK	7
+#define WORDMASK    7
 
 /*
 ====================
@@ -41,33 +41,33 @@ void D_memmove(void *dest, const void *src) // 800019F0
 
 void D_memset(void *dest, int val, int count) // 80001A20
 {
-	byte	*p;
-	int		*lp;
-	int     v;
+    byte    *p;
+    int     *lp;
+    int     v;
 
-	/* round up to nearest word */
-	p = dest;
-	while ((int)p & WORDMASK)
-	{
-		if (--count < 0)
+    /* round up to nearest word */
+    p = dest;
+    while ((int)p & WORDMASK)
+    {
+        if (--count < 0)
             return;
-		*p++ = (char)val;
-	}
+        *p++ = (char)val;
+    }
 
-	/* write 8 bytes at a time */
-	lp = (int *)p;
-	v = (int)(val << 24) | (val << 16) | (val << 8) | val;
-	while (count >= 8)
-	{
-		lp[0] = lp[1] = v;
-		lp += 2;
-		count -= 8;
-	}
+    /* write 8 bytes at a time */
+    lp = (int *)p;
+    v = (int)(val << 24) | (val << 16) | (val << 8) | val;
+    while (count >= 8)
+    {
+        lp[0] = lp[1] = v;
+        lp += 2;
+        count -= 8;
+    }
 
-	/* finish up */
-	p = (byte *)lp;
-	while (count--)
-		*p++ = (char)val;
+    /* finish up */
+    p = (byte *)lp;
+    while (count--)
+        *p++ = (char)val;
 }
 
 /*
@@ -81,12 +81,12 @@ void D_memset(void *dest, int val, int count) // 80001A20
 /*
 void D_memcpy(void *dest, const void *src, int count) // 80001ACC
 {
-	byte	*d, *s;
-	int		*ld, *ls;
-	int     stopcnt;
+    byte    *d, *s;
+    int     *ld, *ls;
+    int     stopcnt;
 
-	ld = (int *)dest;
-	ls = (int *)src;
+    ld = (int *)dest;
+    ls = (int *)src;
 
     if ((((int)ld | (int)ls | count) & 7))
     {
@@ -144,12 +144,12 @@ void D_memcpy(void *dest, const void *src, int count) // 80001ACC
 
 void D_strncpy(char *dest, const char *src, int maxcount) // 8000lBB0
 {
-	byte	*p1, *p2;
-	p1 = (byte *)dest;
-	p2 = (byte *)src;
-	while (maxcount--)
-		if (!(*p1++ = *p2++))
-			return;
+    byte    *p1, *p2;
+    p1 = (byte *)dest;
+    p2 = (byte *)src;
+    while (maxcount--)
+        if (!(*p1++ = *p2++))
+            return;
 }
 
 /*
@@ -186,14 +186,14 @@ int D_strncmp(const char *s1, const char *s2, int len) // 80001BEC
 
 void D_strupr(char *s) // 80001C74
 {
-	char	c;
+    char    c;
 
-	while ((c = *s) != 0)
-	{
-		if (c >= 'a' && c <= 'z')
-			c -= 'a' - 'A';
-		*s++ = c;
-	}
+    while ((c = *s) != 0)
+    {
+        if (c >= 'a' && c <= 'z')
+            c -= 'a' - 'A';
+        *s++ = c;
+    }
 }
 
 /*

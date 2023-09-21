@@ -9,7 +9,7 @@ extern void P_AddSectorSpecial(sector_t* sector);
 /*
 ==============================================================================
 
-							   AIM CAMERA
+                               AIM CAMERA
 
 ==============================================================================
 */
@@ -122,9 +122,9 @@ int EV_SpawnTrapMissile(line_t *line, mobj_t *target, mobjtype_t type) // 8000E0
         }
         else if(type == MT_PROJ_DART)
         {
-            th = P_SpawnMissile(mo, NULL, 
-                FixedMul(mo->radius, x), 
-                FixedMul(mo->radius, y), 
+            th = P_SpawnMissile(mo, NULL,
+                FixedMul(mo->radius, x),
+                FixedMul(mo->radius, y),
                 0, MT_PROJ_DART);
         }
     }
@@ -135,7 +135,7 @@ int EV_SpawnTrapMissile(line_t *line, mobj_t *target, mobjtype_t type) // 8000E0
 /*
 ==============================================================================
 
-							   EXIT DELAY
+                               EXIT DELAY
 
 ==============================================================================
 */
@@ -152,13 +152,13 @@ int EV_SpawnTrapMissile(line_t *line, mobj_t *target, mobjtype_t type) // 8000E0
 
 void P_SpawnDelayTimer(int tics, void(*action)()) // 8000E160
 {
-	delay_t *timer;
+    delay_t *timer;
 
-	timer = Z_Malloc(sizeof(*timer), PU_LEVSPEC, NULL);
-	P_AddThinker(&timer->thinker);
-	timer->thinker.function = T_CountdownTimer;
-	timer->tics = tics;
-	timer->finishfunc = action;
+    timer = Z_Malloc(sizeof(*timer), PU_LEVSPEC, NULL);
+    P_AddThinker(&timer->thinker);
+    timer->thinker.function = T_CountdownTimer;
+    timer->tics = tics;
+    timer->finishfunc = action;
 }
 
 /*
@@ -174,12 +174,12 @@ void P_SpawnDelayTimer(int tics, void(*action)()) // 8000E160
 void T_CountdownTimer(delay_t *timer) // 8000E1CC
 {
     if((--timer->tics) <= 0)
-	{
-	    if (timer->finishfunc)
+    {
+        if (timer->finishfunc)
             timer->finishfunc();
 
-		P_RemoveThinker(&timer->thinker);
-	}
+        P_RemoveThinker(&timer->thinker);
+    }
 }
 
 /*
@@ -194,8 +194,8 @@ void T_CountdownTimer(delay_t *timer) // 8000E1CC
 
 void P_ExitLevel(void) // 8000E220
 {
-	nextmap = gamemap + 1;
-	P_SpawnDelayTimer(15, G_CompleteLevel);
+    nextmap = gamemap + 1;
+    P_SpawnDelayTimer(15, G_CompleteLevel);
 }
 
 /*
@@ -233,8 +233,8 @@ void P_SecretExitLevel(int map) // 8000E25C
 */
 
 //void P_Telefrag (mobj_t *thing, fixed_t x, fixed_t y) // 8000E29C
-//int	EV_Teleport( line_t *line, mobj_t *thing ) // 8000E3A0
-//int	EV_SilentTeleport( line_t *line, mobj_t *thing ) // 8000E5C0
+//int   EV_Teleport( line_t *line, mobj_t *thing ) // 8000E3A0
+//int   EV_SilentTeleport( line_t *line, mobj_t *thing ) // 8000E5C0
 
 /* --------------------------------------------------------------------------------- */
 
@@ -743,7 +743,7 @@ void P_SetLightFactor(int lightfactor) // 8000F458
             base_g = v;
             base_b = v;
         }
-			
+
         // [GEC] New Cheat Codes
         if (players[0].cheats & CF_FULLBRIGHT)
         {

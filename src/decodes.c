@@ -511,37 +511,37 @@ void DecodeD64(unsigned char* input, unsigned char* output) // 8002DFA0
 == == == == == == == == == ==
 */
 
-#define WINDOW_SIZE	4096
-#define LOOKAHEAD_SIZE	16
+#define WINDOW_SIZE 4096
+#define LOOKAHEAD_SIZE  16
 
-#define LENSHIFT 4		/* this must be log2(LOOKAHEAD_SIZE) */
+#define LENSHIFT 4      /* this must be log2(LOOKAHEAD_SIZE) */
 
 void DecodeJaguar(unsigned char *input, unsigned char *output) // 8002E1f4
 {
     int getidbyte = 0;
-	int len;
-	int pos;
-	int i;
-	unsigned char *source;
-	int idbyte = 0;
+    int len;
+    int pos;
+    int i;
+    unsigned char *source;
+    int idbyte = 0;
 
-	while (1)
-	{
-		/* get a new idbyte if necessary */
-		if (!getidbyte) idbyte = *input++;
-		getidbyte = (getidbyte + 1) & 7;
+    while (1)
+    {
+        /* get a new idbyte if necessary */
+        if (!getidbyte) idbyte = *input++;
+        getidbyte = (getidbyte + 1) & 7;
 
-		if (idbyte & 1)
-		{
-			/* decompress */
-			pos = *input++ << LENSHIFT;
-			pos = pos | (*input >> LENSHIFT);
-			source = output - pos - 1;
-			len = (*input++ & 0xf) + 1;
-			if (len == 1) break;
+        if (idbyte & 1)
+        {
+            /* decompress */
+            pos = *input++ << LENSHIFT;
+            pos = pos | (*input >> LENSHIFT);
+            source = output - pos - 1;
+            len = (*input++ & 0xf) + 1;
+            if (len == 1) break;
 
-			//for (i = 0; i<len; i++)
-				//*output++ = *source++;
+            //for (i = 0; i<len; i++)
+                //*output++ = *source++;
 
             i = 0;
             if (len > 0)
@@ -565,12 +565,12 @@ void DecodeJaguar(unsigned char *input, unsigned char *output) // 8002E1f4
                     i += 4;
                 }
             }
-		}
-		else
+        }
+        else
         {
-			*output++ = *input++;
-		}
+            *output++ = *input++;
+        }
 
-		idbyte = idbyte >> 1;
-	}
+        idbyte = idbyte >> 1;
+    }
 }

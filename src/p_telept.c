@@ -13,29 +13,29 @@
 
 SEC_GAME void P_Telefrag (mobj_t *thing, fixed_t x, fixed_t y) // 8000E29C
 {
-	int		delta;
-	int		size;
-	mobj_t	*m;
+    int     delta;
+    int     size;
+    mobj_t  *m;
 
-	for (m=mobjhead.next ; m != (void*) &mobjhead ; m=m->next)
-	{
-		if (!(m->flags & MF_SHOOTABLE) )
-			continue;		/* not shootable */
-		size = m->radius + thing->radius + 4*FRACUNIT;
-		delta = m->x - x;
-		if (delta < - size || delta > size)
-			continue;
-		delta = m->y - y;
-		if (delta < -size || delta > size)
-			continue;
-		P_DamageMobj (m, thing, thing, 10000);
-		m->flags &= ~(MF_SOLID|MF_SHOOTABLE);
-	}
+    for (m=mobjhead.next ; m != (void*) &mobjhead ; m=m->next)
+    {
+        if (!(m->flags & MF_SHOOTABLE) )
+            continue;       /* not shootable */
+        size = m->radius + thing->radius + 4*FRACUNIT;
+        delta = m->x - x;
+        if (delta < - size || delta > size)
+            continue;
+        delta = m->y - y;
+        if (delta < -size || delta > size)
+            continue;
+        P_DamageMobj (m, thing, thing, 10000);
+        m->flags &= ~(MF_SOLID|MF_SHOOTABLE);
+    }
 }
 
 /*================================================================== */
 /* */
-/*						TELEPORTATION */
+/*                      TELEPORTATION */
 /* */
 /*================================================================== */
 
@@ -47,28 +47,28 @@ SEC_GAME void P_Telefrag (mobj_t *thing, fixed_t x, fixed_t y) // 8000E29C
 ==============
 */
 
-int	EV_Teleport( line_t *line, mobj_t *thing ) // 8000E3A0
+int EV_Teleport( line_t *line, mobj_t *thing ) // 8000E3A0
 {
-	int		    tag;
-	boolean		flag;
-	mobj_t		*m,*fog;
-	unsigned	an;
-	fixed_t		oldx, oldy, oldz;
-	int		    side;
+    int         tag;
+    boolean     flag;
+    mobj_t      *m,*fog;
+    unsigned    an;
+    fixed_t     oldx, oldy, oldz;
+    int         side;
 
-	side = !P_PointOnLineSide (thing->x, thing->y, line);
+    side = !P_PointOnLineSide (thing->x, thing->y, line);
 
-	if (thing->flags & MF_MISSILE)
-		return 0;		/* don't teleport missiles */
+    if (thing->flags & MF_MISSILE)
+        return 0;       /* don't teleport missiles */
 
-	if (side == 1)		/* don't teleport if hit back of line, */
-		return 0;		/* so you can get out of teleporter */
+    if (side == 1)      /* don't teleport if hit back of line, */
+        return 0;       /* so you can get out of teleporter */
 
-	tag = line->tag;
+    tag = line->tag;
     for (m=mobjhead.next ; m != (void*) &mobjhead ; m=m->next)
     {
         if (m->type != MT_DEST_TELEPORT )
-            continue;		/* not a teleportman */
+            continue;       /* not a teleportman */
 
         if((tag != m->tid))
             continue;   /* not matching the tid */
@@ -85,7 +85,7 @@ int	EV_Teleport( line_t *line, mobj_t *thing ) // 8000E3A0
         flag = P_TryMove (thing, m->x, m->y);
         thing->flags &= ~MF_TELEPORT;
         if (!flag)
-            return 0;	/* move is blocked */
+            return 0;   /* move is blocked */
         thing->z = thing->floorz;
 
         /* spawn teleport fog at source and destination */
@@ -97,7 +97,7 @@ int	EV_Teleport( line_t *line, mobj_t *thing ) // 8000E3A0
         S_StartSound (fog, sfx_telept);
         if (thing->player)
         {
-            thing->reactiontime = 9;	/* don't move for a bit */ //[psx] changed to 9
+            thing->reactiontime = 9;    /* don't move for a bit */ //[psx] changed to 9
             thing->player->addfov = ANG1*54;
             thing->player->pitch = 0;
             thing->player->bfgcount = 60;
@@ -107,7 +107,7 @@ int	EV_Teleport( line_t *line, mobj_t *thing ) // 8000E3A0
         return 1;
     }
 
-	return 0;
+    return 0;
 }
 
 /*
@@ -120,16 +120,16 @@ int	EV_Teleport( line_t *line, mobj_t *thing ) // 8000E3A0
 ==============
 */
 
-int	EV_SilentTeleport( line_t *line, mobj_t *thing ) // 8000E5C0
+int EV_SilentTeleport( line_t *line, mobj_t *thing ) // 8000E5C0
 {
-	int		    tag;
-	mobj_t		*m;
+    int         tag;
+    mobj_t      *m;
 
-	tag = line->tag;
+    tag = line->tag;
     for (m=mobjhead.next ; m != (void*) &mobjhead ; m=m->next)
     {
         if (m->type != MT_DEST_TELEPORT )
-            continue;		/* not a teleportman */
+            continue;       /* not a teleportman */
 
         if((tag != m->tid))
             continue;   /* not matching the tid */
@@ -148,5 +148,5 @@ int	EV_SilentTeleport( line_t *line, mobj_t *thing ) // 8000E5C0
         return 1;
     }
 
-	return 0;
+    return 0;
 }

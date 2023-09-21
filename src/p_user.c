@@ -8,153 +8,153 @@
 int deathmocktics; // 800A56A0
 
 // Bonus mock texts from the Doom 64 community!
-#define MK_TXT01t1	"MOTHER DEMON: HAHAHAHA!"
-#define MK_TXT02t1	"MOTHER DEMON: YOU SHOULDN'T HAVE\nDONE THAT."
-#define MK_TXT03t1	"MIDWAY: TRY AN EASIER LEVEL..."
-#define MK_TXT04t1	"MIDWAY: WOW! LOOK AT THOSE DEMON\nFEET."
-#define MK_TXT05t1	"MIDWAY: I PLAY DOOM AND I CAN'T GET\nUP."
-#define MK_TXT06t1	"DEMON: OUCH! THAT HAD TO HURT."
-#define MK_TXT07t1	"DEMON: LOOK AT ME! I'M FLAT!"
-#define MK_TXT08t1	"MIDWAY: THANKS FOR PLAYING!"
-#define MK_TXT09t1	"MOTHER DEMON: YOU LAZY @&$#!"
-#define MK_TXT10t1	"MOTHER DEMON: HAVE YOU HAD ENOUGH?"
-#define MK_TXT11t1	"MIDWAY: THE DEMONS GAVE YOU THE\nBOOT!"
-#define MK_TXT12t1	"MIDWAY: THE LEAD DEMON VANQUISHED\nYOU!"
-#define MK_TXT13t1	"IMMORPHER: WELCOME TO THE IQ64\nCLUB! MIGHT AS WELL JOIN THE GOOFS\nON THE DOOM 64 DISCORD SERVER!"
-#define MK_TXT14t1	"IRL RANDOM HAJILE: HMMM, THAT'S ONE\nDOOMED SPACE MARINE."
-#define MK_TXT15t1	"RETROTOUR: NO RUSH. JUST RESTART\nWHEN YOU'RE READY."
-#define MK_TXT16t1	"SCD: GO BACK TO QUAKE, YA MORON!"
-#define MK_TXT17t1	"WHINNY: I BET YOU STILL SLEEP WITH\nYOUR NIGHT LIGHT, WAAAAH!!!"
-#define MK_TXT18t1	"UMLAUT: IF YOU'D LIKE TO JOIN US,\nYOU'RE ALWAYS WELCOME, DEAD OR\nALIVE. MUAHAHAHA..."
-#define MK_TXT19t1	"TAUFAN99: NOW YOU KNOW THIS IS NO\nSUPERHERO SHOW."
-#define MK_TXT20t1	"QUASIOTTER: EVERY TIME YOU DIE,\nA PUPPY IS BORN. THE DEMONS ARE\nJUST TRYING TO MAKE MORE PUPPIES."
-#define MK_TXT21t1	"GEC: HOT OR COLD, WHICH SIDE DO YOU\nWANT TO BE ON?"
-#define MK_TXT22t1	"WOLF MCBEARD: IT'S OK, I WON'T TELL\nANYONE YOU CALL ME DADDY."
-#define MK_TXT23t1	"POOPSTER: NO MORE SEQUELS FOR\nYOU.... YET."
-#define MK_TXT24t1	"WHYBMONOTACRAB: IF ONLY YOU COULD\nTALK TO THESE DEMONS, THEN PERHAPS\nYOU COULD TRY AND MAKE FRIENDS WITH\nTHEM, FORM ALLIANCES..."
-#define MK_TXT25t1	"CAPTAIN CALEB: YOU'VE HAD OVER\nTWENTY YEARS, AND YOU STILL SUCK\nAT THIS GAME?"
-#define MK_TXT26t1	"DUKE: WHAT ARE YOU WAITING FOR,\nCHRISTMAS?"
-#define MK_TXT27t1	"COLLECTONIAN: UGH, YOU FORGOT\nAGAIN!? LAST TIME: ROCKETS ARE\nFOR KILLING DEMONS, NOT YOURSELF!"
-#define MK_TXT28t1	"NEVANDER: THAT LOOKED LIKE IT HURT.\nWELL, WHAT ARE YOU WAITING FOR?\nTRY AGAIN AND KICK THEIR ASSES!"
-#define MK_TXT29t1	"SCWIBA: YO IMMORPHER, I SAID NO\nMORE DOOM 64! WHY AM I EVEN IN\nTHIS MOD?!"
-#define MK_TXT30t1	"GRAV: YOU KNOW YOU CAN BEAT THIS\nGAME IN 30 MINUTES RIGHT? WHAT'S\nTAKING SO LONG?"
-#define MK_TXT31t1	"HARDCORE_GAMER: THIS IS WHAT\nHAPPENS WHEN YOU'VE HAD TOO\nMANY CORONAS."
-#define MK_TXT32t1	"ISANN KEKET: ON YOUR FEET, MARINE.\nSLAYERS NEVER SLEEP!"
-#define MK_TXT33t1	"AMUSED BRIAN: WELL THAT DIDN'T GO\nACCORDING TO PLAN..."
-#define MK_TXT34t1	"SECTOR666: IF YOU HIDE ON THE FLOOR\nFOREVER AT LEAST YOU WON'T DIE...\nWHOOPS, TOO LATE..."
-#define MK_TXT35t1	"DEXIAZ: IT'S OFFICIAL! YOU SUCK AT\nPLAYING MAPS!"
-#define MK_TXT36t1	"Z0K: IF YOU DROPPED SOME WEAPONS,\nYOU COULD HAVE DODGED, FATSO!"
-#define MK_TXT37t1	"PUZZLEWELL: THEY'LL BURY YOU IN A\nLUNCHBOX (WAIT WRONG GAME...)."
-#define MK_TXT38t1	"KMXEXII: I CAN ONLY HOPE THAT THIS\nDEATH WAS IN SOME WAY LOST SOUL OR\nPAIN ELEMENTAL RELATED."
-#define MK_TXT39t1	"ENDLESS: ENDLESSLY DYING IS NOT\nA GOOD STRATEGY."
-#define MK_TXT40t1	"ERROR: BACK TO THE DRAWING BOARD...\nTOO BAD YOU CAN'T DRAW."
-#define MK_TXT41t1	"BLUETHUNDER: SO... YOU'RE GONNA DIE\nNOW... SERIOUSLY?!!"
-#define MK_TXT42t1	"HYACSHO: MAYBE YOU SHOULD PLAY\nDOOM 1993 INSTEAD?"
-#define MK_TXT43t1	"NOWANDTHEN64: OF ALL THE ATTEMPTS\nTHAT HAVE BEEN MADE AT THIS GAME,\nTHAT WAS CERTAINLY ONE OF THEM."
-#define MK_TXT44t1	"SIXHUNDREDSIXTEEN: SURE LET THEM\nKILL YOU! WHAT A %#$@ING DISASTER..."
-#define MK_TXT45t1	"MIKE_C: DON'T BLAME THE CONTROLLER,\nYOU BIG WUSS!"
-#define MK_TXT46t1	"GLENN PLANT: THE RISING SUN WILL\nEVENTUALLY SET, A NEWBORN'S LIFE\nWILL FADE. FROM SUN TO MOON, MOON\nTO SUN. GIVE PEACEFUL REST TO THE\nLIVING DEAD."
-#define MK_TXT47t1	"MOTHERLOAD: YOUR GREAT GRANDFATHER\nWAS IN A REAL WAR AND YOU'RE TOO\nMUCH OF A $#@&! TO BEAT THIS LEVEL."
-#define MK_TXT48t1	"GERARDO: WHAT?? FEELING SLEEPY NOW?\nYOU CONSIDER YOURSELF SLAYER AND\nYOU WANT TO REST? SHAME ON YOU!"
-#define MK_TXT49t1	"HEADSHOT: YOU'VE HUMOURED THE\nDEMONS GREATLY WITH YOUR\nARROGANCE AND CONTEMPT..."
-#define MK_TXT50t1	"ZELLLOOO: WE HAVE PINKY,\nBUT WHERE'S THE BRAIN?"
-#define MK_TXT51t1	"PEACHES: THIS ACTION TO DEFY THE\nEVIL ONE IS NOT WITHOUT RISK.\nCONFRONTATION IS OFTEN BEST\nAVOIDED..."
+#define MK_TXT01t1  "MOTHER DEMON: HAHAHAHA!"
+#define MK_TXT02t1  "MOTHER DEMON: YOU SHOULDN'T HAVE\nDONE THAT."
+#define MK_TXT03t1  "MIDWAY: TRY AN EASIER LEVEL..."
+#define MK_TXT04t1  "MIDWAY: WOW! LOOK AT THOSE DEMON\nFEET."
+#define MK_TXT05t1  "MIDWAY: I PLAY DOOM AND I CAN'T GET\nUP."
+#define MK_TXT06t1  "DEMON: OUCH! THAT HAD TO HURT."
+#define MK_TXT07t1  "DEMON: LOOK AT ME! I'M FLAT!"
+#define MK_TXT08t1  "MIDWAY: THANKS FOR PLAYING!"
+#define MK_TXT09t1  "MOTHER DEMON: YOU LAZY @&$#!"
+#define MK_TXT10t1  "MOTHER DEMON: HAVE YOU HAD ENOUGH?"
+#define MK_TXT11t1  "MIDWAY: THE DEMONS GAVE YOU THE\nBOOT!"
+#define MK_TXT12t1  "MIDWAY: THE LEAD DEMON VANQUISHED\nYOU!"
+#define MK_TXT13t1  "IMMORPHER: WELCOME TO THE IQ64\nCLUB! MIGHT AS WELL JOIN THE GOOFS\nON THE DOOM 64 DISCORD SERVER!"
+#define MK_TXT14t1  "IRL RANDOM HAJILE: HMMM, THAT'S ONE\nDOOMED SPACE MARINE."
+#define MK_TXT15t1  "RETROTOUR: NO RUSH. JUST RESTART\nWHEN YOU'RE READY."
+#define MK_TXT16t1  "SCD: GO BACK TO QUAKE, YA MORON!"
+#define MK_TXT17t1  "WHINNY: I BET YOU STILL SLEEP WITH\nYOUR NIGHT LIGHT, WAAAAH!!!"
+#define MK_TXT18t1  "UMLAUT: IF YOU'D LIKE TO JOIN US,\nYOU'RE ALWAYS WELCOME, DEAD OR\nALIVE. MUAHAHAHA..."
+#define MK_TXT19t1  "TAUFAN99: NOW YOU KNOW THIS IS NO\nSUPERHERO SHOW."
+#define MK_TXT20t1  "QUASIOTTER: EVERY TIME YOU DIE,\nA PUPPY IS BORN. THE DEMONS ARE\nJUST TRYING TO MAKE MORE PUPPIES."
+#define MK_TXT21t1  "GEC: HOT OR COLD, WHICH SIDE DO YOU\nWANT TO BE ON?"
+#define MK_TXT22t1  "WOLF MCBEARD: IT'S OK, I WON'T TELL\nANYONE YOU CALL ME DADDY."
+#define MK_TXT23t1  "POOPSTER: NO MORE SEQUELS FOR\nYOU.... YET."
+#define MK_TXT24t1  "WHYBMONOTACRAB: IF ONLY YOU COULD\nTALK TO THESE DEMONS, THEN PERHAPS\nYOU COULD TRY AND MAKE FRIENDS WITH\nTHEM, FORM ALLIANCES..."
+#define MK_TXT25t1  "CAPTAIN CALEB: YOU'VE HAD OVER\nTWENTY YEARS, AND YOU STILL SUCK\nAT THIS GAME?"
+#define MK_TXT26t1  "DUKE: WHAT ARE YOU WAITING FOR,\nCHRISTMAS?"
+#define MK_TXT27t1  "COLLECTONIAN: UGH, YOU FORGOT\nAGAIN!? LAST TIME: ROCKETS ARE\nFOR KILLING DEMONS, NOT YOURSELF!"
+#define MK_TXT28t1  "NEVANDER: THAT LOOKED LIKE IT HURT.\nWELL, WHAT ARE YOU WAITING FOR?\nTRY AGAIN AND KICK THEIR ASSES!"
+#define MK_TXT29t1  "SCWIBA: YO IMMORPHER, I SAID NO\nMORE DOOM 64! WHY AM I EVEN IN\nTHIS MOD?!"
+#define MK_TXT30t1  "GRAV: YOU KNOW YOU CAN BEAT THIS\nGAME IN 30 MINUTES RIGHT? WHAT'S\nTAKING SO LONG?"
+#define MK_TXT31t1  "HARDCORE_GAMER: THIS IS WHAT\nHAPPENS WHEN YOU'VE HAD TOO\nMANY CORONAS."
+#define MK_TXT32t1  "ISANN KEKET: ON YOUR FEET, MARINE.\nSLAYERS NEVER SLEEP!"
+#define MK_TXT33t1  "AMUSED BRIAN: WELL THAT DIDN'T GO\nACCORDING TO PLAN..."
+#define MK_TXT34t1  "SECTOR666: IF YOU HIDE ON THE FLOOR\nFOREVER AT LEAST YOU WON'T DIE...\nWHOOPS, TOO LATE..."
+#define MK_TXT35t1  "DEXIAZ: IT'S OFFICIAL! YOU SUCK AT\nPLAYING MAPS!"
+#define MK_TXT36t1  "Z0K: IF YOU DROPPED SOME WEAPONS,\nYOU COULD HAVE DODGED, FATSO!"
+#define MK_TXT37t1  "PUZZLEWELL: THEY'LL BURY YOU IN A\nLUNCHBOX (WAIT WRONG GAME...)."
+#define MK_TXT38t1  "KMXEXII: I CAN ONLY HOPE THAT THIS\nDEATH WAS IN SOME WAY LOST SOUL OR\nPAIN ELEMENTAL RELATED."
+#define MK_TXT39t1  "ENDLESS: ENDLESSLY DYING IS NOT\nA GOOD STRATEGY."
+#define MK_TXT40t1  "ERROR: BACK TO THE DRAWING BOARD...\nTOO BAD YOU CAN'T DRAW."
+#define MK_TXT41t1  "BLUETHUNDER: SO... YOU'RE GONNA DIE\nNOW... SERIOUSLY?!!"
+#define MK_TXT42t1  "HYACSHO: MAYBE YOU SHOULD PLAY\nDOOM 1993 INSTEAD?"
+#define MK_TXT43t1  "NOWANDTHEN64: OF ALL THE ATTEMPTS\nTHAT HAVE BEEN MADE AT THIS GAME,\nTHAT WAS CERTAINLY ONE OF THEM."
+#define MK_TXT44t1  "SIXHUNDREDSIXTEEN: SURE LET THEM\nKILL YOU! WHAT A %#$@ING DISASTER..."
+#define MK_TXT45t1  "MIKE_C: DON'T BLAME THE CONTROLLER,\nYOU BIG WUSS!"
+#define MK_TXT46t1  "GLENN PLANT: THE RISING SUN WILL\nEVENTUALLY SET, A NEWBORN'S LIFE\nWILL FADE. FROM SUN TO MOON, MOON\nTO SUN. GIVE PEACEFUL REST TO THE\nLIVING DEAD."
+#define MK_TXT47t1  "MOTHERLOAD: YOUR GREAT GRANDFATHER\nWAS IN A REAL WAR AND YOU'RE TOO\nMUCH OF A $#@&! TO BEAT THIS LEVEL."
+#define MK_TXT48t1  "GERARDO: WHAT?? FEELING SLEEPY NOW?\nYOU CONSIDER YOURSELF SLAYER AND\nYOU WANT TO REST? SHAME ON YOU!"
+#define MK_TXT49t1  "HEADSHOT: YOU'VE HUMOURED THE\nDEMONS GREATLY WITH YOUR\nARROGANCE AND CONTEMPT..."
+#define MK_TXT50t1  "ZELLLOOO: WE HAVE PINKY,\nBUT WHERE'S THE BRAIN?"
+#define MK_TXT51t1  "PEACHES: THIS ACTION TO DEFY THE\nEVIL ONE IS NOT WITHOUT RISK.\nCONFRONTATION IS OFTEN BEST\nAVOIDED..."
 
 const char *mockstrings1[] =   // 8005A290
 {
     MK_TXT01t1, MK_TXT02t1, MK_TXT03t1, MK_TXT04t1,
-	MK_TXT05t1, MK_TXT06t1, MK_TXT07t1, MK_TXT08t1,
-	MK_TXT09t1, MK_TXT10t1, MK_TXT11t1, MK_TXT12t1,
-	MK_TXT13t1, MK_TXT14t1, MK_TXT15t1, MK_TXT16t1,
-	MK_TXT17t1, MK_TXT18t1, MK_TXT19t1, MK_TXT20t1,
-	MK_TXT21t1, MK_TXT22t1, MK_TXT23t1, MK_TXT24t1,
-	MK_TXT25t1, MK_TXT26t1, MK_TXT27t1, MK_TXT28t1,
-	MK_TXT29t1, MK_TXT30t1, MK_TXT31t1, MK_TXT32t1,
-	MK_TXT33t1, MK_TXT34t1, MK_TXT35t1, MK_TXT36t1,
-	MK_TXT37t1, MK_TXT38t1, MK_TXT39t1, MK_TXT40t1,
-	MK_TXT41t1, MK_TXT42t1, MK_TXT43t1, MK_TXT44t1,
-	MK_TXT45t1, MK_TXT46t1, MK_TXT47t1, MK_TXT48t1,
-	MK_TXT49t1, MK_TXT50t1, MK_TXT51t1,
+    MK_TXT05t1, MK_TXT06t1, MK_TXT07t1, MK_TXT08t1,
+    MK_TXT09t1, MK_TXT10t1, MK_TXT11t1, MK_TXT12t1,
+    MK_TXT13t1, MK_TXT14t1, MK_TXT15t1, MK_TXT16t1,
+    MK_TXT17t1, MK_TXT18t1, MK_TXT19t1, MK_TXT20t1,
+    MK_TXT21t1, MK_TXT22t1, MK_TXT23t1, MK_TXT24t1,
+    MK_TXT25t1, MK_TXT26t1, MK_TXT27t1, MK_TXT28t1,
+    MK_TXT29t1, MK_TXT30t1, MK_TXT31t1, MK_TXT32t1,
+    MK_TXT33t1, MK_TXT34t1, MK_TXT35t1, MK_TXT36t1,
+    MK_TXT37t1, MK_TXT38t1, MK_TXT39t1, MK_TXT40t1,
+    MK_TXT41t1, MK_TXT42t1, MK_TXT43t1, MK_TXT44t1,
+    MK_TXT45t1, MK_TXT46t1, MK_TXT47t1, MK_TXT48t1,
+    MK_TXT49t1, MK_TXT50t1, MK_TXT51t1,
 };
 
-const fixed_t 		forwardmove[3] = {0xE000, 0x16000, 0x8000}; // 8005B060
-const fixed_t 		sidemove[3] = {0xE000, 0x16000, 0x8000};    // 8005B068
+const fixed_t       forwardmove[3] = {0xE000, 0x16000, 0x8000}; // 8005B060
+const fixed_t       sidemove[3] = {0xE000, 0x16000, 0x8000};    // 8005B068
 
 #define SLOWTURNTICS    10
-const fixed_t			angleturn[] =       // 8005B070
-	{50,50,83,83,100,116,133,150,150,166,
-	133,133,150,166,166,200,200,216,216,233}; // fastangleturn
+const fixed_t           angleturn[] =       // 8005B070
+    {50,50,83,83,100,116,133,150,150,166,
+    133,133,150,166,166,200,200,216,216,233}; // fastangleturn
 
-const fixed_t			crouchease[] = {65536, 61440, 53951, 32768};
+const fixed_t           crouchease[] = {65536, 61440, 53951, 32768};
 /*============================================================================= */
 
 mobj_t          *slidething;    //80077D04, pmGp000008f4
-extern	fixed_t	slidex, slidey; //80077dbc || 80077dc0
-extern	line_t	*specialline;   //80077dc8
+extern  fixed_t slidex, slidey; //80077dbc || 80077dc0
+extern  line_t  *specialline;   //80077dc8
 
 void P_SlideMove (mobj_t *mo);
 
 #if 0
 void P_PlayerMove (mobj_t *mo)//L80029CB8()
 {
-	fixed_t		momx, momy;
-	line_t		*latchedline;
-	fixed_t		latchedx, latchedy;
+    fixed_t     momx, momy;
+    line_t      *latchedline;
+    fixed_t     latchedx, latchedy;
 
-	//momx = vblsinframe[playernum] * (mo->momx>>2);
-	//momy = vblsinframe[playernum] * (mo->momy>>2);
+    //momx = vblsinframe[playernum] * (mo->momx>>2);
+    //momy = vblsinframe[playernum] * (mo->momy>>2);
 
-	// Change on Final Doom
-	momx = mo->momx;
-	momy = mo->momy;
+    // Change on Final Doom
+    momx = mo->momx;
+    momy = mo->momy;
 
-	slidething = mo;
+    slidething = mo;
 
-	P_SlideMove ();
+    P_SlideMove ();
 
-	latchedline = (line_t *)specialline;
-	latchedx = slidex;
-	latchedy = slidey;
+    latchedline = (line_t *)specialline;
+    latchedx = slidex;
+    latchedy = slidey;
 
-	if ((latchedx == mo->x) && (latchedy == mo->y))
-		goto stairstep;
+    if ((latchedx == mo->x) && (latchedy == mo->y))
+        goto stairstep;
 
-	if (P_TryMove (mo, latchedx, latchedy))
-		goto dospecial;
+    if (P_TryMove (mo, latchedx, latchedy))
+        goto dospecial;
 
 stairstep:
 
-	if (momx > MAXMOVE)
-		momx = MAXMOVE;
-	else if (momx < -MAXMOVE)
-		momx = -MAXMOVE;
+    if (momx > MAXMOVE)
+        momx = MAXMOVE;
+    else if (momx < -MAXMOVE)
+        momx = -MAXMOVE;
 
-	if (momy > MAXMOVE)
-		momy = MAXMOVE;
-	else if (momy < -MAXMOVE)
-		momy = -MAXMOVE;
+    if (momy > MAXMOVE)
+        momy = MAXMOVE;
+    else if (momy < -MAXMOVE)
+        momy = -MAXMOVE;
 
-	/* something fucked up in slidemove, so stairstep */
+    /* something fucked up in slidemove, so stairstep */
 
-	if (P_TryMove (mo, mo->x, mo->y + momy))
-	{
-		mo->momx = 0;
-		mo->momy = momy;
-		goto dospecial;
-	}
+    if (P_TryMove (mo, mo->x, mo->y + momy))
+    {
+        mo->momx = 0;
+        mo->momy = momy;
+        goto dospecial;
+    }
 
-	if (P_TryMove (mo, mo->x + momx, mo->y))
-	{
-		mo->momx = momx;
-		mo->momy = 0;
-		goto dospecial;
-	}
+    if (P_TryMove (mo, mo->x + momx, mo->y))
+    {
+        mo->momx = momx;
+        mo->momy = 0;
+        goto dospecial;
+    }
 
-	mo->momx = mo->momy = 0;
+    mo->momx = mo->momy = 0;
 
 dospecial:
-	if (latchedline)
-		P_CrossSpecialLine (latchedline, mo);
+    if (latchedline)
+        P_CrossSpecialLine (latchedline, mo);
 }
 #endif // 0
 
@@ -166,38 +166,38 @@ dospecial:
 ===================
 */
 
-#define	STOPSPEED		0x1000
-#define	FRICTION		0xd200  //Jag 0xd240
+#define STOPSPEED       0x1000
+#define FRICTION        0xd200  //Jag 0xd240
 
 SEC_GAME void P_PlayerXYMovement (mobj_t *mo) // 80021E20
 {
     /* */
-	/* try to slide along a blocked move */
-	/* */
+    /* try to slide along a blocked move */
+    /* */
         if (!P_TryMove(mo, mo->x + mo->momx, mo->y + mo->momy))
             P_SlideMove(mo);
 
-	/* */
-	/* slow down */
-	/* */
-	if (mo->z > mo->floorz && !(mo->player->cheats & CF_FLYMODE))
-		return;		/* no friction when airborne */
+    /* */
+    /* slow down */
+    /* */
+    if (mo->z > mo->floorz && !(mo->player->cheats & CF_FLYMODE))
+        return;     /* no friction when airborne */
 
-	if (mo->flags & MF_CORPSE)
-		if (mo->floorz != mo->subsector->sector->floorheight)
-			return;			/* don't stop halfway off a step */
+    if (mo->flags & MF_CORPSE)
+        if (mo->floorz != mo->subsector->sector->floorheight)
+            return;         /* don't stop halfway off a step */
 
-	if (mo->momx > -STOPSPEED && mo->momx < STOPSPEED &&
+    if (mo->momx > -STOPSPEED && mo->momx < STOPSPEED &&
         mo->momy > -STOPSPEED && mo->momy < STOPSPEED)
-	{
-		mo->momx = 0;
-		mo->momy = 0;
-	}
-	else
-	{
-		mo->momx = FixedMul(mo->momx, FRICTION);
-		mo->momy = FixedMul(mo->momy, FRICTION);
-	}
+    {
+        mo->momx = 0;
+        mo->momy = 0;
+    }
+    else
+    {
+        mo->momx = FixedMul(mo->momx, FRICTION);
+        mo->momy = FixedMul(mo->momy, FRICTION);
+    }
 }
 
 
@@ -222,19 +222,19 @@ SEC_GAME void P_PlayerZMovement (mobj_t *mo) // 80021f38
         mo->player->deltaviewheight = (viewheight - mo->player->viewheight) >> 2;
     }
 
-	/* */
-	/* adjust height */
-	/* */
-	mo->z += mo->momz;
+    /* */
+    /* adjust height */
+    /* */
+    mo->z += mo->momz;
 
     /* */
     /* clip movement */
     /* */
     if (mo->z <= mo->floorz)
-    {	/* hit the floor */
+    {   /* hit the floor */
         if (mo->momz < 0)
         {
-            if (mo->momz < -(GRAVITY*2))	/* squat down */
+            if (mo->momz < -(GRAVITY*2))    /* squat down */
             {
                 mo->player->deltaviewheight = mo->momz>>3;
                 S_StartSound (mo, sfx_oof);
@@ -258,12 +258,12 @@ SEC_GAME void P_PlayerZMovement (mobj_t *mo) // 80021f38
             mo->momz -= (GRAVITY/4);
     }
 
-	if (mo->z + mo->height > mo->ceilingz)
-	{	/* hit the ceiling */
-		if (mo->momz > 0)
-			mo->momz = 0;
-		mo->z = mo->ceilingz - mo->height;
-	}
+    if (mo->z + mo->height > mo->ceilingz)
+    {   /* hit the ceiling */
+        if (mo->momz > 0)
+            mo->momz = 0;
+        mo->z = mo->ceilingz - mo->height;
+    }
 }
 
 
@@ -277,8 +277,8 @@ SEC_GAME void P_PlayerZMovement (mobj_t *mo) // 80021f38
 
 SEC_GAME void P_PlayerMobjThink (mobj_t *mobj) // 80022060
 {
-    state_t	*st;
-    int		state;
+    state_t *st;
+    int     state;
 
     /* */
     /* momentum movement */
@@ -301,12 +301,12 @@ SEC_GAME void P_PlayerMobjThink (mobj_t *mobj) // 80022060
     /* cycle through states, calling action functions at transitions */
     /* */
     if (mobj->tics == -1)
-        return;				/* never cycle */
+        return;             /* never cycle */
 
     mobj->tics--;
 
     if (mobj->tics > 0)
-        return;				/* not time to cycle yet */
+        return;             /* not time to cycle yet */
 
     state = mobj->state->nextstate;
     st = &states[state];
@@ -567,7 +567,7 @@ SEC_GAME void P_BuildMove (player_t *player, buildmove_t *move) // 80022154
     /* if slowed down to a stop, change to a standing frame */
     /* */
     if (!mo->momx && !mo->momy && move->forwardmove == 0 && move->sidemove == 0 )
-    {	/* if in a walking frame, stop moving */
+    {   /* if in a walking frame, stop moving */
         if (mo->state == &states[S_PLAY_RUN1]
                 || mo->state == &states[S_PLAY_RUN2]
                 || mo->state == &states[S_PLAY_RUN3]
@@ -579,7 +579,7 @@ SEC_GAME void P_BuildMove (player_t *player, buildmove_t *move) // 80022154
 /*
 ===============================================================================
 
-						movement
+                        movement
 
 ===============================================================================
 */
@@ -597,8 +597,8 @@ SEC_GAME void P_BuildMove (player_t *player, buildmove_t *move) // 80022154
 SEC_GAME void P_Thrust (player_t *player, angle_t angle, fixed_t move) // 800225BC
 {
     angle >>= ANGLETOFINESHIFT;
-	player->mo->momx += FixedMul(vblsinframe[0] * move, finecosine(angle));
-	player->mo->momy += FixedMul(vblsinframe[0] * move, finesine(angle));
+    player->mo->momx += FixedMul(vblsinframe[0] * move, finecosine(angle));
+    player->mo->momy += FixedMul(vblsinframe[0] * move, finesine(angle));
 }
 
 
@@ -615,26 +615,26 @@ SEC_GAME void P_Thrust (player_t *player, angle_t angle, fixed_t move) // 800225
 
 SEC_GAME void P_CalcHeight (player_t *player) // 80022670
 {
-	int			angle;
-	fixed_t		bob;
-	fixed_t		val;
-	fixed_t		viewheight;
+    int         angle;
+    fixed_t     bob;
+    fixed_t     val;
+    fixed_t     viewheight;
 
-	/* */
-	/* regular movement bobbing (needs to be calculated for gun swing even */
-	/* if not on ground) */
-	/* OPTIMIZE: tablify angle  */
-	/* */
-	val = player->mo->momx;
-	player->bob = FixedMul(val, val);
-	val = player->mo->momy;
-	player->bob += FixedMul(val, val);
+    /* */
+    /* regular movement bobbing (needs to be calculated for gun swing even */
+    /* if not on ground) */
+    /* OPTIMIZE: tablify angle  */
+    /* */
+    val = player->mo->momx;
+    player->bob = FixedMul(val, val);
+    val = player->mo->momy;
+    player->bob += FixedMul(val, val);
 
-	player->bob >>= 2;
-	if (player->bob > MotionBob)
-	{
-		player->bob = MotionBob;
-	}
+    player->bob >>= 2;
+    if (player->bob > MotionBob)
+    {
+        player->bob = MotionBob;
+    }
 
     viewheight = FixedMul (VIEWHEIGHT, crouchease[player->crouchtimer]);
 
@@ -646,43 +646,43 @@ SEC_GAME void P_CalcHeight (player_t *player) // 80022670
         return;
     }
 
-	angle = (FINEANGLES/40*ticon)&(FINEANGLES-1);
-	bob = FixedMul((player->bob / 2), finesine(angle));
+    angle = (FINEANGLES/40*ticon)&(FINEANGLES-1);
+    bob = FixedMul((player->bob / 2), finesine(angle));
 
-	//ST_DebugPrint("bob %x",FixedMul((player->bob / 2), finesine(angle)));
-	//ST_DebugPrint("bob2 %x",FixedMul2((player->bob / 2), finesine(angle)));
+    //ST_DebugPrint("bob %x",FixedMul((player->bob / 2), finesine(angle)));
+    //ST_DebugPrint("bob2 %x",FixedMul2((player->bob / 2), finesine(angle)));
 
-	//ST_DebugPrint("bobdiv %x",FixedDiv2(0x49003, 0x2));
-	//ST_DebugPrint("bobdiv2 %x",FixedMul3(0x49003, 0x2));
+    //ST_DebugPrint("bobdiv %x",FixedDiv2(0x49003, 0x2));
+    //ST_DebugPrint("bobdiv2 %x",FixedMul3(0x49003, 0x2));
 
-	/* */
-	/* move viewheight */
-	/* */
-	if (player->playerstate == PST_LIVE)
-	{
-		player->viewheight += player->deltaviewheight;
-		if (player->viewheight > viewheight)
-		{
-			player->viewheight = viewheight;
-			player->deltaviewheight = 0;
-		}
-		if (player->viewheight < viewheight/2)
-		{
-			player->viewheight = viewheight/2;
-			if (player->deltaviewheight <= 0)
-				player->deltaviewheight = 1;
-		}
+    /* */
+    /* move viewheight */
+    /* */
+    if (player->playerstate == PST_LIVE)
+    {
+        player->viewheight += player->deltaviewheight;
+        if (player->viewheight > viewheight)
+        {
+            player->viewheight = viewheight;
+            player->deltaviewheight = 0;
+        }
+        if (player->viewheight < viewheight/2)
+        {
+            player->viewheight = viewheight/2;
+            if (player->deltaviewheight <= 0)
+                player->deltaviewheight = 1;
+        }
 
-		if (player->deltaviewheight)
-		{
-			player->deltaviewheight += FRACUNIT/2;
-			if (!player->deltaviewheight)
-				player->deltaviewheight = 1;
-		}
-	}
-	player->viewz = player->mo->z + player->viewheight + bob;
-	if (player->viewz > player->mo->ceilingz-4*FRACUNIT)
-		player->viewz = player->mo->ceilingz-4*FRACUNIT;
+        if (player->deltaviewheight)
+        {
+            player->deltaviewheight += FRACUNIT/2;
+            if (!player->deltaviewheight)
+                player->deltaviewheight = 1;
+        }
+    }
+    player->viewz = player->mo->z + player->viewheight + bob;
+    if (player->viewz > player->mo->ceilingz-4*FRACUNIT)
+        player->viewz = player->mo->ceilingz-4*FRACUNIT;
 }
 
 #define MAXLOOKANGLE 0x30000000
@@ -835,22 +835,22 @@ SEC_GAME void P_MovePlayer (player_t *player, const buildmove_t* move) // 800228
 
 SEC_GAME void P_DeathThink (player_t *player) // 80022914
 {
-	angle_t		angle, delta;
+    angle_t     angle, delta;
     fixed_t zdist, xydist;
     int damagefade = 0;
-	int mockrandom; // [Immorpher] store mock text randomizer
+    int mockrandom; // [Immorpher] store mock text randomizer
 
-	P_MovePsprites (player);
+    P_MovePsprites (player);
 
-	/* fall to the ground */
-	if (player->viewheight > 8*FRACUNIT)
-		player->viewheight -= FRACUNIT;
+    /* fall to the ground */
+    if (player->viewheight > 8*FRACUNIT)
+        player->viewheight -= FRACUNIT;
 
-	player->onground = (player->mo->z <= player->mo->floorz);
+    player->onground = (player->mo->z <= player->mo->floorz);
     player->falltimer = 0;
     player->crouchtimer = 0;
 
-	P_CalcHeight (player);
+    P_CalcHeight (player);
 
     if (player->attacker && player->attacker != player->mo)
     {
@@ -893,23 +893,23 @@ SEC_GAME void P_DeathThink (player_t *player) // 80022914
     else if (player->damagecount)
         player->damagecount--;
 
-	/* mocking text */
+    /* mocking text */
     if ((ticon - deathmocktics) > MAXMOCKTIME)
     {
-		do { // [Immorpher] Prevent mock string from repeating twice
-			mockrandom = (I_Random()+ticon) % 51; // Updated randomizer for more fun
-		} while(player->message1 == mockstrings1[mockrandom]);
-		
+        do { // [Immorpher] Prevent mock string from repeating twice
+            mockrandom = (I_Random()+ticon) % 51; // Updated randomizer for more fun
+        } while(player->message1 == mockstrings1[mockrandom]);
+
         player->messagetic = 2*MSGTICS; // [Immorpher] Doubled message time to read them!
         player->message = (char*)mockstrings1[mockrandom];
-		player->messagecolor = 0xff200000;
+        player->messagecolor = 0xff200000;
         deathmocktics = ticon;
     }
 
-	if (((ticbuttons[0] & (PAD_A|PAD_B|ALL_TRIG|ALL_CBUTTONS)) != 0) &&
+    if (((ticbuttons[0] & (PAD_A|PAD_B|ALL_TRIG|ALL_CBUTTONS)) != 0) &&
         (player->viewheight <= 8*FRACUNIT))
     {
-		player->playerstate = PST_REBORN;
+        player->playerstate = PST_REBORN;
     }
 
     if (player->bonuscount)
@@ -942,15 +942,15 @@ SEC_GAME void P_PlayerInSpecialSector (player_t *player, sector_t *sec) // 80022
 {
     fixed_t speed;
 
-	if (player->mo->z != sec->floorheight)
-		return;		/* not all the way down yet */
+    if (player->mo->z != sec->floorheight)
+        return;     /* not all the way down yet */
 
     if(sec->flags & MS_SECRET)
     {
         player->secretcount++;
         player->message = "You found a secret area!";
         player->messagetic = MSGTICS;
-		player->messagecolor = 0x00ffff00;
+        player->messagecolor = 0x00ffff00;
         sec->flags &= ~MS_SECRET;
     }
 
@@ -1018,23 +1018,23 @@ SEC_GAME void P_PlayerInSpecialSector (player_t *player, sector_t *sec) // 80022
 
 SEC_GAME void P_PlayerThink (player_t *player) // 80022D60
 {
-	int		     buttons, oldbuttons;
-	controls_t    *cbutton;
-	weapontype_t weapon;
-	sector_t     *sec;
+    int          buttons, oldbuttons;
+    controls_t    *cbutton;
+    weapontype_t weapon;
+    sector_t     *sec;
 
-	buttons = ticbuttons[0];
-	oldbuttons = oldticbuttons[0];
-	cbutton = player->controls;
+    buttons = ticbuttons[0];
+    oldbuttons = oldticbuttons[0];
+    cbutton = player->controls;
 
-	/* */
-	/* check for weapon change */
-	/* */
-	if (player->playerstate == PST_LIVE)
-	{
-		weapon = player->pendingweapon;
-		if (weapon == wp_nochange)
-			weapon = player->readyweapon;
+    /* */
+    /* check for weapon change */
+    /* */
+    if (player->playerstate == PST_LIVE)
+    {
+        weapon = player->pendingweapon;
+        if (weapon == wp_nochange)
+            weapon = player->readyweapon;
 
         // [nova] use goldeneye/pd style weapon back if the button is not bound
         if (P_ButtonOrShift(cbutton->BT_WEAPONBACKWARD,
@@ -1079,12 +1079,12 @@ SEC_GAME void P_PlayerThink (player_t *player) // 80022D60
         }
     }
 
-	if (!gamepaused)
-	{
+    if (!gamepaused)
+    {
         buildmove_t move;
 
-		P_PlayerMobjThink(player->mo);
-		P_BuildMove(player, &move);
+        P_PlayerMobjThink(player->mo);
+        P_BuildMove(player, &move);
 
         sec = player->mo->subsector->sector;
         if (sec->flags & (MS_SECRET | MS_DAMAGEX5 | MS_DAMAGEX10 | MS_DAMAGEX20 | MS_SCROLLFLOOR))
@@ -1103,83 +1103,83 @@ SEC_GAME void P_PlayerThink (player_t *player) // 80022D60
                 player->addfov = 0;
         }
 
-		if (player->playerstate == PST_DEAD)
-		{
-			P_DeathThink(player);
-			return;
-		}
-
-		/* */
-		/* chain saw run forward */
-		/* */
-		if (player->mo->flags & MF_JUSTATTACKED)
-		{
-			move.angleturn = 0;
-			move.forwardmove = 0xc800;
-			move.sidemove = 0;
-			move.pitchmove = 0;
-			player->mo->flags &= ~MF_JUSTATTACKED;
-		}
-
-		/* */
-		/* move around */
-		/* reactiontime is used to prevent movement for a bit after a teleport */
-		/* */
-
-		if (player->mo->reactiontime)
-			player->mo->reactiontime--;
-		else
-			P_MovePlayer(player, &move);
-
-		P_CalcHeight(player);
-
-		/* */
-		/* check for use */
-		/* */
-
-		if ((buttons & cbutton->BT_USE))
-		{
-			if (player->usedown == false)
-			{
-				P_UseLines(player);
-				player->usedown = true;
-			}
-		}
-		else
+        if (player->playerstate == PST_DEAD)
         {
-			player->usedown = false;
+            P_DeathThink(player);
+            return;
         }
 
-		/* */
-		/* cycle psprites */
-		/* */
+        /* */
+        /* chain saw run forward */
+        /* */
+        if (player->mo->flags & MF_JUSTATTACKED)
+        {
+            move.angleturn = 0;
+            move.forwardmove = 0xc800;
+            move.sidemove = 0;
+            move.pitchmove = 0;
+            player->mo->flags &= ~MF_JUSTATTACKED;
+        }
 
-		P_MovePsprites(player);
+        /* */
+        /* move around */
+        /* reactiontime is used to prevent movement for a bit after a teleport */
+        /* */
 
-		/* */
-		/* counters */
-		/* */
+        if (player->mo->reactiontime)
+            player->mo->reactiontime--;
+        else
+            P_MovePlayer(player, &move);
 
-		if (gamevbls < gametic)
-		{
-			if (player->powers[pw_strength] > 1)
-				player->powers[pw_strength]--;	/* strength counts down to diminish fade */
+        P_CalcHeight(player);
 
-			if (player->powers[pw_invulnerability])
-				player->powers[pw_invulnerability]--;
+        /* */
+        /* check for use */
+        /* */
 
-			if (player->powers[pw_invisibility])
-			{
-				player->powers[pw_invisibility]--;
-				if (!player->powers[pw_invisibility])
-				{
-					player->mo->flags &= ~MF_SHADOW;
-				}
-				else if ((player->powers[pw_invisibility] < 61) && !(player->powers[pw_invisibility] & 7))
+        if ((buttons & cbutton->BT_USE))
+        {
+            if (player->usedown == false)
+            {
+                P_UseLines(player);
+                player->usedown = true;
+            }
+        }
+        else
+        {
+            player->usedown = false;
+        }
+
+        /* */
+        /* cycle psprites */
+        /* */
+
+        P_MovePsprites(player);
+
+        /* */
+        /* counters */
+        /* */
+
+        if (gamevbls < gametic)
+        {
+            if (player->powers[pw_strength] > 1)
+                player->powers[pw_strength]--;  /* strength counts down to diminish fade */
+
+            if (player->powers[pw_invulnerability])
+                player->powers[pw_invulnerability]--;
+
+            if (player->powers[pw_invisibility])
+            {
+                player->powers[pw_invisibility]--;
+                if (!player->powers[pw_invisibility])
+                {
+                    player->mo->flags &= ~MF_SHADOW;
+                }
+                else if ((player->powers[pw_invisibility] < 61) && !(player->powers[pw_invisibility] & 7))
                 {
                     player->mo->flags ^= MF_SHADOW;
                 }
-			}
+            }
 
             if (player->powers[pw_infrared])
                 player->powers[pw_infrared]--;
@@ -1204,6 +1204,6 @@ SEC_GAME void P_PlayerThink (player_t *player) // 80022D60
                 if(player->bfgcount < 0)
                     player->bfgcount = 0;
             }
-		}
-	}
+        }
+    }
 }

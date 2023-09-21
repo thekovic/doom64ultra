@@ -48,9 +48,9 @@ typedef struct
     AMDMABuffer   *firstFree;
 } AMDMAState;
 
-extern AMAudioMgr   __am;			//800B4060
-extern ALVoice      *voice;			//800B40E0
-extern char         *reverb_status;	//800B40E4
+extern AMAudioMgr   __am;           //800B4060
+extern ALVoice      *voice;         //800B40E0
+extern char         *reverb_status; //800B40E4
 
 extern s32 milli_to_param(register s32 paramvalue, register s32 rate);      // 8002E3D0
 extern int wess_memfill(void *dst, unsigned char fill, int count) SEC_STARTUP;          // 8002E300
