@@ -205,6 +205,7 @@ void R_RenderPlayerView(void) // 80023448
     fixed_t Fnear, FnearA, FnearB;
     int finepitch, fineangle;
     angle_t fov;
+    int fog;
 
     viewplayer = &players[0];
 
@@ -298,7 +299,10 @@ void R_RenderPlayerView(void) // 80023448
     gMoveWd(GFX1++, G_MW_FOG, G_MWO_FOG, Fnear);
 
     // Apply Fog Color
-    gDPSetFogColorD64(GFX1++, FogColor);
+    fog = FogColor;
+    if (!(viewplayer->powers[pw_invulnerability] >= 61 || viewplayer->powers[pw_invulnerability] & 8))
+        fog = C_AddColors(fog, FlashEnvColor);
+    gDPSetFogColorD64(GFX1++, fog);
 
     R_RotateCameraMatrix();
 
