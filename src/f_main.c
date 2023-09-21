@@ -1040,7 +1040,7 @@ void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int x
     for (int tilecnt = 0; tilecnt < tiles; tilecnt++)
     {
         int tpos = MIN(tileh, height);
-        yh = y1 + ((tpos * yscale) >> (FRACBITS - hudxshift));
+        yh = y1 + ((tpos * yscale) >> (FRACBITS - hudyshift));
 
         if (y1 >= screenheight)
             break;
