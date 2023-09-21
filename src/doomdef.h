@@ -1366,6 +1366,7 @@ DEBUG_COUNTER(extern u32 LastVisSubsectors);
 DEBUG_COUNTER(extern u32 LastVisLeaves);
 DEBUG_COUNTER(extern u32 LastVisSegs);
 DEBUG_COUNTER(extern u32 LastVisThings);
+DEBUG_COUNTER(extern u32 LastDmaCycles);
 
 /*---------*/
 /* Doom 64 */

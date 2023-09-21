@@ -59,11 +59,17 @@ static void W_GetRomData(u32 offset, void *dest, u32 len, u32 usable)
 
     osInvalDCache(dest, usable);
 
+    DEBUG_COUNTER(u32 dma_cycles);
+    DEBUG_CYCLES_START(dma_start);
+
     osPiStartDma(&romio_msgbuf, OS_MESG_PRI_NORMAL, OS_READ,
             (u32)_doom64_wadSegmentRomStart + offset,
              dest, len, &romcopy_msgque);
 
     osRecvMesg(&romcopy_msgque, NULL, OS_MESG_BLOCK);
+
+    DEBUG_CYCLES_END(dma_start, dma_cycles);
+    DEBUG_COUNTER(LastDmaCycles += dma_cycles);
 }
 
 /*

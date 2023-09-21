@@ -244,6 +244,7 @@ DEBUG_COUNTER(SDATA u32 LastVisSubsectors = 0);
 DEBUG_COUNTER(SDATA u32 LastVisLeaves = 0);
 DEBUG_COUNTER(SDATA u32 LastVisSegs = 0);
 DEBUG_COUNTER(SDATA u32 LastVisThings = 0);
+DEBUG_COUNTER(SDATA u32 LastDmaCycles = 0);
 
 void S_Init(void);
 void I_InitSram(void);
@@ -780,6 +781,7 @@ void I_ClearFrame(void) // 8000637C
     DEBUG_COUNTER(LastVisLeaves = 0);
     DEBUG_COUNTER(LastVisSegs = 0);
     DEBUG_COUNTER(LastVisThings = 0);
+    DEBUG_COUNTER(LastDmaCycles = 0);
 
     vid_task = &vid_rsptask[vid_side];
 

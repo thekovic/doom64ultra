@@ -251,6 +251,11 @@ void ST_DrawDebug (void)
         ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
         break;
     case 2:
+#ifndef NDEBUG
+        // time spent in frame copying data from ROM
+        sprintf(buf, "DMA %lu", (u32)OS_CYCLES_TO_USEC(LastDmaCycles));
+        ST_Message(16, SCREEN_HT-96, buf, 0x00ff00a0);
+#endif
         // total time taken to complete tick/drawing
         sprintf(buf, "CPU %lu", (u32)OS_CYCLES_TO_USEC(*&LastCpuCycles));
         ST_Message(16, SCREEN_HT-88, buf, 0x00ff00a0);
