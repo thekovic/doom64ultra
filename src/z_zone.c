@@ -297,6 +297,9 @@ void Z_Reserve2 (memzone_t *mainzone, void *addr, int size)
         newblock->id = ZONEID;
     }
 
+    DEBUG_COUNTER(OccupiedMem += block->size);
+    DEBUG_COUNTER(UsedMem += block->size);
+
     block->user = (void *)1;        /* mark as in use, but unowned   */
 
     block->tag = PU_STATIC;
