@@ -259,11 +259,13 @@ static COLD NO_RETURN void DoomErrorHandler(s16 code, s16 numArgs, ...) {
 }
 #endif  /* !defined(NDEBUG) && !defined(DEBUGOPT) */
 
+#ifndef NDEBUG
 static void* DoomPrintf(void* arg, const u8* str, u32 count)
 {
     D_print((const char *) str, count);
     return (void*) 1;
 }
+#endif
 
 void D_printf(const char* message, ...)
 {
