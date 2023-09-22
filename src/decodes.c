@@ -20,19 +20,18 @@ typedef struct {
 /* GLOBALS */
 /*=========*/
 
-static short ShiftTable[6] = { 4, 6, 8, 10, 12, 14 }; // 8005D8A0
-
-static int offsetTable[12];      // 800B2250
-static int offsetMaxSize, windowSize; // 800b2280 , 800b2284
+static const int offsetTable[12] = { // 800B2250
+    0, 16, 80, 336, 1360, 5456,
+    15, 79, 335, 1359, 5455, 21839
+};
 
 static short DecodeTable[2516]; // 800B22A8
 static short array01[1258];     // 800B3660
 
-static buffers_t buffers;       // 800B4034
+static SDATA buffers_t buffers;       // 800B4034
 static byte* window = NULL;      // 800B4054
 
-static int OVERFLOW_READ;       // 800B4058
-static int OVERFLOW_WRITE;      // 800B405C
+#define WINDOW_SIZE 21902
 
 /*
 ============================================================================
@@ -45,7 +44,7 @@ DECODE BASED ROUTINES
 void AllocDecodeWindow(void)
 {
     if (!window)
-        window = Z_Malloc(21902, PU_STATIC, 0);
+        window = Z_Malloc(WINDOW_SIZE, PU_STATIC, 0);
 }
 
 /*
@@ -58,9 +57,6 @@ void AllocDecodeWindow(void)
 
 static int ReadByte(void) // 8002D1D0
 {
-    if ((int)(buffers.input - buffers.istart) >= OVERFLOW_READ)
-        I_Error("Overflowed input buffer");
-
     return *buffers.input++;
 }
 
@@ -74,9 +70,6 @@ static int ReadByte(void) // 8002D1D0
 
 static void WriteByte(byte outByte) // 8002D214
 {
-    if ((int)(buffers.output - buffers.ostart) >= OVERFLOW_WRITE)
-        I_Error("Overflowed output buffer");
-
     *buffers.output++ = outByte;
 }
 
@@ -152,14 +145,12 @@ static int ReadCodeBinary(int byte) // 8002D3B8
 
 static void InitTables(void) // 8002D468
 {
-    int evenVal, oddVal, incrVal, i;
+    int evenVal, oddVal, incrVal;
 
     short* curArray;
     short* incrTbl;
     short* evenTbl;
     short* oddTbl;
-
-    int* Tbl1, * Tbl2;
 
     buffers.dec_bit_count = 0;
     buffers.dec_bit_buffer = 0;
@@ -188,19 +179,6 @@ static void InitTables(void) // 8002D468
         *evenTbl++ = (short)(evenVal * 2);
         evenVal++;
     } while (evenVal < 629);
-
-    incrVal = 0;
-    i = 0;
-    Tbl2 = &offsetTable[6];
-    Tbl1 = &offsetTable[0];
-    do {
-        *Tbl1++ = incrVal;
-        incrVal += (1 << (ShiftTable[i] & 0x1f));
-        *Tbl2++ = incrVal - 1;
-    } while (++i <= 5);
-
-    offsetMaxSize = incrVal - 1;
-    windowSize = offsetMaxSize + (64 - 1);
 }
 
 /*
@@ -404,21 +382,19 @@ void DecodeD64(unsigned char* input, unsigned char* output) // 8002DFA0
 {
     int copyPos, storePos;
     int dec_byte, resc_byte;
-    int incrBit, copyCnt, shiftPos, j;
+    int incrBit, copyCnt, j;
+    unsigned shiftPos;
 
     //PRINTF_D2(WHITE, 0, 15, "DecodeD64");
 
     InitTables();
-
-    OVERFLOW_READ = MAXINT;
-    OVERFLOW_WRITE = MAXINT;
 
     incrBit = 0;
 
     buffers.input = buffers.istart = input;
     buffers.output = buffers.ostart = output;
 
-    // decodewindow = (byte *)Z_Alloc(windowSize, PU_STATIC, NULL);
+    // decodewindow = (byte *)Z_Alloc(WINDOW_SIZE, PU_STATIC, NULL);
 
     dec_byte = StartDecodeByte();
 
@@ -434,7 +410,7 @@ void DecodeD64(unsigned char* input, unsigned char* output) // 8002DFA0
             /*  Resets the count once the memory limit is exceeded in allocPtr,
                 so to speak resets it at startup for reuse */
             incrBit += 1;
-            if (incrBit == windowSize) {
+            if (incrBit == WINDOW_SIZE) {
                 incrBit = 0;
             }
         }
@@ -453,14 +429,14 @@ void DecodeD64(unsigned char* input, unsigned char* output) // 8002DFA0
 
             /*  To start copying data, you receive a position number
                 that you must sum with the position of table tableVar01 */
-            resc_byte = ReadCodeBinary(ShiftTable[shiftPos]);
+            resc_byte = ReadCodeBinary((shiftPos<<1)+4);
 
             /*  with this formula the exact position is obtained
                 to start copying previously stored data */
             copyPos = incrBit - ((offsetTable[shiftPos] + resc_byte) + copyCnt);
 
             if (copyPos < 0) {
-                copyPos += windowSize;
+                copyPos += WINDOW_SIZE;
             }
 
             storePos = incrBit;
@@ -477,12 +453,12 @@ void DecodeD64(unsigned char* input, unsigned char* output) // 8002DFA0
                 copyPos++;  /* advance to next allocPtr memory block to copy */
 
                 /* reset the position of storePos once the memory limit is exceeded */
-                if (storePos == windowSize) {
+                if (storePos == WINDOW_SIZE) {
                     storePos = 0;
                 }
 
                 /* reset the position of copyPos once the memory limit is exceeded */
-                if (copyPos == windowSize) {
+                if (copyPos == WINDOW_SIZE) {
                     copyPos = 0;
                 }
             }
@@ -490,8 +466,8 @@ void DecodeD64(unsigned char* input, unsigned char* output) // 8002DFA0
             /*  Resets the count once the memory limit is exceeded in allocPtr,
                 so to speak resets it at startup for reuse */
             incrBit += copyCnt;
-            if (incrBit >= windowSize) {
-                incrBit -= windowSize;
+            if (incrBit >= WINDOW_SIZE) {
+                incrBit -= WINDOW_SIZE;
             }
         }
 
@@ -511,7 +487,6 @@ void DecodeD64(unsigned char* input, unsigned char* output) // 8002DFA0
 == == == == == == == == == ==
 */
 
-#define WINDOW_SIZE 4096
 #define LOOKAHEAD_SIZE  16
 
 #define LENSHIFT 4      /* this must be log2(LOOKAHEAD_SIZE) */
