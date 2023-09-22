@@ -45,7 +45,7 @@ static byte *decompressbuf;
 
 extern OSMesgQueue romcopy_msgque;
 
-void AllocDecodeWindow(void);
+void AllocDecodeBuffers(void);
 
 /*
 ============================================================================
@@ -136,7 +136,7 @@ void W_Init (void) // 8002BEC0
                 && name[4] >= '0' && name[4] <= '9'
                 && name[5] == '\0')
         {
-            AllocDecodeWindow();
+            AllocDecodeBuffers();
             continue;
         }
 
@@ -144,7 +144,7 @@ void W_Init (void) // 8002BEC0
                 || (name[0] == ('D' | -0x80) && name[1] == 'E' && name[2] == 'M'
                     && name[3] == 'O' && name[4] >= '0' && name[4] <= '9'
                     && name[5] == 'L' && name[6] == 'M' && name[7] == 'P'))
-            AllocDecodeWindow();
+            AllocDecodeBuffers();
 
         // skip some lumps never loaded during gameplay
         if (D_strncmp(name, "\xc5VIL", 8) == 0

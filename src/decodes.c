@@ -25,13 +25,16 @@ static const int offsetTable[12] = { // 800B2250
     15, 79, 335, 1359, 5455, 21839
 };
 
-static short DecodeTable[2516]; // 800B22A8
-static short array01[1258];     // 800B3660
+#define WINDOW_SIZE 21902
+
+typedef struct {
+    short DecodeTable[2516]; // 800B22A8
+    short array01[1258];     // 800B3660
+    byte window[WINDOW_SIZE];      // 800B4054
+} decoder_t;
 
 static SDATA buffers_t buffers;       // 800B4034
-static byte* window = NULL;      // 800B4054
-
-#define WINDOW_SIZE 21902
+static SDATA decoder_t *decoder = NULL;
 
 /*
 ============================================================================
@@ -41,10 +44,10 @@ DECODE BASED ROUTINES
 ============================================================================
 */
 
-void AllocDecodeWindow(void)
+void AllocDecodeBuffers(void)
 {
-    if (!window)
-        window = Z_Malloc(WINDOW_SIZE, PU_STATIC, 0);
+    if (!decoder)
+        decoder = Z_Malloc(sizeof(decoder_t), PU_STATIC, 0);
 }
 
 /*
@@ -155,8 +158,8 @@ static void InitTables(void) // 8002D468
     buffers.dec_bit_count = 0;
     buffers.dec_bit_buffer = 0;
 
-    curArray = &array01[(0 + 2)];
-    incrTbl = &DecodeTable[(1258 + 2)];
+    curArray = &decoder->array01[(0 + 2)];
+    incrTbl = &decoder->DecodeTable[(1258 + 2)];
 
     incrVal = 2;
 
@@ -165,8 +168,8 @@ static void InitTables(void) // 8002D468
         *curArray++ = 1;
     } while (++incrVal < 1258);
 
-    oddTbl = &DecodeTable[(629 + 1)];
-    evenTbl = &DecodeTable[(0 + 1)];
+    oddTbl = &decoder->DecodeTable[(629 + 1)];
+    evenTbl = &decoder->DecodeTable[(0 + 1)];
 
     evenVal = 1;
     oddVal = 3;
@@ -198,11 +201,13 @@ static void CheckTable(int a0, int a1) // 8002D624
     short* evenTbl;
     short* oddTbl;
     short* incrTbl;
+    short *array01;
 
     i = 0;
-    evenTbl = &DecodeTable[0];
-    oddTbl  = &DecodeTable[629];
-    incrTbl = &DecodeTable[1258];
+    evenTbl = &decoder->DecodeTable[0];
+    oddTbl  = &decoder->DecodeTable[629];
+    incrTbl = &decoder->DecodeTable[1258];
+    array01 = decoder->array01;
 
     idByte1 = a0;
 
@@ -266,10 +271,12 @@ static void UpdateTables(int tblpos) // 8002D72C
     short* oddTbl;
     short* incrTbl;
     short* tmpIncrTbl;
+    short *array01;
 
-    evenTbl = &DecodeTable[0];
-    oddTbl  = &DecodeTable[629];
-    incrTbl = &DecodeTable[1258];
+    evenTbl = &decoder->DecodeTable[0];
+    oddTbl  = &decoder->DecodeTable[629];
+    incrTbl = &decoder->DecodeTable[1258];
+    array01 = decoder->array01;
 
     idByte1 = (tblpos + 0x275);
     array01[idByte1] += 1;
@@ -350,8 +357,8 @@ static int StartDecodeByte(void) // 8002D904
 
     lookup = 1;
 
-    evenTbl = &DecodeTable[0];
-    oddTbl  = &DecodeTable[629];
+    evenTbl = &decoder->DecodeTable[0];
+    oddTbl  = &decoder->DecodeTable[629];
 
     while (lookup < 0x275) {
         if (ReadBinary() == 0) {
@@ -384,12 +391,14 @@ void DecodeD64(unsigned char* input, unsigned char* output) // 8002DFA0
     int dec_byte, resc_byte;
     int incrBit, copyCnt, j;
     unsigned shiftPos;
+    byte *window;
 
     //PRINTF_D2(WHITE, 0, 15, "DecodeD64");
 
     InitTables();
 
     incrBit = 0;
+    window = decoder->window;
 
     buffers.input = buffers.istart = input;
     buffers.output = buffers.ostart = output;
