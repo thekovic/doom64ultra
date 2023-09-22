@@ -74,14 +74,6 @@ make -j DEBUG=1                      # Turn off optimizations and enable extra d
 
 make -j DEBUGOPT=1                   # Enable extra debugging features but leave optimizations on
 
-make -j DEBUG_DISPLAY=2              # Show debug frame counter by default
-
-make -j DEBUG_MEM=1                  # Enable extra heap/stack overflow checking (slow)
-
-make -j FORCE_NO_EXPANSION_PAK=1     # Limit RAM usage to 4MB (for testing)
-
-make -j REQUIRE_EXPANSION_PAK=0      # Disable expansion pak requirement screen
-
 make -j SOUND=0                      # Disable sound
 
 make -j INTRO=0                      # Skip the intro screens on boot and go straight to the menu
@@ -97,6 +89,16 @@ make -j USB=1                        # Enable Flashcart USB Screenshot/Demo tran
                                      # When used with DEBUG=1, enables debug logging over USB
 
 make -j GDB=1                        # Enable GDB debugging over USB (implies DEBUG=1 and USB=1)
+
+make -j DEBUG_DISPLAY=2              # Show debug frame counter by default (see ST_DrawDebug for more values)
+
+make -j DEBUG_MEM=1                  # Enable extra heap/stack overflow checking (slow)
+
+make -j FORCE_NO_EXPANSION_PAK=1     # Limit RAM usage to 4MB (for testing)
+
+make -j REQUIRE_EXPANSION_PAK=0      # Disable expansion pak requirement screen
+
+make -j BENCHMARK_MAP_LOAD=1         # Measure all map loading times on boot
 ```
 
 ## Code Completion

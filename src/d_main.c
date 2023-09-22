@@ -1,11 +1,15 @@
 /* D_main.c  */
 
-#include "i_main.h"
-#include "doomdef.h"
 #include "config.h"
+#include "doomdef.h"
 #include "i_debug.h"
 #ifdef USB
 #include "i_usb.h"
+#endif
+
+#ifdef BENCHMARK_MAP_LOAD
+#include "st_main.h"
+static void D_BenchmarkMapLoad(void);
 #endif
 
 SDATA int gamevbls;                 // 80063130 /* may not really be vbls in multiplayer */
@@ -58,6 +62,10 @@ static void D_DoomLoop(void)
         ticbuttons[i] = 0;
         oldticbuttons[i] = 0;
     }
+
+#ifdef BENCHMARK_MAP_LOAD
+    D_BenchmarkMapLoad();
+#endif
 
 #ifdef DEVWARP
     {
@@ -301,9 +309,7 @@ int MiniLoop(void(*start)(void), void(*stop)(int),
     return exit;
 }
 
-/*
-#include "st_main.h"
-
+#ifdef BENCHMARK_MAP_LOAD
 static void D_BenchmarkMapLoad(void)
 {
 
@@ -338,4 +344,4 @@ static void D_BenchmarkMapLoad(void)
     ST_DebugClear();
     ST_DisableDebug();
 }
-*/
+#endif /* BENCHMARK_MAP_LOAD */
