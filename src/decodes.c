@@ -189,7 +189,7 @@ static void InitTables(void) // 8002D468
 ========================
 */
 
-static void CheckTable(int a0, int a1, int a2) // 8002D624
+static void CheckTable(int a0, int a1) // 8002D624
 {
     int i;
     int idByte1;
@@ -280,10 +280,10 @@ static void UpdateTables(int tblpos) // 8002D72C
         idByte2 = *tmpIncrTbl;
 
         if (idByte1 == evenTbl[idByte2]) {
-            CheckTable(idByte1, oddTbl[idByte2], idByte1);
+            CheckTable(idByte1, oddTbl[idByte2]);
         }
         else {
-            CheckTable(idByte1, evenTbl[idByte2], idByte1);
+            CheckTable(idByte1, evenTbl[idByte2]);
         }
 
         do
@@ -321,7 +321,7 @@ static void UpdateTables(int tblpos) // 8002D72C
                 incrTbl[idByte3] = (short)idByte2;
 
                 *tmpIncrTbl = (short)incrIdx;
-                CheckTable(idByte3, idByte4, idByte4);
+                CheckTable(idByte3, idByte4);
 
                 tmpIncrTbl = &incrTbl[idByte3];
             }
