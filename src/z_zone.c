@@ -42,7 +42,7 @@ void Z_Init (void) // 8002C8F0
 {
 
     /* mars doesn't have a refzone */
-    mainzone = Z_InitZone(MAIN_HEAP_ADDR, MAIN_HEAP_SIZE);
+    mainzone = Z_InitZone(MAIN_HEAP_ADDR, MAIN_HEAP_SIZE());
 
     //PRINTF_D2(WHITE, 0, 25, "%d", (u32)size);
     //while(1){}

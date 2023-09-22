@@ -1,11 +1,11 @@
 /* m_main.c -- menu routines */
 
+#include "config.h"
 #include "doomdef.h"
 #include "p_local.h"
 #include "r_local.h"
 #include "st_main.h"
 #include "i_usb.h"
-#include "config.h"
 
 extern void P_RefreshBrightness(void);
 extern void I_RefreshVideo(void);
@@ -773,7 +773,7 @@ static boolean M_AdjustLoadMenu(void)
 
 static boolean M_ItemIsDisabled(menuentry_t casepos)
 {
-    if (osMemSize < 0x800000)
+    if (!HAS_EXPANSION_PAK())
     {
         if (casepos == MTXT_COLOR_DEPTH || casepos == MTXT_RESOLUTION)
             return true;

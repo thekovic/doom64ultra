@@ -78,6 +78,8 @@ make -j DEBUG_DISPLAY=2              # Show debug frame counter by default
 
 make -j DEBUG_MEM=1                  # Enable extra heap/stack overflow checking (slow)
 
+make -j FORCE_NO_EXPANSION_PAK=1     # Limit RAM usage to 4MB (for testing)
+
 make -j REQUIRE_EXPANSION_PAK=0      # Disable expansion pak requirement screen
 
 make -j SOUND=0                      # Disable sound

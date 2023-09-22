@@ -287,7 +287,7 @@ void I_IdleGameThread(void *arg) // 8000567C
     if (osTvType == OS_TV_PAL)
         SCREEN_HT = 288;
 
-    if (osMemSize >= 0x800000)
+    if (HAS_EXPANSION_PAK())
     {
         BitDepth = BITDEPTH_32;
         CFB_SIZE = SCREEN_WD*SCREEN_HT*2*sizeof(u32);
@@ -590,12 +590,12 @@ void I_Init(void) // 80005C50
     // Init the video mode...
     I_RefreshVideo();
 
-    Z_Reserve(AUDIO_HEAP_ADDR, AUDIO_HEAP_SIZE + CFB_SIZE);
+    Z_Reserve(AUDIO_HEAP_ADDR(), AUDIO_HEAP_SIZE + CFB_SIZE);
 
     {
-        void *fb = CFB0_ADDR;
+        void *fb = CFB0_ADDR();
         D_memset(fb, 0, CFB_SIZE);
-        D_memset(CFB1_ADDR, 0, CFB_SIZE);
+        D_memset(CFB1_ADDR(), 0, CFB_SIZE);
 
         osViSwapBuffer(fb);
         __osViSwapContext();
@@ -620,8 +620,9 @@ void I_Init(void) // 80005C50
     osContInit(&sys_msgque_joy, &gamepads, gamepad_status);
 
     I_InitSram();
-    if (osMemSize < 0x800000)
+    if (!HAS_EXPANSION_PAK())
     {
+        // force to low res, if settings loading changed it
         VideoResolution = VIDEO_RES_LOW;
         BitDepth = BITDEPTH_16;
     }
@@ -788,7 +789,7 @@ void I_ClearFrame(void) // 8000637C
     vid_task->t.ucode = (u64 *) gspF3DEX2_NoN_fifoTextStart;
     vid_task->t.ucode_data = (u64 *) gspF3DEX2_NoN_fifoDataStart;
 
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, BitDepth + G_IM_SIZ_16b, XResolution, CFB_SPADDR);
+    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, BitDepth + G_IM_SIZ_16b, XResolution, CFB_SPADDR());
     gDPSetScissor(GFX1++, G_SC_NON_INTERLACE, 0, 0, XResolution, YResolution);
 
     gDPSetTextureFilter(GFX1++, G_TF_POINT);

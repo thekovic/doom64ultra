@@ -26,7 +26,7 @@ void S_Init(void) // 80029590
 #if SOUND == 0
     return;
 #endif
-    u8* const audio_heap = AUDIO_HEAP_ADDR;
+    u8* const audio_heap = AUDIO_HEAP_ADDR();
     u32 audioHeapEnd;
     //int loaded;
     int modulesize;

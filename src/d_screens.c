@@ -1,10 +1,8 @@
 /* D_screens.c */
 
-#include "i_main.h"
-#include "doomdef.h"
-#include "r_local.h"
-#include "st_main.h"
 #include "config.h"
+#include "doomdef.h"
+#include "st_main.h"
 
 int D_RunDemo(char *name, customskill_t skill, int map) // 8002B2D0
 {
@@ -224,7 +222,7 @@ void D_SplashScreen(void) // 8002B988
     /* */
     /* Check if expansion pak is connected if >8MB memory */
     /* */
-    if (osMemSize < 0x800000)
+    if (!HAS_EXPANSION_PAK())
     {
         MiniLoop(NULL, NULL, D_NoPakTicker, D_DrawNoMemory);
     }
