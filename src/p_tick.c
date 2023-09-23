@@ -86,7 +86,7 @@ void P_RemoveThinker (thinker_t *thinker) // 8002179C
 
 void P_RunThinkers (void) // 800217C8
 {
-    thinker_t   *currentthinker;
+    thinker_t   *currentthinker, *next;
 
     DEBUG_COUNTER(activethinkers = 0);
 
@@ -97,6 +97,7 @@ void P_RunThinkers (void) // 800217C8
         {
             if (currentthinker->function == (think_t)-1)
             {   // time to remove it
+                next = currentthinker->next;
                 currentthinker->next->prev = currentthinker->prev;
                 currentthinker->prev->next = currentthinker->next;
                 Z_Free (currentthinker);
@@ -108,8 +109,10 @@ void P_RunThinkers (void) // 800217C8
                     ((void (*)(void *)) currentthinker->function) (currentthinker);
                 }
                 DEBUG_COUNTER(activethinkers++);
+                // get next pointer after in case the thinker added another one
+                next = currentthinker->next;
             }
-            currentthinker = currentthinker->next;
+            currentthinker = next;
         }
     }
 }
