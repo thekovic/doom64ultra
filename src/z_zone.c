@@ -681,12 +681,11 @@ void Z_DumpHeap(memzone_t *mainzone) // 8002D1C8
 #ifndef NDEBUG
     memblock_t    *block;
 
-    D_printf("zone size: %i  location: %p\n", mainzone->size, mainzone);
-
     for (block = &mainzone->blocklist; block; block = block->next)
     {
-        D_printf("block:%p    size:%7i    user:%p    tag:%3i    frame:%i\n",
-                 block, block->size, block->user, block->tag, block->lockframe);
+        D_printf("0x%08lx, %7i, 0x%08lx, %3i, %i\n",
+                 (u32)block, block->size, (u32)block->user, block->tag,
+                 block->lockframe);
 
         if (!block->next)
             continue;
@@ -696,8 +695,6 @@ void Z_DumpHeap(memzone_t *mainzone) // 8002D1C8
         if (block->next->prev != block)
             D_printf("ERROR: next block doesn't have proper back link\n");
     }
-
-    D_printf("end heap\n");
 #endif
 }
 

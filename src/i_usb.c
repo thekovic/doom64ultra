@@ -9,6 +9,9 @@ https://github.com/buu342/N64-UNFLoader
 #include "i_usb.h"
 #include "i_debug.h"
 #include "doomdef.h"
+#ifdef USB
+#include <os_internal.h>
+#endif
 
 // Settings
 #define DEBUG_ADDRESS_SIZE 8*1024*1024 // Max size of USB I/O. The bigger this value, the more ROM you lose!
@@ -1633,35 +1636,6 @@ void I_PollUSBCommands(void)
     osSendMesg(&usbMessageQ, (OSMesg)&msg, OS_MESG_BLOCK);
 }
 
-int I_DispatchUSBCommands(void)
-{
-    // Ensure flash cart is present
-    if (!FlashCart)
-        return ga_nothing;
-
-    I_PollUSBCommands();
-
-    if (!PendingUSBOperations)
-        return ga_nothing;
-
-    if (PendingUSBOperations & USB_OP_DUMPHEAP)
-    {
-        Z_DumpHeap(mainzone);
-        PendingUSBOperations &= ~USB_OP_DUMPHEAP;
-    }
-
-    if (PendingUSBOperations & USB_OP_QUICKSAVE)
-        I_USBQuickSave();
-
-    if (PendingUSBOperations & USB_OP_QUICKLOAD)
-        return ga_loadquicksave;
-
-    if (PendingUSBOperations & USB_OP_LOADMAP)
-        return ga_warped;
-
-    return ga_nothing;
-}
-
 int I_CmdNextTokenSize(void)
 {
     // If we're out of commands to read, return 0
@@ -1936,9 +1910,8 @@ void I_USBSendFile(void* file, int size)
     osSendMesg(&usbMessageQ, (OSMesg)&msg, OS_MESG_BLOCK);
 }
 
-void I_USBSendImage(void *frame, u32 w, u32 h, u8 depth)
+static void I_USBSendImage(void *frame, u32 w, u32 h, u8 depth)
 {
-    usbMesg msg;
     int data[4];
 
     // Ensure flash cart is present
@@ -1951,66 +1924,64 @@ void I_USBSendImage(void *frame, u32 w, u32 h, u8 depth)
     data[2] = w;
     data[3] = h;
 
-    // Send the header to the USB thread
-    msg.msgtype = MSG_WRITE;
-    msg.datatype = DATATYPE_HEADER;
-    msg.buff = data;
-    msg.size = sizeof(data);
-    osSendMesg(&usbMessageQ, (OSMesg)&msg, OS_MESG_BLOCK);
-
-    // Send the framebuffer to the USB thread
-    msg.msgtype = MSG_WRITE;
-    msg.datatype = DATATYPE_SCREENSHOT;
-    msg.buff = frame;
-    msg.size = depth*w*h;
-    osSendMesg(&usbMessageQ, (OSMesg)&msg, OS_MESG_BLOCK);
+    usb_write(DATATYPE_HEADER, data, sizeof data);
+    usb_write(DATATYPE_SCREENSHOT, frame, depth * w * h);
 }
 
-/*
-void I_USBSendScreenshot(void)
+const char USB_HELP[] =
+    "Available USB commands\n----------------------\n"
+    "q\tQuicksave to USB\n"
+    "Q\tQuickload from USB\n"
+    "m\tLoads a custom map WAD\n"
+    "s\tTake screenshot\n"
+    "h\tDump heap\n"
+    "?\tShow this message\n"
+    "\n";
+
+void I_USBPrintHelp(void)
 {
-    // Ensure flash cart is present
-    if (!FlashCart)
-        return;
-
-    // These addresses were obtained from http://en64.shoutwiki.com/wiki/VI_Registers_Detailed
-    void* frame = (void*)(0x80000000|IO_READ(0xA4400004)); // Same as calling osViGetCurrentFramebuffer() in libultra
-    u32 yscale = IO_READ(0xA4400034);
-    u32 w = IO_READ(0xA4400008);
-    u32 h = (((IO_READ(0xA4400028)&0x3FF)-((IO_READ(0xA4400028)>>16)&0x3FF))*yscale)/2048;
-    u8 depth = ((IO_READ(0xA4400000)&0x03) == 0x03) ? 4 : 2;
-
-    I_USBSendImage(frame, w, h, depth);
+    D_printstatic(USB_HELP);
 }
-*/
 
+static volatile u32 QueuedUSBOperations = 0;
 u32 PendingUSBOperations = 0;
 
 /* Execute a command from the USB serial port. Every function dispatched here
  * must be safe to run on either the USB thread or Debug thread. */
 static boolean I_RunUSBCommand(void)
 {
-    if (CommandBuffer[0] == '\0' || CommandBuffer[1] != '\0')
-        return false;
+    char cmd;
 
-    switch (CommandBuffer[0])
+    if (CommandBuffer[0] == '\0' || CommandBuffer[1] != '\0')
+        cmd = '\0'; // fallthrough to error handler below
+    else
+        cmd = CommandBuffer[0];
+
+    switch (cmd)
     {
+    case '?':
+        usb_write(DATATYPE_TEXT, USB_HELP, sizeof(USB_HELP));
+        break;
     case 'q':
         I_CmdSkipAllTokens();
-        PendingUSBOperations |= USB_OP_QUICKSAVE;
+        *&QueuedUSBOperations |= USB_OP_QUICKSAVE;
         break;
     case 'Q':
-        PendingUSBOperations |= USB_OP_QUICKLOAD;
+        *&QueuedUSBOperations |= USB_OP_QUICKLOAD;
         break;
     case 'm':
-        PendingUSBOperations |= USB_OP_LOADMAP;
+        *&QueuedUSBOperations |= USB_OP_LOADMAP;
         break;
     case 'h':
-        PendingUSBOperations |= USB_OP_DUMPHEAP;
+        *&QueuedUSBOperations |= USB_OP_DUMPHEAP;
         break;
     case 's':
         I_CmdSkipAllTokens();
-        I_USBSendImage(CFB(vid_side), XResolution, YResolution, BitDepth?4:2);
+        {
+            int mask = __osDisableInt();
+            I_USBSendImage(CFB(vid_side), XResolution, YResolution, BitDepth==BITDEPTH_32?4:2);
+            __osRestoreInt(mask);
+        }
         break;
 #ifdef USB_GDB
     case 'G':
@@ -2021,23 +1992,48 @@ static boolean I_RunUSBCommand(void)
         break;
 #endif
     default:
+        {
+            const char ERROR[] = "Unknown command";
+            usb_write(DATATYPE_TEXT, ERROR, sizeof(ERROR));
+            usb_write(DATATYPE_TEXT, USB_HELP, sizeof(USB_HELP));
+        }
         return false;
     }
 
     return true;
 }
 
-void I_USBPrintHelp(void)
+// called from the main thread
+int I_DispatchUSBCommands(void)
 {
-    D_printstatic(
-        "Available USB commands\n----------------------\n"
-        "q\tQuicksave to USB\n"
-        "Q\tQuickload from USB\n"
-        "m\tLoads a custom map WAD\n"
-        "s\tTake screenshot\n"
-        "h\tDump heap\n"
-        "\n"
-    );
+    // Ensure flash cart is present
+    if (!FlashCart)
+        return ga_nothing;
+
+    I_PollUSBCommands();
+
+    PendingUSBOperations = *&QueuedUSBOperations;
+    *&QueuedUSBOperations = 0;
+
+    if (!PendingUSBOperations)
+        return ga_nothing;
+
+    if (PendingUSBOperations & USB_OP_DUMPHEAP)
+    {
+        Z_DumpHeap(mainzone);
+        PendingUSBOperations &= ~USB_OP_DUMPHEAP;
+    }
+
+    if (PendingUSBOperations & USB_OP_QUICKSAVE)
+        I_USBQuickSave();
+
+    if (PendingUSBOperations & USB_OP_QUICKLOAD)
+        return ga_loadquicksave;
+
+    if (PendingUSBOperations & USB_OP_LOADMAP)
+        return ga_warped;
+
+    return ga_nothing;
 }
 
 #endif /* USB */

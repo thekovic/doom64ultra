@@ -27,7 +27,6 @@
 // Globals
 extern signed char IsEmulator;
 extern signed char FlashCart;
-extern unsigned long PendingUSBOperations;
 
 /*********************************
           USB Functions
@@ -43,6 +42,8 @@ extern void I_InitFlashCart(void);
 
 
 #ifdef USB
+
+extern unsigned long PendingUSBOperations;
 
 // Function pointers
 extern void (*UsbFuncWriteStart)(int datatype, int size);
