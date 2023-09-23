@@ -466,7 +466,7 @@ void I_SystemTicker(void *arg) // 80005730
                         u32 cpu = *&LastCpuCycles;
                         *&LastRdpCycles = rdp;
                         if (cpu)
-                            *&LastFrameCycles = rdp + cpu;
+                            *&LastFrameCycles = MAX(rdp, cpu);
                     }
 
                     osViSwapBuffer(CFB(read_vid_side));
