@@ -468,7 +468,7 @@ u8 BitDepth = BITDEPTH_16;
 #ifdef NDEBUG
 #define MAXDEBUGCOUNTERS 2
 #else
-#define MAXDEBUGCOUNTERS 7
+#define MAXDEBUGCOUNTERS 8
 #endif
 
 boolean ConfigChanged = false;
@@ -3088,7 +3088,8 @@ static void M_DebugMenuDrawer(void) // 800091C0
                     case 4: text = "GFX"; break;
                     case 5: text = "BSP"; break;
                     case 6: text = "LEVEL"; break;
-                    case 7: text = "MEMORY"; break;
+                    case 7: text = "CAMERA"; break;
+                    case 8: text = "MEMORY"; break;
 #endif
                     default: text = NULL; break;
                 }

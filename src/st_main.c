@@ -334,6 +334,21 @@ void ST_DrawDebug (void)
         ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
         break;
     case 7:
+        // cam position
+        sprintf(buf, "X %d", viewx>>FRACBITS);
+        ST_Message(16, SCREEN_HT-88, buf, 0x00ff00a0);
+        sprintf(buf, "Y %d", viewy>>FRACBITS);
+        ST_Message(16, SCREEN_HT-80, buf, 0x00ff00a0);
+        sprintf(buf, "Z %d", viewz>>FRACBITS);
+        ST_Message(16, SCREEN_HT-72, buf, 0x00ff00a0);
+        // cam angle
+        sprintf(buf, "A %u", viewangle/ANG1);
+        ST_Message(16, SCREEN_HT-64, buf, 0x00ff00a0);
+        // cam pitch
+        sprintf(buf, "P %d", ((int)viewpitch)/ANG1);
+        ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
+        break;
+    case 8:
         // memory used by PU_LEVEL and PU_LEVSPEC
         sprintf(buf, "LEV %lu", LevelMem);
         ST_Message(16, SCREEN_HT-72, buf, 0x00ff00a0);
