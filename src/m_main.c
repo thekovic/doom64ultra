@@ -3490,7 +3490,8 @@ void M_DefaultsDrawer(void) // [Immorpher] new defaults drawer
 void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
 {
     int width, height;
-    int xh, yh, tileh, stileh, sheight, t, th;
+    int xh, yh, tileh, stileh, sheight, t, th, t2;
+    int twidth, tline;
     int offset;
     gfxN64_t *data;
     int dsdx, dtdy;
@@ -3551,7 +3552,7 @@ void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
     }
 
     x <<= hudxshift;
-    y <<= hudxshift;
+    y <<= hudyshift;
 
     dsdx = 1 << 12 >> hudxshift;
     if (osTvType == OS_TV_PAL)
@@ -3560,10 +3561,15 @@ void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
         dtdy = 1 << 12 >> hudyshift;
 
     t = 0;
-    while (height != 0)
+    tileh <<= 2;
+    height <<= 2;
+    twidth = (width - 1) << 2;
+    tline = (width + 7) >> 3;
+    while (height > 0)
     {
         th = MIN(tileh, height);
         yh = MIN(stileh, sheight);
+        t2 = t + th - 4;
 
         // Load Image Data
         gDPSetTextureImage(GFX1++, G_IM_FMT_CI, G_IM_SIZ_8b ,
@@ -3571,24 +3577,21 @@ void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
 
          // Clip Rectangle From Image
         gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_8b,
-                        (width + 7) / 8, 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
+                   tline, 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
 
         gDPLoadSync(GFX1++);
-        gDPLoadTile(GFX1++, G_TX_LOADTILE,
-                    (0 << 2), (t << 2),
-                    ((width - 1) << 2), (((t + th) - 1) << 2));
+        gDPLoadTile(GFX1++, G_TX_LOADTILE, 0, t, twidth, t2);
 
         gDPPipeSync(GFX1++);
         gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_8b,
-                    (width + 7) / 8, 0, G_TX_RENDERTILE, 0, 0, 0, 0, 0, 0, 0);
+                   tline, 0, G_TX_RENDERTILE, 0, 0, 0, 0, 0, 0, 0);
 
-        gDPSetTileSize(GFX1++, G_TX_RENDERTILE,
-                       (0 << 2), (t << 2),
-                       ((width - 1) << 2), (((t + th) - 1) << 2));
+        gDPSetTileSize(GFX1++, G_TX_RENDERTILE, 0, t, twidth, t2);
 
         gSPTextureRectangle(GFX1++, x, y, xh, yh + y, G_TX_RENDERTILE,
-                            (0 << 5), (t << 5), dsdx, dtdy);
+                            0, (t << 3), dsdx, dtdy);
 
+        sheight -= yh;
         height -= th;
         t += th;
         y += yh;
