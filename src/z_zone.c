@@ -73,6 +73,10 @@ memzone_t *Z_InitZone(byte *base, int size) // 8002C934
     zone->blocklist.prev = NULL;
     //zone->blocklist.lockframe = -1;
 
+#ifdef DEBUG_MEM
+    D_memset(base + sizeof(memzone_t), 0xff, size - sizeof(memzone_t));
+#endif
+
     return zone;
 }
 
@@ -479,6 +483,7 @@ void Z_Free2(memzone_t *mainzone, void *ptr) // 8002CE28
     block->tag = 0;
 
 #ifdef DEBUG_MEM
+    D_memset(ptr, 0xff, block->size - sizeof(memblock_t));
     Z_CheckZone (mainzone);    /* DEBUG */
 #endif
 }
