@@ -416,7 +416,13 @@ void AM_Drawer (void) // 800009AC
         if ((players->artifacts & 2) != 0 && mo->type == MT_ITEM_ARTIFACT2) continue;
         if ((players->artifacts & 4) != 0 && mo->type == MT_ITEM_ARTIFACT3) continue;
 
-        if (mo->flags & (MF_SHOOTABLE|MF_MISSILE))
+        if (mo->type == MT_ITEM_BLUECARDKEY || mo->type == MT_ITEM_BLUESKULLKEY)
+            color = COLOR_BLUE;
+        else if (mo->type == MT_ITEM_YELLOWCARDKEY || mo->type == MT_ITEM_YELLOWSKULLKEY)
+            color = COLOR_YELLOW;
+        else if (mo->type == MT_ITEM_REDCARDKEY || mo->type == MT_ITEM_REDSKULLKEY)
+            color = COLOR_RED;
+        else if (mo->flags & (MF_SHOOTABLE|MF_MISSILE))
             color = COLOR_WHITE;
         else
             color = COLOR_AQUA;
