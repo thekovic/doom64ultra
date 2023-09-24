@@ -379,7 +379,7 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
         if (player->health > 200)
             player->health = 200;
         player->mo->health = player->health;
-        message = "You pick up a health bonus.";
+        message = JPMSG(4, "You pick up a health bonus.");
         break;
     case MT_ITEM_BONUSARMOR:
         player->armorpoints+=2;     /* can go over 100% */
@@ -387,21 +387,21 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
             player->armorpoints = 200;
         if (!player->armortype)
             player->armortype = 1;
-        message = "You pick up an armor bonus.";
+        message = JPMSG(5, "You pick up an armor bonus.");
         break;
     case MT_ITEM_SOULSPHERE:
         player->health += 100;
         if (player->health > 200)
             player->health = 200;
         player->mo->health = player->health;
-        message = "Supercharge!";
+        message = JPMSG(6, "Supercharge!");
         sound = sfx_powerup;
         break;
     case MT_ITEM_MEGASPHERE:
         player->health = 200;
         player->mo->health = 200;
         P_GiveArmor(player, 2);
-        message = "Mega Sphere!";
+        message = JPMSG(7, "Mega Sphere!");
         sound = sfx_powerup;
         break;
 
@@ -419,47 +419,47 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
             if (!P_GiveAmmo (player,am_clip,1))
                 return;
         }
-        message = "Picked up a clip.";
+        message = JPMSG(8, "Picked up a clip.");
         break;
     case MT_AMMO_CLIPBOX:
         if (!P_GiveAmmo (player, am_clip,5))
             return;
-        message = "Picked up a box of bullets.";
+        message = JPMSG(9, "Picked up a box of bullets.");
         break;
     case MT_AMMO_ROCKET:
         if (!P_GiveAmmo (player, am_misl,1))
             return;
-        message = "Picked up a rocket.";
+        message = JPMSG(10, "Picked up a rocket.");
         break;
     case MT_AMMO_ROCKETBOX:
         if (!P_GiveAmmo (player, am_misl,5))
             return;
-        message = "Picked up a box of rockets.";
+        message = JPMSG(11, "Picked up a box of rockets.");
         break;
     case MT_AMMO_CELL:
         if (!P_GiveAmmo (player, am_cell,1))
             return;
-        message = "Picked up an energy cell.";
+        message = JPMSG(12, "Picked up an energy cell.");
         break;
     case MT_AMMO_CELLPACK:
         if (!P_GiveAmmo (player, am_cell,5))
             return;
-        message = "Picked up an energy cell pack.";
+        message = JPMSG(13, "Picked up an energy cell pack.");
         break;
     case MT_AMMO_SHELL:
         if (!P_GiveAmmo (player, am_shell,1))
             return;
         if (customskill.player_ammo == 1)
-            message = "Picked up 8 shotgun shells.";
+            message = JPMSG(14, "Picked up 8 shotgun shells.");
         else if (customskill.player_ammo == 2) // [Immorpher and GEC] Nightmare ammo boost!
-            message = "Picked up 6 shotgun shells.";
+            message = JPMSG(14, "Picked up 6 shotgun shells.");
         else
-            message = "Picked up 4 shotgun shells.";
+            message = JPMSG(14, "Picked up 4 shotgun shells.");
         break;
     case MT_AMMO_SHELLBOX:
         if (!P_GiveAmmo (player, am_shell,5))
             return;
-        message = "Picked up a box of shotgun shells.";
+        message = JPMSG(15, "Picked up a box of shotgun shells.");
         break;
     case MT_AMMO_BACKPACK:
         if (!player->backpack)
@@ -470,7 +470,7 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
         }
         for (i=0 ; i<NUMAMMO ; i++)
             P_GiveAmmo (player, i, 1);
-        message = "You got the backpack!";
+        message = JPMSG(16, "You got the backpack!");
         break;
 
 
@@ -480,43 +480,43 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
     case MT_WEAP_BFG:
         if (!P_GiveWeapon (player, wp_bfg, false) )
             return;
-        message = "You got the BFG9000!  Oh, yes.";
+        message = JPMSG(17, "You got the BFG9000!  Oh, yes.");
         sound = sfx_sgcock;
         break;
     case MT_WEAP_CHAINGUN:
         if (!P_GiveWeapon (player, wp_chaingun, special->flags&MF_DROPPED) )
             return;
-        message = "You got the chaingun!";
+        message = JPMSG(18, "You got the chaingun!");
         sound = sfx_sgcock;
         break;
     case MT_WEAP_CHAINSAW:
         if (!P_GiveWeapon (player, wp_chainsaw, false) )
             return;
-        message = "A chainsaw!  Find some meat!";
+        message = JPMSG(19, "A chainsaw!  Find some meat!");
         sound = sfx_sgcock;
         break;
     case MT_WEAP_LAUNCHER:
         if (!P_GiveWeapon (player, wp_missile, false) )
             return;
-        message = "You got the rocket launcher!";
+        message = JPMSG(20, "You got the rocket launcher!");
         sound = sfx_sgcock;
         break;
     case MT_WEAP_PLASMA:
         if (!P_GiveWeapon (player, wp_plasma, false) )
             return;
-        message = "You got the plasma gun!";
+        message = JPMSG(21, "You got the plasma gun!");
         sound = sfx_sgcock;
         break;
     case MT_WEAP_SHOTGUN:
         if (!P_GiveWeapon (player, wp_shotgun, special->flags&MF_DROPPED ) )
             return;
-        message = "You got the shotgun!";
+        message = JPMSG(22, "You got the shotgun!");
         sound = sfx_sgcock;
         break;
     case MT_WEAP_SSHOTGUN:
         if (!P_GiveWeapon(player, wp_supershotgun, special->flags&MF_DROPPED))
             return;
-        message = "You got the super shotgun!";
+        message = JPMSG(23, "You got the super shotgun!");
         sound = sfx_sgcock;
         break;
     case MT_WEAP_LCARBINE:
@@ -532,13 +532,13 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
     case MT_ITEM_ARMOR1:
         if (!P_GiveArmor(player, 1))
             return;
-        message = "You pick up the armor.";
+        message = JPMSG(24, "You pick up the armor.");
         break;
 
     case MT_ITEM_ARMOR2:
         if (!P_GiveArmor(player, 2))
             return;
-        message = "You got the MegaArmor!";
+        message = JPMSG(25, "You got the MegaArmor!");
         break;
 
     /* */
@@ -547,32 +547,32 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
     /* */
     case MT_ITEM_BLUECARDKEY:
         if (!player->cards[it_bluecard])
-            message = "You pick up a blue keycard.";
+            message = JPMSG(26, "You pick up a blue keycard.");
         P_GiveCard(player, it_bluecard);
         break;
     case MT_ITEM_REDCARDKEY:
         if (!player->cards[it_redcard])
-            message = "You pick up a red keycard.";
+            message = JPMSG(28, "You pick up a red keycard.");
         P_GiveCard(player, it_redcard);
         break;
     case MT_ITEM_YELLOWCARDKEY:
         if (!player->cards[it_yellowcard])
-            message = "You pick up a yellow keycard.";
+            message = JPMSG(27, "You pick up a yellow keycard.");
         P_GiveCard(player, it_yellowcard);
         break;
     case MT_ITEM_BLUESKULLKEY:
         if (!player->cards[it_blueskull])
-            message = "You pick up a blue skull key.";
+            message = JPMSG(29, "You pick up a blue skull key.");
         P_GiveCard(player, it_blueskull);
         break;
     case MT_ITEM_REDSKULLKEY:
         if (!player->cards[it_redskull])
-            message = "You pick up a red skull key.";
+            message = JPMSG(31, "You pick up a red skull key.");
         P_GiveCard(player, it_redskull);
         break;
     case MT_ITEM_YELLOWSKULLKEY:
         if (!player->cards[it_yellowskull])
-            message = "You pick up a yellow skull key.";
+            message = JPMSG(30, "You pick up a yellow skull key.");
         P_GiveCard(player, it_yellowskull);
         break;
 
@@ -582,17 +582,19 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
     case MT_ITEM_STIMPACK:
         if (!P_GiveBody(player, 10))
             return;
-        message = "You pick up a stimpack.";
+        message = JPMSG(32, "You pick up a stimpack.");
         break;
     case MT_ITEM_MEDKIT:
         if (!P_GiveBody(player, 25))
             return;
         if (player->health < 50) { // [Immorpher] Fix! If your resultant health is below 50 then you really needed it!
-            message = "You pick up a medikit";
+            message = JPMSG(33, "You pick up a medikit");
+#if REGION != REGION_JP
             message2 = "that you REALLY need!";
+#endif
         }
         else
-            message = "You pick up a medikit.";
+            message = JPMSG(34, "You pick up a medikit.");
         break;
 
     /* */
@@ -600,35 +602,35 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
     /* */
     case MT_ITEM_INVULSPHERE:
         P_GivePower(player, pw_invulnerability);
-        message = "Invulnerability!";
+        message = JPMSG(35, "Invulnerability!");
         sound = sfx_powerup;
         break;
     case MT_ITEM_BERSERK:
         P_GivePower(player, pw_strength);
-        message = "Berserk!";
+        message = JPMSG(36, "Berserk!");
         if (player->readyweapon != wp_fist)
             player->pendingweapon = wp_fist;
         sound = sfx_powerup;
         break;
     case MT_ITEM_INVISSPHERE:
         P_GivePower(player, pw_invisibility);
-        message = "Partial Invisibility!";
+        message = JPMSG(37, "Partial Invisibility!");
         sound = sfx_powerup;
         break;
     case MT_ITEM_RADSPHERE:
         P_GivePower(player, pw_ironfeet);
-        message = "Radiation Shielding Suit";
+        message = JPMSG(38, "Radiation Shielding Suit");
         sound = sfx_powerup;
         break;
     case MT_ITEM_AUTOMAP:
         if (!P_GivePower(player, pw_allmap))
             return;
-        message = "Computer Area Map";
+        message = JPMSG(39, "Computer Area Map");
         sound = sfx_powerup;
         break;
     case MT_ITEM_PVIS:
         P_GivePower(player, pw_infrared);
-        message = "Light Amplification Goggles";
+        message = JPMSG(40, "Light Amplification Goggles");
         sound = sfx_powerup;
         break;
 
@@ -647,15 +649,19 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
         player->artifacts |= artflag;
 
         if (ArtifactLookupTable[player->artifacts] == 1) { /* ART_FAST */
-            message = "You have a feeling that it";
+            message = JPMSG(42, "You have a feeling that it");
+#if REGION != REGION_JP
             message2 = "wasn't to be touched...";
+#endif
         }
         else if (ArtifactLookupTable[player->artifacts] == 2) { /* ART_TRIPLE */
-            message = "Whatever it is, it doesn't";
+            message = JPMSG(43, "Whatever it is, it doesn't");
+#if REGION != REGION_JP
             message2 = "belong in this world...";
+#endif
         }
         else /* ART_DOUBLE */
-            message = "It must do something...";
+            message = JPMSG(44, "It must do something...");
 
         sound = sfx_powerup;
         break;

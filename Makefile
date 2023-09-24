@@ -31,6 +31,9 @@ endif
 ifeq ($(DEBUG),0)
   DEFINES += NDEBUG=1
 endif
+ifdef REGION
+  DEFINES += REGION=REGION_$(REGION)
+endif
 ifeq ($(SOUND),0)
   OPTIONS += SOUND=0
 endif

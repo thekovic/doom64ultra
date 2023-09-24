@@ -14,6 +14,10 @@ boolean tryopen[6]; // 800A81E0
 spriteN64_t *sfontlump;     // 800A81F8
 spriteN64_t *statuslump;   // 800A81FC
 int symbolslump;    // 800A8204
+#if REGION == REGION_JP
+spriteN64_t *jpmpsgs[45];   // 800A8A90 (JP only)
+int japfontlump;   // 800a8b44 (JP only)
+#endif
 
 typedef struct
 {
@@ -129,9 +133,15 @@ static int card_x[6] = {78, 89, 100, 78, 89, 100};      // 8005b870
 
 void ST_Init(void) // 80029BA0
 {
-  sfontlump = W_CacheLumpName("SFONT",PU_STATIC,dec_jag, sizeof(spriteN64_t));
-  statuslump = W_CacheLumpName("STATUS",PU_STATIC,dec_jag, sizeof(spriteN64_t));
-  symbolslump = W_GetNumForName("SYMBOLS");
+    sfontlump = W_CacheLumpName("SFONT",PU_STATIC,dec_jag, sizeof(spriteN64_t));
+    statuslump = W_CacheLumpName("STATUS",PU_STATIC,dec_jag, sizeof(spriteN64_t));
+    symbolslump = W_GetNumForName("SYMBOLS");
+#if REGION == REGION_JP
+    int jpmsg = W_GetNumForName("JPMSG01");
+    for (int i = 0; i < 45; i++)
+        jpmpsgs[i] = W_CacheLumpNum(jpmsg++,PU_STATIC,dec_jag, sizeof(spriteN64_t));
+    japfontlump = W_GetNumForName("JAPFONT");
+#endif
 }
 
 void ST_InitEveryLevel(void) // 80029C00
@@ -617,6 +627,10 @@ void ST_Drawer (void) // 80029DC0
     ST_DrawDebug();
 }
 
+#if REGION == REGION_JP
+void ST_MessageJp(int x,int y,int index,int color); // 8002A84 (JP Only)
+#endif
+
 #define ST_FONTWHSIZE 8
 
 void ST_Message(int x,int y,const char *text,int color) // 8002A36C
@@ -625,6 +639,14 @@ void ST_Message(int x,int y,const char *text,int color) // 8002A36C
     byte c;
     int s,t;
     int xpos, ypos;
+
+#if REGION == REGION_JP
+    if ((u32) text < 45)
+    {
+        ST_MessageJp(x, y, (u32) text, color);
+        return;
+    }
+#endif
 
     if (globallump != (int)sfontlump)
     {
@@ -708,6 +730,62 @@ void ST_Message(int x,int y,const char *text,int color) // 8002A36C
         text++;
     }
 }
+
+#if REGION == REGION_JP
+void ST_MessageJp(int x,int y,int index,int color) // 8002A84 (JP Only)
+{
+
+    spriteN64_t *msg;
+    byte *src;
+    unsigned int width;
+
+    gDPPipeSync(GFX1++);
+    gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
+
+    gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
+    gDPSetTexturePersp(GFX1++, G_TP_NONE);
+
+    gDPSetAlphaCompare(GFX1++, G_AC_NONE);
+    gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
+
+    gDPSetCombineMode(GFX1++, G_CC_D64COMB04, G_CC_D64COMB04);
+    gDPSetRenderMode(GFX1++, G_RM_XLU_SURF_CLAMP, G_RM_XLU_SURF2_CLAMP);
+
+    msg = jpmpsgs[index];
+    src = (byte*) &msg[1];
+    width = ALIGN(msg->width, 16);
+
+    gDPSetTextureImage(GFX1++, G_IM_FMT_CI, G_IM_SIZ_16b, 1, src);
+
+    gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
+
+    gDPLoadSync(GFX1++);
+    gDPLoadBlock(GFX1++, G_TX_LOADTILE, 0, 0, ((msg->height * width + 3) >> 2) - 1, 0);
+
+    gDPPipeSync(GFX1++);
+    gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_4b, ((width >> 1) + 7) >> 3, 0, G_TX_RENDERTILE, 0, 0, 0, 0, 0, 0, 0);
+    gDPSetTileSize(GFX1++, G_TX_RENDERTILE, 0, 0, ((width - 1) << 2), ((msg->height - 1) << 2));
+
+    gDPSetTextureImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b , 1, src + msg->cmpsize);
+
+    gDPTileSync(GFX1++);
+    gDPSetTile(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_4b, 0, 256, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
+
+    gDPLoadSync(GFX1++);
+    gDPLoadTLUTCmd(GFX1++, G_TX_LOADTILE, 15);
+
+    gDPPipeSync(GFX1++);
+
+    gDPSetPrimColorD64(GFX1++, 0, 0, color);
+
+    gSPTextureRectangle(GFX1++,
+                        ((unsigned) x << hudxshift), ((unsigned) y << hudyshift),
+                        ((unsigned)(x + msg->width) << hudxshift),
+                        ((unsigned)(y + msg->height) << hudyshift),
+                        G_TX_RENDERTILE,
+                        0, 0, (1 << 12 >> hudxshift), (1 << 12 >> hudyshift));
+}
+#endif
 
 void ST_DrawNumber(int x, int y, int value, int mode, int color) // 8002A79C
 {
@@ -822,6 +900,21 @@ void ST_DrawString(int x, int y, const char *text, int color) // 8002A930
         text++;
     }
 }
+
+#if REGION == REGION_JP
+void ST_DrawSymbolJp(int xpos, int ypos, int index, int color); // 8002B7E4
+
+void ST_DrawStringJp(int x, int y, const char *text, int color) // 8002Af94 (JP only)
+{
+    I_CheckGFX();
+    while (*text)
+    {
+        ST_DrawSymbolJp(x, y, *text, color);
+        x += 12;
+        text++;
+    }
+}
+#endif /* REGION == REGION_JP */
 
 int ST_GetCenterTextX(byte *text) // 8002AAF4
 {
@@ -1026,6 +1119,92 @@ void ST_DrawSymbol(int xpos, int ypos, int index, int color) // 8002ADEC
                 (symbol->x << 5), (symbol->y << 5),
                 (1 << 12 >> hudxshift), (1 << 12 >> hudyshift));
 }
+
+#if REGION == REGION_JP
+void ST_DrawSymbolJp(int xpos, int ypos, int index, int color) // 8002B7E4
+{
+    byte *data;
+    int offset;
+    int sx;
+
+    data = W_CacheLumpNum(japfontlump, PU_CACHE, dec_jag, sizeof(gfxN64_t));
+
+    if (japfontlump != globallump)
+    {
+        gDPPipeSync(GFX1++);
+        gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
+
+        gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
+        gDPSetTexturePersp(GFX1++, G_TP_NONE);
+
+        gDPSetAlphaCompare(GFX1++, G_AC_THRESHOLD);
+        gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
+
+        gDPSetCombineMode(GFX1++, G_CC_D64COMB04, G_CC_D64COMB04);
+        gDPSetRenderMode(GFX1++, G_RM_XLU_SURF_CLAMP, G_RM_XLU_SURF2_CLAMP);
+
+        // Load Palette Data
+        offset = (((gfxN64_t*)data)->width * ((gfxN64_t*)data)->height);
+        offset = ALIGN(offset, 8);
+        gDPSetTextureImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b ,
+                           1, data + offset + sizeof(gfxN64_t));
+
+        gDPTileSync(GFX1++);
+        gDPSetTile(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_4b, 0, 256, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
+
+        gDPLoadSync(GFX1++);
+        gDPLoadTLUTCmd(GFX1++, G_TX_LOADTILE, 255);
+
+        gDPPipeSync(GFX1++);
+
+        globallump = japfontlump;
+    }
+
+    gDPSetPrimColorD64(GFX1++, 0, 0, color);
+
+    index -= 15;
+    if (index < 0)
+        index = 0;
+    else if (index > 0x8f)
+        index = 0;
+
+    // Load Image Data
+    gDPSetTextureImage(GFX1++, G_IM_FMT_CI, G_IM_SIZ_8b ,
+                       ((gfxN64_t*)data)->width, data + sizeof(gfxN64_t));
+
+    sx = index & 0xf;
+    if (index < 0 && sx)
+        sx -= 16;
+
+    // Clip Rectangle From Image
+    gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_8b,
+               16 / 8, 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
+
+    gDPLoadSync(GFX1++);
+
+    if (index < 0)
+        index += 15;
+
+    gDPLoadTile(GFX1++, G_TX_LOADTILE,
+                ((sx * 12) << 2), (((index >> 4) * 12) << 2),
+                ((sx * 12 + 12) << 2), (((index >> 4) * 12 + 12) << 2));
+
+    gDPPipeSync(GFX1++);
+    gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_8b,
+               16 / 8, 0, G_TX_RENDERTILE, 0, 0, 0, 0, 0, 0, 0);
+
+    gDPSetTileSize(GFX1++, G_TX_RENDERTILE,
+                   ((sx * 12) << 2), (((index >> 4) * 12) << 2),
+                   ((sx * 12 + 12) << 2), (((index >> 4) * 12 + 12) << 2));
+
+    gSPTextureRectangle(GFX1++,
+                (xpos << hudxshift), (ypos << hudyshift),
+                ((xpos + 12) << hudxshift), ((ypos + 12) << hudyshift),
+                G_TX_RENDERTILE,
+                ((sx * 12) << 5), (((index >> 4) * 12) << 5),
+                (1 << 12 >> hudxshift), (1 << 12 >> hudyshift));
+}
+#endif /* REGION == REGION_JP */
 
 #include "stdarg.h"
 

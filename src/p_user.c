@@ -946,7 +946,7 @@ SEC_GAME void P_PlayerInSpecialSector (player_t *player, sector_t *sec) // 80022
     if(sec->flags & MS_SECRET)
     {
         player->secretcount++;
-        P_PushMessage(player, "You found a secret area!", 0x00ffff00, MSGTICS);
+        P_PushMessage(player, JPMSG(41, "You found a secret area!"), 0x00ffff00, MSGTICS);
         sec->flags &= ~MS_SECRET;
     }
 

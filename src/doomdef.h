@@ -56,6 +56,22 @@ u32 C_AddColors(u32 c1, u32 c2);
 u32 C_LerpColors(u32 a, u32 b, u32 fac);
 u32 C_MultColor(u32 c, u8 fac);
 
+// region
+
+#define REGION_US 0
+#define REGION_JP 1
+#define REGION_EU 2
+
+#ifndef REGION
+#define REGION REGION_US
+#endif
+
+#if REGION == REGION_JP
+#define JPMSG(num, str) ((char *) ((num)-1))
+#else
+#define JPMSG(num, str) (str)
+#endif
+
 /*
 ===============================================================================
 

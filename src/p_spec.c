@@ -843,7 +843,7 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
         {
             if(!player->cards[it_bluecard] && !player->cards[it_blueskull])
             {
-                P_PushMessage(player, "You need a blue key.", 0x0080ff00, MSGTICS);
+                P_PushMessage(player, JPMSG(1, "You need a blue key."), 0x0080ff00, MSGTICS);
                 S_StartSound(thing, sfx_oof);
 
                 if (player == &players[0])
@@ -857,7 +857,7 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
         {
             if(!player->cards[it_yellowcard] && !player->cards[it_yellowskull])
             {
-                P_PushMessage(player, "You need a yellow key.", 0xC4C40000, MSGTICS);
+                P_PushMessage(player, JPMSG(2, "You need a yellow key."), 0xC4C40000, MSGTICS);
                 S_StartSound(thing, sfx_oof);
 
                 if (player == &players[0])
@@ -871,7 +871,7 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
         {
             if(!player->cards[it_redcard] && !player->cards[it_redskull])
             {
-                P_PushMessage(player, "You need a red key.", 0xff404000, MSGTICS);
+                P_PushMessage(player, JPMSG(3, "You need a red key."), 0xff404000, MSGTICS);
                 S_StartSound(thing, sfx_oof);   // ?? line missing on Doom64
 
                 if (player == &players[0])
@@ -890,7 +890,7 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
         if ((actionType == 90 || actionType == 91 || actionType == 92) &&
            ((player->artifacts & 1) << ((actionType + 6) & 0x1f)) == 0)
         {
-            P_PushMessage(player, "You lack the ability to activate it.", 0xC4C4C400, MSGTICS);
+            P_PushMessage(player, JPMSG(45, "You lack the ability to activate it."), 0xC4C4C400, MSGTICS);
             S_StartSound(thing, sfx_oof);
 
             return false;

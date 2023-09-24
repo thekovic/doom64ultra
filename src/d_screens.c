@@ -84,6 +84,14 @@ int D_UltraTicker(void)
     return ga_nothing;
 }
 
+#if REGION == REGION_JP
+#define SPLASH_TITLE_POS 20
+#define SPLASH_TEXT_POS  72
+#else
+#define SPLASH_TITLE_POS 32
+#define SPLASH_TEXT_POS  76
+#endif
+
 void D_DrawUltra(void)
 {
     static const char *DISCLAIMER[] = {
@@ -103,11 +111,11 @@ void D_DrawUltra(void)
 
     I_ClearFB(0x000000ff);
 
-    D_DrawUltraTitle(40);
+    D_DrawUltraTitle(SPLASH_TITLE_POS);
 
     for (int i = 0; i < ARRAYLEN(DISCLAIMER); i++)
         if (DISCLAIMER[i])
-            ST_Message(-1, 80 + (i*10), DISCLAIMER[i], 0xffffffff);
+            ST_Message(-1, SPLASH_TEXT_POS + (i*10), DISCLAIMER[i], 0xffffffff);
 
     if (FilesUsed > -1) {
         ST_DrawString(-1, SCREEN_HT-40, "hold \x8d to manage pak", text_alpha | 0xffffff00);
@@ -138,9 +146,15 @@ void D_DrawLegal(void) // 8002B644
 
     I_ClearFB(0x000000ff);
 
-    D_DrawUltraTitle(40);
+    D_DrawUltraTitle(SPLASH_TITLE_POS);
 
+#if REGION == REGION_JP
+    M_DrawBackground(35, 50, text_alpha, "JPLEGAL");
+#elif REGION == REGION_EU
+    M_DrawBackground(35, 66, text_alpha, "PLLEGAL");
+#else
     M_DrawBackground(27, 74, text_alpha, "USLEGAL");
+#endif
 
     if (FilesUsed > -1) {
         ST_DrawString(-1, SCREEN_HT-40, "hold \x8d to manage pak", text_alpha | 0xffffff00);
@@ -164,6 +178,9 @@ void D_DrawNoPak(void) // 8002B7F4
     I_ClearFrame();
     I_ClearFB(0x000000ff);
 
+#if REGION == REGION_JP
+    M_DrawBackground(22, 88, 0xff, "JPCPAK");
+#else
     ST_DrawString(-1,  40, "no controller pak.", 0xffffffff);
     ST_DrawString(-1,  60, "your game cannot", 0xffffffff);
     ST_DrawString(-1,  80, "be saved.", 0xffffffff);
@@ -171,6 +188,7 @@ void D_DrawNoPak(void) // 8002B7F4
     ST_DrawString(-1, 140, "nintendo 64 system", 0xffffffff);
     ST_DrawString(-1, 160, "before inserting a", 0xffffffff);
     ST_DrawString(-1, 180, "controller pak.", 0xffffffff);
+#endif
 
     I_DrawFrame();
 }

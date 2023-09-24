@@ -35,6 +35,10 @@ void ST_UpdateFlash(void); // 8002AC30
 void ST_DrawSymbol(int xpos, int ypos, int index, int color) HOT; // 8002ADEC
 void ST_DrawMessages(player_t *player) HOT;
 
+#if REGION == REGION_JP
+void ST_DrawStringJp(int x, int y, const char *text, int color); // 8002Af94 (JP only)
+#endif
+
 // Debug
 void ST_DrawDebug(void);
 void ST_EnableDebug(void);

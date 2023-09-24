@@ -299,6 +299,12 @@ extern void R_RenderFilter(filtertype_t type) HOT;
 /*------*/
 void    R_InitData (void) SEC_STARTUP;
 
+#if REGION == REGION_JP || REGION == REGION_EU
+#define BLOOD_SPRITE "RBLD"
+#else
+#define BLOOD_SPRITE "BLUD"
+#endif
+
 /*--------*/
 /*r_phase1*/
 /*--------*/

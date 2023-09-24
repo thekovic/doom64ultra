@@ -70,6 +70,10 @@ make -j
 Additional options can be provided to configure or debug the ROM:
 
 ```sh
+make -j REGION=JP                    # Build against Japan ROM data
+
+make -j REGION=EU                    # Build against Europe ROM data
+
 make -j DEBUG=1                      # Turn off optimizations and enable extra debugging features
 
 make -j DEBUGOPT=1                   # Enable extra debugging features but leave optimizations on

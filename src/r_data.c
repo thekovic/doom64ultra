@@ -52,7 +52,7 @@ void R_InitData (void) // 80023180
     R_InitTextures();
     R_InitSprites();
 
-    bloodlump = W_GetNumForName("BLUDA0");
+    bloodlump = W_GetNumForName(BLOOD_SPRITE "A0");
     for (int i = 0; i < 4; i++)
         R_InitBloodPalette(bloodlump + i, bloodpalettes[i]);
 

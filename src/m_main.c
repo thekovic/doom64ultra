@@ -3725,6 +3725,7 @@ int M_ScreenTicker(void) // 8000A0F8
     return exit;
 }
 
+#if REGION != REGION_JP
 static char M_PakTableChar(char c)
 {
     static const char Pak_Table[] = {
@@ -3741,6 +3742,7 @@ static char M_PakTableChar(char c)
         return Pak_Table[c - 16];
     return ' ';
 }
+#endif /* REGION != REGION_JP */
 
 void M_ControllerPakDrawer(void) // 8000A3E4
 {
@@ -3759,6 +3761,71 @@ void M_ControllerPakDrawer(void) // 8000A3E4
 
         ST_DrawString(-1, SCREEN_HT - 30, "press \x8b to exit", text_alpha | 0xffffff00);
     }
+#if REGION == REGION_JP
+    else
+    {
+        fState = &FileState[linepos];
+
+        for(i = linepos; i < (linepos + 6); i++)
+        {
+            if (fState->file_size == 0)
+            {
+                buffer[0] = '\x1e';
+                buffer[1] = '\x26';
+                buffer[2] = '\x29';
+                buffer[3] = '\x2d';
+                buffer[4] = '\x32';
+                tmpbuf = buffer + 5;
+            }
+            else
+            {
+                tmpbuf = buffer;
+
+                for(j = 0; j < 16; j++)
+                {
+                    idx = (byte) fState->game_name[j];
+                    if(idx == 0)
+                        break;
+
+                    tmpbuf[0] = idx;
+                    tmpbuf++;
+                }
+
+                idx = (byte) fState->ext_name[0];
+                if (idx != 0)
+                {
+                    tmpbuf[0] = '\x3c';
+                    tmpbuf[1] = idx;
+                    tmpbuf += 2;
+                }
+            }
+
+            *tmpbuf = '\0';
+
+            ST_DrawStringJp(60, (i - linepos) * 16 + 60, buffer, text_alpha | 0xc0c0c000);
+
+            fState++;
+        }
+
+        if (linepos != 0)
+        {
+            ST_DrawString(60, 45, "\x8F more...", text_alpha | 0xffffff00);
+        }
+
+        if ((linepos + 6) < 16)
+        {
+            ST_DrawString(60, 156, "\x8E more...", text_alpha | 0xffffff00);
+        }
+
+        sprintf(buffer, "pages used: %lu   free: %ld", FileState[cursorpos].file_size >> 8, Pak_Memory);
+
+        ST_DrawString(-1, 180, buffer, text_alpha | 0xc0000000);
+        ST_DrawSymbol(23, (cursorpos - linepos) * 16 + 52, MenuAnimationTic + 70, text_alpha | 0xffffff00);
+
+        ST_DrawString(-1, SCREEN_HT - 40, "press \x8b to exit", text_alpha | 0xffffff00);
+        ST_DrawString(-1, SCREEN_HT - 25, "press \x85 to delete", text_alpha | 0xffffff00);
+    }
+#else /* REGION == REGION_JP */
     else
     {
         fState = &FileState[linepos];
@@ -3817,6 +3884,7 @@ void M_ControllerPakDrawer(void) // 8000A3E4
         ST_DrawString(-1, SCREEN_HT - 40, "press \x8b to exit", text_alpha | 0xffffff00);
         ST_DrawString(-1, SCREEN_HT - 25, "press \x85 to delete", text_alpha | 0xffffff00);
     }
+#endif /* REGION == REGION_JP */
 }
 
 static INLINE_ALWAYS levelsave_t *M_PakDataIndex(int pos)
