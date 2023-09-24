@@ -291,6 +291,9 @@ void P_DamageMobj (mobj_t *target, mobj_t *inflictor, mobj_t *source, int damage
 void P_GiveAllWeapons (player_t *player) SEC_GAME;
 void P_GiveAllKeys (player_t *player) SEC_GAME;
 
+void P_PushMessage(player_t *player, const char *message, u32 color, u16 tics) SEC_GAME;
+void P_ShiftMessages(player_t *player, unsigned index);
+
 #include "p_spec.h"
 
 /*

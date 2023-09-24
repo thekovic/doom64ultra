@@ -97,10 +97,10 @@ void G_PlayerFinishLevel (int player) // 80004598
     p->bonuscount = 0;
     p->bfgcount = 0;
     p->automapflags = 0;
-    p->messagetic = 0;
-    p->messagetic1 = 0;  // [Immorpher] Clear messages
-    p->messagetic2 = 0;  // [Immorpher] Clear messages
-    p->messagetic3 = 0;  // [Immorpher] Clear messages
+    p->messagetics[0] = 0;
+    p->messagetics[1] = 0;  // [Immorpher] Clear messages
+    p->messagetics[2] = 0;  // [Immorpher] Clear messages
+    p->messagetics[3] = 0;  // [Immorpher] Clear messages
 }
 
 /*

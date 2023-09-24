@@ -898,11 +898,9 @@ SEC_GAME void P_DeathThink (player_t *player) // 80022914
     {
         do { // [Immorpher] Prevent mock string from repeating twice
             mockrandom = (I_Random()+ticon) % 51; // Updated randomizer for more fun
-        } while(player->message1 == mockstrings1[mockrandom]);
+        } while(player->messages[0] == mockstrings1[mockrandom]);
 
-        player->messagetic = 2*MSGTICS; // [Immorpher] Doubled message time to read them!
-        player->message = (char*)mockstrings1[mockrandom];
-        player->messagecolor = 0xff200000;
+        P_PushMessage(player, mockstrings1[mockrandom], 0xff200000, 2*MSGTICS);
         deathmocktics = ticon;
     }
 
@@ -948,9 +946,7 @@ SEC_GAME void P_PlayerInSpecialSector (player_t *player, sector_t *sec) // 80022
     if(sec->flags & MS_SECRET)
     {
         player->secretcount++;
-        player->message = "You found a secret area!";
-        player->messagetic = MSGTICS;
-        player->messagecolor = 0x00ffff00;
+        P_PushMessage(player, "You found a secret area!", 0x00ffff00, MSGTICS);
         sec->flags &= ~MS_SECRET;
     }
 

@@ -555,6 +555,8 @@ typedef struct
 }
 playerconfig_t;
 
+#define NUMMESSAGES 3
+
 /*
 ================
 =
@@ -595,19 +597,10 @@ typedef struct player_s
 
     u32            refire;                    /* refired shots are less accurate */
 
+    const char    *messages[NUMMESSAGES];                /* hint messages */
+    u32            messagecolors[NUMMESSAGES];            // [Immorpher] message color
+    s16            messagetics[NUMMESSAGES];             /* messages tic countdown*/
     u16            killcount, itemcount, secretcount;        /* for intermission */
-    const char    *message;                /* hint messages */
-    const char    *message1;                // [Immorpher] additional message levels
-    const char    *message2;                // [Immorpher] additional message levels
-    const char    *message3;                // [Immorpher] additional message levels
-    s16            messagetic;             /* messages tic countdown*/
-    s16            messagetic1;            // [Immorpher] message tic buffer
-    s16            messagetic2;            // [Immorpher] message tic buffer
-    s16            messagetic3;            // [Immorpher] message tic buffer
-    u32            messagecolor;            // [Immorpher] message color
-    u32            messagecolor1;            // [Immorpher] message color 1
-    u32            messagecolor2;            // [Immorpher] message color 2
-    u32            messagecolor3;            // [Immorpher] message color 3
     s32            damagecount, bonuscount;/* for screen flashing */
     mobj_t        *attacker;                /* who did damage (NULL for floors) */
     pspdef_t       psprites[NUMPSPRITES];    /* view sprites (gun, etc) */

@@ -173,11 +173,17 @@ void ST_Ticker (void) // 80029C88
     /* */
     /* Countdown time for the message */
     /* */
-    player->messagetic--;
-    player->messagetic1--; // [Immorpher] decriment message buffer
-    player->messagetic2--; // [Immorpher] decriment message buffer
-    player->messagetic3--; // [Immorpher] decriment message buffer
+    for (int i = NUMMESSAGES - 1; i >= 0; i--)
+    {
+        if (player->messagetics[i] > 0)
+            player->messagetics[i]--;
 
+        if (i < NUMMESSAGES - 1 && player->messagetics[i] <= 0 && player->messagetics[i + 1] > 0)
+        {
+            P_ShiftMessages(player, i);
+            player->messagetics[NUMMESSAGES - 1] = 0;
+        }
+    }
     /* */
     /* Tried to open a CARD or SKULL door? */
     /* */
@@ -362,61 +368,29 @@ void ST_DrawDebug (void)
     }
 }
 
+void ST_DrawMessages(player_t *player)
+{
+    for (int i = 0; i < NUMMESSAGES; i++)
+    {
+        int tics = player->messagetics[i];
+        if (tics > 0)
+        {
+            u32 alpha = MIN(((u32) tics) << 3, 196); // set message alpha
+            ST_Message(2+HUDmargin, HUDmargin+i*10, player->messages[i], alpha | player->messagecolors[i]);
+        }
+    }
+}
+
 void ST_Drawer (void) // 80029DC0
 {
     byte        *src;
     player_t    *player;
-    int ind, ms_alpha;
+    int ind;
 
     player = &players[0];
 
-    /* */
-    /* Draw Text Message */
-    /* */
-    if ((enable_messages) && player->messagetic > 0) // [Immorpher] only display messages and calculate if global tic is active
-    {
-        if (player->messagetic != player->messagetic1) // [Immorpher] new global tic indicates new message to add
-        {   // Sequentially shift messages to lower states
-            player->message3 = player->message2;
-            player->messagetic3 = player->messagetic2;
-            player->messagecolor3 = player->messagecolor2;
-
-            player->message2 = player->message1;
-            player->messagetic2 = player->messagetic1;
-            player->messagecolor2 = player->messagecolor1;
-
-            player->message1 = player->message;
-            player->messagetic1 = player->messagetic;
-            player->messagecolor1 = player->messagecolor;
-        }
-
-        if (player->messagetic1 > 0) // display message 1
-        {
-            ms_alpha = player->messagetic1 << 3; // set message alpha
-            if (ms_alpha >= 196)
-                ms_alpha = 196;
-
-            ST_Message(2+HUDmargin, HUDmargin, player->message1, ms_alpha | player->messagecolor1); // display message
-        }
-
-        if (player->messagetic2 > 0) // display message 2
-        {
-            ms_alpha = player->messagetic2 << 3; // set message alpha
-            if (ms_alpha >= 196)
-                ms_alpha = 196;
-
-            ST_Message(2+HUDmargin, 10+HUDmargin, player->message2, ms_alpha | player->messagecolor2); // display message
-        }
-
-        if (player->messagetic3 > 0) // display message 3
-        {
-            ms_alpha = player->messagetic3 << 3; // set message alpha
-            if (ms_alpha >= 196)
-                ms_alpha = 196;
-
-            ST_Message(2+HUDmargin, 20+HUDmargin, player->message3, ms_alpha | player->messagecolor3); // display message
-        }
-    }
+    if (enable_messages)
+        ST_DrawMessages(player);
 
     if (HUDopacity){
         int crosshair, color, stat;

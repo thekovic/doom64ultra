@@ -162,7 +162,7 @@ u32 P_ArchivePlayers (u8 *savep)
         dest = (player_t *)savep;
         D_memcpy (dest,&players[i],sizeof(player_t));
         dest->mo = NULL;
-        dest->message = dest->message1 = dest->message2 = dest->message3 = NULL;
+        dest->messages[0] = dest->messages[1] = dest->messages[2] = dest->messages[3] = NULL;
         dest->attacker = (void*)(u32)MobjIndex(dest->attacker);
         dest->controls = NULL;
         if (dest->lastsoundsector)
@@ -192,8 +192,8 @@ u32 P_UnArchivePlayers (const u8 *savep)
         players[i].mo = NULL;
         players[i].controls = &CurrentControls[i];
         players[i].config = &playerconfigs[i];
-        players[i].messagetic = players[i].messagetic1 = players[i].messagetic2 = players[i].messagetic3 = 0;
-        players[i].message = players[i].message1 = players[i].message2 = players[i].message3 = NULL;
+        players[i].messagetics[0] = players[i].messagetics[1] = players[i].messagetics[2] = players[i].messagetics[3] = 0;
+        players[i].messages[0] = players[i].messages[1] = players[i].messages[2] = players[i].messages[3] = NULL;
         if (players[i].lastsoundsector)
             players[i].lastsoundsector =  &sectors[(int)players[i].lastsoundsector];
 

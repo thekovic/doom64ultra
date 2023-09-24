@@ -672,38 +672,15 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
         break;
     }
 
-    if (message2) { // [Immorpher] double message!
-        // Dump current message into third
-        player->message3 = player->message1;
-        player->messagetic3 = player->messagetic1;
-        player->messagecolor3 = player->messagecolor1;
-
-        // Set messages
-        player->message1 = message;
-        player->message2 = message2;
-
-        // Set tics and color
-        player->messagetic = MSGTICS; // [Immorpher] message time to activate messages
-        player->messagetic1 = MSGTICS; // [Immorpher]
-        player->messagetic2 = MSGTICS; // [Immorpher]
-        if (special->flags & MF_COUNTSECRET) {
-            player->messagecolor1 = 0x00ffff00; // [Immorpher]
-            player->messagecolor2 = 0x00ffff00; // [Immorpher]
-        } else {
-            player->messagecolor1 = 0xC4C4C400; // [Immorpher]
-            player->messagecolor2 = 0xC4C4C400; // [Immorpher]
-        }
-
-    }
-    else if (message)
+    if (message)
     {
-        player->message = message;
-        player->messagetic = MSGTICS;
-        if (special->flags & MF_COUNTSECRET) {
-            player->messagecolor = 0x00ffff00;
-        } else {
-            player->messagecolor = 0xC4C4C400;
-        }
+        u32 color;
+
+        color = (special->flags & MF_COUNTSECRET) ? 0x00ffff00 : 0xC4C4C400; // [Immorpher]
+
+        P_PushMessage(player, message, color, MSGTICS);
+        if (message2)
+            P_PushMessage(player, message2, color, MSGTICS);
     }
 
     if (special->flags & MF_COUNTITEM)
@@ -727,6 +704,36 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
             macroqueue[macroidx1].tag = special->tid;
             macroidx1 = (macroidx1 + 1) & 3;
         }
+    }
+}
+
+void P_PushMessage(player_t *player, const char *message, u32 color, u16 tics)
+{
+    for (int i = 0; i < NUMMESSAGES; i++)
+    {
+        if (player->messagetics[i] <= 0)
+        {
+            player->messages[i] = message;
+            player->messagetics[i] = tics;
+            player->messagecolors[i] = color;
+            return;
+        }
+    }
+
+    P_ShiftMessages(player, 0);
+
+    player->messages[NUMMESSAGES - 1] = message;
+    player->messagetics[NUMMESSAGES - 1] = tics;
+    player->messagecolors[NUMMESSAGES - 1] = color;
+}
+
+void P_ShiftMessages(player_t *player, unsigned index)
+{
+    for (int i = index; i < NUMMESSAGES - 1; i++)
+    {   // Sequentially shift messages to lower states
+        player->messages[i] = player->messages[i + 1];
+        player->messagetics[i] = player->messagetics[i + 1];
+        player->messagecolors[i] = player->messagecolors[i + 1];
     }
 }
 

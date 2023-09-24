@@ -33,6 +33,7 @@ void ST_DrawString(int x, int y, const char *text, int color) HOT; // 8002A930
 int ST_GetCenterTextX(byte *text); // 8002AAF4
 void ST_UpdateFlash(void); // 8002AC30
 void ST_DrawSymbol(int xpos, int ypos, int index, int color) HOT; // 8002ADEC
+void ST_DrawMessages(player_t *player) HOT;
 
 // Debug
 void ST_DrawDebug(void);

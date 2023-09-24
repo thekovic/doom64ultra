@@ -471,14 +471,14 @@ void AM_Drawer (void) // 800009AC
 
     if (enable_messages)
     {
-        if (p->messagetic <= 0)
+        if (p->messagetics[0] <= 0)
         {
             sprintf(buf, "LEVEL %d: %s", gamemap, MapInfo[gamemap].name);
             ST_Message(2+HUDmargin,HUDmargin, buf, 196 | 0xffffff00);
         }
         else
         {
-            ST_Message(2+HUDmargin,HUDmargin, p->message, 196 | p->messagecolor);
+            ST_DrawMessages(p);
         }
     }
 
