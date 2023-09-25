@@ -1,6 +1,8 @@
 # Doom 64 ULTRA
 
-A fork of [Doom 64-RE] with the goal of creating a base for enhanced mods.
+The best way to play Doom 64 on your N64 console. Based on [Doom 64-RE]. Play
+it as a new experience on the original N64 game, or use it a base for enhanced
+mods.
 
 ## Features
 
