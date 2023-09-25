@@ -308,7 +308,7 @@ void ST_DrawDebug (void)
     switch (ShowDebugCounters)
     {
     case 1:
-        sprintf(buf, "FPS %d", LastFrameCycles ? D_round(46875000.0 / (f64) LastFrameCycles) : 0);
+        sprintf(buf, "FPS %ld", LastFrameCycles ? D_round(46875000.0 / (f64) LastFrameCycles) : 0);
         ST_Message(16, SCREEN_HT-56, buf, 0x00ff00a0);
         break;
     case 2:
