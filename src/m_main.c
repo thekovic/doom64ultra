@@ -527,7 +527,7 @@ const controls_t DefaultControlSetups[MAXCONTROLSETUPS] ALIGNED(16) = {
         PAD_RIGHT_C, PAD_LEFT_C, 0, 0,
         PAD_Z_TRIG,
         PAD_B, PAD_L_TRIG, 0, 0,
-        0, 0, PAD_LEFT, PAD_RIGHT,
+        0, 0, PAD_DOWN, PAD_RIGHT,
         0, PAD_UP_C, PAD_DOWN_C, PAD_A, PAD_R_TRIG,
         }},
         STICK_MOVE | STICK_STRAFE
@@ -2323,7 +2323,8 @@ int M_MenuTicker(void) // 80007E0C
 
                     // Set video options
                     brightness = 125;
-                    VideoFilters[0] = VideoFilters[1] = VideoFilters[2] = 0;
+                    VideoFilters[0] = VideoFilters[2] = 0;
+                    VideoFilters[1] = 1;
                     TvMode = 0;
                     NoGammaCorrect = false;
                     DitherFilter = false;  // [Immorpher] new video option
