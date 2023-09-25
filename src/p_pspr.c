@@ -1441,7 +1441,7 @@ void A_FireLaser(player_t *player, pspdef_t *psp) // 8001CAC0
 
         /* setup distance info */
         laser_data->dist = 0;
-        laser_data->distmax = (fixed_t) sqrtf((float)((x * x) + (y * y) + (z * z)));
+        laser_data->distmax = (fixed_t) D_sqrtf((float)((x * x) + (y * y) + (z * z)));
 
         laser_data->next = NULL;
 

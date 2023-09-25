@@ -158,32 +158,6 @@ static INLINE_ALWAYS fixed_t FixedMul(fixed_t a, fixed_t b)
     return (fixed_t) flo;
 }
 
-static INLINE_ALWAYS fixed_t D_abs(fixed_t x)
-{
-    fixed_t _s = x >> 31;
-    return (x ^ _s) - _s;
-}
-
-static INLINE_ALWAYS f64 fabs(f64 x) {
-    asm volatile(
-    "abs.d %0,%1"
-    : "=f" (x)
-    : "f" (x)
-    );
-    return x;
-}
-
-static INLINE_ALWAYS fixed_t fround(f64 x) {
-    fixed_t f;
-    asm volatile(
-    "round.w.d %1,%1\n\t"
-    "mfc1 %0,%1"
-    : "=r" (f)
-    : "f" (x)
-    );
-    return f;
-}
-
 static inline HOT fixed_t finesine(int x)
 {
     x = x << 19;

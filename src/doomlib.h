@@ -60,3 +60,125 @@ void *memcpy (void *dest, const void *src, int count);
 #define D_memcpy memcpy
 
 #define MEMORY_BARRIER() asm volatile ("" : : : "memory")
+
+static INLINE_ALWAYS s32 D_abs(s32 x)
+{
+    s32 _s = x >> 31;
+    return (x ^ _s) - _s;
+}
+
+static INLINE_ALWAYS f64 D_fabs(f64 x) {
+    asm volatile(
+    "abs.d %0,%1"
+    : "=f" (x)
+    : "f" (x)
+    );
+    return x;
+}
+
+static INLINE_ALWAYS f32 D_sqrtf(f32 x) {
+    asm volatile(
+    "sqrt.s %0,%1"
+    : "=f" (x)
+    : "f" (x)
+    );
+    return x;
+}
+
+static INLINE_ALWAYS s32 D_trunc(f64 x) {
+    s32 f;
+    asm volatile(
+    "trunc.w.d %1,%1\n\t"
+    "mfc1 %0,%1"
+    : "=r" (f)
+    : "f" (x)
+    );
+    return f;
+}
+
+static INLINE_ALWAYS s32 D_round(f64 x) {
+    s32 f;
+    asm volatile(
+    "round.w.d %1,%1\n\t"
+    "mfc1 %0,%1"
+    : "=r" (f)
+    : "f" (x)
+    );
+    return f;
+}
+
+static INLINE_ALWAYS s32 D_ceil(f64 x) {
+    s32 f;
+    asm volatile(
+    "ceil.w.d %1,%1\n\t"
+    "mfc1 %0,%1"
+    : "=r" (f)
+    : "f" (x)
+    );
+    return f;
+}
+
+static INLINE_ALWAYS s32 D_floor(f64 x) {
+    s32 f;
+    asm volatile(
+    "floor.w.d %1,%1\n\t"
+    "mfc1 %0,%1"
+    : "=r" (f)
+    : "f" (x)
+    );
+    return f;
+}
+
+static INLINE_ALWAYS f64 D_fabsf(f32 x) {
+    asm volatile(
+    "abs.s %0,%1"
+    : "=f" (x)
+    : "f" (x)
+    );
+    return x;
+}
+
+
+static INLINE_ALWAYS s32 D_truncf(f32 x) {
+    s32 f;
+    asm volatile(
+    "trunc.w.s %1,%1\n\t"
+    "mfc1 %0,%1"
+    : "=r" (f)
+    : "f" (x)
+    );
+    return f;
+}
+
+static INLINE_ALWAYS s32 D_roundf(f32 x) {
+    s32 f;
+    asm volatile(
+    "round.w.s %1,%1\n\t"
+    "mfc1 %0,%1"
+    : "=r" (f)
+    : "f" (x)
+    );
+    return f;
+}
+
+static INLINE_ALWAYS s32 D_ceilf(f32 x) {
+    s32 f;
+    asm volatile(
+    "ceil.w.s %1,%1\n\t"
+    "mfc1 %0,%1"
+    : "=r" (f)
+    : "f" (x)
+    );
+    return f;
+}
+
+static INLINE_ALWAYS s32 D_floorf(f32 x) {
+    s32 f;
+    asm volatile(
+    "floor.w.s %1,%1\n\t"
+    "mfc1 %0,%1"
+    : "=r" (f)
+    : "f" (x)
+    );
+    return f;
+}

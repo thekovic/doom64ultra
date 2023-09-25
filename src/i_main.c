@@ -1403,7 +1403,7 @@ void I_RumbleDamage(int pad, int damage)
 {
     if (*&rumblepak_bit_pattern & (1 << pad))
     {
-        damage = sqrtf(MAX(damage, 10) << 3);
+        damage = D_sqrtf(MAX(damage, 10) << 3);
         MotorDamageTimers[pad] = MIN(damage + MotorDamageTimers[pad], 0xffff);
     }
 }

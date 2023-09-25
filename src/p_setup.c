@@ -140,7 +140,7 @@ SEC_STARTUP void P_LoadSegs (void) // 8001D020
         x = (float) ((double) (li->v2->x - li->v1->x) / 65536.0);
         y = (float) ((double) (li->v2->y - li->v1->y) / 65536.0);
 
-        li->length = (short)((int)((double)sqrtf((x * x) + (y * y)) * 16.0));
+        li->length = (short)((int)((double)D_sqrtf((x * x) + (y * y)) * 16.0));
 
         //PRINTF_D2(WHITE, 0, 25, "segs(length %i)     ", li->length);
         //WAIT();
