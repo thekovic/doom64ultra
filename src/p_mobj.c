@@ -263,11 +263,9 @@ void P_SpawnPlayer(/*mapthing_t *mthing*/) // 80018F94
     p->messages[0] = NULL;
     p->messages[1] = NULL;  // [Immorpher] reset messages
     p->messages[2] = NULL;  // [Immorpher] reset messages
-    p->messages[3] = NULL;  // [Immorpher] reset messages
     p->messagetics[0] = 0;
     p->messagetics[1] = 0;  // [Immorpher] reset messages
     p->messagetics[2] = 0;  // [Immorpher] reset messages
-    p->messagetics[3] = 0;  // [Immorpher] reset messages
     p->damagecount = 0;
     p->bonuscount = 0;
     p->bfgcount = 0;
@@ -279,6 +277,7 @@ void P_SpawnPlayer(/*mapthing_t *mthing*/) // 80018F94
     p->config = &playerconfigs[0];
     p->pitch = 0;
     p->addfov = 0;
+    p->weaponwheelalpha = 0;
     cameratarget = p->mo;
 
 #ifdef DEVCHEATS
@@ -304,6 +303,9 @@ void P_SpawnPlayer(/*mapthing_t *mthing*/) // 80018F94
         I_LoadProgress(&LevelSaveBuffer);
         doLoadSave = false;
     }
+
+    P_UpdateWeaponWheel(p);
+    p->weaponwheelpos = p->weaponwheeltarget;
 
     ST_InitEveryLevel();
     ST_UpdateFlash(); // ST_doPaletteStuff();

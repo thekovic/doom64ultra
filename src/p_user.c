@@ -1016,8 +1016,8 @@ SEC_GAME void P_PlayerThink (player_t *player) // 80022D60
 {
     int          buttons, oldbuttons;
     controls_t    *cbutton;
-    weapontype_t weapon;
-    sector_t     *sec;
+    int       weapon, weaponsearch;
+    sector_t *sec;
 
     buttons = ticbuttons[0];
     oldbuttons = oldticbuttons[0];
@@ -1037,41 +1037,34 @@ SEC_GAME void P_PlayerThink (player_t *player) // 80022D60
                     cbutton->BT_WEAPONFORWARD, cbutton->BT_ATTACK,
                     buttons, oldbuttons))
         {
-            if((int)(weapon) >= wp_chainsaw)
+            // [nova] always cycle weapons
+            weaponsearch = weapon;
+            do
             {
-                while(--weapon >= wp_chainsaw && !player->weaponowned[weapon]);
+                weaponsearch--;
+                if (weaponsearch < 0)
+                    weaponsearch = NUMWEAPONS - 1;
             }
+            while (!player->weaponowned[weaponsearch] && weaponsearch != weapon);
 
-            if((int)weapon >= wp_chainsaw)
-                player->pendingweapon = weapon;
-            else if (!cbutton->BT_WEAPONBACKWARD)
-            {
-                // [nova] cycle when back button unbound
-                weapon = NUMWEAPONS - 1;
-                while(!player->weaponowned[weapon] && weapon >= wp_chainsaw)
-                    weapon--;
-                if((int)weapon >= wp_chainsaw)
-                    player->pendingweapon = weapon;
-            }
+            player->pendingweapon = weaponsearch;
+            player->weaponwheeltarget -= WHEEL_WEAPON_SIZE;
         }
-        else if ((buttons & cbutton->BT_WEAPONFORWARD) && !(oldbuttons & cbutton->BT_WEAPONFORWARD))
+        else if ((buttons & cbutton->BT_WEAPONFORWARD)
+                && !(oldbuttons & cbutton->BT_WEAPONFORWARD))
         {
-            if((int)(weapon) < NUMWEAPONS)
+            // [nova] always cycle weapons
+            weaponsearch = weapon;
+            do
             {
-                while(++weapon < NUMWEAPONS && !player->weaponowned[weapon]);
+                weaponsearch++;
+                if (weaponsearch >= NUMWEAPONS)
+                    weaponsearch = 0;
             }
+            while (!player->weaponowned[weaponsearch] && weaponsearch != weapon);
 
-            if((int)weapon < NUMWEAPONS)
-                player->pendingweapon = weapon;
-            else if (!cbutton->BT_WEAPONBACKWARD)
-            {
-                // [nova] cycle when back button unbound
-                weapon = 0;
-                while(!player->weaponowned[weapon] && weapon < NUMWEAPONS)
-                    weapon++;
-                if((int)weapon < NUMWEAPONS)
-                    player->pendingweapon = weapon;
-            }
+            player->pendingweapon = weaponsearch;
+            player->weaponwheeltarget += WHEEL_WEAPON_SIZE;
         }
     }
 

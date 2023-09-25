@@ -227,6 +227,51 @@ void ST_Ticker (void) // 80029C88
     {
         ST_UpdateFlash(); // ST_doPaletteStuff();
     }
+
+    if (player->weaponwheelpos != player->weaponwheeltarget)
+        player->weaponwheelalpha = HUDopacity;
+
+    // [nova] weapon wheel
+    if (player->weaponwheelalpha)
+    {
+        if (player->weaponwheelpos != player->weaponwheeltarget)
+        {
+            // ease movement
+            for (int i = 0; i < vblsinframe[0]; i++)
+            {
+                int delta = player->weaponwheeltarget - player->weaponwheelpos;
+                float step = delta * 0.2f;
+
+                if (delta > 0 && step < 1.f)
+                    step = 1.f;
+                else if (delta < 0 && step > -1.f)
+                    step = -1.f;
+
+                player->weaponwheelpos += D_truncf(step);
+            }
+
+            // handle wrapping, leaving a buffer of 1 space to scroll around
+            if (player->weaponwheelpos < -WHEEL_WEAPON_SIZE)
+            {
+                player->weaponwheelpos += player->weaponwheelsize + WHEEL_WEAPON_SIZE;
+                player->weaponwheeltarget += player->weaponwheelsize + WHEEL_WEAPON_SIZE;
+            }
+            else if (player->weaponwheelpos > player->weaponwheelsize + WHEEL_WEAPON_SIZE)
+            {
+                player->weaponwheelpos -= player->weaponwheelsize + WHEEL_WEAPON_SIZE;
+                player->weaponwheeltarget -= player->weaponwheelsize + WHEEL_WEAPON_SIZE;
+            }
+        }
+        else
+        {
+            int alphatic = ((unsigned) vblsinframe[0])<<2;
+
+            if (player->weaponwheelalpha >= alphatic)
+                player->weaponwheelalpha -= alphatic;
+            else
+                player->weaponwheelalpha = 0;
+        }
+    }
 }
 
 
@@ -375,6 +420,49 @@ void ST_DrawDebug (void)
 #endif
     default:
         break;
+    }
+}
+
+#define WHEEL_BOUNDS (120 - (WHEEL_WEAPON_SIZE>>1))
+
+static void ST_DrawWheelWeapon(weapontype_t weapon, int x, u32 color, u32 alpha)
+{
+    int type = -1;
+    state_t *state = NULL;
+
+    if (x <= -WHEEL_BOUNDS)
+        return;
+    if (x >= WHEEL_BOUNDS)
+        return;
+
+    switch (weapon)
+    {
+        case wp_chainsaw:     type = MT_WEAP_CHAINSAW; break;
+        case wp_fist:         type = MT_ITEM_BERSERK;  break;
+        case wp_pistol:       type = MT_AMMO_CLIPBOX;  break;
+        case wp_shotgun:      type = MT_WEAP_SHOTGUN;  break;
+        case wp_supershotgun: type = MT_WEAP_SSHOTGUN; break;
+        case wp_chaingun:     type = MT_WEAP_CHAINGUN; break;
+        case wp_missile:      type = MT_WEAP_LAUNCHER; break;
+        case wp_plasma:       type = MT_WEAP_PLASMA;   break;
+        case wp_bfg:          type = MT_WEAP_BFG;      break;
+        case wp_laser:        type = MT_WEAP_LCARBINE; break;
+        default:                                       break;
+    }
+
+    if (type != -1)
+        state = &states[mobjinfo[type].spawnstate];
+    if (state)
+    {
+        int absx = D_abs(x);
+        float step = (float) absx * (1.f/(float)(WHEEL_BOUNDS*2));
+        int y = 160 - (int) (D_sqrtf(1.f - step * step) * 160.f);
+
+        if (absx > (WHEEL_BOUNDS-16))
+            alpha = FixedMul((WHEEL_BOUNDS - absx) << 12, alpha);
+
+        BufferedDrawSprite(type, state, 0, color | MIN(alpha, 0xff),
+                           SCREEN_WD/2 + x, (SCREEN_HT>>1) - 52 + y, 0xc000);
     }
 }
 
@@ -623,7 +711,44 @@ void ST_Drawer (void) // 80029DC0
                     ST_DrawSymbol(48, (SCREEN_HT>>1)-6, 96, color);
             }
         }
+
+        /* weapon selector */
+        if (player->weaponwheelalpha)
+        {
+            int pos = 0;
+
+            for (int i = 0; i < NUMWEAPONS; i++)
+            {
+                if (player->weaponowned[i])
+                {
+                    u32 alpha = player->weaponwheelalpha;
+                    u32 color;
+                    int offset;
+                    int size;
+                    ammotype_t ammo;
+
+                    ammo = weaponinfo[i].ammo;
+                    if (ammo == am_noammo || player->ammo[ammo] > 0)
+                        color = PACKRGBA(255, 255, 255, 0);
+                    else
+                        color = PACKRGBA(255, 48, 48, 0);
+
+                    if (i == weapon)
+                        alpha += 1;
+                    else
+                        alpha >>= 1;
+
+                    offset = pos - player->weaponwheelpos;
+                    size = player->weaponwheelsize;
+                    ST_DrawWheelWeapon(i, offset, color, alpha);
+                    ST_DrawWheelWeapon(i, offset - size - WHEEL_WEAPON_SIZE, color, alpha);
+                    ST_DrawWheelWeapon(i, offset + size + WHEEL_WEAPON_SIZE, color, alpha);
+                    pos += WHEEL_WEAPON_SIZE;
+                }
+            }
+        }
     }
+
     ST_DrawDebug();
 }
 

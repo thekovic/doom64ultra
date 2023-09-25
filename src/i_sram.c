@@ -460,7 +460,10 @@ void I_LoadProgress(const levelsave_t *save)
         if(i != wp_fist && i != wp_pistol)
         {
             if(save->weapons & (1 << bit))
+            {
                 players[0].weaponowned[i] = true;
+                players[0].weaponwheelsize += WHEEL_WEAPON_SIZE;
+            }
             bit++;
         }
     }

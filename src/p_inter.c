@@ -107,9 +107,10 @@ boolean P_GiveAmmo (player_t *player, ammotype_t ammo, int num) // 800143E0
         break;
     }
 
+    P_UpdateWeaponWheel(player);
+
     return true;
 }
-
 
 /*
 ===================
@@ -138,21 +139,41 @@ boolean P_GiveWeapon (player_t *player, weapontype_t weapon, boolean dropped) //
         gaveweapon = false;
     else
     {
+        int newtarget;
+
         gaveweapon = true;
         player->weaponowned[weapon] = true;
+        newtarget = P_WeaponWheelPos(player, weapon); // call after setting owned
+        player->weaponwheelsize += WHEEL_WEAPON_SIZE;
+        if (newtarget <= player->weaponwheelpos) // adjust for inserted weapon
+            player->weaponwheelpos += WHEEL_WEAPON_SIZE;
+        player->weaponwheeltarget = newtarget;
         player->pendingweapon = weapon;
     }
 
     return gaveweapon || gaveammo;
 }
 
+#define WHEEL_MAX ((NUMWEAPONS-1) * WHEEL_WEAPON_SIZE)
 
 void P_GiveAllWeapons (player_t *player)
 {
-    int i;
+    int i, pos;
 
-    for(i = 0; i < NUMWEAPONS; i++) {
-        player->weaponowned[i] = true;
+    player->weaponwheelsize = WHEEL_MAX;
+
+    pos = 0;
+    for(i = 0; i < NUMWEAPONS; i++)
+    {
+        if (!player->weaponowned[i])
+        {
+            if (pos <= ((player->weaponwheelpos + WHEEL_MAX) % WHEEL_MAX))
+                player->weaponwheelpos += WHEEL_WEAPON_SIZE;
+            if (pos <= ((player->weaponwheeltarget + WHEEL_MAX) % WHEEL_MAX))
+                player->weaponwheeltarget += WHEEL_WEAPON_SIZE;
+            player->weaponowned[i] = true;
+        }
+        pos += WHEEL_WEAPON_SIZE;
     }
 
     if (!player->backpack)
@@ -165,6 +186,31 @@ void P_GiveAllWeapons (player_t *player)
     for(i = 0; i < NUMAMMO; i++) {
         player->ammo[i] = player->maxammo[i];
     }
+}
+
+s16 P_WeaponWheelPos(player_t *player, weapontype_t weapon)
+{
+    int size = 0;
+    for (int i = 0; i < NUMWEAPONS; i++)
+    {
+        if (i == weapon)
+            break;
+        if (player->weaponowned[i])
+            size += WHEEL_WEAPON_SIZE;
+    }
+    return size;
+}
+
+void P_UpdateWeaponWheel(player_t *player)
+{
+    weapontype_t weapon;
+
+    weapon = player->pendingweapon;
+    if (player->pendingweapon == wp_nochange)
+        weapon = player->readyweapon;
+
+    if (weapon != player->readyweapon)
+        player->weaponwheeltarget = P_WeaponWheelPos(player, weapon);
 }
 
 extern mapthing_t *spawnlist;   // 800A5D74
@@ -609,7 +655,10 @@ void P_TouchSpecialThing (mobj_t *special, mobj_t *toucher) // 80014810
         P_GivePower(player, pw_strength);
         message = JPMSG(36, "Berserk!");
         if (player->readyweapon != wp_fist)
+        {
             player->pendingweapon = wp_fist;
+            P_UpdateWeaponWheel(player);
+        }
         sound = sfx_powerup;
         break;
     case MT_ITEM_INVISSPHERE:

@@ -432,6 +432,7 @@ boolean P_CheckAmmo (player_t *player) // 8001B5BC
     } while (player->pendingweapon == wp_nochange);
 
     P_SetPsprite (player, ps_weapon, weaponinfo[player->readyweapon].downstate);
+    P_UpdateWeaponWheel(player);
 
     return false;
 }

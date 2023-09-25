@@ -415,6 +415,7 @@ int M_DecodePassword(byte *inbuff, int *levelnum, int *skill, player_t *player) 
             {
                 if(decode[1] & (1 << bit))
                 {
+                    player->weaponwheelsize += WHEEL_WEAPON_SIZE;
                     player->weaponowned[i] = true;
                 }
 

@@ -281,6 +281,8 @@ extern  mobj_t      **blocklinks;           /* for thing chains */
 ===============================================================================
 */
 
+#define WHEEL_WEAPON_SIZE 64
+
 extern  int     maxammo[NUMAMMO];
 extern  int     clipammo[NUMAMMO];
 
@@ -293,6 +295,9 @@ void P_GiveAllKeys (player_t *player) SEC_GAME;
 
 void P_PushMessage(player_t *player, const char *message, u32 color, u16 tics) SEC_GAME;
 void P_ShiftMessages(player_t *player, unsigned index);
+
+s16 P_WeaponWheelPos(player_t *player, weapontype_t weapon);
+void P_UpdateWeaponWheel(player_t *player) SEC_GAME;
 
 #include "p_spec.h"
 

@@ -592,6 +592,7 @@ void R_RenderModes(rendermode_t mode)
         gDPSetAlphaCompare(GFX1++, G_AC_THRESHOLD);
         gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
         gDPSetCombineMode(GFX1++, G_CC_D64COMB04, G_CC_D64COMB04);
+        R_RenderFilter(filt_sprites);
     }
 
     lastrender = mode;

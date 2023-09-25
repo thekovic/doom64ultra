@@ -133,6 +133,7 @@ void G_PlayerReborn (int player) // 80004630
     p->maxammo[am_shell] = maxammo[am_shell];
     p->maxammo[am_cell] = maxammo[am_cell];
     p->maxammo[am_misl] = maxammo[am_misl];
+    p->weaponwheelsize = p->weaponwheelpos = p->weaponwheeltarget = WHEEL_WEAPON_SIZE;
 
     p->cheats |= globalcheats; // [GEC] Apply global cheat codes
 #ifdef DEVCHEATS

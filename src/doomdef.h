@@ -582,6 +582,10 @@ typedef struct player_s
     bool           weaponowned[NUMWEAPONS];
     u16            ammo[NUMAMMO];
     u16            maxammo[NUMAMMO];
+    s16            weaponwheelpos;
+    s16            weaponwheelsize;
+    s16            weaponwheeltarget;
+    u8             weaponwheelalpha;
     bool           usedown;    /* true if button down last tic */
     u32            cheats;                    /* bit flags */
 
