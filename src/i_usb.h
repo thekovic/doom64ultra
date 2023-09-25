@@ -12,13 +12,6 @@
 #define CART_EVERDRIVE 2
 #define CART_SC64      3
 
-// Data types defintions
-#define DATATYPE_TEXT       0x01
-#define DATATYPE_RAWBINARY  0x02
-#define DATATYPE_HEADER     0x03
-#define DATATYPE_SCREENSHOT 0x04
-#define DATATYPE_HEARTBEAT  0x05
-
 #define USB_OP_QUICKLOAD 0x1
 #define USB_OP_QUICKSAVE 0x2
 #define USB_OP_DUMPHEAP  0x4
@@ -45,11 +38,6 @@ extern void I_InitFlashCart(void);
 
 extern unsigned long PendingUSBOperations;
 
-// Function pointers
-extern void (*UsbFuncWriteStart)(int datatype, int size);
-extern void (*UsbFuncWritePart)(const void* data, int size);
-extern void (*UsbFuncWriteEnd)(int datatype, int size);
-
 /* Check the USB for incoming commands and run them, should be called by main
  * thread every frame. */
 
@@ -60,6 +48,15 @@ int I_DispatchUSBCommands(void);
  * @param The size of the file */
 
 void I_USBSendFile(void* file, int size);
+
+void I_USBSendStart(int size);
+void I_USBSendPart(const void *buf, int size);
+void I_USBSendEnd(int size);
+
+#ifdef USB_GDB
+void I_USBSendRDB(const unsigned char* packet, unsigned long len);
+void I_USBWriteRDB(const unsigned char* packet, unsigned long len);
+#endif
 
 /* Returns the size of the next token in the current command. */
 

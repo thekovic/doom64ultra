@@ -85,6 +85,11 @@ static OSMesg      debugMessageBuf[DEBUG_MSGS];
 static OSThread    debugThread;
 static vu64        debugThreadStack[DEBUG_THREAD_STACK/sizeof(u64)];
 
+#ifdef USB_GDB
+static OSMesgQueue gdbDoneQ;
+static OSMesg      gdbDoneQBuf;
+#endif
+
 #endif /* !defined(NDEBUG) */
 
 /*********************************
@@ -215,6 +220,9 @@ SEC_STARTUP void I_InitDebugging()
 #ifndef NDEBUG
     // Initialize the debug thread
     osCreateMesgQueue(&debugMessageQ, debugMessageBuf, ARRAYLEN(debugMessageBuf));
+#ifdef USB_GDB
+    osCreateMesgQueue(&gdbDoneQ, &gdbDoneQBuf, 1);
+#endif
     osSetEventMesg(OS_EVENT_FAULT, &debugMessageQ, (OSMesg) MSG_FAULT);
     osSetEventMesg(OS_EVENT_CPU_BREAK, &debugMessageQ, (OSMesg) MSG_CPU_BREAK);
     osSetEventMesg(OS_EVENT_SP_BREAK, &debugMessageQ, (OSMesg) MSG_SP_BREAK);
@@ -874,6 +882,7 @@ static u8 ALIGNED(8) DebugRx[2048];
 static u32 DebugTxPos = 2;
 static u32 DebugRxPos = 0;
 static u32 DebugRxEnd = 0;
+static void (*WritePacket)(const u8 *, u32);
 
 static COLD void pkt_send_raw(u32 bufsize, u32 len) {
     /* zerofill tail */
@@ -882,7 +891,7 @@ static COLD void pkt_send_raw(u32 bufsize, u32 len) {
     }
 
     /* go!! */
-    I_USBPrint((char*) DebugTx, bufsize);
+    WritePacket(DebugTx, bufsize);
 }
 
 static COLD void pkt_putc(u8 c)
@@ -1658,7 +1667,8 @@ static COLD stubstatus_t cmd_vcont(void)
             }
             break;
         case 's':
-            cmd_step(thread);
+            if (tid != -1)
+                cmd_step(thread);
             break;
         case 't':
             if (tid == -1)
@@ -1926,6 +1936,8 @@ static COLD void NO_RETURN I_DebuggerThread(void *arg)
         case MSG_SP_BREAK:
             bprestore();
 
+            // usb thread still running
+            WritePacket = I_USBSendRDB;
             DebugTxPos = 2;
             DebugThread = I_FaultedThread((int) msg);
 
@@ -1953,6 +1965,8 @@ static COLD void NO_RETURN I_DebuggerThread(void *arg)
 
             break;
         case MSG_GDB_PACKET:
+            // debug thread takes control of usb buffer
+            WritePacket = I_USBWriteRDB;
             while (1)
             {
                 int size = I_CmdNextTokenSize();
@@ -1963,6 +1977,7 @@ static COLD void NO_RETURN I_DebuggerThread(void *arg)
                 }
                 I_ParseGDBPacket();
             }
+            osSendMesg(&gdbDoneQ, NULL, OS_MESG_NOBLOCK);
             break;
         }
 
@@ -1970,14 +1985,15 @@ static COLD void NO_RETURN I_DebuggerThread(void *arg)
     }
 }
 
-void COLD I_TakeGDBPacket(void)
+void COLD I_TakeRDBPacket(void)
 {
     osSendMesg(&debugMessageQ, (OSMesg) MSG_GDB_PACKET, OS_MESG_NOBLOCK);
+    osRecvMesg(&gdbDoneQ, NULL, OS_MESG_BLOCK);
 }
 
 static COLD void I_ShowDebugScreen(const char *text)
 {
-    void *cfb = CFB0_ADDR;
+    void *cfb = CFB0_ADDR();
 
     D_memset(cfb, 0, CFB_SIZE);
     blit32_TextExplicit(cfb, 0xffff, 1, XResolution, YResolution, blit_Clip, 32, 24, text);

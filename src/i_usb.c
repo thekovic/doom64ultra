@@ -11,6 +11,7 @@ https://github.com/buu342/N64-UNFLoader
 #include "doomdef.h"
 #ifdef USB
 #include <os_internal.h>
+#include <internal/osint.h>
 #endif
 
 // Settings
@@ -32,6 +33,14 @@ https://github.com/buu342/N64-UNFLoader
 // Protocol related
 #define USBPROTOCOL_VERSION 2
 #define HEARTBEAT_VERSION   1
+
+// Data types defintions
+#define DATATYPE_TEXT       0x01
+#define DATATYPE_RAWBINARY  0x02
+#define DATATYPE_HEADER     0x03
+#define DATATYPE_SCREENSHOT 0x04
+#define DATATYPE_HEARTBEAT  0x05
+#define DATATYPE_RDBPACKET  0x06
 
 
 /*********************************
@@ -218,8 +227,11 @@ OSMesgQueue dmaMessageQ;
 #define USB_THREAD_PRI   140
 #define USB_THREAD_STACK 0x2000
 
-#define MSG_READ  0x11
-#define MSG_WRITE 0x12
+#define MSG_READ        0x11
+#define MSG_WRITE       0x12
+#define MSG_WRITE_START 0x13
+#define MSG_WRITE_PART  0x14
+#define MSG_WRITE_END   0x15
 
 #define USBERROR_NONE    0
 #define USBERROR_NOTTEXT 1
@@ -533,16 +545,42 @@ static void I_FindCartUSB(void)
 
 static void usb_write(int datatype, const void* data, int size)
 {
-    // If no debug cart exists, stop
-    if (FlashCart == CART_NONE)
-        return;
-
     // If there's data to read first, stop
     if (usb_dataleft != 0)
         return;
 
     // Call the correct write function
     UsbFuncWrite(datatype, data, size);
+}
+
+static void usb_write_start(int datatype, int size)
+{
+    // If there's data to read first, stop
+    if (usb_dataleft != 0)
+        return;
+
+    // Call the correct write function
+    UsbFuncWriteStart(datatype, size);
+}
+
+static void usb_write_part(const void* data, int size)
+{
+    // If there's data to read first, stop
+    if (usb_dataleft != 0)
+        return;
+
+    // Call the correct write function
+    UsbFuncWritePart(data, size);
+}
+
+static void usb_write_end(int datatype, int size)
+{
+    // If there's data to read first, stop
+    if (usb_dataleft != 0)
+        return;
+
+    // Call the correct write function
+    UsbFuncWriteEnd(datatype, size);
 }
 
 /*==============================
@@ -554,10 +592,6 @@ static void usb_write(int datatype, const void* data, int size)
 
 static u32 usb_poll(void)
 {
-    // If no debug cart exists, stop
-    if (FlashCart == CART_NONE)
-        return 0;
-
     // If we're out of USB data to read, we don't need the header info anymore
     if (usb_dataleft <= 0)
     {
@@ -591,10 +625,6 @@ static void usb_read(void* buffer, int nbytes)
     int copystart = offset%BUFFER_SIZE;
     int block = BUFFER_SIZE-copystart;
     int blockoffset = (offset/BUFFER_SIZE)*BUFFER_SIZE;
-
-    // If no debug cart exists, stop
-    if (FlashCart == CART_NONE)
-        return;
 
     // If there's no data to read, stop
     if (usb_dataleft == 0)
@@ -946,8 +976,6 @@ static void usb_64drive_write_part(const void* data, int size)
 {
     s32 left = size;
 
-    assert(!(size & 1));
-
     if (usb_didtimeout)
         return;
 
@@ -1210,8 +1238,6 @@ static void usb_everdrive_write_part(const void* data, int size)
 {
     int read = 0;
     int left = size;
-
-    assert(!(size & 1));
 
     if (usb_didtimeout)
         return;
@@ -1499,8 +1525,6 @@ static void usb_sc64_write_part(const void* data, int size)
     u32 left = size;
     u32 pi_address = SC64_BASE + DEBUG_ADDRESS;
     u32 writable_restore;
-
-    assert(!(size & 1));
 
     if (usb_didtimeout)
         return;
@@ -1794,7 +1818,14 @@ static void I_USBTicker(void)
     {
         int header = usb_poll();
 
-        // Ensure we're receiving a text command
+#ifdef USB_GDB
+        if (USBHEADER_GETTYPE(header) == DATATYPE_RDBPACKET)
+        {
+            extern void I_TakeRDBPacket(void);
+            I_TakeRDBPacket();
+        }
+        else
+#endif
         if (USBHEADER_GETTYPE(header) != DATATYPE_TEXT)
         {
             errortype = USBERROR_NOTTEXT;
@@ -1861,6 +1892,21 @@ static void I_USBTicker(void)
                     usb_sendheartbeat();
                 usb_write(threadMsg->datatype, threadMsg->buff, threadMsg->size);
                 break;
+            case MSG_WRITE_START:
+                if (usb_timedout())
+                    usb_sendheartbeat();
+                usb_write_start(threadMsg->datatype, threadMsg->size);
+                break;
+            case MSG_WRITE_PART:
+                if (usb_timedout())
+                    usb_sendheartbeat();
+                usb_write_part(threadMsg->buff, threadMsg->size);
+                break;
+            case MSG_WRITE_END:
+                if (usb_timedout())
+                    usb_sendheartbeat();
+                usb_write_end(threadMsg->datatype, threadMsg->size);
+                break;
         }
     }
 }
@@ -1894,12 +1940,29 @@ void I_USBPrint(const char* message, u32 len)
     osSendMesg(&usbMessageQ, (OSMesg)&msg, OS_MESG_BLOCK);
 }
 
+#ifdef USB_GDB
+void I_USBSendRDB(const u8* packet, u32 len)
+{
+    usbMesg msg;
+    // Send the packet to the usb thread
+    msg.msgtype = MSG_WRITE;
+    msg.datatype = DATATYPE_RDBPACKET;
+    msg.buff = (void*) packet;
+    msg.size = len;
+    osSendMesg(&usbMessageQ, (OSMesg)&msg, OS_MESG_BLOCK);
+}
+
+void I_USBWriteRDB(const u8* packet, u32 len)
+{
+    usb_write(DATATYPE_RDBPACKET, packet, len);
+}
+#endif /* USB_GDB */
+
 void I_USBSendFile(void* file, int size)
 {
     usbMesg msg;
 
-    // Ensure flash cart is present
-    if (!FlashCart)
+    if (FlashCart == CART_NONE)
         return;
 
     // Send the binary file to the usb thread
@@ -1907,16 +1970,63 @@ void I_USBSendFile(void* file, int size)
     msg.datatype = DATATYPE_RAWBINARY;
     msg.buff = file;
     msg.size = size;
+
     osSendMesg(&usbMessageQ, (OSMesg)&msg, OS_MESG_BLOCK);
 }
 
-static void I_USBSendImage(void *frame, u32 w, u32 h, u8 depth)
+void I_USBSendStart(int size)
+{
+    usbMesg msg;
+
+    if (FlashCart == CART_NONE)
+        return;
+
+    // Send the binary file to the usb thread
+    msg.msgtype = MSG_WRITE_START;
+    msg.datatype = DATATYPE_RAWBINARY;
+    msg.buff = NULL;
+    msg.size = size;
+
+    osSendMesg(&usbMessageQ, (OSMesg)&msg, OS_MESG_BLOCK);
+}
+
+void I_USBSendPart(const void *buf, int size)
+{
+    usbMesg msg;
+
+    assert(!(size & 1));
+
+    if (FlashCart == CART_NONE)
+        return;
+
+    // Send the binary file to the usb thread
+    msg.msgtype = MSG_WRITE_PART;
+    msg.datatype = DATATYPE_RAWBINARY;
+    msg.buff = (void *) buf;
+    msg.size = size;
+
+    osSendMesg(&usbMessageQ, (OSMesg)&msg, OS_MESG_BLOCK);
+}
+
+void I_USBSendEnd(int size)
+{
+    usbMesg msg;
+
+    if (FlashCart == CART_NONE)
+        return;
+
+    // Send the binary file to the usb thread
+    msg.msgtype = MSG_WRITE_END;
+    msg.datatype = DATATYPE_RAWBINARY;
+    msg.buff = NULL;
+    msg.size = size;
+
+    osSendMesg(&usbMessageQ, (OSMesg)&msg, OS_MESG_BLOCK);
+}
+
+static void I_USBWriteImage(void *frame, u32 w, u32 h, u8 depth)
 {
     int data[4];
-
-    // Ensure flash cart is present
-    if (!FlashCart)
-        return;
 
     // Create the data header to send
     data[0] = DATATYPE_SCREENSHOT;
@@ -1926,6 +2036,23 @@ static void I_USBSendImage(void *frame, u32 w, u32 h, u8 depth)
 
     usb_write(DATATYPE_HEADER, data, sizeof data);
     usb_write(DATATYPE_SCREENSHOT, frame, depth * w * h);
+}
+
+static void I_USBWriteScreenshot(void)
+{
+    int mask = __osDisableInt();
+    void *frame;
+    u32 depth;
+
+    // wait for rdp to finish writing
+    while (__osSpDeviceBusy() || __osDpDeviceBusy());
+
+    frame = CFB(vid_side);
+    depth = BitDepth == BITDEPTH_32 ? 4 : 2;
+    osInvalDCache(frame, depth * XResolution * YResolution);
+    I_USBWriteImage(CFB(vid_side), XResolution, YResolution, depth);
+
+    __osRestoreInt(mask);
 }
 
 const char USB_HELP[] =
@@ -1960,6 +2087,7 @@ static boolean I_RunUSBCommand(void)
     switch (cmd)
     {
     case '?':
+        I_CmdSkipAllTokens();
         usb_write(DATATYPE_TEXT, USB_HELP, sizeof(USB_HELP));
         break;
     case 'q':
@@ -1973,27 +2101,18 @@ static boolean I_RunUSBCommand(void)
         *&QueuedUSBOperations |= USB_OP_LOADMAP;
         break;
     case 'h':
+        I_CmdSkipAllTokens();
         *&QueuedUSBOperations |= USB_OP_DUMPHEAP;
         break;
     case 's':
         I_CmdSkipAllTokens();
-        {
-            int mask = __osDisableInt();
-            I_USBSendImage(CFB(vid_side), XResolution, YResolution, BitDepth==BITDEPTH_32?4:2);
-            __osRestoreInt(mask);
-        }
+        I_USBWriteScreenshot();
         break;
-#ifdef USB_GDB
-    case 'G':
-        {
-            extern void I_TakeGDBPacket(void);
-            I_TakeGDBPacket();
-        }
-        break;
-#endif
     default:
         {
-            const char ERROR[] = "Unknown command";
+            I_CmdSkipAllTokens();
+
+            const char ERROR[] = "Unknown command\n";
             usb_write(DATATYPE_TEXT, ERROR, sizeof(ERROR));
             usb_write(DATATYPE_TEXT, USB_HELP, sizeof(USB_HELP));
         }

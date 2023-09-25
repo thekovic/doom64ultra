@@ -292,7 +292,10 @@ int MiniLoop(void(*start)(void), void(*stop)(int),
 #ifdef USB
         exit = I_DispatchUSBCommands();
         if (exit != ga_nothing)
+        {
+            gameaction = exit;
             break;
+        }
 #endif
 
         gamevbls = gametic;
