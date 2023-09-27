@@ -904,7 +904,8 @@ SEC_GAME void P_DeathThink (player_t *player) // 80022914
         deathmocktics = ticon;
     }
 
-    if (((ticbuttons[0] & (PAD_A|PAD_B|ALL_TRIG|ALL_CBUTTONS)) != 0) &&
+    int extra = player->automapflags ? 0 : PAD_B|PAD_L_TRIG|PAD_R_TRIG;
+    if (((ticbuttons[0] & (PAD_A|PAD_Z_TRIG|ALL_CBUTTONS|extra) & ~player->controls->BT_MAP) != 0) &&
         (player->viewheight <= 8*FRACUNIT))
     {
         player->playerstate = PST_REBORN;

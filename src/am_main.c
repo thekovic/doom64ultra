@@ -71,10 +71,7 @@ void AM_Control (player_t *player) // 800004F4
     oldbuttons = oldticbuttons[0];
 
     if (player->playerstate != PST_LIVE)
-    {
         am_plycolor = 79;
-        return;
-    }
 
     /* allow zoom to take precedence if it is bound to the map button */
     if ((!(cbuttons->BT_MAP & (PAD_L_TRIG|PAD_R_TRIG)) || !(buttons & cbuttons->BT_USE))
