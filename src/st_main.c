@@ -301,7 +301,9 @@ void ST_DrawDebug (void)
     {
         for(int i = 0; i < debugcnt; i++)
         {
-            int index = (i+debugstart)%DEBUGLINES;
+            int index = (i+debugstart);
+            if (index >= DEBUGLINES)
+                index -= DEBUGLINES;
             ST_Message(debugX, (i*8) + debugY, &debugbuf[index*DEBUGLINELEN],0x00ff00a0);
         }
     }
