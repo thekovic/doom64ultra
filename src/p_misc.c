@@ -689,7 +689,8 @@ void P_RefreshBrightness(void) // 8000f410
         factor = infraredFactor;
     }
 
-    P_SetLightFactor(factor);
+    if (DrawerStatus == 1)
+        P_SetLightFactor(factor);
 }
 
 extern maplights_t *maplights;     // 800A5EA4
