@@ -656,9 +656,9 @@ static COLD bool I_DebugSetMode(u16 *fb)
     {
         switch(osTvType)
         {
-            case OS_TV_PAL: mode = &osViModeTable[OS_VI_PAL_HPF1]; break;
-            case OS_TV_MPAL: mode = &osViModeTable[OS_VI_MPAL_HPF1]; break;
-            default: mode = &osViModeTable[OS_VI_NTSC_HPF1]; break;
+            case OS_TV_PAL: mode = &osViModePalHan1; break;
+            case OS_TV_MPAL: mode = &osViModeMpalHan1; break;
+            default: mode = &osViModeNtscHan1; break;
         }
         mode->comRegs.xScale = 1024;
         mode->comRegs.width = 640;
@@ -670,9 +670,9 @@ static COLD bool I_DebugSetMode(u16 *fb)
     {
         switch(osTvType)
         {
-            case OS_TV_PAL: mode = &osViModeTable[OS_VI_PAL_LPN1]; break;
-            case OS_TV_MPAL: mode = &osViModeTable[OS_VI_MPAL_LPN1]; break;
-            default: mode = &osViModeTable[OS_VI_NTSC_LPN1]; break;
+            case OS_TV_PAL: mode = &osViModePalLan1; break;
+            case OS_TV_MPAL: mode = &osViModeMpalLan1; break;
+            default: mode = &osViModeNtscLan1; break;
         }
     }
 

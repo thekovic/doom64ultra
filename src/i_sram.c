@@ -363,7 +363,6 @@ static boolean I_LoadConfig(void)
 
     P_RefreshBrightness();
     I_RefreshVideo();
-    I_MoveDisplay(Display_X, Display_Y);
     S_SetSoundVolume(SfxVolume);
     S_SetMusicVolume(MusVolume);
 

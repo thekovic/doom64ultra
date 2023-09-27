@@ -2356,7 +2356,7 @@ int M_MenuTicker(void) // 80007E0C
                         playerconfigs[i].autorun = true;
                         playerconfigs[i].autoaim = false;
                     }
-                    I_MoveDisplay(0,0);
+                    Display_X = Display_Y = 0;
                     P_RefreshBrightness();
                     I_RefreshVideo();
                     S_SetMusicVolume(MusVolume);
@@ -2409,7 +2409,7 @@ int M_MenuTicker(void) // 80007E0C
                         playerconfigs[i].autorun = false;
                         playerconfigs[i].autoaim = true;
                     }
-                    I_MoveDisplay(0,0);
+                    Display_X = Display_Y = 0;
                     P_RefreshBrightness();
                     I_RefreshVideo();
                     S_SetMusicVolume(MusVolume);
@@ -2462,7 +2462,7 @@ int M_MenuTicker(void) // 80007E0C
                         playerconfigs[i].autorun = false;
                         playerconfigs[i].autoaim = true;
                     }
-                    I_MoveDisplay(0,0);
+                    Display_X = Display_Y = 0;
                     P_RefreshBrightness();
                     I_RefreshVideo();
                     S_SetMusicVolume(MusVolume);
@@ -2516,7 +2516,7 @@ int M_MenuTicker(void) // 80007E0C
                         playerconfigs[i].autorun = true;
                         playerconfigs[i].autoaim = false;
                     }
-                    I_MoveDisplay(0,0);
+                    Display_X = Display_Y = 0;
                     P_RefreshBrightness();
                     I_RefreshVideo();
                     S_SetMusicVolume(MusVolume);
@@ -2569,7 +2569,7 @@ int M_MenuTicker(void) // 80007E0C
                         playerconfigs[i].autorun = true;
                         playerconfigs[i].autoaim = true;
                     }
-                    I_MoveDisplay(0,0);
+                    Display_X = Display_Y = 0;
                     P_RefreshBrightness();
                     I_RefreshVideo();
                     S_SetMusicVolume(MusVolume);
@@ -4647,7 +4647,7 @@ int M_CenterDisplayTicker(void) // 8000B4C4
         }
 
         if (buttons & (ALL_JPAD|PAD_A))
-            I_MoveDisplay(Display_X, Display_Y);
+            I_RefreshVideo();
 
         exit = ga_nothing;
     }

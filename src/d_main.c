@@ -279,14 +279,7 @@ int MiniLoop(void(*start)(void), void(*stop)(int),
         }
         else
         {
-            extern s8 fadetick;
-            if (osTvType == OS_TV_PAL)
-                fadetick = 42;
-            else
-                fadetick = 18;
-            I_WIPE_FadeOutScreen();
-            osViBlack(TRUE);
-            I_MoveDisplay(0,0);
+            I_Reset();
         }
 
 #ifdef USB

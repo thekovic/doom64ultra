@@ -154,12 +154,13 @@ volatile int *gamepad_data;    // 800A5240
 OSTask *vid_task;   // 800A5244
 u32 vid_side;       // 800A5248
 
-u32 video_hStart;   // 800A524c
-u32 video_vStart1;  // 800A5250
-u32 video_vStart2;  // 800A5254
+OSViMode CurrentViMode;
 
 u32 GfxIndex;       // 800A5258
 u32 VtxIndex;       // 800A525C
+
+static bool skipfade = false;
+static s8 fadetick = 8;
 
 volatile u8 gamepad_bit_pattern; // 800A5260 // one bit for each controller
 volatile u8 rumblepak_bit_pattern = 0;
@@ -474,11 +475,9 @@ void I_SystemTicker(void *arg) // 80005730
                 break;
 
             case VID_MSG_PRENMI:
-                {
-                    //D_printf("VID_MSG_PRENMI\n");
-                    (*&disabledrawing) = true;
-                    S_StopAll();
-                }
+                //D_printf("VID_MSG_PRENMI\n");
+                (*&disabledrawing) = true;
+                S_StopAll();
                 break;
 
             case VID_MSG_VBI:
@@ -548,6 +547,30 @@ void I_SystemTicker(void *arg) // 80005730
 
         I_CheckStack(sys_ticker_stack, "Ticker");
     }
+}
+
+void I_Reset(void)
+{
+    OSViMode *defaultmode;
+
+    if (osTvType == OS_TV_PAL)
+        fadetick = 42;
+    else
+        fadetick = 18;
+    I_WIPE_FadeOutScreen();
+
+    if (osTvType == OS_TV_TYPE_PAL) {
+        defaultmode = &osViModePalLan1;
+    } else if (osTvType == OS_TV_TYPE_MPAL) {
+        defaultmode = &osViModeMpalLan1;
+    } else {
+        defaultmode = &osViModeNtscLan1;
+    }
+
+    osViSetMode(defaultmode);
+
+    while (true)
+        osYieldThread();
 }
 
 void I_ReadPads(void)
@@ -873,63 +896,110 @@ void I_GetScreenGrab(void) // 800066C0
 
 void I_RefreshVideo(void) // [Immorpher] video refresh
 {
-    int modeidx = OS_VI_NTSC_LPN1;
-    int special;
-    OSViMode *ViMode;
+    const bool interlaced = (TvMode & 2) || (VideoResolution == VIDEO_RES_HI_VERT);
+    register u32 saveMask = __osDisableInt();
 
-    if (osTvType == OS_TV_PAL)
-        modeidx += 14*3;
-    else if (osTvType == OS_TV_MPAL)
-        modeidx += 14*2;
-
-    if(TvMode & 2) // interlacing
-        modeidx += 1;
-
-    if (BitDepth == BITDEPTH_32)
-        modeidx += 4;
-
-    if (VideoResolution == VIDEO_RES_HI_VERT)
-        modeidx += 8;
-    else if((TvMode & 1) && (VideoResolution == VIDEO_RES_LOW || BitDepth == BITDEPTH_16))
-        modeidx += 2; // antialiasing
-
-    ViMode = &osViModeTable[modeidx];
-
-    if (VideoResolution == VIDEO_RES_HI_HORIZ)
+    if (osTvType == OS_TV_TYPE_MPAL)
     {
-        ViMode->comRegs.width = 640;
-        ViMode->comRegs.xScale = 1024;
-        ViMode->fldRegs[0].origin = ViMode->fldRegs[1].origin = 640*(BitDepth?4:2);
+        CurrentViMode = osViModeMpalLan1;
+        if (interlaced)
+        {
+            CurrentViMode.comRegs.hSync = HSYNC(3089, 4);
+            CurrentViMode.comRegs.leap = LEAP(3097, 3098);
+            CurrentViMode.fldRegs[0].vStart = START(35, 509);
+            CurrentViMode.fldRegs[0].vBurst = BURST(2, 2, 11, 0);
+        }
+    }
+    if (osTvType == OS_TV_TYPE_PAL)
+    {
+        CurrentViMode = osViModeFpalLan1;
+        if (interlaced)
+        {
+            CurrentViMode.fldRegs[0].vStart = START(45, 615);
+            CurrentViMode.fldRegs[1].vBurst = BURST(105, 2, 13, 0);
+        }
     }
     else
     {
-        ViMode->comRegs.xScale = 512;
-        ViMode->fldRegs[0].origin = ViMode->fldRegs[1].origin = 320*(BitDepth?4:2);
+        CurrentViMode = osViModeNtscLan1;
+        if (interlaced)
+            CurrentViMode.fldRegs[0].vStart = START(35, 509);
+    }
+
+    if (interlaced)
+        CurrentViMode.comRegs.vSync -= 1;
+
+    CurrentViMode.comRegs.ctrl = VI_CTRL_PIXEL_ADV_3
+        | (BitDepth == BITDEPTH_32 ? VI_CTRL_TYPE_32 : VI_CTRL_TYPE_16)
+        | ((TvMode & 1) ? VI_CTRL_DIVOT_ON : VI_CTRL_ANTIALIAS_MODE_2)
+        | (interlaced ? VI_CTRL_SERRATE_ON : 0)
+        | (NoGammaCorrect ? 0 : VI_CTRL_GAMMA_ON | VI_CTRL_GAMMA_DITHER_ON)
+        | (DitherFilter ? VI_CTRL_DITHER_FILTER_ON : 0);
+
+    if ((!TvMode && BitDepth == BITDEPTH_32) || (TvMode == 1 && VideoResolution != VIDEO_RES_HI_VERT && BitDepth == BITDEPTH_16))
+        CurrentViMode.comRegs.ctrl |= VI_CTRL_ANTIALIAS_MODE_1;
+
+    if (VideoResolution == VIDEO_RES_HI_HORIZ)
+    {
+        CurrentViMode.comRegs.width = WIDTH(640);
+        CurrentViMode.comRegs.xScale = SCALE(1, 0);
+        CurrentViMode.fldRegs[0].origin = CurrentViMode.fldRegs[1].origin
+            = BitDepth == BITDEPTH_32 ? ORIGIN(2560) : ORIGIN(1280);
+    }
+    else
+    {
+        CurrentViMode.comRegs.xScale = SCALE(2, 0);
+        CurrentViMode.fldRegs[0].origin = CurrentViMode.fldRegs[1].origin
+            = BitDepth == BITDEPTH_32 ? ORIGIN(1280) : ORIGIN(640);
         if (VideoResolution == VIDEO_RES_HI_VERT)
         {
-            ViMode->comRegs.width = 640;
-            ViMode->fldRegs[1].origin <<= 1;
+            CurrentViMode.fldRegs[1].origin <<= 1;
             if(TvMode & 2) // deflickering
-                ViMode->comRegs.width = 320;
+                CurrentViMode.comRegs.width = WIDTH(320);
+            else
+                CurrentViMode.comRegs.width = WIDTH(640);
         }
         else
         {
-            ViMode->comRegs.width = 320;
+            CurrentViMode.comRegs.width = WIDTH(320);
         }
     }
 
-    osViSetMode(ViMode);
+    if (Display_X)
+        CurrentViMode.comRegs.hStart =
+            CLAMP((int) (CurrentViMode.comRegs.hStart & 0xffff) + Display_X, 0, 0xffff)
+            | (CLAMP((int) (CurrentViMode.comRegs.hStart >> 16) + Display_X, 0, 0xffff) << 16);
 
-    if (blanktimer)
-        osViBlack(TRUE);
+    if (Display_Y)
+    {
+        CurrentViMode.fldRegs[0].vStart =
+            CLAMP((int) (CurrentViMode.fldRegs[0].vStart & 0xffff) + Display_Y, 0, 0xffff)
+            | (CLAMP((int) (CurrentViMode.fldRegs[0].vStart >> 16) + Display_Y, 0, 0xffff) << 16);
+        CurrentViMode.fldRegs[1].vStart =
+            CLAMP((int) (CurrentViMode.fldRegs[1].vStart & 0xffff) + Display_Y, 0, 0xffff)
+            | (CLAMP((int) (CurrentViMode.fldRegs[1].vStart >> 16) + Display_Y, 0, 0xffff) << 16);
+    }
 
-    special = (TvMode & 1) ? OS_VI_DIVOT_ON : OS_VI_DIVOT_OFF;
-    special |= DitherFilter ? OS_VI_DITHER_FILTER_ON : OS_VI_DITHER_FILTER_OFF;
-    special |= NoGammaCorrect
-        ? OS_VI_GAMMA_OFF | OS_VI_GAMMA_DITHER_OFF
-        : OS_VI_GAMMA_ON | OS_VI_GAMMA_DITHER_ON;
+    if (TvMode & 2)
+    {
+        if (VideoResolution == VIDEO_RES_HI_VERT)
+        {
+            CurrentViMode.fldRegs[0].yScale = SCALE(0.5, 0.5);
+            CurrentViMode.fldRegs[1].yScale = SCALE(0.5, 0.5);
+        }
+        else
+        {
+            CurrentViMode.fldRegs[0].yScale = SCALE(1, 0.25);
+            CurrentViMode.fldRegs[1].yScale = SCALE(1, 0.75);
+        }
+    }
 
-    osViSetSpecialFeatures(special);
+    __osViNext->modep = &CurrentViMode;
+    __osViNext->state = VI_STATE_MODE_UPDATED | (blanktimer ? VI_STATE_BLACK : 0);
+    __osViNext->control = __osViNext->modep->comRegs.ctrl;
+
+    __osRestoreInt(saveMask);
+
 
     switch (VideoResolution)
     {
@@ -961,10 +1031,6 @@ void I_RefreshVideo(void) // [Immorpher] video refresh
         hudyshift = 3;
         break;
     }
-
-    video_hStart = ViMode->comRegs.hStart;
-    video_vStart1 = ViMode->fldRegs[0].vStart;
-    video_vStart2 = ViMode->fldRegs[1].vStart;
 }
 
 void I_BlankScreen(u8 vbls)
@@ -1004,28 +1070,6 @@ short BigShort(short dat) // 80006770
 {
     return ((dat << 8) | (dat >> 8 & 0xff)) & 0xffff;
 }
-
-void I_MoveDisplay(int x,int y) // 80006790
-{
-  int ViMode;
-
-  ViMode = osViGetCurrentMode();
-
-  osViModeTable[ViMode].comRegs.hStart =
-       (int)(((int)video_hStart >> 0x10 & 65535) + x) % 65535 << 0x10 |
-       (int)((video_hStart & 65535) + x) % 65535;
-
-  osViModeTable[ViMode].fldRegs[0].vStart =
-       (int)(((int)video_vStart1 >> 0x10 & 65535) + y) % 65535 << 0x10 |
-       (int)((video_vStart1 & 65535) + y) % 65535;
-
-  osViModeTable[ViMode].fldRegs[1].vStart =
-       (int)(((int)video_vStart2 >> 0x10 & 65535) + y) % 65535 << 0x10 |
-       (int)((video_vStart2 & 65535) + y) % 65535;
-}
-
-static bool skipfade = false;
-s8 fadetick = 8;
 
 void I_WIPE_MeltScreen(void) // 80006964
 {

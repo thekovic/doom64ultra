@@ -1197,10 +1197,6 @@ enum VID_MSG {
 extern OSTask *vid_task;   // 800A5244
 extern u32 vid_side;       // 800A5248
 
-extern u32 video_hStart;   // 800A524c
-extern u32 video_vStart1;  // 800A5250
-extern u32 video_vStart2;  // 800A5254
-
 extern boolean SramPresent; // [nova] sram support
 extern u32 SramSize;
 
@@ -1237,6 +1233,7 @@ extern Mtx *MTX1;   // 800A4A10
 extern Mtx *MTX2;   // 800A4A14
 
 void I_Init(void) SEC_STARTUP; // 80005C50
+NO_RETURN void I_Reset(void) COLD;
 
 #define MAXSRAMSAVES 16
 
@@ -1280,12 +1277,10 @@ void I_CheckGFX(void) HOT; // 800060E8
 bool I_GFXFull(void);
 void I_ClearFrame(void) HOT; // 8000637C
 void I_DrawFrame(void) HOT;  // 80006570
-void I_GetScreenGrab(void); // 800066C0
-void I_RefreshVideo(void);
-void I_BlankScreen(u8 vbls);
+void I_GetScreenGrab(void) COLD; // 800066C0
+void I_RefreshVideo(void) COLD;
+void I_BlankScreen(u8 vbls) COLD;
 void I_ClearFB(register u32 color) HOT;
-
-void I_MoveDisplay(int x,int y); // 80006790
 
 int I_CheckControllerPak(void); // 800070B0
 int I_DeletePakFile(int filenumb); // 80007224
