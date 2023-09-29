@@ -3,7 +3,7 @@
 #pragma once
 
 #include "r_local.h"
-#include "a_local.h"
+#include "p_spec.h"
 
 #define FLOATSPEED      (FRACUNIT*4)
 
@@ -298,8 +298,6 @@ void P_ShiftMessages(player_t *player, unsigned index);
 
 s16 P_WeaponWheelPos(player_t *player, weapontype_t weapon);
 void P_UpdateWeaponWheel(player_t *player) SEC_GAME;
-
-#include "p_spec.h"
 
 /*
 ===============================================================================

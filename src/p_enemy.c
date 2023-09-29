@@ -3,7 +3,7 @@
 #include "doomdef.h"
 #include "p_local.h"
 
-void A_Fall (mobj_t *actor);
+SEC_GAME void A_Fall (mobj_t *actor);
 
 typedef enum
 {
@@ -407,7 +407,7 @@ boolean P_LookForPlayers (mobj_t *actor, boolean allaround) // 8001115C
 ==============
 */
 
-void A_Look (mobj_t *actor) // 80011340
+SEC_GAME void A_Look (mobj_t *actor) // 80011340
 {
     mobj_t  *targ;
     int     sound;
@@ -462,7 +462,7 @@ void A_Look (mobj_t *actor) // 80011340
 ==============
 */
 
-void A_Chase (mobj_t *actor) // 8001146C
+SEC_GAME void A_Chase (mobj_t *actor) // 8001146C
 {
     int     delta;
 
@@ -558,7 +558,7 @@ void A_Chase (mobj_t *actor) // 8001146C
 ==============
 */
 
-void A_FaceTarget (mobj_t *actor) // 800116A8
+SEC_GAME void A_FaceTarget (mobj_t *actor) // 800116A8
 {
     int rnd1, rnd2;
     if (!actor->target)
@@ -583,7 +583,7 @@ void A_FaceTarget (mobj_t *actor) // 800116A8
 ==============
 */
 
-void A_Scream (mobj_t *actor) // 80011740
+SEC_GAME void A_Scream (mobj_t *actor) // 80011740
 {
     int     sound;
 
@@ -619,7 +619,7 @@ void A_Scream (mobj_t *actor) // 80011740
 ==============
 */
 
-void A_XScream (mobj_t *actor) // 800117E4
+SEC_GAME void A_XScream (mobj_t *actor) // 800117E4
 {
     S_StartSound (actor, sfx_slop);
 }
@@ -632,7 +632,7 @@ void A_XScream (mobj_t *actor) // 800117E4
 ==============
 */
 
-void A_Pain (mobj_t *actor) // 80011804
+SEC_GAME void A_Pain (mobj_t *actor) // 80011804
 {
     if(actor->info->painsound)
     {
@@ -651,7 +651,7 @@ void A_Pain (mobj_t *actor) // 80011804
 ==============
 */
 
-void A_Fall (mobj_t *actor) // 8001185C
+SEC_GAME void A_Fall (mobj_t *actor) // 8001185C
 {
 /* actor is on ground, it can be walked over */
     actor->flags &= ~MF_SOLID;
@@ -666,7 +666,7 @@ void A_Fall (mobj_t *actor) // 8001185C
 ================
 */
 
-void A_Explode (mobj_t *thingy) // 80011870
+SEC_GAME void A_Explode (mobj_t *thingy) // 80011870
 {
     P_RadiusAttack(thingy, thingy->target, 128);
 }
@@ -681,7 +681,7 @@ void A_Explode (mobj_t *thingy) // 80011870
 ================
 */
 
-void A_OnDeathTrigger (mobj_t *mo) // 80011894
+SEC_GAME void A_OnDeathTrigger (mobj_t *mo) // 80011894
 {
     mobj_t      *mo2;
 
@@ -725,7 +725,7 @@ SEC_GAME fixed_t P_SlopeToTarget(mobj_t *actor, fixed_t zheight)
 ==============
 */
 
-void A_PosAttack (mobj_t *actor) // 80011954
+SEC_GAME void A_PosAttack (mobj_t *actor) // 80011954
 {
     int     angle, damage, rnd1, rnd2, slope;
 
@@ -755,7 +755,7 @@ void A_PosAttack (mobj_t *actor) // 80011954
 ==============
 */
 
-void A_SPosAttack (mobj_t *actor) // 800119FC
+SEC_GAME void A_SPosAttack (mobj_t *actor) // 800119FC
 {
     int     i;
     int     angle, bangle, damage, slope;
@@ -785,7 +785,7 @@ void A_SPosAttack (mobj_t *actor) // 800119FC
 ==============
 */
 
-void A_PlayAttack(mobj_t* actor) // 80011b1C
+SEC_GAME void A_PlayAttack(mobj_t* actor) // 80011b1C
 {
     int     angle;
     int     bangle;
@@ -814,7 +814,7 @@ void A_PlayAttack(mobj_t* actor) // 80011b1C
 ==============
 */
 
-void A_CPosRefire(mobj_t* actor) // 80011BD4
+SEC_GAME void A_CPosRefire(mobj_t* actor) // 80011BD4
 {
     A_FaceTarget(actor);
 
@@ -836,7 +836,7 @@ void A_CPosRefire(mobj_t* actor) // 80011BD4
 ==============
 */
 
-void A_BspiFaceTarget(mobj_t *actor) // 80011C50
+SEC_GAME void A_BspiFaceTarget(mobj_t *actor) // 80011C50
 {
     A_FaceTarget(actor);
     actor->extradata = (int *)5;
@@ -850,7 +850,7 @@ void A_BspiFaceTarget(mobj_t *actor) // 80011C50
 ==============
 */
 
-void A_BspiAttack(mobj_t *actor) // 80011C74
+SEC_GAME void A_BspiAttack(mobj_t *actor) // 80011C74
 {
     if (!actor->target)
         return;
@@ -872,7 +872,7 @@ void A_BspiAttack(mobj_t *actor) // 80011C74
 ==============
 */
 
-void A_SpidRefire (mobj_t *actor) // 80011CBC
+SEC_GAME void A_SpidRefire (mobj_t *actor) // 80011CBC
 {
     A_FaceTarget (actor);
 
@@ -902,7 +902,7 @@ void A_SpidRefire (mobj_t *actor) // 80011CBC
 ==============
 */
 
-void A_TroopMelee(mobj_t* actor) // 80011D78
+SEC_GAME void A_TroopMelee(mobj_t* actor) // 80011D78
 {
     int    damage;
 
@@ -926,7 +926,7 @@ void A_TroopMelee(mobj_t* actor) // 80011D78
 ==============
 */
 
-void A_TroopAttack (mobj_t *actor) // 80011DEC
+SEC_GAME void A_TroopAttack (mobj_t *actor) // 80011DEC
 {
     if (!actor->target)
         return;
@@ -947,7 +947,7 @@ void A_TroopAttack (mobj_t *actor) // 80011DEC
 ==============
 */
 
-void A_SargAttack (mobj_t *actor) // 80011E28
+SEC_GAME void A_SargAttack (mobj_t *actor) // 80011E28
 {
     int     damage;
 
@@ -970,7 +970,7 @@ void A_SargAttack (mobj_t *actor) // 80011E28
 ==============
 */
 
-void A_HeadAttack (mobj_t *actor) // 80011E90
+SEC_GAME void A_HeadAttack (mobj_t *actor) // 80011E90
 {
     int     damage;
 
@@ -998,7 +998,7 @@ void A_HeadAttack (mobj_t *actor) // 80011E90
 ==============
 */
 
-void A_CyberAttack (mobj_t *actor) // 80011F08
+SEC_GAME void A_CyberAttack (mobj_t *actor) // 80011F08
 {
     if (!actor->target)
         return;
@@ -1015,7 +1015,7 @@ void A_CyberAttack (mobj_t *actor) // 80011F08
 ==============
 */
 
-void A_CyberDeathEvent(mobj_t* actor) // 80011F44
+SEC_GAME void A_CyberDeathEvent(mobj_t* actor) // 80011F44
 {
     mobjexp_t *exp;
 
@@ -1038,7 +1038,7 @@ void A_CyberDeathEvent(mobj_t* actor) // 80011F44
 ==============
 */
 
-void A_BruisAttack (mobj_t *actor) // 80011FC4
+SEC_GAME void A_BruisAttack (mobj_t *actor) // 80011FC4
 {
     int     damage;
 
@@ -1069,7 +1069,7 @@ void A_BruisAttack (mobj_t *actor) // 80011FC4
 ==============
 */
 
-void A_SpawnSmoke(mobj_t *actor) // 8001204C
+SEC_GAME void A_SpawnSmoke(mobj_t *actor) // 8001204C
 {
     mobj_t *smoke;
 
@@ -1087,7 +1087,7 @@ void A_SpawnSmoke(mobj_t *actor) // 8001204C
 
 #define TRACEANGLE 0x10000000
 
-void A_Tracer(mobj_t *actor) // 80012088
+SEC_GAME void A_Tracer(mobj_t *actor) // 80012088
 {
     angle_t exact;
     fixed_t dist;
@@ -1165,7 +1165,7 @@ void A_Tracer(mobj_t *actor) // 80012088
 
 #define FATSPREAD   (ANG90/4)
 
-void A_FatRaise(mobj_t *actor) // 800122F4
+SEC_GAME void A_FatRaise(mobj_t *actor) // 800122F4
 {
     A_FaceTarget(actor);
     S_StartSound(actor, sfx_fattatk);
@@ -1179,7 +1179,7 @@ void A_FatRaise(mobj_t *actor) // 800122F4
 ==============
 */
 
-void A_FatAttack1(mobj_t *actor) // 80012320
+SEC_GAME void A_FatAttack1(mobj_t *actor) // 80012320
 {
     mobj_t  *mo;
     int     an;
@@ -1204,7 +1204,7 @@ void A_FatAttack1(mobj_t *actor) // 80012320
 ==============
 */
 
-void A_FatAttack2(mobj_t *actor) // 800123B0
+SEC_GAME void A_FatAttack2(mobj_t *actor) // 800123B0
 {
     mobj_t  *mo;
     int     an;
@@ -1229,7 +1229,7 @@ void A_FatAttack2(mobj_t *actor) // 800123B0
 ==============
 */
 
-void A_FatAttack3(mobj_t *actor) // 80012440
+SEC_GAME void A_FatAttack3(mobj_t *actor) // 80012440
 {
     mobj_t  *mo;
     int     an;
@@ -1262,7 +1262,7 @@ void A_FatAttack3(mobj_t *actor) // 80012440
 
 #define SKULLSPEED      (40*FRACUNIT)
 
-void A_SkullAttack (mobj_t *actor) // 80012528
+SEC_GAME void A_SkullAttack (mobj_t *actor) // 80012528
 {
     mobj_t          *dest;
     angle_t         an;
@@ -1310,7 +1310,7 @@ boolean PIT_PainCheckLine(intercept_t *in) // 80012654
 ==============
 */
 
-void A_PainShootSkull(mobj_t *actor, angle_t angle) // 8001267C
+SEC_GAME void A_PainShootSkull(mobj_t *actor, angle_t angle) // 8001267C
 {
     fixed_t x;
     fixed_t y;
@@ -1372,7 +1372,7 @@ void A_PainShootSkull(mobj_t *actor, angle_t angle) // 8001267C
 ==============
 */
 
-void A_PainAttack(mobj_t *actor) // 80012804
+SEC_GAME void A_PainAttack(mobj_t *actor) // 80012804
 {
     if (!actor->target)
         return;
@@ -1390,7 +1390,7 @@ void A_PainAttack(mobj_t *actor) // 80012804
 ==============
 */
 
-void A_PainDie(mobj_t *actor) // 8001285C
+SEC_GAME void A_PainDie(mobj_t *actor) // 8001285C
 {
     A_Fall(actor);
     A_PainShootSkull(actor, actor->angle + ANG90);
@@ -1409,7 +1409,7 @@ void A_PainDie(mobj_t *actor) // 8001285C
 ==============
 */
 
-void A_RectChase(mobj_t* actor) // 800128C4
+SEC_GAME void A_RectChase(mobj_t* actor) // 800128C4
 {
     if(!(actor->target) || (actor->target->health <= 0) ||
        !(P_AproxDistance(actor->target->x-actor->x, actor->target->y-actor->y) < (600*FRACUNIT)))
@@ -1432,7 +1432,7 @@ void A_RectChase(mobj_t* actor) // 800128C4
 ==============
 */
 
-void A_RectGroundFire(mobj_t* actor) // 8001296C
+SEC_GAME void A_RectGroundFire(mobj_t* actor) // 8001296C
 {
     mobj_t* mo;
     angle_t an;
@@ -1470,7 +1470,7 @@ void A_RectGroundFire(mobj_t* actor) // 8001296C
 ==============
 */
 
-void A_RectMissile(mobj_t* actor) // 80012B1C
+SEC_GAME void A_RectMissile(mobj_t* actor) // 80012B1C
 {
     mobj_t* mo;
     int count = 0;
@@ -1582,7 +1582,7 @@ void A_RectMissile(mobj_t* actor) // 80012B1C
 ==============
 */
 
-void A_MoveGroundFire(mobj_t* fire) // 80012EA4
+SEC_GAME void A_MoveGroundFire(mobj_t* fire) // 80012EA4
 {
     mobj_t* mo;
     fade_t *fade;
@@ -1607,7 +1607,7 @@ void A_MoveGroundFire(mobj_t* fire) // 80012EA4
 ==============
 */
 
-void A_RectTracer(mobj_t* actor) // 80012F34
+SEC_GAME void A_RectTracer(mobj_t* actor) // 80012F34
 {
     if(actor->threshold < 0)
         A_Tracer(actor);
@@ -1624,7 +1624,7 @@ void A_RectTracer(mobj_t* actor) // 80012F34
 ==============
 */
 
-void A_RectDeathEvent(mobj_t* actor) // 80012F6C
+SEC_GAME void A_RectDeathEvent(mobj_t* actor) // 80012F6C
 {
     mobjexp_t *exp;
 
@@ -1648,7 +1648,7 @@ void A_RectDeathEvent(mobj_t* actor) // 80012F6C
 ==================
 */
 
-void A_TargetCamera(mobj_t* actor) // 80012FEC
+SEC_GAME void A_TargetCamera(mobj_t* actor) // 80012FEC
 {
     mobj_t* mo;
 
@@ -1673,7 +1673,7 @@ void A_TargetCamera(mobj_t* actor) // 80012FEC
 ==================
 */
 
-void A_BarrelExplode(mobj_t* actor) // 80013070
+SEC_GAME void A_BarrelExplode(mobj_t* actor) // 80013070
 {
 
     S_StartSound(actor, actor->info->deathsound);
@@ -1692,7 +1692,7 @@ void A_BarrelExplode(mobj_t* actor) // 80013070
 ================
 */
 
-void A_Hoof (mobj_t *mo) // 800130E0
+SEC_GAME void A_Hoof (mobj_t *mo) // 800130E0
 {
     S_StartSound(mo, sfx_cybhoof);
     A_Chase(mo);
@@ -1706,7 +1706,7 @@ void A_Hoof (mobj_t *mo) // 800130E0
 ================
 */
 
-void A_Metal (mobj_t *mo) // 80013110
+SEC_GAME void A_Metal (mobj_t *mo) // 80013110
 {
     S_StartSound(mo, sfx_metal);
     A_Chase(mo);
@@ -1720,7 +1720,7 @@ void A_Metal (mobj_t *mo) // 80013110
 ================
 */
 
-void A_BabyMetal(mobj_t* mo) // 80013140
+SEC_GAME void A_BabyMetal(mobj_t* mo) // 80013140
 {
     S_StartSound(mo, sfx_bspistomp);
     A_Chase(mo);
@@ -1818,7 +1818,7 @@ void L_SkullBash (mobj_t *mo) // 800132AC
 ==================
 */
 
-void A_FadeAlpha(mobj_t *mobj) // 8001333C
+SEC_GAME void A_FadeAlpha(mobj_t *mobj) // 8001333C
 {
     int fade;
 
@@ -1839,7 +1839,7 @@ void A_FadeAlpha(mobj_t *mobj) // 8001333C
 ==================
 */
 
-void A_PainDeathEvent(mobj_t* actor) // 80013364
+SEC_GAME void A_PainDeathEvent(mobj_t* actor) // 80013364
 {
     actor->alpha = MAX(((int) actor->alpha) - 0x40, 0);
 }
@@ -1852,7 +1852,7 @@ void A_PainDeathEvent(mobj_t* actor) // 80013364
 ==================
 */
 
-void A_SkullSetAlpha(mobj_t* actor) // 80013378
+SEC_GAME void A_SkullSetAlpha(mobj_t* actor) // 80013378
 {
     actor->alpha >>= 2;
 }
@@ -1865,7 +1865,7 @@ void A_SkullSetAlpha(mobj_t* actor) // 80013378
 ==================
 */
 
-void A_MissileSetAlpha(mobj_t* actor) // 8001338C
+SEC_GAME void A_MissileSetAlpha(mobj_t* actor) // 8001338C
 {
     actor->alpha >>= 1;
 }
@@ -1879,7 +1879,7 @@ void A_MissileSetAlpha(mobj_t* actor) // 8001338C
 ==================
 */
 
-void A_FadeOut(mobj_t* actor) // 800133A0
+SEC_GAME void A_FadeOut(mobj_t* actor) // 800133A0
 {
     fade_t *fade;
 
@@ -1906,7 +1906,7 @@ void A_FadeOut(mobj_t* actor) // 800133A0
 ==================
 */
 
-void A_FadeIn(mobj_t* actor) // 80013428
+SEC_GAME void A_FadeIn(mobj_t* actor) // 80013428
 {
     fade_t *fade;
 
