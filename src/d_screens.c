@@ -26,7 +26,7 @@ int D_TitleMap(void) // 8002B358
 
   demosize = 16000;
   demo_p = Z_Alloc(demosize, PU_STATIC, NULL);
-  D_memset(demo_p, 0, demosize);
+  bzero(demo_p,  demosize);
   D_memcpy(demo_p, ControllerPresets[1].ctrl.buttons, sizeof(int)*13);
   exit = G_PlayDemoPtr(SkillPresets[2].skill, 33);
   Z_Free(demo_p);

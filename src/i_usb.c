@@ -402,7 +402,7 @@ SEC_STARTUP void I_InitFlashCart(void)
 #ifdef USB
     // Initialize the debug related globals
     usb_buffer = (u8*)OS_DCACHE_ROUNDUP_ADDR(usb_buffer_align);
-    D_memset(usb_buffer, 0, BUFFER_SIZE);
+    bzero(usb_buffer,  BUFFER_SIZE);
 
     osCreateMesgQueue(&dmaMessageQ, &dmaMessageBuf, 1);
 #endif
@@ -1726,7 +1726,7 @@ static void I_CmdSetup(void)
             readsize = dataleft;
 
         // Read a block from USB
-        D_memset(CommandBuffer, 0, sizeof CommandBuffer);
+        bzero(CommandBuffer,  sizeof CommandBuffer);
         usb_read(CommandBuffer, readsize);
 
         // Parse the block

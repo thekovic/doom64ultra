@@ -53,7 +53,7 @@ bool M_EncodePassword(byte *buff) // 8000BC10
     bool skillnightmare; // [GEC] new nightmare skill
 
     player = &players[0];
-    D_memset(encode, 0, sizeof(encode));
+    bzero(encode,  sizeof(encode));
 
     //Check the nightmare difficulty
     skillnightmare = false;
@@ -64,7 +64,7 @@ bool M_EncodePassword(byte *buff) // 8000BC10
     }
     if(gameskill == 5)
     {
-        D_memset(buff, 0, 16);
+        bzero(buff,  16);
         return false;
     }
     if(gameskill == 4)

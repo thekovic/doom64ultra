@@ -618,8 +618,8 @@ void I_Init(void) // 80005C50
 
     {
         void *fb = CFB0_ADDR();
-        D_memset(fb, 0, CFB_SIZE);
-        D_memset(CFB1_ADDR(), 0, CFB_SIZE);
+        bzero(fb,  CFB_SIZE);
+        bzero(CFB1_ADDR(),  CFB_SIZE);
 
         osViSwapBuffer(fb);
         __osViSwapContext();
@@ -1430,7 +1430,7 @@ int I_CreatePakFile(void) // 800074D4
         Pak_Size = 512;
 
     Pak_Data = (byte *)Z_Malloc(Pak_Size, PU_STATIC, NULL);
-    D_memset(Pak_Data, 0, Pak_Size);
+    bzero(Pak_Data,  Pak_Size);
 
     *(int*)ExtName = 0;
 
@@ -1470,8 +1470,8 @@ void I_RumbleDamage(int pad, int damage)
 
 void I_StopRumble(void)
 {
-    D_memset((void*) MotorDamageTimers, 0, sizeof MotorDamageTimers);
-    D_memset((void*) MotorAmbientCount, 0, sizeof MotorAmbientCount);
+    bzero((void*) MotorDamageTimers,  sizeof MotorDamageTimers);
+    bzero((void*) MotorAmbientCount,  sizeof MotorAmbientCount);
 }
 
 void I_ControllerThread(void *arg)

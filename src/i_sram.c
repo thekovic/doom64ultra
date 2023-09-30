@@ -91,7 +91,7 @@ static boolean I_SramVerifyBanked(u32 bank)
     SramBanked = true;
 
     /* Clear all previous SRAM banks to detect address wrapping */
-    D_memset(write_buf, 0, SRAM_PAGE_SIZE);
+    bzero(write_buf,  SRAM_PAGE_SIZE);
     for (u32 i = 0; i < bank; i++)
         I_ReadWriteSram(i<<15, write_buf, SRAM_PAGE_SIZE, OS_WRITE);
 
@@ -109,7 +109,7 @@ static boolean I_SramVerifyBanked(u32 bank)
     }
 
     /* Check that no previous banks were modified by changing this one */
-    D_memset(write_buf, 0, SRAM_PAGE_SIZE);
+    bzero(write_buf,  SRAM_PAGE_SIZE);
     for (u32 i = 0; i < bank; i++)
     {
         I_ReadWriteSram(i<<15, read_buf, SRAM_PAGE_SIZE, OS_READ);

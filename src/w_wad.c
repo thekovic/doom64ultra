@@ -157,7 +157,7 @@ void W_Init (void) // 8002BEC0
     }
 
     lumpcache = (lumpcache_t *) Z_Malloc(numlumps * sizeof(lumpcache_t), PU_STATIC, 0);
-    D_memset(lumpcache, NULL, numlumps * sizeof(lumpcache_t));
+    bzero(lumpcache, numlumps * sizeof(lumpcache_t));
 
     if (maxcompressedsize)
         decompressbuf = Z_Malloc(maxcompressedsize, PU_STATIC, 0);

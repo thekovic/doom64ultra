@@ -650,7 +650,7 @@ static COLD bool I_DebugSetMode(u16 *fb)
     OSViMode *mode;
     bool hires = false;
 
-    D_memset(fb, 0, CFB_SIZE);
+    bzero(fb,  CFB_SIZE);
 
     if (CFB_SIZE >= 640*480*sizeof(u16))
     {
@@ -1995,7 +1995,7 @@ static COLD void I_ShowDebugScreen(const char *text)
 {
     void *cfb = CFB0_ADDR();
 
-    D_memset(cfb, 0, CFB_SIZE);
+    bzero(cfb,  CFB_SIZE);
     blit32_TextExplicit(cfb, 0xffff, 1, XResolution, YResolution, blit_Clip, 32, 24, text);
     osViSwapBuffer(cfb);
     __osViSwapContext();
