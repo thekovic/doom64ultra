@@ -17,13 +17,19 @@ int         skytexture;             // 800A5f14
 
 spritedef_t     sprites[NUMSPRITES];
 
+int firstplayerlump;
+int lastplayerlump;
+u16 baseplayerpalette[256];
+u16 playerpalettes[MAXPLAYERS][256];
+
 int bloodlump;
 int giblump;
 u16 bloodpalettes[5][3][16];
 
-void R_InitTextures(void);
-void R_InitSprites(void);
-void R_InitBloodPalette(int lump, u16 palettes[static 3][16]);
+static void R_InitTextures(void);
+static void R_InitSprites(void);
+static void R_InitPlayerPalette(void);
+static void R_InitBloodPalette(int lump, u16 palettes[static 3][16]);
 /*============================================================================ */
 
 #define PI_VAL 3.141592653589793
@@ -51,6 +57,10 @@ void R_InitData (void) // 80023180
 
     R_InitTextures();
     R_InitSprites();
+
+    firstplayerlump = W_GetNumForName("PLAYA1");
+    lastplayerlump = W_GetNumForName("PLAYV0");
+    R_InitPlayerPalette();
 
     bloodlump = W_GetNumForName(BLOOD_SPRITE "A0");
     for (int i = 0; i < 4; i++)
@@ -102,30 +112,29 @@ R_InstallSpriteLump
     int     r;
 
     if (frame >= 29 || rotation > 8)
-    I_Error("R_InstallSpriteLump: "
-        "Bad frame characters in lump %i", lump);
+        I_Error("R_InstallSpriteLump: Bad frame characters in lump %i", lump);
 
     if ((int)frame > *maxframe)
-    *maxframe = frame;
+        *maxframe = frame;
 
     if (rotation == 0)
     {
-    // the lump should be used for all rotations
-    if (sprtemp[frame].rotate == false)
-        I_Error ("R_InitSprites: Sprite %s frame %c has "
-             "multip rot=0 lump", spritename, 'A'+frame);
+        // the lump should be used for all rotations
+        if (sprtemp[frame].rotate == false)
+            I_Error ("R_InitSprites: Sprite %s frame %c has "
+                 "multip rot=0 lump", spritename, 'A'+frame);
 
-    if (sprtemp[frame].rotate == true)
-        I_Error ("R_InitSprites: Sprite %s frame %c has rotations "
-             "and a rot=0 lump", spritename, 'A'+frame);
+        if (sprtemp[frame].rotate == true)
+            I_Error ("R_InitSprites: Sprite %s frame %c has rotations "
+                 "and a rot=0 lump", spritename, 'A'+frame);
 
-    sprtemp[frame].rotate = false;
-    for (r=0 ; r<8 ; r++)
-    {
-        sprtemp[frame].lump[r] = lump - firstspritelump + 1;
-        sprtemp[frame].flip[r] = (byte)flipped;
-    }
-    return;
+        sprtemp[frame].rotate = false;
+        for (r=0 ; r<8 ; r++)
+        {
+            sprtemp[frame].lump[r] = lump - firstspritelump + 1;
+            sprtemp[frame].flip[r] = (byte)flipped;
+        }
+        return;
     }
 
     // the lump is only used for one rotation
@@ -196,17 +205,17 @@ R_InitSpriteDefs (char** namelist)
     {
         if ((*(int *)lumpinfo[l].name & 0x7fffffff) == intname)
         {
-        frame = lumpinfo[l].name[4] - 'A';
-        rotation = lumpinfo[l].name[5] - '0';
+            frame = lumpinfo[l].name[4] - 'A';
+            rotation = lumpinfo[l].name[5] - '0';
 
-        R_InstallSpriteLump (l, frame, rotation, false, sprtemp, &maxframe, spritename);
+            R_InstallSpriteLump (l, frame, rotation, false, sprtemp, &maxframe, spritename);
 
-        if (lumpinfo[l].name[6])
-        {
-            frame = lumpinfo[l].name[6] - 'A';
-            rotation = lumpinfo[l].name[7] - '0';
-            R_InstallSpriteLump (l, frame, rotation, true, sprtemp, &maxframe, spritename);
-        }
+            if (lumpinfo[l].name[6])
+            {
+                frame = lumpinfo[l].name[6] - 'A';
+                rotation = lumpinfo[l].name[7] - '0';
+                R_InstallSpriteLump (l, frame, rotation, true, sprtemp, &maxframe, spritename);
+            }
         }
     }
 
@@ -260,7 +269,7 @@ R_InitSpriteDefs (char** namelist)
 =================
 */
 
-void R_InitSprites(void) // 80023378
+static void R_InitSprites(void) // 80023378
 {
     firstspritelump = W_GetNumForName("S_START") + 1;
     lastspritelump = W_GetNumForName("S_END") - 1;
@@ -268,39 +277,70 @@ void R_InitSprites(void) // 80023378
     R_InitSpriteDefs(sprnames);
 }
 
-void R_PaletteChangeHSV(u16 *dest, const u16 *src, int h, int s, int v)
+static void R_InitPlayerPalette(void)
 {
-    u32 c;
-    int hsv;
+    int lump = W_GetNumForName("PALPLAY0");
+    byte pallump[W_LumpLength(lump)];
 
-    for (int i = 0; i < 16; i++) {
-        c = src[i];
-        if (c & 1)
-        {
-            hsv = C_LightGetHSV((c&0xf800)>>8, (c&0x7c0)>>3, (c&0x3e)<<2);
-            c = (C_LightGetRGB(((hsv >> 16) + h) & 0xff,
-                             CLAMP(((hsv >> 8) & 0xff) + s, 0, 255),
-                             CLAMP((hsv & 0xff) + v, 0, 255)) << 8) | 0xff;
-            dest[i] = RGBATO5551(c);
-        }
-        else
-        {
-            dest[i] = 0;
-        }
+    W_ReadLump(lump, pallump, dec_jag, -1);
+
+    D_memcpy(baseplayerpalette, pallump + 8, sizeof baseplayerpalette);
+    for (int i = 0; i < MAXPLAYERS; i++)
+    {
+        D_memcpy(playerpalettes[i], baseplayerpalette, sizeof baseplayerpalette);
+        R_UpdatePlayerPalette(i);
     }
 }
 
-void R_InitBloodPalette(int lump, u16 palettes[static 3][16])
+static u16 R_ChangeColorHSV(u16 c, int h, int s, int v)
 {
+    u32 cc;
+    int hsv;
+
+    if (!(c & 1))
+        return 0;
+
+    hsv = C_LightGetHSV((c&0xf800)>>8, (c&0x7c0)>>3, (c&0x3e)<<2);
+    cc = (C_LightGetRGB(((hsv >> 16) + h) & 0xff,
+                CLAMP(((hsv >> 8) & 0xff) + s, 0, 255),
+                CLAMP((hsv & 0xff) + v, 0, 255)) << 8) | 0xff;
+    return RGBATO5551(cc);
+}
+
+void R_UpdatePlayerPalette(int player)
+{
+    u16 *dest;
+    int h, s, v;
+
+    // clamp these to a reasonable range
+    h = playerconfigs[player].hue - 84;
+    s = ((int)playerconfigs[player].saturation)*4/3 - 212;
+    v = ((int)playerconfigs[player].value)*16/51 - 16;
+
+    dest = playerpalettes[player];
+    for (int i = 2; i <= 27; i++)
+        dest[i] = R_ChangeColorHSV(baseplayerpalette[i], h, s, v);
+    for (int i = 141; i <= 193; i++)
+        dest[i] = R_ChangeColorHSV(baseplayerpalette[i], h, s, v);
+}
+
+static void R_PaletteChangeHSV(u16 *dest, const u16 *src, int h, int s, int v)
+{
+    for (int i = 0; i < 16; i++)
+        dest[i] = R_ChangeColorHSV(src[i], h, s, v);
+}
+
+static void R_InitBloodPalette(int lump, u16 palettes[static 3][16])
+{
+    byte buf[W_LumpLength(lump)];
     spriteN64_t *sprite;
     u16 *pal;
 
-    sprite = W_GetLump(lump, dec_jag, -1);
+    W_ReadLump(lump, buf, dec_jag, -1);
+    sprite = (spriteN64_t *) buf;
     pal = (u16*)(((byte*)sprite) + sizeof(spriteN64_t) + sprite->cmpsize);
 
     R_PaletteChangeHSV(palettes[0], pal, 11, 0, 0);
     R_PaletteChangeHSV(palettes[1], pal, 85, 0, 0);
     R_PaletteChangeHSV(palettes[2], pal, 192, -128, -16);
-
-    Z_Free(sprite);
 }

@@ -13,9 +13,6 @@
 
 #define SYS_FRAMES_PER_SEC 30
 
-extern int SfxVolume;
-extern int MusVolume;
-
 extern void wess_set_tweaks2(WessTweakAttr *attr);
 extern void wess_get_tweaks2(WessTweakAttr *attr);
 
@@ -114,8 +111,8 @@ void S_Init(void) // 80029590
     if (audioHeapEnd > AUDIO_HEAP_SIZE)
         I_Error("S_Init: Audio heap overflow");
 
-    S_SetSoundVolume(SfxVolume);
-    S_SetMusicVolume(MusVolume);
+    S_SetSoundVolume(Settings.SfxVolume);
+    S_SetMusicVolume(Settings.MusVolume);
 
     //PRINTF_D(WHITE, "S_Init: End");
 

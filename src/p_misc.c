@@ -684,7 +684,7 @@ void P_RefreshBrightness(void) // 8000f410
 {
     int factor;
 
-    factor = brightness + 100;
+    factor = Settings.Brightness + 100;
     if (factor < infraredFactor) {
         factor = infraredFactor;
     }
@@ -789,9 +789,9 @@ void P_SetLightFactor(int lightfactor) // 8000F458
 void T_FadeInBrightness(fadebright_t *fb) // 8000f610
 {
     fb->factor += 2;
-    if (fb->factor >= (brightness + 100))
+    if (fb->factor >= (Settings.Brightness + 100))
     {
-        fb->factor = (brightness + 100);
+        fb->factor = (Settings.Brightness + 100);
         P_RemoveThinker(&fb->thinker);
     }
 

@@ -3,11 +3,15 @@
 #include "doomdef.h"
 
 typedef struct ALIGNED(4) {
-    u32 sensitivity: 7;
+    u32 looksensitivity: 7;
+    u32 movesensitivity: 7;
     u32 crosshair: 1;
     u32 autorun: 1;
     u32 autoaim: 1;
     u32 vlookinverted: 1;
+    u32 hue: 6;
+    u32 saturation: 6;
+    u32 value: 6;
 
     u32 customconfig: 1;
     u32 confignum: 4;
@@ -30,6 +34,11 @@ typedef struct ALIGNED(4) {
     u32 bt_lookdown: 13;
     u32 bt_jump: 13;
     u32 bt_crouch: 13;
+
+    u32 stickmode2: 4;
+    u32 ctrl2a: 5;
+    u32 ctrl2b: 5;
+    u32 ctrl2z: 5;
 } savedplayerconfig_t;
 
 void P_ArchivePlayerConfig(int pi, savedplayerconfig_t *buf);

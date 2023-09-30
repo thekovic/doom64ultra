@@ -6,6 +6,9 @@ extern void G_PlayerFinishLevel (int player);
 
 boolean     gamepaused = false; // 800A6270
 
+SDATA u32 playerbuttons[MAXPLAYERS];
+SDATA u32 oldplayerbuttons[MAXPLAYERS];
+
 /*
 ===============================================================================
 
@@ -155,11 +158,11 @@ void P_CheckCheats (void) // 8002187C
     unsigned int buttons;
     int exit;
 
-    buttons = ticbuttons[0] & 0xffff0000;
+    buttons = allticbuttons & 0xffff0000;
 
     if (!gamepaused)
     {
-        if ((buttons & PAD_START) && !(oldticbuttons[0] & PAD_START))
+        if ((buttons & PAD_START) && !(alloldticbuttons & PAD_START))
         {
             gamepaused = true;
 
@@ -192,6 +195,30 @@ void P_CheckCheats (void) // 8002187C
 }
 
 void G_DoReborn (int playernum);//extern
+
+static inline u32 P_GetButtons(player_t *player, int buttons, int buttons2)
+{
+    u32 b = 0;
+    controls_t *controls = player->controls;
+    controls2_t *controls2 = player->controls2;
+
+    for (u32 i = 0; i < NUMBUTTONS; i++)
+    {
+        if (controls->buttons[i] & buttons)
+            b |= 1<<i;
+    }
+    if (controls2)
+    {
+        if ((buttons2 & PAD_A) && controls2->a != BT_NONE)
+            b |= 1<<controls2->a;
+        if ((buttons2 & PAD_B) && controls2->b != BT_NONE)
+            b |= 1<<controls2->b;
+        if ((buttons2 & PAD_Z_TRIG) && controls2->z != BT_NONE)
+            b |= 1<<controls2->z;
+    }
+
+    return b;
+}
 
 /*
 =================
@@ -245,6 +272,8 @@ int P_Ticker (void)//80021A00
             gameaction = ga_died;
     }
 
+    oldplayerbuttons[0] = playerbuttons[0];
+    playerbuttons[0] = P_GetButtons(pl, ticbuttons[0], ticbuttons[1]);
     AM_Control(pl);
     P_PlayerThink(pl);
 

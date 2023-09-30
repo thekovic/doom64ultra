@@ -192,8 +192,8 @@ int IN_Ticker(void) // 80004E24
     boolean state;
     int buttons, oldbuttons;
 
-    buttons = ticbuttons[0] & 0xffff0000;
-    oldbuttons = oldticbuttons[0] & 0xffff0000;
+    buttons = allticbuttons & 0xffff0000;
+    oldbuttons = alloldticbuttons & 0xffff0000;
 
     if ((buttons != oldbuttons) && (buttons & (PAD_A|PAD_B|PAD_START|ALL_TRIG|ALL_CBUTTONS)))
     {

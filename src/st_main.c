@@ -229,7 +229,7 @@ void ST_Ticker (void) // 80029C88
     }
 
     if (player->weaponwheelpos != player->weaponwheeltarget)
-        player->weaponwheelalpha = HUDopacity;
+        player->weaponwheelalpha = Settings.HudOpacity;
 
     // [nova] weapon wheel
     if (player->weaponwheelalpha)
@@ -463,8 +463,8 @@ static void ST_DrawWheelWeapon(weapontype_t weapon, int x, u32 color, u32 alpha)
         if (absx > (WHEEL_BOUNDS-16))
             alpha = FixedMul((WHEEL_BOUNDS - absx) << 12, alpha);
 
-        BufferedDrawSprite(type, state, 0, color | MIN(alpha, 0xff),
-                           SCREEN_WD/2 + x, (SCREEN_HT>>1) - 52 + y, 0xc000);
+        F_DrawSprite(type, state, 0, color | MIN(alpha, 0xff),
+                     SCREEN_WD/2 + x, (SCREEN_HT>>1) - 52 + y, 0xc000, -1);
     }
 }
 
@@ -476,7 +476,7 @@ void ST_DrawMessages(player_t *player)
         if (tics > 0)
         {
             u32 alpha = MIN(((u32) tics) << 3, 196); // set message alpha
-            ST_Message(2+HUDmargin, HUDmargin+i*10, player->messages[i], alpha | player->messagecolors[i]);
+            ST_Message(2+Settings.HudMargin, Settings.HudMargin+i*10, player->messages[i], alpha | player->messagecolors[i]);
         }
     }
 }
@@ -489,10 +489,10 @@ void ST_Drawer (void) // 80029DC0
 
     player = &players[0];
 
-    if (enable_messages)
+    if (Settings.EnableMessages)
         ST_DrawMessages(player);
 
-    if (HUDopacity){
+    if (Settings.HudOpacity){
         int crosshair, color, stat;
         weapontype_t weapon;
         ammotype_t ammotype;
@@ -500,16 +500,7 @@ void ST_Drawer (void) // 80029DC0
         I_CheckGFX();
 
         if (globallump != (int)sfontlump)
-        {
-            gDPPipeSync(GFX1++);
-            gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
-            gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
-            gDPSetTexturePersp(GFX1++, G_TP_NONE);
-            gDPSetAlphaCompare(GFX1++, G_AC_THRESHOLD);
-            gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
-            gDPSetCombineMode(GFX1++, G_CC_D64COMB04, G_CC_D64COMB04);
-            gDPSetRenderMode(GFX1++, G_RM_XLU_SURF_CLAMP, G_RM_XLU_SURF2_CLAMP);
-        }
+            R_RenderModes(rm_hudtext);
 
         src = (byte *) &statuslump[1];
 
@@ -536,13 +527,13 @@ void ST_Drawer (void) // 80029DC0
         /* */
         /* Gray color */
         /* */
-        gDPSetPrimColor(GFX1++, 0, 0, 128, 128, 128, HUDopacity);
+        gDPSetPrimColor(GFX1++, 0, 0, 128, 128, 128, Settings.HudOpacity);
 
         /* */
         /* Health */
         /* */
-        gSPTextureRectangle(GFX1++, ((2+HUDmargin) << hudxshift), ((SCREEN_HT - 22 - HUDmargin) << hudyshift),
-                                    ((42 + HUDmargin) << hudxshift), ((SCREEN_HT - 16 - HUDmargin)  << hudyshift),
+        gSPTextureRectangle(GFX1++, ((2+Settings.HudMargin) << hudxshift), ((SCREEN_HT - 22 - Settings.HudMargin) << hudyshift),
+                                    ((42 + Settings.HudMargin) << hudxshift), ((SCREEN_HT - 16 - Settings.HudMargin)  << hudyshift),
                                     G_TX_RENDERTILE,
                                     (0 << 5), (0 << 5),
                                     (1 << 12 >> hudxshift), (1 << 12 >> hudyshift));
@@ -550,21 +541,21 @@ void ST_Drawer (void) // 80029DC0
         /* */
         /* Armor */
         /* */
-        gSPTextureRectangle(GFX1++, ((SCREEN_WD - 40 - HUDmargin) << hudxshift), ((SCREEN_HT - 22 - HUDmargin) << hudyshift),
-                                    ((SCREEN_WD - 4 - HUDmargin) << hudxshift), ((SCREEN_HT - 16 - HUDmargin) << hudyshift),
+        gSPTextureRectangle(GFX1++, ((SCREEN_WD - 40 - Settings.HudMargin) << hudxshift), ((SCREEN_HT - 22 - Settings.HudMargin) << hudyshift),
+                                    ((SCREEN_WD - 4 - Settings.HudMargin) << hudxshift), ((SCREEN_HT - 16 - Settings.HudMargin) << hudyshift),
                                     G_TX_RENDERTILE,
                                     (40 << 5), (0 << 5),
                                     (1 << 12 >> hudxshift), (1 << 12 >> hudyshift));
 
         stat = player->health;
-        if (!ColoredHUD) {
-            color = PACKRGBA(224,0,0,HUDopacity);
+        if (!Settings.HudTextColors) {
+            color = PACKRGBA(224,0,0,Settings.HudOpacity);
         } else if (stat <= 67) {
-            color = PACKRGBA(224-96*stat/67,128*stat/67,0, HUDopacity);
+            color = PACKRGBA(224-96*stat/67,128*stat/67,0, Settings.HudOpacity);
         } else if (stat <= 133) {
-            color = PACKRGBA(256-256*stat/133,128,64*stat/133-32, HUDopacity);
+            color = PACKRGBA(256-256*stat/133,128,64*stat/133-32, Settings.HudOpacity);
         } else {
-            color = PACKRGBA(0, 256-192*stat/200,288*stat/200-160, HUDopacity);
+            color = PACKRGBA(0, 256-192*stat/200,288*stat/200-160, Settings.HudOpacity);
         }
 
         // Crosshair (use health color to draw it)
@@ -612,7 +603,7 @@ void ST_Drawer (void) // 80029DC0
         /* */
         /* White color */
         /* */
-        gDPSetPrimColor(GFX1++, 0, 0, 255, 255, 255, HUDopacity);
+        gDPSetPrimColor(GFX1++, 0, 0, 255, 255, 255, Settings.HudOpacity);
 
         /* */
         /* Cards & skulls */
@@ -625,8 +616,8 @@ void ST_Drawer (void) // 80029DC0
                 /* */
                 /* Draw Keys Graphics */
                 /* */
-                gSPTextureRectangle(GFX1++, cx, ((SCREEN_HT-10-HUDmargin) << hudyshift),
-                                            cx+(9 << hudxshift), ((SCREEN_HT-HUDmargin) << hudyshift),
+                gSPTextureRectangle(GFX1++, cx, ((SCREEN_HT-10-Settings.HudMargin) << hudyshift),
+                                            cx+(9 << hudxshift), ((SCREEN_HT-Settings.HudMargin) << hudyshift),
                                             G_TX_RENDERTILE,
                                             ((ind * 9) << 5), (6 << 5),
                                             (1 << 12 >> hudxshift), (1 << 12 >> hudyshift));
@@ -636,7 +627,7 @@ void ST_Drawer (void) // 80029DC0
         /* */
         /* Health */
         /* */
-        ST_DrawNumber(22+HUDmargin, SCREEN_HT-13-HUDmargin, player->health, 0, color);
+        ST_DrawNumber(22+Settings.HudMargin, SCREEN_HT-13-Settings.HudMargin, player->health, 0, color);
 
         /* */
         /* Ammo */
@@ -654,32 +645,32 @@ void ST_Drawer (void) // 80029DC0
             if (stat < 0)
                 stat = 0;
 
-            if (!ColoredHUD) {
-                color = PACKRGBA(224,0,0,HUDopacity);
+            if (!Settings.HudTextColors) {
+                color = PACKRGBA(224,0,0,Settings.HudOpacity);
             } else if (ammotype == am_clip) {
-                color = PACKRGBA(96,96,128,HUDopacity);
+                color = PACKRGBA(96,96,128,Settings.HudOpacity);
             } else if (ammotype == am_shell) {
-                color = PACKRGBA(196,32,0,HUDopacity);
+                color = PACKRGBA(196,32,0,Settings.HudOpacity);
             } else if (ammotype == am_cell) {
-                color = PACKRGBA(0,96,128,HUDopacity);
+                color = PACKRGBA(0,96,128,Settings.HudOpacity);
             } else {
-                color = PACKRGBA(164,96,0,HUDopacity);
+                color = PACKRGBA(164,96,0,Settings.HudOpacity);
             }
-            ST_DrawNumber(SCREEN_WD/2, SCREEN_HT-13-HUDmargin, stat, 0, color);
+            ST_DrawNumber(SCREEN_WD/2, SCREEN_HT-13-Settings.HudMargin, stat, 0, color);
         }
 
         /* */
         /* Armor */
         /* */
         stat = player->armorpoints;
-        if (!ColoredHUD || stat == 0) {
-            color = PACKRGBA(224,0,0,HUDopacity);
+        if (!Settings.HudTextColors || stat == 0) {
+            color = PACKRGBA(224,0,0,Settings.HudOpacity);
         } else if (player->armortype == 1) {
-            color = PACKRGBA(0,128,64,HUDopacity);
+            color = PACKRGBA(0,128,64,Settings.HudOpacity);
         } else {
-            color = PACKRGBA(0,64,128,HUDopacity);
+            color = PACKRGBA(0,64,128,Settings.HudOpacity);
         }
-        ST_DrawNumber(SCREEN_WD-22-HUDmargin, SCREEN_HT-13-HUDmargin, stat, 0, color);
+        ST_DrawNumber(SCREEN_WD-22-Settings.HudMargin, SCREEN_HT-13-Settings.HudMargin, stat, 0, color);
 
         // [nova] - hud damage direction indicators
         if (player->damagecount && player->attacker && player->attacker != player->mo)
@@ -704,9 +695,9 @@ void ST_Drawer (void) // 80029DC0
                 i = diffang <= ANG180;
             } // confusing, aint it?
 
-            if (diffang >= (aspectfovs[ScreenAspect]>>1))
+            if (diffang >= (aspectfovs[VideoSettings.ScreenAspect]>>1))
             {
-                int color = PACKRGBA(255, 0, 0, MIN(player->damagecount<<3, MIN(HUDopacity+64, 255)));
+                int color = PACKRGBA(255, 0, 0, MIN(player->damagecount<<3, MIN(Settings.HudOpacity+64, 255)));
                 if (i) // right arrow
                     ST_DrawSymbol(SCREEN_WD - 7 - 48, (SCREEN_HT>>1)-6, 97, color);
                 else // left arrow
@@ -777,17 +768,7 @@ void ST_Message(int x,int y,const char *text,int color) // 8002A36C
 
     if (globallump != (int)sfontlump)
     {
-        gDPPipeSync(GFX1++);
-
-        gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
-        gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
-        gDPSetTexturePersp(GFX1++, G_TP_NONE);
-
-        gDPSetAlphaCompare(GFX1++, G_AC_THRESHOLD);
-        gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
-
-        gDPSetCombineMode(GFX1++, G_CC_D64COMB04, G_CC_D64COMB04);
-        gDPSetRenderMode(GFX1++, G_RM_XLU_SURF_CLAMP, G_RM_XLU_SURF2_CLAMP);
+        R_RenderModes(rm_hudtext);
 
         src = (byte *) &sfontlump[1];
 
@@ -861,22 +842,11 @@ void ST_Message(int x,int y,const char *text,int color) // 8002A36C
 #if REGION == REGION_JP
 void ST_MessageJp(int x,int y,int index,int color) // 8002A84 (JP Only)
 {
-
     spriteN64_t *msg;
     byte *src;
     unsigned int width;
 
-    gDPPipeSync(GFX1++);
-    gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
-
-    gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
-    gDPSetTexturePersp(GFX1++, G_TP_NONE);
-
-    gDPSetAlphaCompare(GFX1++, G_AC_NONE);
-    gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
-
-    gDPSetCombineMode(GFX1++, G_CC_D64COMB04, G_CC_D64COMB04);
-    gDPSetRenderMode(GFX1++, G_RM_XLU_SURF_CLAMP, G_RM_XLU_SURF2_CLAMP);
+    R_RenderModes(rm_hudtext);
 
     msg = jpmpsgs[index];
     src = (byte*) &msg[1];
@@ -1167,7 +1137,7 @@ void ST_UpdateFlash(void) // 8002AC30
         /* bonus flash (yellow) */
         if (plyr->bonuscount)
         {
-            cnt = ((FlashBrightness*(MIN(plyr->bonuscount, ST_MAXBONCOUNT) + 7)*41)>>10);
+            cnt = ((Settings.FlashBrightness*(MIN(plyr->bonuscount, ST_MAXBONCOUNT) + 7)*41)>>10);
             cnt = MIN(cnt, 256);
 
             FlashEnvColor = C_LerpColors(FlashEnvColor, PACKRGBA(250, 250, 25, 0), cnt);
@@ -1185,17 +1155,7 @@ void ST_DrawSymbol(int xpos, int ypos, int index, int color) // 8002ADEC
 
     if (symbolslump != globallump)
     {
-        gDPPipeSync(GFX1++);
-        gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
-
-        gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
-        gDPSetTexturePersp(GFX1++, G_TP_NONE);
-
-        gDPSetAlphaCompare(GFX1++, G_AC_THRESHOLD);
-        gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
-
-        gDPSetCombineMode(GFX1++, G_CC_D64COMB04, G_CC_D64COMB04);
-        gDPSetRenderMode(GFX1++, G_RM_XLU_SURF_CLAMP, G_RM_XLU_SURF2_CLAMP);
+        R_RenderModes(rm_hudtext);
 
         // Load Palette Data
         offset = (((gfxN64_t*)data)->width * ((gfxN64_t*)data)->height);

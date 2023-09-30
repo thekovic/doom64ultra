@@ -913,15 +913,13 @@ void R_RenderThings(subsector_t *sub) // 80028248
                 width = ALIGN(((spriteN64_t*)data)->width, 8);
                 tilew = tileh * width;
 
-                if (((spriteN64_t*)data)->cmpsize & 1)
-                {
+                if (lump >= firstplayerlump && lump <= lastplayerlump && thing->player)
+                    paldata = playerpalettes[thing->player - players];
+                else if (((spriteN64_t*)data)->cmpsize & 1)
                     paldata = W_CacheLumpNum((lump - (((spriteN64_t*)data)->cmpsize >> 1)) +
                                              thing->info->palette, PU_CACHE, dec_jag, 0) + 8;
-                }
                 else
-                {
                     paldata = (u16 *) (src + ((spriteN64_t*)data)->cmpsize);
-                }
 
                 // Load Palette Data (256 colors)
                 gDPSetTextureImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b , 1, paldata);
@@ -943,7 +941,10 @@ void R_RenderThings(subsector_t *sub) // 80028248
 
                 tilew >>= 1;
 
-                if ((lump >= bloodlump && lump < bloodlump + 4) && thing->extradata)
+                register const bool isblood = lump >= bloodlump && lump < bloodlump + 4;
+                if (isblood && Settings.GreenBlood)
+                    paldata = bloodpalettes[lump - bloodlump][1];
+                else if (isblood && thing->extradata)
                     paldata = bloodpalettes[lump - bloodlump][((int) thing->extradata) - 1];
                 else if (lump == giblump && thing->extradata)
                     paldata = bloodpalettes[4][((int) thing->extradata) - 1];
@@ -1169,8 +1170,8 @@ void R_RenderPSprites(void) // 80028f20
 draw:
     palloaded = false;
 
-    if (ScreenAspect)
-        dsdx = invaspectscale[ScreenAspect] >> 4 >> hudxshift;
+    if (VideoSettings.ScreenAspect)
+        dsdx = invaspectscale[VideoSettings.ScreenAspect] >> 4 >> hudxshift;
     else
         dsdx = 1 << 12 >> hudxshift;
 
@@ -1205,10 +1206,10 @@ draw:
                 x += (quakeviewx << hudxshift) >> 22;
                 y += (quakeviewy << hudyshift) >> 16;
             }
-            if (ScreenAspect)
+            if (VideoSettings.ScreenAspect)
             {
-                x += (sprite->xoffs - FixedMul(aspectscale[ScreenAspect], sprite->xoffs)) << hudxshift;
-                width = FixedMul(aspectscale[ScreenAspect], width);
+                x += (sprite->xoffs - FixedMul(aspectscale[VideoSettings.ScreenAspect], sprite->xoffs)) << hudxshift;
+                width = FixedMul(aspectscale[VideoSettings.ScreenAspect], width);
             }
             if (osTvType == OS_TV_PAL)
             {

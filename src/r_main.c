@@ -209,10 +209,10 @@ void R_RenderPlayerView(void) // 80023448
 
     viewplayer = &players[0];
 
-    fov = aspectfovs[ScreenAspect];
-    viewhcot = aspectscale[ScreenAspect];
+    fov = aspectfovs[VideoSettings.ScreenAspect];
+    viewhcot = aspectscale[VideoSettings.ScreenAspect];
     viewvcot = aspectratios[0];
-    viewinvhcot = invaspectscale[ScreenAspect];
+    viewinvhcot = invaspectscale[VideoSettings.ScreenAspect];
     viewinvvcot = 0xc000; // 3/4
 
     if (cameratarget == players[0].mo)
@@ -225,10 +225,10 @@ void R_RenderPlayerView(void) // 80023448
         {
             angle_t finehalffov;
 
-            fov = aspectfovs[ScreenAspect] + players[0].addfov;
+            fov = aspectfovs[VideoSettings.ScreenAspect] + players[0].addfov;
             finehalffov = fov >> (1+ANGLETOFINESHIFT);
             viewhcot = FixedDiv(finecosine(finehalffov), finesine(finehalffov));
-            viewvcot = FixedMul(viewhcot, aspectratios[ScreenAspect]);
+            viewvcot = FixedMul(viewhcot, aspectratios[VideoSettings.ScreenAspect]);
             viewinvhcot = FixedDiv(FRACUNIT, viewhcot);
             viewinvvcot = FixedDiv(FRACUNIT, viewvcot);
         }
@@ -474,7 +474,7 @@ void R_RenderFilter(filtertype_t type)
 {
     int filter;
 
-    if (VideoFilters[type] == 0) {
+    if (Settings.VideoFilters[type] == 0) {
         filter = G_TF_BILERP;
     } else {
         filter = G_TF_POINT;
@@ -499,11 +499,11 @@ void R_RenderModes(rendermode_t mode)
     if (mode == rm_reset)
     {
         cur_filter = -1;
-        if (ColorDither == 1) {
+        if (Settings.ColorDither == 1) {
             gDPSetColorDither(GFX1++, G_CD_MAGICSQ);
-        } else if (ColorDither == 2) {
+        } else if (Settings.ColorDither == 2) {
             gDPSetColorDither(GFX1++, G_CD_BAYER);
-        } else if (ColorDither == 3) {
+        } else if (Settings.ColorDither == 3) {
             gDPSetColorDither(GFX1++, G_CD_NOISE);
         } else {
             gDPSetColorDither(GFX1++, G_CD_DISABLE);
@@ -589,10 +589,31 @@ void R_RenderModes(rendermode_t mode)
         gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
         gDPSetTexturePersp(GFX1++, G_TP_NONE);
         gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
-        gDPSetAlphaCompare(GFX1++, G_AC_THRESHOLD);
+        gDPSetAlphaCompare(GFX1++, G_AC_NONE);
         gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
         gDPSetCombineMode(GFX1++, G_CC_D64COMB04, G_CC_D64COMB04);
         R_RenderFilter(filt_sprites);
+    }
+    else if (mode == rm_hudtext)
+    {
+        gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
+        gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
+        gDPSetTexturePersp(GFX1++, G_TP_NONE);
+        gDPSetAlphaCompare(GFX1++, G_AC_NONE);
+        gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
+        gDPSetCombineMode(GFX1++, G_CC_D64COMB04, G_CC_D64COMB04);
+        gDPSetRenderMode(GFX1++, G_RM_XLU_SURF_CLAMP, G_RM_XLU_SURF2_CLAMP);
+        gDPSetTextureFilter(GFX1++, G_TF_POINT);
+    }
+    else if (mode == rm_hudoverlay)
+    {
+        gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
+        gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
+        gDPSetTexturePersp(GFX1++, G_TP_NONE);
+        gDPSetAlphaCompare(GFX1++, G_AC_NONE);
+        gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
+        gDPSetCombineMode(GFX1++, G_CC_D64COMB05, G_CC_D64COMB05);
+        gDPSetRenderMode(GFX1++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
     }
 
     lastrender = mode;

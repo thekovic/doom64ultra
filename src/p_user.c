@@ -2,7 +2,6 @@
 
 #include "doomdef.h"
 #include "p_local.h"
-#include "st_main.h"
 
 #define MAXMOCKTIME     900 // [Immorpher] Reduced this by half for the fun!
 int deathmocktics; // 800A56A0
@@ -77,8 +76,7 @@ const char *mockstrings1[] =   // 8005A290
     MK_TXT49t1, MK_TXT50t1, MK_TXT51t1,
 };
 
-const fixed_t       forwardmove[3] = {0xE000, 0x16000, 0x8000}; // 8005B060
-const fixed_t       sidemove[3] = {0xE000, 0x16000, 0x8000};    // 8005B068
+static const fixed_t       movesteps[3] = {0xE000, 0x16000, 0x8000}; // 8005B060
 
 #define SLOWTURNTICS    10
 const fixed_t           angleturn[] =       // 8005B070
@@ -317,6 +315,104 @@ SEC_GAME void P_PlayerMobjThink (mobj_t *mobj) // 80022060
     mobj->frame = st->frame;
 }
 
+/*============================================================================= */
+
+#define DEADZONE 7
+#define XBM 68
+#define XCM 52
+#define YBM 70
+#define YCM 54
+
+static SEC_GAME u8 P_AdjustStickMode(u8 mode, int pbuttons)
+{
+    if (pbuttons & BB_LOOK)
+        return STICK_TURN | STICK_VLOOK;
+    else if (pbuttons & BB_STRAFE)
+        return (mode & ~STICK_TURN) | STICK_STRAFE;
+    return mode;
+}
+
+/* Returns the (x, y) coordinates of the control stick or mouse in signed 1.14
+ * fixed point, with x/y in the upper/lower halfword. Possibly clamps the value
+ * according to move sensitivity. This is done in a separate function because
+ * the x/y must both be known in order to clamp. */
+static SEC_GAME int P_GetStick(u8 mode, int buttons, int movesens, bool mouse)
+{
+    int x, y;
+
+    x = STICK_X(buttons);
+    y = STICK_Y(buttons);
+
+    if (mouse)
+    {
+        x <<= 7;
+        y <<= 7;
+
+        /* handle mouse move sensitivity here */
+        if (mode & STICK_STRAFE)
+            x += (x * movesens) / 100;
+        if (mode & STICK_MOVE)
+            y += (y * movesens) / 100;
+
+        goto done;
+    }
+
+    if (D_abs(x) < DEADZONE)
+        x = 0;
+    if (D_abs(y) < DEADZONE)
+        y = 0;
+
+    if (mode & (STICK_MOVE|STICK_STRAFE))
+    {
+        x = MAX(-127, x);
+        y = MAX(-127, y);
+
+        if (x || y)
+        {
+            f32 dist;
+            f32 fx, fy;
+
+            if (x > 0)
+                x -= DEADZONE;
+            else if (x < 0)
+                x += DEADZONE;
+
+            if (y > 0)
+                y -= DEADZONE;
+            else if (y < 0)
+                y += DEADZONE;
+
+            dist = 1.0f / (f32) (120 - movesens);
+
+            /* n64 controllers typically report lower X values, so scale X up
+             * by a small amount of XBM/YBM or (70/68) for the value here */
+            fx = ((f32) x) * 1.029411765f * dist;
+            fy = ((f32) y) * dist;
+
+            dist = fx * fx + fy * fy;
+            if (dist > 1.f)
+            {
+                dist = D_rsqrtf(dist);
+                fx *= dist;
+                fy *= dist;
+            }
+
+            if (mode & STICK_STRAFE)
+                x = D_truncf(fx * (f32) (1<<14));
+            if (mode & STICK_MOVE)
+                y = D_truncf(fy * (f32) (1<<14));
+        }
+    }
+
+    if (mode & STICK_TURN)
+        x <<= 7;
+    if (mode & STICK_VLOOK)
+        y <<= 7;
+
+done:
+    return ((((u32) x) & 0xffff) << 16) | (((u32) y) & 0xffff);
+}
+
 /*
  * Returns true if a button was pressed, or if (shift | shiftbutton) is
  * pressed when button is unbound */
@@ -327,10 +423,6 @@ static SEC_GAME boolean P_ButtonOrShift(int button, int shift, int shiftbutton, 
         : (buttons & shift) && (buttons & shiftbutton) && !(oldbuttons & shiftbutton);
 }
 
-
-/*============================================================================= */
-
-
 /*
 ====================
 =
@@ -339,7 +431,6 @@ static SEC_GAME boolean P_ButtonOrShift(int button, int shift, int shiftbutton, 
 ====================
 */
 
-#define MAXSENSIVITY    10
 #define JUMPTHRUST      0x90000
 #define JUMPGRACE       5
 
@@ -356,82 +447,100 @@ typedef struct {
 
 SEC_GAME void P_BuildMove (player_t *player, buildmove_t *move) // 80022154
 {
-    int             speed, movespeed, sensitivity;
+    int             speed, movespeed;
     int             buttons, oldbuttons;
     mobj_t         *mo;
-    controls_t     *cbutton;
     playerconfig_t *config;
+    int             playerindex;
     int             aircontrol;
+    fixed_t         stickmove, stickstrafe, stickturn, stickvlook;
 
-    cbutton = player->controls;
+    playerindex = player - players;
     aircontrol = player->cheats & CF_FLYMODE;
     config = player->config;
-    buttons = ticbuttons[0];
-    oldbuttons = oldticbuttons[0];
 
-    int xstick = 0, ystick = 0;
+    buttons = playerbuttons[playerindex];
+    oldbuttons = oldplayerbuttons[playerindex];
 
     move->forwardmove = move->sidemove = move->pitchmove = move->angleturn = 0;
 
-    // check for button held by passing oldbuttons = 0
-    move->crouchheld = P_ButtonOrShift(cbutton->BT_CROUCH, cbutton->BT_LOOK, cbutton->BT_LOOKDOWN, buttons, 0);
-    move->jumpheld = P_ButtonOrShift(cbutton->BT_JUMP, cbutton->BT_LOOK, cbutton->BT_LOOKUP, buttons, 0);
+    /* check for button held by passing oldbuttons = 0 */
+    move->crouchheld = P_ButtonOrShift(BB_CROUCH, BB_LOOK, BB_LOOKDOWN, buttons, 0);
+    move->jumpheld = P_ButtonOrShift(BB_JUMP, BB_LOOK, BB_LOOKUP, buttons, 0);
     move->crouch =  move->crouchheld && !move->jumpheld;
-    move->jump =   !move->crouchheld &&  P_ButtonOrShift(cbutton->BT_JUMP, cbutton->BT_LOOK, cbutton->BT_LOOKUP, buttons, oldbuttons);
+    move->jump =   !move->crouchheld &&  P_ButtonOrShift(BB_JUMP, BB_LOOK, BB_LOOKUP, buttons, oldbuttons);
 
     if(config->autorun) // [Immorpher] New autorun option
-        speed = (buttons & cbutton->BT_SPEED) < 1;
+        speed = (buttons & BB_SPEED) < 1;
     else
-        speed = (buttons & cbutton->BT_SPEED) > 0;
+        speed = (buttons & BB_SPEED) > 0;
 
     movespeed = (move->crouchheld && !aircontrol) ? 2 : speed;
-    sensitivity = 0;
+    stickmove = stickstrafe = stickturn = stickvlook = 0;
 
-    // [nova] control stick configurations
-    if (buttons & cbutton->BT_LOOK)
     {
-        xstick = STICK_TURN;
-        ystick = STICK_VLOOK;
+        int stick, x, y, mousebits;
+        u32 stickval;
+
+        mousebits = *&mouse_bit_pattern;
+        stick = P_AdjustStickMode(player->controls->stick, buttons);
+        stickval = P_GetStick(stick, ticbuttons[playerindex],
+                              config->movesensitivity,
+                              mousebits & (1<<playerindex));
+        x = ((int) (stickval & 0xffff0000)) >> 14;
+        y = ((int)(stickval << 16)) >> 14;
+        if (stick & STICK_TURN)
+            stickturn = x;
+        if (stick & STICK_STRAFE)
+            stickstrafe = x;
+        if (stick & STICK_MOVE)
+            stickmove = y;
+        if (stick & STICK_VLOOK)
+            stickvlook = y;
+
+        if (player->controls2)
+        {
+            stick = P_AdjustStickMode(player->controls2->stick, buttons);
+            stickval = P_GetStick(stick, ticbuttons[playerindex+1],
+                                  config->movesensitivity,
+                                  mousebits & (1<<(playerindex+1)));
+            x = ((int) (stickval & 0xffff0000)) >> 14;
+            y = ((int)(stickval << 16)) >> 14;
+            if (stick & STICK_TURN)
+                stickturn = ABSMAX(stickturn, x);
+            if (stick & STICK_STRAFE)
+                stickstrafe = ABSMAX(stickstrafe, x);
+            if (stick & STICK_MOVE)
+                stickmove = ABSMAX(stickmove, y);
+            if (stick & STICK_VLOOK)
+                stickvlook = ABSMAX(stickvlook, y);
+        }
     }
-    else
+
+    /* button modifiers */
+    if (buttons & BB_STRAFE)
     {
-        if ((cbutton->STICK_MODE & STICK_STRAFE) || (buttons & cbutton->BT_STRAFE))
-            xstick = STICK_STRAFE;
-        else if (cbutton->STICK_MODE & STICK_TURN)
-            xstick = STICK_TURN;
-
-        if (cbutton->STICK_MODE & STICK_VLOOK)
-            ystick = STICK_VLOOK;
-        else if (cbutton->STICK_MODE & STICK_MOVE)
-            ystick = STICK_MOVE;
+        if (buttons & BB_LEFT)
+            buttons = (buttons & BB_LEFT) | BB_STRAFELEFT;
+        if (buttons & BB_RIGHT)
+            buttons = (buttons & BB_RIGHT) | BB_STRAFERIGHT;
     }
-
-
-    if (buttons & cbutton->BT_STRAFE)
+    if (buttons & BB_LOOK)
     {
-        if (buttons & cbutton->BT_LEFT)
-            buttons = (buttons & cbutton->BT_LEFT) | cbutton->BT_STRAFELEFT;
-        if (buttons & cbutton->BT_RIGHT)
-            buttons = (buttons & cbutton->BT_RIGHT) | cbutton->BT_STRAFERIGHT;
-    }
-    if (buttons & cbutton->BT_LOOK)
-    {
-        if (buttons & cbutton->BT_STRAFELEFT)
-            buttons = (buttons & cbutton->BT_STRAFELEFT) | cbutton->BT_LEFT;
-        if (buttons & cbutton->BT_STRAFERIGHT)
-            buttons = (buttons & cbutton->BT_STRAFERIGHT) | cbutton->BT_RIGHT;
-        if (buttons & cbutton->BT_FORWARD)
-            buttons = (buttons & cbutton->BT_FORWARD) | cbutton->BT_LOOKUP;
-        if (buttons & cbutton->BT_BACK)
-            buttons = (buttons & cbutton->BT_BACK) | cbutton->BT_LOOKDOWN;
+        if (buttons & BB_STRAFELEFT)
+            buttons = (buttons & BB_STRAFELEFT) | BB_LEFT;
+        if (buttons & BB_STRAFERIGHT)
+            buttons = (buttons & BB_STRAFERIGHT) | BB_RIGHT;
+        if (buttons & BB_FORWARD)
+            buttons = (buttons & BB_FORWARD) | BB_LOOKUP;
+        if (buttons & BB_BACK)
+            buttons = (buttons & BB_BACK) | BB_LOOKDOWN;
     }
 
-    /*  */
     /* use two stage accelerative vlook */
-    /*  */
-    if (((buttons & cbutton->BT_LOOKUP) && (oldbuttons & cbutton->BT_LOOKUP)))
+    if (((buttons & BB_LOOKUP) && (oldbuttons & BB_LOOKUP)))
         player->pitchheld++;
-    else if (((buttons & cbutton->BT_LOOKDOWN) && (oldbuttons & cbutton->BT_LOOKDOWN)))
+    else if (((buttons & BB_LOOKDOWN) && (oldbuttons & BB_LOOKDOWN)))
         player->pitchheld++;
     else
         player->pitchheld = 0;
@@ -439,64 +548,25 @@ SEC_GAME void P_BuildMove (player_t *player, buildmove_t *move) // 80022154
     if (player->pitchheld >= SLOWTURNTICS)
         player->pitchheld = SLOWTURNTICS-1;
 
-    if (cbutton->BT_LOOKUP & buttons)
-    {
+    /* vertical look */
+    if (BB_LOOKUP & buttons)
         move->pitchmove = config->verticallook * (angleturn[player->pitchheld + (speed * SLOWTURNTICS)] << 18);
-    }
-    if (cbutton->BT_LOOKDOWN & buttons)
-    {
+    if (BB_LOOKDOWN & buttons)
         move->pitchmove = config->verticallook * -(angleturn[player->pitchheld + (speed * SLOWTURNTICS)] << 18);
-    }
-    if (!(buttons & (cbutton->BT_LOOKUP | cbutton->BT_LOOKDOWN)))
-    {
-        bool mouseused = false;
-        sensitivity = 0;
+    if (stickvlook && !(buttons & (BB_LOOKUP | BB_LOOKDOWN)))
+        move->pitchmove = ((config->looksensitivity * 8) + 233) * stickvlook * config->verticallook * 4;
 
-        /* Analyze analog stick movement (up / down) */
-        if (ystick == STICK_VLOOK)
-            sensitivity = (int)((buttons) << 24) >> 24;
+    if (BB_FORWARD & buttons)
+        move->forwardmove = movesteps[movespeed];
+    if (BB_BACK & buttons)
+        move->forwardmove = -movesteps[movespeed];
+    if (stickmove && !(buttons & (BB_FORWARD | BB_BACK)))
+        move->forwardmove = FixedMul(movesteps[movespeed], stickmove);
 
-        if ((gamepad_status[1].type & CONT_TYPE_MASK) == CONT_TYPE_MOUSE)
-        {
-            int mouse = (int)((ticbuttons[1]) << 24) >> 22;
-            if (D_abs(mouse) > D_abs(sensitivity))
-            {
-                sensitivity = mouse;
-                mouseused = true;
-            }
-        }
-        sensitivity *= config->verticallook;
-
-        if(mouseused || sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
-        {
-            sensitivity = (((config->sensitivity * 800) / 100) + 233) * sensitivity;
-            move->pitchmove = (sensitivity / 40) << 17;
-        }
-    }
-
-    if (cbutton->BT_FORWARD & buttons)
-    {
-        move->forwardmove = forwardmove[movespeed];
-    }
-    if (cbutton->BT_BACK & buttons)
-    {
-        move->forwardmove = -forwardmove[movespeed];
-    }
-    if (ystick == STICK_MOVE && !(buttons & (cbutton->BT_FORWARD | cbutton->BT_BACK)))
-    {
-        sensitivity = (int)((buttons) << 24) >> 24;
-        if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
-        {
-            move->forwardmove = (forwardmove[movespeed] * sensitivity) / 80;
-        }
-    }
-
-    /*  */
     /* use two stage accelerative turning on the joypad  */
-    /*  */
-    if (((buttons & cbutton->BT_LEFT) && (oldbuttons & cbutton->BT_LEFT)))
+    if (((buttons & BB_LEFT) && (oldbuttons & BB_LEFT)))
         player->turnheld++;
-    else if (((buttons & cbutton->BT_RIGHT) && (oldbuttons & cbutton->BT_RIGHT)))
+    else if (((buttons & BB_RIGHT) && (oldbuttons & BB_RIGHT)))
         player->turnheld++;
     else
         player->turnheld = 0;
@@ -504,68 +574,25 @@ SEC_GAME void P_BuildMove (player_t *player, buildmove_t *move) // 80022154
     if (player->turnheld >= SLOWTURNTICS)
         player->turnheld = SLOWTURNTICS-1;
 
-    /*  */
     /* strafe movement  */
-    /*  */
-    if (buttons & cbutton->BT_STRAFELEFT)
-    {
-        move->sidemove -= sidemove[movespeed];
-    }
-    if (buttons & cbutton->BT_STRAFERIGHT)
-    {
-        move->sidemove += sidemove[movespeed];
-    }
-    if (xstick == STICK_STRAFE && !(buttons & (cbutton->BT_STRAFELEFT | cbutton->BT_STRAFERIGHT)))
-    {
-        /* Analyze analog stick movement (left / right) */
-        sensitivity = (int)(((buttons & 0xff00) >> 8) << 24) >> 24;
+    if (buttons & BB_STRAFELEFT)
+        move->sidemove -= movesteps[movespeed];
+    if (buttons & BB_STRAFERIGHT)
+        move->sidemove += movesteps[movespeed];
+    if (stickstrafe && !(buttons & (BB_STRAFELEFT | BB_STRAFERIGHT)))
+        move->sidemove += FixedMul(movesteps[movespeed], stickstrafe);
 
-        if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
-        {
-            move->sidemove += (sidemove[movespeed] * sensitivity) / 80;
-        }
-    }
-
-    if (buttons & cbutton->BT_LEFT)
-    {
+    /* horizontal turning */
+    if (buttons & BB_LEFT)
         move->angleturn =  angleturn[player->turnheld + (speed * SLOWTURNTICS)] << 17;
-    }
-    if (buttons & cbutton->BT_RIGHT)
-    {
+    if (buttons & BB_RIGHT)
         move->angleturn = -angleturn[player->turnheld + (speed * SLOWTURNTICS)] << 17;
-    }
-    if (!(buttons & (cbutton->BT_LEFT | cbutton->BT_RIGHT)))
-    {
-        bool mouseused = false;
-        sensitivity = 0;
-
-        /* Analyze analog stick movement (left / right) */
-        if (xstick == STICK_TURN)
-            sensitivity = (int)(((buttons & 0xff00) >> 8) << 24) >> 24;
-
-        if ((gamepad_status[1].type & CONT_TYPE_MASK) == CONT_TYPE_MOUSE)
-        {
-            int mouse = (int)(((ticbuttons[1] & 0xff00) >> 8) << 24) >> 22;
-            if (D_abs(mouse) > D_abs(sensitivity))
-            {
-                sensitivity = mouse;
-                mouseused = true;
-            }
-        }
-        sensitivity = -sensitivity;
-
-        if(mouseused || sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
-        {
-            sensitivity = (((config->sensitivity * 800) / 100) + 233) * sensitivity;
-            move->angleturn = (sensitivity / 80) << 17;
-        }
-    }
+    if (stickturn && !(buttons & (BB_LEFT | BB_RIGHT)))
+        move->angleturn = ((config->looksensitivity * 8) + 233) * -stickturn * 2;
 
     mo = player->mo;
 
-    /* */
     /* if slowed down to a stop, change to a standing frame */
-    /* */
     if (!mo->momx && !mo->momy && move->forwardmove == 0 && move->sidemove == 0 )
     {   /* if in a walking frame, stop moving */
         if (mo->state == &states[S_PLAY_RUN1]
@@ -631,10 +658,8 @@ SEC_GAME void P_CalcHeight (player_t *player) // 80022670
     player->bob += FixedMul(val, val);
 
     player->bob >>= 2;
-    if (player->bob > MotionBob)
-    {
-        player->bob = MotionBob;
-    }
+    if (player->bob > Settings.MotionBob)
+        player->bob = Settings.MotionBob;
 
     viewheight = FixedMul (VIEWHEIGHT, crouchease[player->crouchtimer]);
 
@@ -718,7 +743,8 @@ SEC_GAME void P_MovePlayer (player_t *player, const buildmove_t* move) // 800228
     }
 
     // [nova] handle lookspring
-    if (player->config->autoaim && !(player->controls->STICK_MODE & STICK_VLOOK) && !(ticbuttons[0] & player->controls->BT_LOOK))
+    if (player->config->autoaim && !(player->controls->stick & STICK_VLOOK)
+            && !(playerbuttons[player - players] & BB_LOOK))
     {
         if (player->pitch == 0)
             player->lookspring = 0;
@@ -904,11 +930,33 @@ SEC_GAME void P_DeathThink (player_t *player) // 80022914
         deathmocktics = ticon;
     }
 
-    int extra = player->automapflags ? 0 : PAD_B|PAD_L_TRIG|PAD_R_TRIG;
-    if (((ticbuttons[0] & (PAD_A|PAD_Z_TRIG|ALL_CBUTTONS|extra) & ~player->controls->BT_MAP) != 0) &&
-        (player->viewheight <= 8*FRACUNIT))
+    if (player->viewheight <= 8*FRACUNIT)
     {
-        player->playerstate = PST_REBORN;
+        int extra;
+        int playerindex;
+        bool respawnpressed;
+        controls2_t *ctrl2;
+
+        playerindex = player - players;
+        extra = player->automapflags ? 0 : PAD_B|PAD_L_TRIG|PAD_R_TRIG;
+        respawnpressed = (ticbuttons[playerindex] & (PAD_A|PAD_Z_TRIG|ALL_CBUTTONS|extra) & ~player->controls->buttons[BT_MAP]) != 0;
+        ctrl2 = player->controls2;
+
+        if (ctrl2)
+        {
+            int mask = PAD_L_TRIG|PAD_R_TRIG|ALL_CBUTTONS;
+            if (ctrl2->a != BT_MAP)
+                mask |= PAD_A;
+            if (ctrl2->b != BT_MAP)
+                mask |= PAD_B;
+            if (ctrl2->z != BT_MAP)
+                mask |= PAD_Z_TRIG;
+            if (ticbuttons[playerindex + 1] & mask)
+                respawnpressed = true;
+        }
+
+        if (respawnpressed)
+            player->playerstate = PST_REBORN;
     }
 
     if (player->bonuscount)
@@ -1015,14 +1063,20 @@ SEC_GAME void P_PlayerInSpecialSector (player_t *player, sector_t *sec) // 80022
 
 SEC_GAME void P_PlayerThink (player_t *player) // 80022D60
 {
-    int          buttons, oldbuttons;
-    controls_t    *cbutton;
-    int       weapon, weaponsearch;
-    sector_t *sec;
+    if (gamepaused)
+        return;
 
-    buttons = ticbuttons[0];
-    oldbuttons = oldticbuttons[0];
-    cbutton = player->controls;
+    u32         buttons, oldbuttons;
+    int         weapon, weaponsearch;
+    int         playerindex;
+    sector_t   *sec;
+    buildmove_t move;
+
+    playerindex = player - players;
+    buttons = playerbuttons[playerindex];
+    oldbuttons = oldplayerbuttons[playerindex];
+
+    player->attackdown = !!(buttons & BB_ATTACK);
 
     /* */
     /* check for weapon change */
@@ -1034,9 +1088,8 @@ SEC_GAME void P_PlayerThink (player_t *player) // 80022D60
             weapon = player->readyweapon;
 
         // [nova] use goldeneye/pd style weapon back if the button is not bound
-        if (P_ButtonOrShift(cbutton->BT_WEAPONBACKWARD,
-                    cbutton->BT_WEAPONFORWARD, cbutton->BT_ATTACK,
-                    buttons, oldbuttons))
+        if (P_ButtonOrShift(BB_WEAPONBACKWARD, BB_WEAPONFORWARD, BB_ATTACK,
+                            buttons, oldbuttons))
         {
             // [nova] always cycle weapons
             weaponsearch = weapon;
@@ -1051,8 +1104,7 @@ SEC_GAME void P_PlayerThink (player_t *player) // 80022D60
             player->pendingweapon = weaponsearch;
             player->weaponwheeltarget -= WHEEL_WEAPON_SIZE;
         }
-        else if ((buttons & cbutton->BT_WEAPONFORWARD)
-                && !(oldbuttons & cbutton->BT_WEAPONFORWARD))
+        else if ((buttons & BB_WEAPONFORWARD) && !(oldbuttons & BB_WEAPONFORWARD))
         {
             // [nova] always cycle weapons
             weaponsearch = weapon;
@@ -1069,131 +1121,126 @@ SEC_GAME void P_PlayerThink (player_t *player) // 80022D60
         }
     }
 
-    if (!gamepaused)
+    P_PlayerMobjThink(player->mo);
+    P_BuildMove(player, &move);
+
+    sec = player->mo->subsector->sector;
+    if (sec->flags & (MS_SECRET | MS_DAMAGEX5 | MS_DAMAGEX10 | MS_DAMAGEX20 | MS_SCROLLFLOOR))
+        P_PlayerInSpecialSector(player, sec);
+
+    if (player->addfov > 0)
     {
-        buildmove_t move;
-
-        P_PlayerMobjThink(player->mo);
-        P_BuildMove(player, &move);
-
-        sec = player->mo->subsector->sector;
-        if (sec->flags & (MS_SECRET | MS_DAMAGEX5 | MS_DAMAGEX10 | MS_DAMAGEX20 | MS_SCROLLFLOOR))
-            P_PlayerInSpecialSector(player, sec);
-
-        if (player->addfov > 0)
-        {
-            player->addfov -= ANG1*8;
-            if (player->addfov < 0)
-                player->addfov = 0;
-        }
+        player->addfov -= ANG1*8;
         if (player->addfov < 0)
+            player->addfov = 0;
+    }
+    if (player->addfov < 0)
+    {
+        player->addfov += ANG1*8;
+        if (player->addfov > 0)
+            player->addfov = 0;
+    }
+
+    if (player->playerstate == PST_DEAD)
+    {
+        P_DeathThink(player);
+        return;
+    }
+
+    /* */
+    /* chain saw run forward */
+    /* */
+    if (player->mo->flags & MF_JUSTATTACKED)
+    {
+        move.angleturn = 0;
+        move.forwardmove = 0xc800;
+        move.sidemove = 0;
+        move.pitchmove = 0;
+        player->mo->flags &= ~MF_JUSTATTACKED;
+    }
+
+    /* */
+    /* move around */
+    /* reactiontime is used to prevent movement for a bit after a teleport */
+    /* */
+
+    if (player->mo->reactiontime)
+        player->mo->reactiontime--;
+    else
+        P_MovePlayer(player, &move);
+
+    P_CalcHeight(player);
+
+    /* */
+    /* check for use */
+    /* */
+
+    if ((buttons & BB_USE))
+    {
+        if (player->usedown == false)
         {
-            player->addfov += ANG1*8;
-            if (player->addfov > 0)
-                player->addfov = 0;
+            P_UseLines(player);
+            player->usedown = true;
         }
+    }
+    else
+    {
+        player->usedown = false;
+    }
 
-        if (player->playerstate == PST_DEAD)
+    /* */
+    /* cycle psprites */
+    /* */
+
+    P_MovePsprites(player);
+
+    /* */
+    /* counters */
+    /* */
+
+    if (gamevbls < gametic)
+    {
+        if (player->powers[pw_strength] > 1)
+            player->powers[pw_strength]--;  /* strength counts down to diminish fade */
+
+        if (player->powers[pw_invulnerability])
+            player->powers[pw_invulnerability]--;
+
+        if (player->powers[pw_invisibility])
         {
-            P_DeathThink(player);
-            return;
-        }
-
-        /* */
-        /* chain saw run forward */
-        /* */
-        if (player->mo->flags & MF_JUSTATTACKED)
-        {
-            move.angleturn = 0;
-            move.forwardmove = 0xc800;
-            move.sidemove = 0;
-            move.pitchmove = 0;
-            player->mo->flags &= ~MF_JUSTATTACKED;
-        }
-
-        /* */
-        /* move around */
-        /* reactiontime is used to prevent movement for a bit after a teleport */
-        /* */
-
-        if (player->mo->reactiontime)
-            player->mo->reactiontime--;
-        else
-            P_MovePlayer(player, &move);
-
-        P_CalcHeight(player);
-
-        /* */
-        /* check for use */
-        /* */
-
-        if ((buttons & cbutton->BT_USE))
-        {
-            if (player->usedown == false)
+            player->powers[pw_invisibility]--;
+            if (!player->powers[pw_invisibility])
             {
-                P_UseLines(player);
-                player->usedown = true;
+                player->mo->flags &= ~MF_SHADOW;
+            }
+            else if ((player->powers[pw_invisibility] < 61) && !(player->powers[pw_invisibility] & 7))
+            {
+                player->mo->flags ^= MF_SHADOW;
             }
         }
-        else
+
+        if (player->powers[pw_infrared])
+            player->powers[pw_infrared]--;
+
+        if (player->powers[pw_ironfeet])
+            player->powers[pw_ironfeet]--;
+
+        if (player->damagecount)
+            player->damagecount--;
+
+        if (player->bonuscount)
+            player->bonuscount--;
+
+        // [d64] - recoil pitch from weapons
+        if (player->recoilpitch)
+            player->recoilpitch = (((player->recoilpitch << 2) - player->recoilpitch) >> 2);
+
+        if(player->bfgcount)
         {
-            player->usedown = false;
-        }
+            player->bfgcount -= 6;
 
-        /* */
-        /* cycle psprites */
-        /* */
-
-        P_MovePsprites(player);
-
-        /* */
-        /* counters */
-        /* */
-
-        if (gamevbls < gametic)
-        {
-            if (player->powers[pw_strength] > 1)
-                player->powers[pw_strength]--;  /* strength counts down to diminish fade */
-
-            if (player->powers[pw_invulnerability])
-                player->powers[pw_invulnerability]--;
-
-            if (player->powers[pw_invisibility])
-            {
-                player->powers[pw_invisibility]--;
-                if (!player->powers[pw_invisibility])
-                {
-                    player->mo->flags &= ~MF_SHADOW;
-                }
-                else if ((player->powers[pw_invisibility] < 61) && !(player->powers[pw_invisibility] & 7))
-                {
-                    player->mo->flags ^= MF_SHADOW;
-                }
-            }
-
-            if (player->powers[pw_infrared])
-                player->powers[pw_infrared]--;
-
-            if (player->powers[pw_ironfeet])
-                player->powers[pw_ironfeet]--;
-
-            if (player->damagecount)
-                player->damagecount--;
-
-            if (player->bonuscount)
-                player->bonuscount--;
-
-            // [d64] - recoil pitch from weapons
-            if (player->recoilpitch)
-                player->recoilpitch = (((player->recoilpitch << 2) - player->recoilpitch) >> 2);
-
-            if(player->bfgcount)
-            {
-                player->bfgcount -= 6;
-
-                if(player->bfgcount < 0)
-                    player->bfgcount = 0;
-            }
+            if(player->bfgcount < 0)
+                player->bfgcount = 0;
         }
     }
 }

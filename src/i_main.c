@@ -35,9 +35,6 @@ vu64    bootStack[BOOT_STACKSIZE/sizeof(u64)];
 SDATA u16 SCREEN_HT = 240;
 SDATA u32 CFB_SIZE;
 
-extern int globallump; // 800A68f8 r_local.h
-extern int globalcm;   // 800A68fC r_local.h
-
 //"\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91"
 //static char   sysmbols[] = {0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91};
 
@@ -48,38 +45,38 @@ extern int globalcm;   // 800A68fC r_local.h
 #define SYS_THREAD_ID_TICKER 3
 #define SYS_THREAD_ID_JOY 4
 
-OSThread    idle_thread;                        // 800A4A18
+static OSThread    idle_thread;                        // 800A4A18
 
 #define SYS_MAIN_STACKSIZE 0xA000
-OSThread    main_thread;                        // 800A4BC8
-vu64    main_stack[SYS_MAIN_STACKSIZE/sizeof(u64)]; // 80099A00
+static OSThread    main_thread;                        // 800A4BC8
+static vu64        main_stack[SYS_MAIN_STACKSIZE/sizeof(u64)]; // 80099A00
 
 #define JOY_STACKSIZE   0x200
-OSThread    joy_thread;
-vu64    joy_stack[JOY_STACKSIZE/sizeof(u64)];
+static OSThread    joy_thread;
+static vu64        joy_stack[JOY_STACKSIZE/sizeof(u64)];
 
 #define SYS_TICKER_STACKSIZE 0x800
-OSThread    sys_ticker_thread;                          // 800A4D78
-vu64    sys_ticker_stack[SYS_TICKER_STACKSIZE/sizeof(u64)]; // 800A3A00
+static OSThread    sys_ticker_thread;                          // 800A4D78
+static vu64        sys_ticker_stack[SYS_TICKER_STACKSIZE/sizeof(u64)]; // 800A3A00
 
 #define SYS_MSGBUF_SIZE_PI 128
-OSMesgQueue msgque_Pi;                  // 800A4FA0
-OSMesg msgbuf_Pi[SYS_MSGBUF_SIZE_PI];   // 800A4FD0
+static OSMesgQueue msgque_Pi;                  // 800A4FA0
+static OSMesg msgbuf_Pi[SYS_MSGBUF_SIZE_PI];   // 800A4FD0
 
 #define SYS_FIFO_SIZE   512
 
 #if __GNUC__ /* for GNU compiler */
-u64 fifo_buff[2][SYS_FIFO_SIZE] ALIGNED(16);          /* buffer for RDP DL */      // 800633E0
-u64 sys_rcp_stack[SP_DRAM_STACK_SIZE64] ALIGNED(16);  /* used for matrix stack */  // 800915E0
+static u64 fifo_buff[2][SYS_FIFO_SIZE] ALIGNED(16);          /* buffer for RDP DL */      // 800633E0
+static u64 sys_rcp_stack[SP_DRAM_STACK_SIZE64] ALIGNED(16);  /* used for matrix stack */  // 800915E0
 #else /* for SGI compiler */
 u64 fifo_buff[2][SYS_FIFO_SIZE];            /* buffer for RDP DL */      // 800633E0
 u64 sys_rcp_stack[SP_DRAM_STACK_SIZE64];    /* used for matrix stack */  // 800915E0
 #endif
 
 #define SYS_YIELD_SIZE  OS_YIELD_DATA_SIZE
-u64 gfx_yield_buff[SYS_YIELD_SIZE] ALIGNED(16);     // 800919E0
+static u64 gfx_yield_buff[SYS_YIELD_SIZE] ALIGNED(16);     // 800919E0
 
-OSTask vid_rsptask[2] = // 8005A590
+static OSTask vid_rsptask[2] = // 8005A590
 {
     { .t = {
         M_GFXTASK,                          /* task type */
@@ -119,7 +116,7 @@ OSTask vid_rsptask[2] = // 8005A590
     } }
 };
 
-Vp vid_viewport = { // 8005A610
+static Vp vid_viewport = { // 8005A610
     .vp = {
         {0, 0, G_MAXZ,   0},        /* scale */
         {0, 0,      0,   0},        /* translate */
@@ -128,28 +125,28 @@ Vp vid_viewport = { // 8005A610
 OSMesgQueue romcopy_msgque; // 800A4F70
 OSMesg      romcopy_msgbuf; // 800A51D0
 
-OSMesgQueue sys_msgque_joy; // 800A4F88
-OSMesg      sys_msg_joy;    // 800A51D4
+static OSMesgQueue sys_msgque_joy; // 800A4F88
+static OSMesg      sys_msg_joy;    // 800A51D4
 
-OSMesgQueue joy_cmd_msgque;
-OSMesg      joy_cmd_msg;
+static OSMesgQueue joy_cmd_msgque;
+static OSMesg      joy_cmd_msg;
 
 #define SYS_MSGBUF_SIZE_VID 16
-OSMesgQueue sys_ticker_queue; // 800A4FB8
-OSMesg      sys_ticker_msgbuf[SYS_MSGBUF_SIZE_VID]; // 800A51E0
+static OSMesgQueue sys_ticker_queue; // 800A4FB8
+static OSMesg      sys_ticker_msgbuf[SYS_MSGBUF_SIZE_VID]; // 800A51E0
 
 #define SYS_MSGBUF_SIZE_VID2 2
-OSMesgQueue rdp_done_queue; // 800A4F28
-OSMesg      rdp_done_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A51D8
+static OSMesgQueue rdp_done_queue; // 800A4F28
+static OSMesg      rdp_done_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A51D8
 
-OSMesgQueue vid_task_queue; // 800A4F40
-OSMesg      vid_task_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A5220
+static OSMesgQueue vid_task_queue; // 800A4F40
+static OSMesg      vid_task_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A5220
 
-OSMesgQueue audio_task_queue; // 800A4F58
-OSMesg      audio_task_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A5228
+static OSMesgQueue audio_task_queue; // 800A4F58
+static OSMesg      audio_task_msgbuf[SYS_MSGBUF_SIZE_VID2]; // 800A5228
 
-OSContStatus gamepad_status[MAXCONTROLLERS]; // 800a5230
-volatile int *gamepad_data;    // 800A5240
+static OSContStatus gamepad_status[MAXCONTROLLERS]; // 800a5230
+static volatile int *gamepad_data;    // 800A5240
 
 OSTask *vid_task;   // 800A5244
 u32 vid_side;       // 800A5248
@@ -164,6 +161,7 @@ static s8 fadetick = 8;
 
 volatile u8 gamepad_bit_pattern; // 800A5260 // one bit for each controller
 volatile u8 rumblepak_bit_pattern = 0;
+volatile u8 mouse_bit_pattern = 0;
 u8 motor_bit_pattern = 0;
 
 OSPfs RumblePaks[MAXCONTROLLERS];
@@ -185,6 +183,8 @@ static const char Game_Name[16] = // 8005A790
 };
 
 volatile boolean disabledrawing = false; // 8005A720
+
+SDATA videosettings_t VideoSettings;
 
 SDATA u16 XResolution;
 SDATA u16 YResolution;
@@ -290,12 +290,12 @@ void I_IdleGameThread(void *arg) // 8000567C
 
     if (HAS_EXPANSION_PAK())
     {
-        BitDepth = BITDEPTH_32;
+        VideoSettings.BitDepth = BITDEPTH_32;
         CFB_SIZE = SCREEN_WD*SCREEN_HT*2*sizeof(u32);
     }
     else
     {
-        BitDepth = BITDEPTH_16;
+        VideoSettings.BitDepth = BITDEPTH_16;
         CFB_SIZE = SCREEN_WD*SCREEN_HT*sizeof(u16);
     }
 
@@ -585,7 +585,8 @@ void I_ReadPads(void)
         for (int i = 0; i < MAXCONTROLLERS; i++)
         {
             OSContPad p = pads[i];
-            if (p.errno)
+
+            if (p.errno || !(gamepad_status[i].type & (CONT_ABSOLUTE|CONT_RELATIVE)))
                 gamepad_data[i] = 0;
             else
                 gamepad_data[i] = (p.button << 16) | (((u8)p.stick_x) << 8) | (u8)p.stick_y;
@@ -642,13 +643,26 @@ void I_Init(void) // 80005C50
     u8 gamepads;
     osContInit(&sys_msgque_joy, &gamepads, gamepad_status);
 
+    // Load default settings before trying to load from sram
+    Settings = SettingsPresets[0].settings;
+    VideoSettings = SettingsPresets[0].video;
+    for (int i = 0; i < MAXPLAYERS; i++)
+    {
+        CurrentControls[i] = ControllerPresets[0].ctrl;
+        playerconfigs[i] = SettingsPresets[0].player;
+    }
+    for (int i = 0; i < ARRAYLEN(CurrentControls2); i++)
+        CurrentControls2[i] = ControllerPresets[0].ctrl2;
+
     I_InitSram();
+
+    // force to low res if necessary, if settings loading changed it
     if (!HAS_EXPANSION_PAK())
     {
-        // force to low res, if settings loading changed it
-        VideoResolution = VIDEO_RES_LOW;
-        BitDepth = BITDEPTH_16;
+        VideoSettings.Resolution = VIDEO_RES_LOW;
+        VideoSettings.BitDepth = BITDEPTH_16;
     }
+
     I_RefreshVideo(); // set vid mode again after loading settings
 
     gamepad_data = (volatile int *)bootStack;
@@ -812,7 +826,7 @@ void I_ClearFrame(void) // 8000637C
     vid_task->t.ucode = (u64 *) gspF3DEX2_NoN_fifoTextStart;
     vid_task->t.ucode_data = (u64 *) gspF3DEX2_NoN_fifoDataStart;
 
-    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, BitDepth + G_IM_SIZ_16b, XResolution, CFB_SPADDR());
+    gDPSetColorImage(GFX1++, G_IM_FMT_RGBA, VideoSettings.BitDepth + G_IM_SIZ_16b, XResolution, CFB_SPADDR());
     gDPSetScissor(GFX1++, G_SC_NON_INTERLACE, 0, 0, XResolution, YResolution);
 
     gDPSetTextureFilter(GFX1++, G_TF_POINT);
@@ -896,7 +910,7 @@ void I_GetScreenGrab(void) // 800066C0
 
 void I_RefreshVideo(void) // [Immorpher] video refresh
 {
-    const bool interlaced = (TvMode & 2) || (VideoResolution == VIDEO_RES_HI_VERT);
+    const bool interlaced = (VideoSettings.TvMode & 2) || (VideoSettings.Resolution == VIDEO_RES_HI_VERT);
     register u32 saveMask = __osDisableInt();
 
     if (osTvType == OS_TV_TYPE_MPAL)
@@ -930,31 +944,33 @@ void I_RefreshVideo(void) // [Immorpher] video refresh
         CurrentViMode.comRegs.vSync -= 1;
 
     CurrentViMode.comRegs.ctrl = VI_CTRL_PIXEL_ADV_3
-        | (BitDepth == BITDEPTH_32 ? VI_CTRL_TYPE_32 : VI_CTRL_TYPE_16)
-        | ((TvMode & 1) ? VI_CTRL_DIVOT_ON : VI_CTRL_ANTIALIAS_MODE_2)
+        | (VideoSettings.BitDepth == BITDEPTH_32 ? VI_CTRL_TYPE_32 : VI_CTRL_TYPE_16)
+        | ((VideoSettings.TvMode & 1) ? VI_CTRL_DIVOT_ON : VI_CTRL_ANTIALIAS_MODE_2)
         | (interlaced ? VI_CTRL_SERRATE_ON : 0)
-        | (NoGammaCorrect ? 0 : VI_CTRL_GAMMA_ON | VI_CTRL_GAMMA_DITHER_ON)
-        | (DitherFilter ? VI_CTRL_DITHER_FILTER_ON : 0);
+        | (VideoSettings.NoGammaCorrect ? 0 : VI_CTRL_GAMMA_ON | VI_CTRL_GAMMA_DITHER_ON)
+        | (VideoSettings.DitherFilter ? VI_CTRL_DITHER_FILTER_ON : 0);
 
-    if ((!TvMode && BitDepth == BITDEPTH_32) || (TvMode == 1 && VideoResolution != VIDEO_RES_HI_VERT && BitDepth == BITDEPTH_16))
+    if ((!VideoSettings.TvMode && VideoSettings.BitDepth == BITDEPTH_32)
+            || (VideoSettings.TvMode == 1 && VideoSettings.Resolution != VIDEO_RES_HI_VERT
+                && VideoSettings.BitDepth == BITDEPTH_16))
         CurrentViMode.comRegs.ctrl |= VI_CTRL_ANTIALIAS_MODE_1;
 
-    if (VideoResolution == VIDEO_RES_HI_HORIZ)
+    if (VideoSettings.Resolution == VIDEO_RES_HI_HORIZ)
     {
         CurrentViMode.comRegs.width = WIDTH(640);
         CurrentViMode.comRegs.xScale = SCALE(1, 0);
         CurrentViMode.fldRegs[0].origin = CurrentViMode.fldRegs[1].origin
-            = BitDepth == BITDEPTH_32 ? ORIGIN(2560) : ORIGIN(1280);
+            = VideoSettings.BitDepth == BITDEPTH_32 ? ORIGIN(2560) : ORIGIN(1280);
     }
     else
     {
         CurrentViMode.comRegs.xScale = SCALE(2, 0);
         CurrentViMode.fldRegs[0].origin = CurrentViMode.fldRegs[1].origin
-            = BitDepth == BITDEPTH_32 ? ORIGIN(1280) : ORIGIN(640);
-        if (VideoResolution == VIDEO_RES_HI_VERT)
+            = VideoSettings.BitDepth == BITDEPTH_32 ? ORIGIN(1280) : ORIGIN(640);
+        if (VideoSettings.Resolution == VIDEO_RES_HI_VERT)
         {
             CurrentViMode.fldRegs[1].origin <<= 1;
-            if(TvMode & 2) // deflickering
+            if(VideoSettings.TvMode & 2) // deflickering
                 CurrentViMode.comRegs.width = WIDTH(320);
             else
                 CurrentViMode.comRegs.width = WIDTH(640);
@@ -965,24 +981,24 @@ void I_RefreshVideo(void) // [Immorpher] video refresh
         }
     }
 
-    if (Display_X)
+    if (VideoSettings.Display_X)
         CurrentViMode.comRegs.hStart =
-            CLAMP((int) (CurrentViMode.comRegs.hStart & 0xffff) + Display_X, 0, 0xffff)
-            | (CLAMP((int) (CurrentViMode.comRegs.hStart >> 16) + Display_X, 0, 0xffff) << 16);
+            CLAMP((int) (CurrentViMode.comRegs.hStart & 0xffff) + VideoSettings.Display_X, 0, 0xffff)
+            | (CLAMP((int) (CurrentViMode.comRegs.hStart >> 16) + VideoSettings.Display_X, 0, 0xffff) << 16);
 
-    if (Display_Y)
+    if (VideoSettings.Display_Y)
     {
         CurrentViMode.fldRegs[0].vStart =
-            CLAMP((int) (CurrentViMode.fldRegs[0].vStart & 0xffff) + Display_Y, 0, 0xffff)
-            | (CLAMP((int) (CurrentViMode.fldRegs[0].vStart >> 16) + Display_Y, 0, 0xffff) << 16);
+            CLAMP((int) (CurrentViMode.fldRegs[0].vStart & 0xffff) + VideoSettings.Display_Y, 0, 0xffff)
+            | (CLAMP((int) (CurrentViMode.fldRegs[0].vStart >> 16) + VideoSettings.Display_Y, 0, 0xffff) << 16);
         CurrentViMode.fldRegs[1].vStart =
-            CLAMP((int) (CurrentViMode.fldRegs[1].vStart & 0xffff) + Display_Y, 0, 0xffff)
-            | (CLAMP((int) (CurrentViMode.fldRegs[1].vStart >> 16) + Display_Y, 0, 0xffff) << 16);
+            CLAMP((int) (CurrentViMode.fldRegs[1].vStart & 0xffff) + VideoSettings.Display_Y, 0, 0xffff)
+            | (CLAMP((int) (CurrentViMode.fldRegs[1].vStart >> 16) + VideoSettings.Display_Y, 0, 0xffff) << 16);
     }
 
-    if (TvMode & 2)
+    if (VideoSettings.TvMode & 2)
     {
-        if (VideoResolution == VIDEO_RES_HI_VERT)
+        if (VideoSettings.Resolution == VIDEO_RES_HI_VERT)
         {
             CurrentViMode.fldRegs[0].yScale = SCALE(0.5, 0.5);
             CurrentViMode.fldRegs[1].yScale = SCALE(0.5, 0.5);
@@ -1001,7 +1017,7 @@ void I_RefreshVideo(void) // [Immorpher] video refresh
     __osRestoreInt(saveMask);
 
 
-    switch (VideoResolution)
+    switch (VideoSettings.Resolution)
     {
     case VIDEO_RES_LOW:
         XResolution = 320;
@@ -1041,7 +1057,7 @@ void I_BlankScreen(u8 vbls)
 
 void I_ClearFB(register u32 color)
 {
-    if (BitDepth == BITDEPTH_16)
+    if (VideoSettings.BitDepth == BITDEPTH_16)
     {
         color = RGBATO5551(color);
         color |= (color << 16);
@@ -1087,9 +1103,9 @@ void I_WIPE_MeltScreen(void) // 80006964
     skipfade = false;
 
     {
-        int pixelsize = BitDepth == BITDEPTH_32 ? sizeof(u32) : sizeof(u16);
+        int pixelsize = VideoSettings.BitDepth == BITDEPTH_32 ? sizeof(u32) : sizeof(u16);
 
-        size = BitDepth + G_IM_SIZ_16b;
+        size = VideoSettings.BitDepth + G_IM_SIZ_16b;
         tileheight = 4096/(XResolution*pixelsize);
         fbsize = XResolution*YResolution*pixelsize;
         fb = Z_Malloc(fbsize, PU_STATIC, NULL);
@@ -1181,9 +1197,9 @@ void I_WIPE_FadeOutScreen(void) // 80006D34
     int shift = skipfade ? 2 : 0;
 
     {
-        int pixelsize = BitDepth == BITDEPTH_32 ? sizeof(u32) : sizeof(u16);
+        int pixelsize = VideoSettings.BitDepth == BITDEPTH_32 ? sizeof(u32) : sizeof(u16);
 
-        size = BitDepth + G_IM_SIZ_16b;
+        size = VideoSettings.BitDepth + G_IM_SIZ_16b;
         tileheight = 4096/(XResolution*pixelsize);
         fbsize = XResolution*YResolution*pixelsize;
         fb = Z_Malloc(fbsize, PU_STATIC, NULL);
@@ -1525,6 +1541,11 @@ void I_ControllerThread(void *arg)
             {
                 *&gamepad_bit_pattern &= ~bit;
             }
+
+            if ((gamepad_status[i].type & CONT_TYPE_MASK) == CONT_TYPE_MOUSE)
+                *&mouse_bit_pattern |= bit;
+            else
+                *&mouse_bit_pattern &= ~bit;
 
             if (rumble)
                 rumblebits |= bit;

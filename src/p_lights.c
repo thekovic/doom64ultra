@@ -61,8 +61,8 @@ void P_SpawnFireFlicker(sector_t *sector) // 800157B4
 
 void T_Glow(glow_t *g) // 80015820
 {
-    int MaximumLight = FlashBrightness*(g->maxlight)/32; // [Immorpher] Flash reduction
-    int MinimumLight = FlashBrightness*(g->minlight)/32; // [Immorpher] Flash reduction
+    int MaximumLight = Settings.FlashBrightness*(g->maxlight)/32; // [Immorpher] Flash reduction
+    int MinimumLight = Settings.FlashBrightness*(g->minlight)/32; // [Immorpher] Flash reduction
 
     if(--g->count)
         return;
@@ -155,14 +155,14 @@ void T_LightFlash (lightflash_t *flash) // 80015A14
         return;
     }
 
-    if (flash->sector->lightlevel == FlashBrightness)
+    if (flash->sector->lightlevel == Settings.FlashBrightness)
     {
         flash->sector->lightlevel = 0;
         flash->count = (P_Random()&7)+1;
     }
     else
     {
-        flash->sector->lightlevel = FlashBrightness;
+        flash->sector->lightlevel = Settings.FlashBrightness;
         flash->count = (P_Random()&32)+1;
     }
 }
@@ -214,7 +214,7 @@ void T_StrobeFlash (strobe_t *flash) // 80015B28
 
     if (flash->sector->lightlevel == 0)
     {
-        flash->sector->lightlevel = FlashBrightness*(flash->maxlight)/32; // [Immorpher] Strobe reduction
+        flash->sector->lightlevel = Settings.FlashBrightness*(flash->maxlight)/32; // [Immorpher] Strobe reduction
         flash->count = flash->brighttime;
     }
     else

@@ -12,7 +12,10 @@ mods.
 - Autoaim option
 - Fly mode cheat
 - Widescreen support
-- N64 mouse support
+- More controller options
+  - Turok-style and Perfect Dark-style controls
+  - Dual analog support with two controllers
+  - N64 mouse support
 - High resolution video modes (expansion pak required)
 - Persistent saves to SRAM (no more controller pak requirement)
 - Quick saves (for saving/loading during a level)

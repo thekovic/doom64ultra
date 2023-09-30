@@ -281,6 +281,8 @@ typedef enum {
     rm_transparentsprite,
     rm_nightmaresprite,
     rm_hudsprite,
+    rm_hudtext,
+    rm_hudoverlay,
 } rendermode_t;
 
 extern void R_RenderModes(rendermode_t mode) HOT;
@@ -298,6 +300,7 @@ extern void R_RenderFilter(filtertype_t type) HOT;
 /*R_data*/
 /*------*/
 void    R_InitData (void) SEC_STARTUP;
+void    R_UpdatePlayerPalette(int player) SEC_MENU;
 
 #if REGION == REGION_JP || REGION == REGION_EU
 #define BLOOD_SPRITE "RBLD"
@@ -413,6 +416,10 @@ extern  int firstspritelump, lastspritelump, numspritelumps;
 //extern    short palette[MAX_PALETTES];
 //extern    short palettebase;
 //extern    light_t     *lights;
+
+extern int firstplayerlump; // [nova] - custom player colors
+extern int lastplayerlump;
+extern u16 playerpalettes[MAXPLAYERS][256];
 
 extern int bloodlump;
 extern int giblump;

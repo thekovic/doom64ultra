@@ -27,7 +27,7 @@ int D_TitleMap(void) // 8002B358
   demosize = 16000;
   demo_p = Z_Alloc(demosize, PU_STATIC, NULL);
   D_memset(demo_p, 0, demosize);
-  D_memcpy(demo_p, DefaultControlSetups[1].BUTTONS, sizeof(int)*13);
+  D_memcpy(demo_p, ControllerPresets[1].ctrl.buttons, sizeof(int)*13);
   exit = G_PlayDemoPtr(SkillPresets[2].skill, 33);
   Z_Free(demo_p);
 
@@ -68,9 +68,9 @@ void D_DrawWarning(void) // 8002B430
 
 static bool D_SkipPressed(void)
 {
-    if ((ticbuttons[0] & PAD_A) && !(oldticbuttons[0] & PAD_A))
+    if ((allticbuttons & PAD_A) && !(alloldticbuttons & PAD_A))
         return true;
-    if ((ticbuttons[0] & PAD_B) && !(oldticbuttons[0] & PAD_B))
+    if ((allticbuttons & PAD_B) && !(alloldticbuttons & PAD_B))
         return true;
     return false;
 }
@@ -279,7 +279,7 @@ int D_Credits(void) // 8002BA34
 
 int D_CreditTicker(void) // 8002BA88
 {
-    if (((u32)ticbuttons[0] >> 16) != 0)
+    if (allticbuttons & 0xffff0000)
         return ga_exit;
 
     if (cred_next < 4)

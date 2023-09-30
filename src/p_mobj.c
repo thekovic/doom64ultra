@@ -274,11 +274,15 @@ void P_SpawnPlayer(/*mapthing_t *mthing*/) // 80018F94
     p->viewz = mobj->z + VIEWHEIGHT;
     p->falltimer = 0;
     p->controls = &CurrentControls[0];
+    p->controls2 = &CurrentControls2[0];
     p->config = &playerconfigs[0];
     p->pitch = 0;
     p->addfov = 0;
     p->weaponwheelalpha = 0;
     cameratarget = p->mo;
+
+    playerbuttons[0] = 0;
+    oldplayerbuttons[0] = 0;
 
 #ifdef DEVCHEATS
     if (p->cheats & (CF_WALLBLOCKING|CF_NOCLIP))

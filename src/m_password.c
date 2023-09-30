@@ -545,8 +545,8 @@ int M_PasswordTicker(void) // 8000C774
         }
     }
 
-    buttons = M_ButtonResponder(ticbuttons[0]);
-    oldbuttons = oldticbuttons[0] & 0xffff0000;
+    buttons = M_ButtonResponder(allticbuttons);
+    oldbuttons = alloldticbuttons & 0xffff0000;
 
     if (!(buttons & (PAD_A|ALL_JPAD)))
     {

@@ -49,33 +49,34 @@ void AM_Start(void) // 800004D8
 ==================
 */
 
-#define MAXSENSIVITY    10
+#define MAXSENSIVITY    7
 
 void AM_Control (player_t *player) // 800004F4
 {
-    int buttons, oldbuttons;
+    int buttons, pbuttons, oldpbuttons;
 
-    controls_t   *cbuttons;
     fixed_t     block[8];
     angle_t     angle;
     fixed_t     fs, fc;
     fixed_t     x, y, x1, y1, x2, y2;
     int         scale, sensitivity;
     int         i;
+    int         playernum;
 
     if (gamepaused)
         return;
 
-    cbuttons = player->controls;
-    buttons = ticbuttons[0];
-    oldbuttons = oldticbuttons[0];
+    playernum = players - player;
+    buttons = ticbuttons[playernum];
+    pbuttons = playerbuttons[playernum];
+    oldpbuttons = oldplayerbuttons[playernum];
 
     if (player->playerstate != PST_LIVE)
         am_plycolor = 79;
 
     /* allow zoom to take precedence if it is bound to the map button */
-    if ((!(cbuttons->BT_MAP & (PAD_L_TRIG|PAD_R_TRIG)) || !(buttons & cbuttons->BT_USE))
-            && (buttons & cbuttons->BT_MAP) && !(oldbuttons & cbuttons->BT_MAP))
+    if ((!(player->controls->buttons[BT_MAP] & (PAD_L_TRIG|PAD_R_TRIG)) || !(pbuttons & BB_USE))
+            && (pbuttons & BB_MAP) && !(oldpbuttons & BB_MAP))
     {
         if(player->automapflags & AF_SUBSEC)
         {
@@ -105,7 +106,7 @@ void AM_Control (player_t *player) // 800004F4
         am_plyblink = -am_plyblink;
     }
 
-    if (!(buttons & cbuttons->BT_USE))
+    if (!(pbuttons & BB_USE))
     {
         player->automapflags &= ~AF_FOLLOW;
         return;
@@ -153,7 +154,7 @@ void AM_Control (player_t *player) // 800004F4
     scale = (scale / 1500) << 8;
 
     /* Analyze analog stick movement (left / right) */
-    sensitivity = (int)(((buttons & 0xff00) >> 8) << 24) >> 24;
+    sensitivity = STICK_Y(buttons);
 
     if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
     {
@@ -161,7 +162,7 @@ void AM_Control (player_t *player) // 800004F4
     }
 
     /* Analyze analog stick movement (up / down) */
-    sensitivity = (int)((buttons) << 24) >> 24;
+    sensitivity = STICK_X(buttons);
 
     if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
     {
@@ -206,9 +207,11 @@ void AM_Control (player_t *player) // 800004F4
             player->automapscale = MAXSCALE;
     }
 
-    ticbuttons[0] &= ~(cbuttons->BT_LEFT | cbuttons->BT_RIGHT |
-                       cbuttons->BT_FORWARD | cbuttons->BT_BACK |
-                       PAD_L_TRIG | PAD_R_TRIG | 0xffff);
+    /* capture stick movement and trigger button presses */
+    ticbuttons[playernum] &= ~0xffff;
+    for (i = 0; i < NUMBUTTONS; i++)
+        if (player->controls->buttons[i] & (PAD_L_TRIG|PAD_R_TRIG))
+            playerbuttons[0] &= ~(1<<i);
 }
 
 extern Mtx R_ProjectionMatrix;
@@ -239,7 +242,7 @@ void AM_Drawer (void) // 800009AC
     bool        linemode;
     fixed_t     thingscale = 0;
 
-    hcot = aspectscale[ScreenAspect];
+    hcot = aspectscale[VideoSettings.ScreenAspect];
     vcot = aspectratios[0];
     R_ProjectionMatrix.m[0][0] = hcot & 0xffff0000;
     R_ProjectionMatrix.m[2][0] = (hcot << 16) & 0xffff0000;
@@ -351,8 +354,8 @@ void AM_Drawer (void) // 800009AC
         cx = FixedMul(SCREEN_WD<<(FRACBITS-1), boxscale);
         cy = FixedMul(SCREEN_HT<<(FRACBITS-1), boxscale);
 
-        if (ScreenAspect)
-            cx = FixedMul(cx, invaspectscale[ScreenAspect]);
+        if (VideoSettings.ScreenAspect)
+            cx = FixedMul(cx, invaspectscale[VideoSettings.ScreenAspect]);
 
         M_ClearBox(screen_box);
 
@@ -472,12 +475,12 @@ void AM_Drawer (void) // 800009AC
     }
 
 
-    if (enable_messages)
+    if (Settings.EnableMessages)
     {
         if (p->messagetics[0] <= 0)
         {
             sprintf(buf, "LEVEL %d: %s", gamemap, MapInfo[gamemap].name);
-            ST_Message(2+HUDmargin,HUDmargin, buf, 196 | 0xffffff00);
+            ST_Message(2+Settings.HudMargin, Settings.HudMargin, buf, 196 | 0xffffff00);
         }
         else
         {
@@ -486,27 +489,27 @@ void AM_Drawer (void) // 800009AC
     }
 
     // [Immorpher] kill count
-    if(MapStats) {
+    if(Settings.MapStats) {
         sprintf(buf, "KILLS: %d/%d", players[0].killcount, totalkills);
-        ST_Message(2+HUDmargin, 212-HUDmargin, buf, 196 | 0xffffff00);
+        ST_Message(2+Settings.HudMargin, 212-Settings.HudMargin, buf, 196 | 0xffffff00);
         sprintf(buf, "ITEMS: %d/%d", players[0].itemcount, totalitems);
-        ST_Message(2+HUDmargin, 222-HUDmargin, buf, 196| 0xffffff00);
+        ST_Message(2+Settings.HudMargin, 222-Settings.HudMargin, buf, 196| 0xffffff00);
         sprintf(buf, "SECRETS: %d/%d", players[0].secretcount, totalsecret);
-        ST_Message(2+HUDmargin, 232-HUDmargin, buf, 196 | 0xffffff00);
+        ST_Message(2+Settings.HudMargin, 232-Settings.HudMargin, buf, 196 | 0xffffff00);
     }
 
-    xpos = 297-HUDmargin;
+    xpos = 297-Settings.HudMargin;
     artflag = 4;
     do
     {
         if ((players->artifacts & artflag) != 0)
         {
             if (artflag == 4)
-                BufferedDrawSprite(MT_ITEM_ARTIFACT3, &states[S_ART3], 0, 0xffffff80, xpos, 266-HUDmargin, FRACUNIT);
+                F_DrawSprite(MT_ITEM_ARTIFACT3, &states[S_ART3], 0, 0xffffff80, xpos, 266-Settings.HudMargin, FRACUNIT, -1);
             else if (artflag == 2)
-                BufferedDrawSprite(MT_ITEM_ARTIFACT2, &states[S_ART2], 0, 0xffffff80, xpos, 266-HUDmargin, FRACUNIT);
+                F_DrawSprite(MT_ITEM_ARTIFACT2, &states[S_ART2], 0, 0xffffff80, xpos, 266-Settings.HudMargin, FRACUNIT, -1);
             else if (artflag == 1)
-                BufferedDrawSprite(MT_ITEM_ARTIFACT1, &states[S_ART1], 0, 0xffffff80, xpos, 266-HUDmargin, FRACUNIT);
+                F_DrawSprite(MT_ITEM_ARTIFACT1, &states[S_ART1], 0, 0xffffff80, xpos, 266-Settings.HudMargin, FRACUNIT, -1);
 
             xpos -= 40;
         }
@@ -758,6 +761,7 @@ void AM_DrawThing(mobj_t *thing, angle_t angle, fixed_t sin, fixed_t cos, fixed_
     int color;
     fixed_t x, y, tx;
     sector_t *sector;
+    int translation;
 
     rot = ((angle - thing->angle) + ((unsigned int)(ANG45 / 2) * 9)) >> 29;
 
@@ -770,8 +774,8 @@ void AM_DrawThing(mobj_t *thing, angle_t angle, fixed_t sin, fixed_t cos, fixed_
     y = ((s64) tx * (s64) sin + (s64) y * (s64) cos) >> FRACBITS;
 
     // scale to screen space
-    if (ScreenAspect)
-        x = FixedMul(x, aspectscale[ScreenAspect]);
+    if (VideoSettings.ScreenAspect)
+        x = FixedMul(x, aspectscale[VideoSettings.ScreenAspect]);
 
     x = FixedMul(scale, x);
     y = -FixedMul(scale, y);
@@ -793,6 +797,13 @@ void AM_DrawThing(mobj_t *thing, angle_t angle, fixed_t sin, fixed_t cos, fixed_
             color = lights[sector->colors[2]].rgba & 0xffffff00;
     }
 
-    BufferedDrawSprite(thing->type, thing->state, rot, color | thing->alpha,
-                       x >> FRACBITS, y >> FRACBITS, scale);
+    if (thing->player)
+        translation = thing->player - players;
+    else if ((thing->type == MT_BLOOD || thing->state == &states[S_GIBS]) && thing->extradata)
+        translation = ((int) thing->extradata) - 1;
+    else
+        translation = -1;
+
+    F_DrawSprite(thing->type, thing->state, rot, color | thing->alpha,
+                 x >> FRACBITS, y >> FRACBITS, scale, translation);
 }

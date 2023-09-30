@@ -196,6 +196,34 @@ void D_strupr(char *s) // 80001C74
     }
 }
 
+f32 D_rsqrtf(f32 input)
+{
+    s32 fac, mov;
+    f32 ret, tmp, sum;
+    asm volatile(
+            "li      %[fac], 0x5f3759df         \n\t"
+            "mfc1    %[mov], %[input]           \n\t"
+            "srl     %[mov], %[mov], 1          \n\t"
+            "subu    %[mov], %[fac], %[mov]     \n\t"
+            "mtc1    %[mov], %[ret]             \n\t"
+            "mul.s   %[sum], %[ret], %[ret]     \n\t"
+            "lui     %[mov], 0xbf00             \n\t"
+            "mtc1    %[mov], %[tmp]             \n\t"
+            "mul.s   %[sum], %[sum], %[tmp]     \n\t"
+            "lui     %[mov], 0x3fc0             \n\t"
+            "mul.s   %[sum], %[sum], %[input]   \n\t"
+            "mtc1    %[mov], %[tmp]             \n\t"
+            "add.s   %[sum], %[sum], %[tmp]     \n\t"
+            "mul.s   %[ret], %[ret], %[sum]     \n\t"
+            : [ret] "=f" (ret),
+              [fac] "=&r" (fac),
+              [mov] "=&r" (mov),
+              [tmp] "=&f" (tmp),
+              [sum] "=&f" (sum)
+            : [input] "f" (input));
+    return ret;
+}
+
 /*
 ====================
 =

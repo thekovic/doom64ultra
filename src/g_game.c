@@ -35,9 +35,8 @@ int             consoleplayer;          /* player taking events and displaying  
 int             displayplayer;          /* view being displayed  */
 int             totalkills, totalitems, totalsecret;    /* for intermission  */
 
-SDATA playerconfig_t  playerconfigs[MAXPLAYERS] = {
-    { .autoaim = 0, .autorun = 1, .verticallook = -1, .crosshair = 2 }
-};
+SDATA playerconfig_t  playerconfigs[MAXPLAYERS];
+
 //char            demoname[32];
 boolean         demorecording;          // 800633A4
 boolean         demoplayback;           // 800633A8
@@ -100,7 +99,6 @@ void G_PlayerFinishLevel (int player) // 80004598
     p->messagetics[0] = 0;
     p->messagetics[1] = 0;  // [Immorpher] Clear messages
     p->messagetics[2] = 0;  // [Immorpher] Clear messages
-    p->messagetics[3] = 0;  // [Immorpher] Clear messages
 }
 
 /*
@@ -123,6 +121,7 @@ void G_PlayerReborn (int player) // 80004630
     D_memset(p, 0, sizeof(*p));
 
     p->usedown = true; // don't do anything immediately
+    p->attackdown = false;
     p->playerstate = PST_LIVE;
     p->health = MAXHEALTH;
     p->readyweapon = p->pendingweapon = wp_pistol;
@@ -394,7 +393,7 @@ void G_RunGame (void) // 80004794
         {
             G_DoLoadLevel ();
 
-            if(!DEVWARP_ENABLED && runintroduction && StoryText == true) { // [Immorpher] run introduction text screen
+            if(!DEVWARP_ENABLED && runintroduction && Settings.StoryText == true) { // [Immorpher] run introduction text screen
                 MiniLoop(F_StartIntermission, F_StopIntermission, F_TickerIntermission, F_DrawerIntermission);
                 runintroduction = false; // [Immorpher] only run it once!
             }
@@ -430,7 +429,7 @@ void G_RunGame (void) // 80004794
            ((gamemap ==  4) && (nextmap == 29)) ||
            ((gamemap == 12) && (nextmap == 30)) ||
            ((gamemap == 18) && (nextmap == 31)) ||
-           ((gamemap ==  1) && (nextmap == 32))) && StoryText == true)
+           ((gamemap ==  1) && (nextmap == 32))) && Settings.StoryText == true)
         {
             /* run the intermission if needed */
             MiniLoop(F_StartIntermission, F_StopIntermission, F_TickerIntermission, F_DrawerIntermission);
@@ -505,6 +504,7 @@ int G_PlayDemoPtr (customskill_t skill, int map) // 800049D0
 
             config = (void*)demobuffer;
             P_UnArchivePlayerConfig(i, config);
+            R_UpdatePlayerPalette(0);
             playerconfigs[i].crosshair = 0;
             demobuffer += (sizeof(savedplayerconfig_t) >> 2);
         }
@@ -516,12 +516,14 @@ int G_PlayDemoPtr (customskill_t skill, int map) // 800049D0
             return ga_exit;
 
         /* set new key configuration */
-        bzero(&CurrentControls[0].BUTTONS, sizeof CurrentControls[0].BUTTONS);
-        D_memcpy(&CurrentControls[0].BUTTONS, demobuffer, sizeof(int)*13);
-        CurrentControls[0].STICK_MODE = STICK_TURN & STICK_MOVE;
+        bzero(&CurrentControls[0].buttons, sizeof CurrentControls[0].buttons);
+        D_memcpy(&CurrentControls[0].buttons, demobuffer, sizeof(int)*13);
+        CurrentControls[0].stick = STICK_TURN & STICK_MOVE;
         /* set new player settings  */
-        playerconfigs[0].sensitivity = demobuffer[13];
+        playerconfigs[0].looksensitivity = demobuffer[13];
+        playerconfigs[0].movesensitivity = 0;
         playerconfigs[0].autorun = false;
+        playerconfigs[0].autoaim = true;
         playerconfigs[0].verticallook = 1;
         playerconfigs[0].crosshair = 0;
         /* skip analog and key configuration */

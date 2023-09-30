@@ -111,6 +111,15 @@ typedef unsigned angle_t;
         typeof(a) _a = (a); typeof(min) _min = (min); typeof(max) _max = (max); \
         _a < _min ? _min : (_a > _max ? _max : _a); \
     })
+#define ABSMAX(a, b) ({ \
+        typeof(a) _aa = (a); \
+        typeof(b) _bb = (b); \
+        _aa > 0 ? MAX(_aa, _bb) : (_aa < 0 ? MIN(_aa, _bb) : _bb);  \
+    })
+
+
+#define STICK_X(bt) ( ((s32) (((u32)(bt) & 0xff00) << 16)) >> 24 )
+#define STICK_Y(bt) ( ((s32) (((u32)(bt)) << 24)) >> 24 )
 
 //extern    fixed_t     finesine(5*FINEANGLES/4);
 //extern    fixed_t     *finecosine;
@@ -505,43 +514,80 @@ typedef enum
 #define STICK_STRAFE 0x4
 #define STICK_VLOOK  0x8
 
+typedef enum {
+    BT_NONE = -1,
+    BT_RIGHT,          // 0
+    BT_LEFT,           // 1
+    BT_FORWARD,        // 2
+    BT_BACK,           // 3
+    BT_ATTACK,         // 4
+    BT_USE,            // 5
+    BT_MAP,            // 6
+    BT_SPEED,          // 7
+    BT_STRAFE,         // 8
+    BT_STRAFELEFT,     // 9
+    BT_STRAFERIGHT,    // 10
+    BT_WEAPONBACKWARD, // 11
+    BT_WEAPONFORWARD,  // 12
+    BT_LOOK,           // 13
+    BT_LOOKUP,         // 14
+    BT_LOOKDOWN,       // 15
+    BT_JUMP,           // 16
+    BT_CROUCH,         // 17
+    NUMBUTTONS,
+} buttontype_t;
+
+typedef enum {
+    BB_RIGHT          = 1 << BT_RIGHT,
+    BB_LEFT           = 1 << BT_LEFT,
+    BB_FORWARD        = 1 << BT_FORWARD,
+    BB_BACK           = 1 << BT_BACK,
+    BB_ATTACK         = 1 << BT_ATTACK,
+    BB_USE            = 1 << BT_USE,
+    BB_MAP            = 1 << BT_MAP,
+    BB_SPEED          = 1 << BT_SPEED,
+    BB_STRAFE         = 1 << BT_STRAFE,
+    BB_STRAFELEFT     = 1 << BT_STRAFELEFT,
+    BB_STRAFERIGHT    = 1 << BT_STRAFERIGHT,
+    BB_WEAPONBACKWARD = 1 << BT_WEAPONBACKWARD,
+    BB_WEAPONFORWARD  = 1 << BT_WEAPONFORWARD,
+    BB_LOOK           = 1 << BT_LOOK,
+    BB_LOOKUP         = 1 << BT_LOOKUP,
+    BB_LOOKDOWN       = 1 << BT_LOOKDOWN,
+    BB_JUMP           = 1 << BT_JUMP,
+    BB_CROUCH         = 1 << BT_CROUCH,
+} buttonmask_t;
+
 typedef struct
 {
-    union
-    {
-        struct
-        {
-            unsigned int BT_RIGHT;          // 0
-            unsigned int BT_LEFT;           // 1
-            unsigned int BT_FORWARD;        // 2
-            unsigned int BT_BACK;           // 3
-            unsigned int BT_ATTACK;         // 4
-            unsigned int BT_USE;            // 5
-            unsigned int BT_MAP;            // 6
-            unsigned int BT_SPEED;          // 7
-            unsigned int BT_STRAFE;         // 8
-            unsigned int BT_STRAFELEFT;     // 9
-            unsigned int BT_STRAFERIGHT;    // 10
-            unsigned int BT_WEAPONBACKWARD; // 11
-            unsigned int BT_WEAPONFORWARD;  // 12
-            unsigned int BT_LOOK;           // 13
-            unsigned int BT_LOOKUP;         // 14
-            unsigned int BT_LOOKDOWN;       // 15
-            unsigned int BT_JUMP;           // 16
-            unsigned int BT_CROUCH;         // 17
-        };
-        int BUTTONS[18];
-    };
-    int STICK_MODE;
+    int buttons[NUMBUTTONS];
+    u8  stick;
 } controls_t;
 
 typedef struct
 {
-    s8  crosshair;
-    s8  sensitivity;
-    s8  verticallook;
+    s8 a;
+    s8 b;
+    s8 z;
+    u8 stick;
+} controls2_t;
+
+typedef struct
+{
+    s8   crosshair;
+    s8   looksensitivity;
+    s8   movesensitivity;
+    s8   verticallook;
     bool autorun;
     bool autoaim;
+    union {
+        struct {
+            u8   hue;
+            u8   saturation;
+            u8   value;
+        };
+        u8 hsv[3];
+    };
 }
 playerconfig_t;
 
@@ -586,7 +632,6 @@ typedef struct player_s
     s16            weaponwheelsize;
     s16            weaponwheeltarget;
     u8             weaponwheelalpha;
-    bool           usedown;    /* true if button down last tic */
     u32            cheats;                    /* bit flags */
 
     u32            refire;                    /* refired shots are less accurate */
@@ -605,8 +650,10 @@ typedef struct player_s
     u16            automapscale;
     u8             automapflags;
 
-    u8             turnheld;                /* for accelerative turning */
     bool           onground;               /* [d64] */
+    bool           usedown;                /* true if button down last tic */
+    bool           attackdown;             /* true if button down last tic */
+    u8             turnheld;                /* for accelerative turning */
     u8             pitchheld;                /* for accelerative vlook */
     u8             falltimer;                /* for jump grace period */
     s8             crouchtimer;                /* for crouch easing */
@@ -616,6 +663,7 @@ typedef struct player_s
     fixed_t        lookspring;
 
     controls_t    *controls;
+    controls2_t   *controls2;
     playerconfig_t *config;
 } player_t;
 
@@ -639,7 +687,15 @@ typedef struct player_s
 
 #define MAXCONTROLSETUPS 8
 extern controls_t CurrentControls[MAXPLAYERS];
-extern const controls_t DefaultControlSetups[MAXCONTROLSETUPS];
+extern controls2_t CurrentControls2[1];
+
+typedef struct {
+    const char *name;
+    controls_t ctrl;
+    controls2_t ctrl2;
+} controlpreset_t;
+
+extern const controlpreset_t ControllerPresets[MAXCONTROLSETUPS];
 
 typedef struct ALIGNED(4) {
     u32 magic;
@@ -671,6 +727,10 @@ extern int lastticon;                   // 80063140
 extern int vblsinframe[MAXPLAYERS];     // 80063144 /* range from 4 to 8 */
 extern int ticbuttons[MAXCONTROLLERS];      // 80063148
 extern int oldticbuttons[MAXCONTROLLERS];   // 8006314C
+extern int allticbuttons;
+extern int alloldticbuttons;
+extern u32 playerbuttons[MAXPLAYERS];
+extern u32 oldplayerbuttons[MAXPLAYERS];
 
 extern  boolean     gamepaused;
 
@@ -708,6 +768,7 @@ extern  player_t    players[MAXPLAYERS];
 
 extern  playerconfig_t  playerconfigs[MAXPLAYERS];
 
+#define SKILL_DEFAULT 2
 #define NUMSKILLPRESETS 9
 
 extern const skillpreset_t SkillPresets[NUMSKILLPRESETS];
@@ -966,32 +1027,53 @@ extern int EnableExpPak;            // 800A55A8
 
 //-----------------------------------------
 
+typedef struct {
+    int Display_X;          // 8005A7B0
+    int Display_Y;          // 8005A7B4
+    int TvMode;             // [nova] interlace/aa
+    int ScreenAspect;       // [nova] widescreen
+    boolean DitherFilter;   // [Immorpher] Dither Filter
+    boolean NoGammaCorrect; // [nova] real gamma option
+    u8 BitDepth;            // [nova] 32-bit/16-bit framebuffer switch
+    s8 Resolution;          // [nova] high res video modes
+} videosettings_t;
+
+extern videosettings_t VideoSettings;
+
+typedef struct {
+    int ControlPreset[MAXPLAYERS];  // 8005A7AC
+    int HudOpacity;              // [Immorpher] HUD 0pacity options
+    int HudMargin;               // [Immorpher] HUD margin options
+    int SfxVolume;               // 8005A7C0
+    int MusVolume;               // 8005A7C4
+    int Brightness;              // 8005A7C8
+    int FlashBrightness;         // [Immorpher] Strobe brightness adjustment
+    fixed_t MotionBob;           // [Immorpher] Motion Bob
+    int VideoFilters[3];         // [nova] Independent filter select
+    boolean EnableMessages;      // 8005A7B8
+    s8 ColorDither;              // [Immorpher] Color Dither
+    boolean StoryText;           // [Immorpher] Enable story text
+    boolean MapStats;            // [Immorpher] Enable automap statistics
+    boolean HudTextColors;       // [Immorpher] Colored hud
+    boolean GreenBlood;          // [nova] Blood color option
+} gamesettings_t;
+
+extern gamesettings_t Settings;
+
+typedef struct {
+    gamesettings_t settings;
+    videosettings_t video;
+    playerconfig_t player;
+} gamesettingspreset_t;
+
+#define NUMGAMESETTINGSPRESETS 5
+extern const gamesettingspreset_t SettingsPresets[NUMGAMESETTINGSPRESETS];
+
 extern int MenuIdx;                 // 8005A7A4
 extern int text_alpha;              // 8005A7A8
-extern int ConfgNumb[MAXPLAYERS];  // 8005A7AC
-extern int Display_X;               // 8005A7B0
-extern int Display_Y;               // 8005A7B4
-extern boolean enable_messages;     // 8005A7B8
-extern int HUDopacity;              // [Immorpher] HUD 0pacity options
-extern int SfxVolume;               // 8005A7C0
-extern int MusVolume;               // 8005A7C4
-extern int brightness;              // 8005A7C8
 extern int ShowDebugCounters;       // [nova] debug counters
-extern fixed_t MotionBob;           // [Immorpher] Motion Bob
-extern int VideoFilters[3];         // [nova] Independent filter select
-extern int TvMode;                  // [nova] interlace/aa
-extern int ScreenAspect;            // [nova] widescreen
-extern boolean NoGammaCorrect;      // [nova] real gamma option
-extern boolean DitherFilter;        // [Immorpher] Dither Filter
-extern s8 ColorDither;          // [Immorpher] Color Dither
-extern int FlashBrightness;         // [Immorpher] Strobe brightness adjustment
 extern boolean runintroduction;     // [Immorpher] New introduction text
-extern boolean StoryText;           // [Immorpher] Enable story text
-extern boolean MapStats;            // [Immorpher] Enable automap statistics
-extern int HUDmargin;               // [Immorpher] HUD margin options
-extern boolean ColoredHUD;          // [Immorpher] Colored hud
-extern u8 BitDepth;
-extern s8 VideoResolution;
+
 extern u16 XResolution;
 extern u16 YResolution;
 extern u8 hudxshift;
@@ -1026,9 +1108,10 @@ void M_MenuClearCall(int exit) SEC_MENU; // 80008E6C
 void M_MenuTitleDrawer(void) SEC_MENU; // 80008E7C
 void M_FeaturesDrawer(void) SEC_MENU; // 800091C0
 void M_VolumeDrawer(void) SEC_MENU; // 800095B4
-void M_MovementDrawer(void) SEC_MENU; // 80009738
-void M_VideoDrawer(void) SEC_MENU; // 80009884
-void M_DisplayDrawer(void) SEC_MENU; // [Immorpher] new menu
+void M_PlayerSetupDrawer(void) SEC_MENU; // 80009738
+void M_PlayerColorDrawer(void) SEC_MENU;
+void M_DisplayDrawer(void) SEC_MENU; // 80009884
+void M_VideoDrawer(void) SEC_MENU; // [Immorpher] new menu
 void M_StatusHUDDrawer(void) SEC_MENU; // [Immorpher] new menu
 void M_DefaultsDrawer(void) SEC_MENU; // [Immorpher] new menu
 void M_ModCredits1Drawer(void) SEC_MENU; // [Immorpher] new menu
@@ -1089,6 +1172,12 @@ void M_PasswordDrawer(void); // 8000CAF0
 /* F_MAIN */
 /*--------*/
 
+void F_DrawSprite(int type, state_t *state, int rotframe, int color, int xpos, int ypos, fixed_t scale, int translation);
+
+/*--------*/
+/* F_MAIN */
+/*--------*/
+
 void F_StartIntermission (void) SEC_MENU;
 void F_StopIntermission (int exit) SEC_MENU;
 int F_TickerIntermission (void) SEC_MENU;
@@ -1098,8 +1187,6 @@ void F_Start (void) SEC_MENU;
 void F_Stop (int exit) SEC_MENU;
 int F_Ticker (void) SEC_MENU;
 void F_Drawer (void) SEC_MENU;
-
-void BufferedDrawSprite(int type, state_t *state, int rotframe, int color, int xpos, int ypos, fixed_t scale);
 
 /*---------*/
 /* AM_MAIN */
@@ -1201,7 +1288,7 @@ extern boolean SramPresent; // [nova] sram support
 extern u32 SramSize;
 
 extern volatile u8 gamepad_bit_pattern; // 800A5260 // one bit for each controller
-extern OSContStatus gamepad_status[MAXCONTROLLERS]; // 800a5230
+extern volatile u8 mouse_bit_pattern;
 
 // Controller Pak
 extern OSPfsState FileState[16];    // 800A52D8

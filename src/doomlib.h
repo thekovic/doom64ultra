@@ -182,3 +182,5 @@ static INLINE_ALWAYS s32 D_floorf(f32 x) {
     );
     return f;
 }
+
+f32 D_rsqrtf(f32 f);

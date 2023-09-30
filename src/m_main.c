@@ -64,6 +64,7 @@ int DrawerStatus;
     _F(MTXT_SKILL5, "Hardcore!") \
     _F(MTXT_CUSTOM_SKILL, "Custom") \
     \
+    _F(MTXT_START_GAME, "Start Game") \
     _F(MTXT_PRESET, "Preset") \
     _F(MTXT_PLAYER_DAMAGE, "Player Damage") \
     _F(MTXT_PLAYER_AMMO, "Player Ammo") \
@@ -77,7 +78,6 @@ int DrawerStatus;
     _F(MTXT_MONSTER_AIM, "Monster Aim") \
     _F(MTXT_PISTOL_START, "Pistol Start") \
     _F(MTXT_PERMA_DEATH, "Perma-Death") \
-    _F(MTXT_START_GAME, "Start Game") \
     \
     _F(MTXT_FEATURES, "Features") \
     _F(MTXT_WARP, "WARP TO LEVEL") \
@@ -100,28 +100,31 @@ int DrawerStatus;
     \
     _F(MTXT_OPTIONS, "Options") \
     \
-    _F(MTXT_CONTROLS, "Controls") \
+    _F(MTXT_PLAYER, "Player") \
+    _F(MTXT_MOVE_SENSITIVITY, "Move Sensitivity") \
+    _F(MTXT_LOOK_SENSITIVITY, "Look Sensitivity") \
+    _F(MTXT_VERTICAL_LOOK, "Vertical Look") \
+    _F(MTXT_CROSSHAIR, "Crosshair") \
+    _F(MTXT_AUTORUN, "Auto Run") \
+    _F(MTXT_AUTOAIM, "Auto Aim") \
+    _F(MTXT_PLAYER_COLOR, "Change Player Color") \
+    _F(MTXT_CONTROLLER, "Configure Controller") \
+    _F(MTXT_CONTROLLER_2, "Configure Controller 2") \
     \
-    _F(MTXT_MOVEMENT, "Movement") \
-    _F(MTXT_MOTION_BOB, "Motion Bob") \
-    _F(MTXT_SENSITIVITY, "Sensitivity") \
-    _F(MTXT_AUTORUN, "Autorun:") \
-    _F(MTXT_VERTICAL_LOOK, "Vert Look:") \
-    _F(MTXT_AUTOAIM, "Autoaim:") \
+    _F(MTXT_PLAYER_ROTATE, NULL) \
+    _F(MTXT_PRESET_COLOR, "Preset") \
+    _F(MTXT_HUE, "Hue") \
+    _F(MTXT_SATURATION, "Saturation") \
+    _F(MTXT_VALUE, "Value") \
     \
     _F(MTXT_SOUND, "Sound") \
     _F(MTXT_MUSIC_VOLUME, "Music Volume") \
     _F(MTXT_EFFECT_VOLUME, "Effect Volume") \
     \
     _F(MTXT_VIDEO, "Video") \
-    _F(MTXT_BRIGHTNESS, "Brightness") \
-    _F(MTXT_FLASH_BRIGHTNESS, "Flash Brightness") \
     _F(MTXT_RESOLUTION, "Resolution") \
     _F(MTXT_COLOR_DEPTH, "Color Depth") \
     _F(MTXT_ASPECT_RATIO, "Aspect Ratio") \
-    _F(MTXT_TEXTURE_FILTER, "Texture Filter") \
-    _F(MTXT_SPRITE_FILTER, "Sprite Filter") \
-    _F(MTXT_SKY_FILTER, "Sky Filter") \
     _F(MTXT_GAMMA_CORRECT, "Gamma Correct") \
     _F(MTXT_DITHER_FILTER, "Dither Filter") \
     _F(MTXT_COLOR_DITHER, "Color Dither") \
@@ -129,14 +132,22 @@ int DrawerStatus;
     _F(MTXT_INTERLACING, "Interlacing") \
     _F(MTXT_CENTER_DISPLAY, "Center Display") \
     \
+    _F(MTXT_DISPLAY, "Display") \
+    _F(MTXT_BRIGHTNESS, "Brightness") \
+    _F(MTXT_FLASH_BRIGHTNESS, "Flash Brightness") \
+    _F(MTXT_TEXTURE_FILTER, "Texture Filter") \
+    _F(MTXT_SPRITE_FILTER, "Sprite Filter") \
+    _F(MTXT_SKY_FILTER, "Sky Filter") \
+    _F(MTXT_BLOOD_COLOR, "Blood Color") \
+    \
     _F(MTXT_HUD, "HUD") \
-    _F(MTXT_MARGIN, "Margin") \
-    _F(MTXT_OPACITY, "Opacity") \
-    _F(MTXT_COLORED, "Colored") \
-    _F(MTXT_CROSSHAIR, "Crosshair") \
+    _F(MTXT_MARGIN, "HUD Margin") \
+    _F(MTXT_OPACITY, "HUD Opacity") \
+    _F(MTXT_MOTION_BOB, "Motion Bob") \
+    _F(MTXT_TEXT_COLORS, "Text Colors") \
     _F(MTXT_MESSAGES, "Messages") \
-    _F(MTXT_STORY_TEXT, "Story Text") \
     _F(MTXT_MAP_STATS, "Map Stats") \
+    _F(MTXT_STORY_TEXT, "Story Text") \
     \
     _F(MTXT_DEFAULTS, "Defaults") \
     _F(MTXT_PRESET_MODERN, "Modern") \
@@ -150,7 +161,7 @@ typedef enum { MENU_STRINGS } menuentry_t;
 #undef _F
 
 #define _F(_id, _s) _s,
-char *MenuText[] = { MENU_STRINGS };
+const char *MenuText[] = { MENU_STRINGS };
 #undef _F
 
 const menuitem_t Menu_Title[] =
@@ -173,34 +184,34 @@ const menuitem_t Menu_Skill[] =
 
 const menuitem_t Menu_Custom_Skill[] =
 {
-    { MTXT_PRESET,             32, 50},
+    { MTXT_START_GAME,         32, 50},
+    { MTXT_PRESET,             32, 60},
 
-    { MTXT_PLAYER_DAMAGE,      32, 70},
-    { MTXT_PLAYER_AMMO,        32, 80},
-    { MTXT_MONSTER_COUNTS,     32, 90},
-    { MTXT_MONSTER_SPEED,      32, 100},
-    { MTXT_MONSTER_RESPAWNS,   32, 110},
-    { MTXT_MONSTER_INFIGHTING, 32, 120},
-    { MTXT_MONSTER_REACTIONS,  32, 130},
-    { MTXT_MONSTER_COLLISION,  32, 140},
-    { MTXT_MONSTER_PAIN,       32, 150},
-    { MTXT_MONSTER_AIM,        32, 160},
-    { MTXT_PISTOL_START,       32, 170},
-    { MTXT_PERMA_DEATH,        32, 180},
+    { MTXT_PLAYER_DAMAGE,      32, 80},
+    { MTXT_PLAYER_AMMO,        32, 90},
+    { MTXT_MONSTER_COUNTS,     32, 100},
+    { MTXT_MONSTER_SPEED,      32, 110},
+    { MTXT_MONSTER_RESPAWNS,   32, 120},
+    { MTXT_MONSTER_INFIGHTING, 32, 130},
+    { MTXT_MONSTER_REACTIONS,  32, 140},
+    { MTXT_MONSTER_COLLISION,  32, 150},
+    { MTXT_MONSTER_PAIN,       32, 160},
+    { MTXT_MONSTER_AIM,        32, 170},
+    { MTXT_PISTOL_START,       32, 180},
+    { MTXT_PERMA_DEATH,        32, 190},
 
-    { MTXT_START_GAME,         32, 200},
     { MTXT_MRETURN,            32, 210},
 };
 
 const menuitem_t Menu_Options[] =
 {
-    { MTXT_CONTROLS, 112, 60 },
-    { MTXT_MOVEMENT, 112, 80 },
+    { MTXT_PLAYER,   112, 60 },
+    { MTXT_DISPLAY,  112, 80 },
     { MTXT_SOUND,    112, 100},
     { MTXT_VIDEO,    112, 120},
     { MTXT_HUD,      112, 140},
     { MTXT_DEFAULTS, 112, 160},
-    { MTXT_RETURN,   112, 180},
+    { MTXT_RETURN,   112, 190},
 };
 
 const menuitem_t Menu_Volume[] =
@@ -210,45 +221,65 @@ const menuitem_t Menu_Volume[] =
     { MTXT_RETURN,        82, 140},
 };
 
-const menuitem_t Menu_Movement[] =
+const menuitem_t Menu_Player[] =
 {
-    { MTXT_MOTION_BOB,    82, 60},
-    { MTXT_SENSITIVITY,   82, 100},
-    { MTXT_AUTORUN,       82, 140},
-    { MTXT_VERTICAL_LOOK, 82, 160},
-    { MTXT_AUTOAIM,       82, 180},
-    { MTXT_RETURN,        82, 200},
+    { MTXT_MOVE_SENSITIVITY,   42, 60},
+    { MTXT_LOOK_SENSITIVITY,   42, 70},
+    { MTXT_VERTICAL_LOOK,      42, 80},
+    { MTXT_CROSSHAIR,          42, 90},
+    { MTXT_AUTORUN,            42, 100},
+    { MTXT_AUTOAIM,            42, 110},
+    { MTXT_PLAYER_COLOR,       42, 130},
+    { MTXT_CONTROLLER,         42, 140},
+    { MTXT_CONTROLLER_2,       42, 150},
+    { MTXT_MRETURN,            42, 170},
+};
+
+const menuitem_t Menu_PlayerColor[] =
+{
+    { MTXT_PLAYER_ROTATE, 0, 0},
+    { MTXT_PRESET_COLOR,  52, 160},
+    { MTXT_HUE,           52, 170},
+    { MTXT_SATURATION,    52, 180},
+    { MTXT_VALUE,         52, 190},
+    { MTXT_MRETURN,       52, 210},
 };
 
 const menuitem_t Menu_Video[] =
 {
+    { MTXT_RESOLUTION,       42, 60},
+    { MTXT_COLOR_DEPTH,      42, 70},
+    { MTXT_ASPECT_RATIO,     42, 80},
+    { MTXT_GAMMA_CORRECT,    42, 90},
+    { MTXT_DITHER_FILTER,    42, 100},
+    { MTXT_COLOR_DITHER,     42, 110},
+    { MTXT_ANTIALIASING,     42, 120},
+    { MTXT_INTERLACING,      42, 130},
+    { MTXT_CENTER_DISPLAY,   42, 140},
+    { MTXT_MRETURN,          42, 160},
+};
+
+const menuitem_t Menu_Display[] =
+{
     { MTXT_BRIGHTNESS,       42, 60},
     { MTXT_FLASH_BRIGHTNESS, 42, 70},
-    { MTXT_RESOLUTION,       42, 80},
-    { MTXT_COLOR_DEPTH,      42, 90},
-    { MTXT_ASPECT_RATIO,     42, 100},
-    { MTXT_TEXTURE_FILTER,   42, 110},
-    { MTXT_SPRITE_FILTER,    42, 120},
-    { MTXT_SKY_FILTER,       42, 130},
-    { MTXT_GAMMA_CORRECT,    42, 140},
-    { MTXT_DITHER_FILTER,    42, 150},
-    { MTXT_COLOR_DITHER,     42, 160},
-    { MTXT_ANTIALIASING,     42, 170},
-    { MTXT_INTERLACING,      42, 180},
-    { MTXT_CENTER_DISPLAY,   42, 190},
-    { MTXT_MRETURN,          42, 210},
+    { MTXT_TEXTURE_FILTER,   42, 80},
+    { MTXT_SPRITE_FILTER,    42, 90},
+    { MTXT_SKY_FILTER,       42, 100},
+    { MTXT_BLOOD_COLOR,      42, 110},
+    { MTXT_MRETURN,          42, 130},
 };
 
 const menuitem_t Menu_StatusHUD[] =
 {
-    { MTXT_MARGIN,     62, 60},
-    { MTXT_OPACITY,    62, 70},
-    { MTXT_COLORED,    62, 80},
-    { MTXT_CROSSHAIR,  62, 90},
-    { MTXT_MESSAGES,   62, 100},
-    { MTXT_STORY_TEXT, 62, 110},
-    { MTXT_MAP_STATS,  62, 120},
-    { MTXT_MRETURN,    62, 140},
+    { MTXT_MARGIN,      62, 60},
+    { MTXT_OPACITY,     62, 70},
+    { MTXT_MOTION_BOB,  62, 80},
+    { MTXT_TEXT_COLORS, 62, 90},
+    { MTXT_MESSAGES,    62, 100},
+    { MTXT_MAP_STATS,   62, 110},
+    { MTXT_STORY_TEXT,  62, 120},
+    { MTXT_MRETURN,     62, 140},
 };
 
 const menuitem_t Menu_Defaults[] =
@@ -258,7 +289,7 @@ const menuitem_t Menu_Defaults[] =
     { MTXT_PRESET_MERCILESS,  102, 100},
     { MTXT_PRESET_RETRO,      102, 120},
     { MTXT_PRESET_ACCESSIBLE, 102, 140},
-    { MTXT_RETURN,            102, 160},
+    { MTXT_RETURN,            102, 170},
 };
 
 menuitem_t Menu_Game[] =
@@ -338,7 +369,7 @@ const menuitem_t Menu_Features[] =
     { MTXT_MRETURN,        40, 190},
 };
 
-const menuitem_t Menu_Debug[] =
+static const menuitem_t Menu_Debug[] =
 {
     { MTXT_DEBUG_DISPLAY, 40, 120},
     { MTXT_SECTOR_COLORS, 40, 130},
@@ -356,13 +387,13 @@ typedef struct
     int y;
 } credit_t;
 
-const credit_t Ultra_Credits[] = {
+static const credit_t Ultra_Credits[] = {
     {"PROGRAMMING          IMMORPHER",   20, 48},
     {                     "JNMARTIN84", 188, 58},
     {                     "NOVA",       188, 68}
 };
 
-const credit_t Merciless_Credits[] =
+static const credit_t Merciless_Credits[] =
 {
     {"PROGRAMMING          IMMORPHER",     20, 48},
 
@@ -383,7 +414,7 @@ const credit_t Merciless_Credits[] =
     {"NEIGH WINNY, ISANN KEKET, NEVANDER",   -1, 200},
 };
 
-char *ControlText[] =   //8007517C
+static const char *ControlText[] =   //8007517C
 {
     "default  %s",
     "  stick ",
@@ -409,10 +440,42 @@ char *ControlText[] =   //8007517C
     "map"
 };
 
-u8 ControlMappings[] = {
+static const u8 ControlMappings[] = {
     2,  3,  9, 10,  8,  4,  7, 16, 17,
     1,  0, 14, 15,  13, 5, 12, 11, 6
 };
+
+static const struct {
+    const char *name;
+    u8 hsv[3];
+} PlayerColorPresets[] = {
+    { "Green",  { 84,  159, 52  } },
+    { "Yellow", { 24,  252, 52  } },
+    { "Red",    { 236, 252, 36  } },
+    { "Blue",   { 148, 192, 36  } },
+    { "Violet", { 192, 252, 52  } },
+    { "Brown",  { 4,   98,  60  } },
+    { "Teal",   { 116, 164, 136 } },
+    { "Gray",   { 0,   0,   24  } },
+};
+
+//-----------------------------------------
+
+#ifndef DEBUG_DISPLAY
+#define DEBUG_DISPLAY 0
+#endif
+
+#ifdef NDEBUG
+#define MAXDEBUGCOUNTERS 2
+#else
+#define MAXDEBUGCOUNTERS 8
+#endif
+
+#define SET_MENU(_m) do { MenuItem = (_m); itemlines = ARRAYLEN(_m); } while(0)
+
+//-----------------------------------------
+
+gamesettings_t Settings;
 
 menudata_t MenuData[8]; // 800A54F0
 int MenuAnimationTic;   // 800a5570
@@ -432,193 +495,25 @@ customskill_t startskill;     // 800A55A0
 int startmap;           // 800A55A4
 int EnableExpPak;       // 800A55A8
 
-//-----------------------------------------
-
-#ifndef DEBUG_DISPLAY
-#define DEBUG_DISPLAY 0
-#endif
-
 int MenuIdx = 0;                 // 8005A7A4
 int text_alpha = 255;            // 8005A7A8
-int ConfgNumb[MAXPLAYERS] = {0}; // 8005A7AC
-int Display_X = 0;               // 8005A7B0
-int Display_Y = 0;               // 8005A7B4
-boolean enable_messages = true;  // 8005A7B8
-int HUDopacity = 128;            // [Immorpher] HUD opacity
-int SfxVolume = 100;             // 8005A7C0
-int MusVolume = 80;              // 8005A7C4
-int brightness = 125;            // 8005A7C8
 int ShowDebugCounters = DEBUG_DISPLAY; // [nova] debug counters
-fixed_t MotionBob = 0x100000;    // [Immorpher] Motion Bob works in hexadecimal
-int VideoFilters[3] = {0, 1, 0}; // [nova] Independent filter select
-int TvMode = 0;                  // [nova] AA, Interlacing
-int ScreenAspect = 0;            // [nova] select 4:3, 16:10, 16:9
-boolean NoGammaCorrect = false;  // [nova] real gamma option
-boolean DitherFilter = false;    // [Immorpher] Dither filter
-s8 ColorDither = 0;              // [Immorpher] Color dithering options (Off, Square, Bayer, Noise)
-int FlashBrightness = 32;        // [Immorpher] Strobe brightness adjustment, will need to change to float
 boolean runintroduction = false; // [Immorpher] New introduction sequence!
-boolean StoryText = true;        // [Immorpher] Skip story cut scenes?
-boolean MapStats = true;         // [Immorpher] Enable map statistics for automap?
-int HUDmargin = 20;              // [Immorpher] HUD margin options (default 20)
-boolean ColoredHUD = true;       // [Immorpher] Colored hud
-s8 VideoResolution = VIDEO_RES_LOW;
-u8 BitDepth = BITDEPTH_16;
-
-#ifdef NDEBUG
-#define MAXDEBUGCOUNTERS 2
-#else
-#define MAXDEBUGCOUNTERS 8
-#endif
 
 boolean ConfigChanged = false;
 
-s8 SkillPreset = 1;
+s8 SkillPreset = SKILL_DEFAULT;
 static s8 skillpresetsetup;
 static customskill_t skillsetup;
 static u8 buttonbindstate;
+static u8 configcontroller;
+static u8 playerpreviewshoot;
+static u8 playerpreviewrotate;
+static s8 playercolorpreset;
+static s8 lastsetdefaults;
 
-const skillpreset_t SkillPresets[NUMSKILLPRESETS] = {
-    { "Be Gentle!", { .monster_counts = sk_easy, .player_damage = 0, .player_ammo = 1, } },
-    { "Bring It On!", { .monster_counts = sk_easy, .player_damage = 1 } },
-    { "I Own Doom!", { .monster_counts = sk_medium, .player_damage = 1 } },
-    { "Watch Me Die!", { .monster_counts = sk_hard, .player_damage = 1 } },
-    { "Hardcore!", { .monster_counts = sk_hard, .player_damage = 1,
-                       .player_ammo = 1, .monster_speed = 1 } },
-    { "Be Merciless!", { .monster_counts = sk_hard, .player_damage = 1,
-                         .player_ammo = 2, .monster_speed = 2,
-                         .monster_shrink = 1, .monster_reduced_pain = 1,
-                         .monster_random_aim = 1, } },
-    { "Nightmare!", { .monster_counts = sk_hard, .player_damage = 1,
-                      .player_ammo = 1, .monster_speed = 1, .monster_respawns = 1,
-                      .monster_reactions = 1, } },
-    { "Ultra-Nightmare!", { .monster_counts = sk_hard, .player_damage = 1,
-                            .player_ammo = 1, .monster_speed = 1, .monster_reactions = 1,
-                            .monster_respawns = 1, .permadeath = 1, } },
-    { "Impossible!", { .monster_counts = sk_hard, .player_damage = 3,
-                       .player_ammo = 1, .monster_speed = 2, .monster_shrink = 1,
-                       .monster_reduced_pain = 1, .monster_respawns = 1,
-                       .monster_random_aim = 1, .monster_reactions = 1,
-                       .permadeath = 1, .pistol_start = 1 } },
-};
-
-controls_t CurrentControls[MAXPLAYERS] ALIGNED(16) = {
-{
-    {{
-    PAD_RIGHT_C, PAD_LEFT_C, 0, 0,
-    PAD_Z_TRIG,
-    PAD_B, PAD_L_TRIG, 0, 0,
-    0, 0, PAD_LEFT, PAD_RIGHT,
-    0, PAD_UP_C, PAD_DOWN_C, PAD_A, PAD_R_TRIG,
-    }},
-    STICK_MOVE | STICK_STRAFE
-}
-};
-
-const char *ControlSetupNames[MAXCONTROLSETUPS] =
-{
-    "Modern", "Classic", "Arcade", "Dark", "Hunter", "Action", "Nuke", "Fighter",
-};
-
-const controls_t DefaultControlSetups[MAXCONTROLSETUPS] ALIGNED(16) = {
-    // Modern
-    {
-        {{
-        PAD_RIGHT_C, PAD_LEFT_C, 0, 0,
-        PAD_Z_TRIG,
-        PAD_B, PAD_L_TRIG, 0, 0,
-        0, 0, PAD_DOWN, PAD_RIGHT,
-        0, PAD_UP_C, PAD_DOWN_C, PAD_A, PAD_R_TRIG,
-        }},
-        STICK_MOVE | STICK_STRAFE
-    },
-
-    // Classic
-    {
-        {{
-        PAD_RIGHT, PAD_LEFT, PAD_UP, PAD_DOWN,
-        PAD_Z_TRIG,
-        PAD_RIGHT_C, PAD_UP_C, PAD_LEFT_C, PAD_DOWN_C,
-        PAD_L_TRIG, PAD_R_TRIG, PAD_A, PAD_B,
-        0, 0, 0, 0, 0,
-        }},
-        STICK_MOVE | STICK_TURN
-    },
-
-    // Arcade
-    {
-        {{
-        0, 0, PAD_UP_C, PAD_DOWN_C,
-        PAD_Z_TRIG,
-        PAD_R_TRIG, PAD_L_TRIG, 0, 0,
-        PAD_LEFT_C, PAD_RIGHT_C, PAD_A, PAD_B,
-        0, 0, 0, PAD_UP, PAD_DOWN,
-        }},
-        STICK_VLOOK | STICK_TURN
-    },
-
-    // Dark
-    {
-        {{
-        0, 0, 0, 0,
-        PAD_Z_TRIG,
-        PAD_B, PAD_L_TRIG, 0, 0,
-        PAD_LEFT_C, PAD_RIGHT_C, 0, PAD_A,
-        PAD_R_TRIG, PAD_UP_C, PAD_DOWN_C, PAD_UP, PAD_DOWN,
-        }},
-        STICK_MOVE | STICK_TURN
-    },
-
-    // Hunter
-    {
-        {{
-        0, 0, PAD_UP_C, PAD_DOWN_C,
-        PAD_Z_TRIG,
-        PAD_RIGHT, PAD_L_TRIG, 0, 0,
-        PAD_LEFT_C, PAD_RIGHT_C, PAD_B, PAD_A,
-        PAD_R_TRIG, 0, 0, PAD_R_TRIG, PAD_DOWN,
-        }},
-        STICK_VLOOK | STICK_TURN
-    },
-
-    // Action
-    {
-        {{
-        0, 0, 0, 0,
-        PAD_Z_TRIG,
-        PAD_R_TRIG, PAD_L_TRIG, 0, 0,
-        PAD_LEFT_C, PAD_RIGHT_C, PAD_B, PAD_A,
-        0, PAD_UP, PAD_DOWN, PAD_UP_C, PAD_DOWN_C,
-        }},
-        STICK_MOVE | STICK_TURN
-    },
-
-    // Nuke
-    {
-        {{
-        0, 0, PAD_UP_C, PAD_DOWN_C,
-        PAD_Z_TRIG,
-        PAD_A, PAD_L_TRIG, 0, 0,
-        PAD_LEFT_C, PAD_RIGHT_C, PAD_LEFT, PAD_RIGHT,
-        0, 0, 0, PAD_R_TRIG, PAD_B,
-        }},
-        STICK_VLOOK | STICK_TURN
-    },
-
-    // Fighter
-    {
-        {{
-        PAD_RIGHT, PAD_LEFT, PAD_UP_C, PAD_DOWN_C,
-        PAD_Z_TRIG,
-        PAD_B, PAD_A, 0, 0,
-        PAD_LEFT_C, PAD_RIGHT_C, PAD_L_TRIG, PAD_R_TRIG,
-        0, 0, 0, PAD_UP, PAD_DOWN,
-        }},
-        STICK_TURN | STICK_VLOOK
-    }
-};
-
-#define SET_MENU(_m) do { MenuItem = (_m); itemlines = ARRAYLEN(_m); } while(0)
+controls_t CurrentControls[MAXPLAYERS] ALIGNED(16);
+controls2_t CurrentControls2[1];
 
 //-----------------------------------------
 
@@ -780,9 +675,9 @@ static boolean M_ItemIsDisabled(menuentry_t casepos)
     }
     if (casepos == MTXT_ANTIALIASING)
     {
-        if (VideoResolution == VIDEO_RES_HI_VERT)
+        if (VideoSettings.Resolution == VIDEO_RES_HI_VERT)
             return true;
-        if (VideoResolution == VIDEO_RES_HI_HORIZ && BitDepth == BITDEPTH_32)
+        if (VideoSettings.Resolution == VIDEO_RES_HI_HORIZ && VideoSettings.BitDepth == BITDEPTH_32)
             return true;
     }
     return casepos == MTXT_CONTROLLER_PAK_DISABLED
@@ -819,7 +714,7 @@ int M_ButtonResponder(int buttons) // 80007960
     NewButtons = (buttons);
 
     /* Analyze Analog Stick (up / down) */
-    sensitivity = (int)((buttons) << 24) >> 24;
+    sensitivity = STICK_Y(buttons);
 
     if (sensitivity <= -MAXSENSIVITY)
         NewButtons |= PAD_DOWN;
@@ -827,7 +722,7 @@ int M_ButtonResponder(int buttons) // 80007960
         NewButtons |= PAD_UP;
 
     /* Analyze Analog Stick (left / right) */
-    sensitivity = (int)(((buttons & 0xff00) >> 8) << 24) >> 24;
+    sensitivity = STICK_X(buttons);
 
     if (sensitivity <= -MAXSENSIVITY)
         NewButtons |= PAD_LEFT;
@@ -883,14 +778,14 @@ void M_FadeInStart(void) // 80007AB4
 
 void M_FadeOutStart(int exitmode) // 80007AEC
 {
+    if (ConfigChanged)
+    {
+        I_SaveConfig();
+        ConfigChanged = false;
+    }
+
     if (exitmode == ga_exit)
     {
-        if (ConfigChanged)
-        {
-            I_SaveConfig();
-            ConfigChanged = false;
-        }
-
         MiniLoop(M_AlphaOutStart, NULL, M_AlphaInOutTicker, M_MenuGameDrawer);
     }
 }
@@ -977,7 +872,7 @@ extern int globalcheats; // [GEC]
 
 int M_QuickLoadFailedTicker(void) // 8002BA88
 {
-    if ((ticon - last_ticon) >= 60 && ((u32)ticbuttons[0] >> 16) != 0)
+    if ((ticon - last_ticon) >= 60 && ((u32)allticbuttons >> 16) != 0)
         return ga_exit;
 
     return ga_nothing;
@@ -1029,6 +924,50 @@ static inline bool M_IsHeldNoVert(int buttons, int mask)
 #define IS_PRESSED(mask) M_IsPressed(buttons, oldbuttons, (mask))
 #define IS_HELD(mask) M_IsHeldNoVert(buttons, (mask))
 
+static bool M_ModifySlider(int *value, int step, int max, int buttons, int oldbuttons)
+{
+    if (IS_HELD(PAD_RIGHT))
+    {
+        *value += step;
+        if (*value <= max)
+        {
+            if (*value & step)
+                S_StartSound(NULL, sfx_secmove);
+            ConfigChanged = true;
+            return true;
+        }
+        else
+        {
+            *value = max;
+        }
+    }
+    else if (IS_HELD(PAD_LEFT))
+    {
+        *value -= 1;
+        if (*value < 0)
+        {
+            *value = 0;
+        }
+        else
+        {
+            if (*value & step)
+                S_StartSound(NULL, sfx_secmove);
+            ConfigChanged = true;
+            return true;
+        }
+    }
+    return false;
+}
+
+#define CHANGESLIDER(ptr, step, max) M_ModifySlider((ptr), (step), (max), buttons, oldbuttons)
+#define CHANGESLIDER8(ptr, step, max) ({ \
+        typeof((ptr)) _ptr = (ptr); \
+        int _ival = *(ptr); \
+        bool _res = M_ModifySlider(&_ival, (step), (max), buttons, oldbuttons); \
+        *_ptr = _ival; \
+        _res; \
+    })
+
 int M_MenuTicker(void) // 80007E0C
 {
     unsigned int buttons, oldbuttons;
@@ -1038,12 +977,18 @@ int M_MenuTicker(void) // 80007E0C
     menuentry_t casepos;
     boolean padrepeat = false;
 
+    if (ConfigChanged)
+    {
+        I_SaveConfig();
+        ConfigChanged = false;
+    }
+
     /* animate skull */
     if ((gamevbls < gametic) && ((gametic & 3U) == 0))
         MenuAnimationTic = (MenuAnimationTic + 1) & 7;
 
-    buttons = M_ButtonResponder(ticbuttons[0]);
-    oldbuttons = M_ButtonResponder(oldticbuttons[0]);
+    buttons = M_ButtonResponder(allticbuttons);
+    oldbuttons = M_ButtonResponder(alloldticbuttons);
 
     /* exit menu if button press */
     if (buttons != 0)
@@ -1092,6 +1037,9 @@ int M_MenuTicker(void) // 80007E0C
             }
         }
 
+        if (playerpreviewshoot)
+            playerpreviewshoot--;
+
         if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
         {
             if (MenuItem == Menu_Title)
@@ -1123,23 +1071,6 @@ int M_MenuTicker(void) // 80007E0C
 
             switch(casepos)
             {
-
-            case MTXT_CONTROLS:
-                if (truebuttons)
-                {
-                    S_StartSound(NULL, sfx_pistol);
-                    M_SaveMenuData();
-
-                    MenuCall = M_ControlPadDrawer;
-                    cursorpos = 0;
-                    linepos = 0;
-                    buttonbindstate = 0;
-
-                    MiniLoop(M_FadeInStart,M_FadeOutStart,M_ControlPadTicker,M_MenuGameDrawer);
-                    M_RestoreMenuData(true);
-                    return ga_nothing;
-                }
-                break;
 
             case MTXT_SOUND:
                 if (truebuttons)
@@ -1212,7 +1143,7 @@ int M_MenuTicker(void) // 80007E0C
                     {
                         SET_MENU(Menu_Custom_Skill);
                         MenuCall = M_CustomSkillDrawer;
-                        cursorpos = 0;
+                        cursorpos = 1;
                     }
 
                     exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
@@ -1244,120 +1175,35 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_MUSIC_VOLUME:
-                if (IS_HELD(PAD_RIGHT))
-                {
-                    MusVolume += 1;
-                    if (MusVolume <= 100)
-                    {
-                        S_SetMusicVolume(MusVolume);
-                        if (MusVolume & 1)
-                        {
-                            S_StartSound(NULL, sfx_secmove);
-                            return ga_nothing;
-                        }
-                        ConfigChanged = true;
-                    }
-                    else
-                    {
-                        MusVolume = 100;
-                    }
-                }
-                else if (IS_HELD(PAD_LEFT))
-                {
-                    MusVolume -= 1;
-                    if (MusVolume < 0)
-                    {
-                        MusVolume = 0;
-                    }
-                    else
-                    {
-                        S_SetMusicVolume(MusVolume);
-                        if (MusVolume & 1)
-                        {
-                            S_StartSound(NULL, sfx_secmove);
-                            return ga_nothing;
-                        }
-                        ConfigChanged = true;
-                    }
-                }
+                if (CHANGESLIDER(&Settings.MusVolume, 1, 100))
+                    S_SetMusicVolume(Settings.MusVolume);
                 break;
 
             case MTXT_EFFECT_VOLUME:
-                if (IS_HELD(PAD_RIGHT))
+                if (CHANGESLIDER(&Settings.SfxVolume, 1, 100))
+                    S_SetSoundVolume(Settings.SfxVolume);
+                break;
+
+            case MTXT_DISPLAY:
+                if (truebuttons)
                 {
-                    SfxVolume += 1;
-                    if (SfxVolume <= 100)
-                    {
-                        S_SetSoundVolume(SfxVolume);
-                        if (SfxVolume & 1)
-                        {
-                            S_StartSound(NULL, sfx_secmove);
-                            return ga_nothing;
-                        }
-                        ConfigChanged = true;
-                    }
-                    else
-                    {
-                        SfxVolume = 100;
-                    }
-                }
-                else if (IS_HELD(PAD_LEFT))
-                {
-                    SfxVolume -= 1;
-                    if (SfxVolume < 0)
-                    {
-                        SfxVolume = 0;
-                    }
-                    else
-                    {
-                        S_SetSoundVolume(SfxVolume);
-                        if (SfxVolume & 1)
-                        {
-                            S_StartSound(NULL, sfx_secmove);
-                            return ga_nothing;
-                        }
-                        ConfigChanged = true;
-                    }
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    SET_MENU(Menu_Display);
+                    MenuCall = M_DisplayDrawer;
+                    cursorpos = 0;
+
+                    MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
+                    M_RestoreMenuData(true);
+
+                    return ga_nothing;
                 }
                 break;
 
             case MTXT_BRIGHTNESS:
-                if (IS_HELD(PAD_RIGHT))
-                {
-                    brightness += 2; // [Immorpher] increments doubled for scroll speed
-                    if (brightness <= 200) // [Immorpher] limit extended to 200 from 100 for an optional brightness boost
-                    {
-                        P_RefreshBrightness();
-                        if (brightness & 2)
-                        {
-                            S_StartSound(NULL, sfx_secmove);
-                            return ga_nothing;
-                        }
-                        ConfigChanged = true;
-                    }
-                    else
-                    {
-                        brightness = 200; // [Immorpher] new limit is 200 instead of 100
-                    }
-                }
-                else if (IS_HELD(PAD_LEFT))
-                {
-                    brightness -= 2; // [Immorpher] decrement speed doubled
-                    if (brightness < 0)
-                    {
-                        brightness = 0;
-                    }
-                    else
-                    {
-                        P_RefreshBrightness();
-                        if (brightness & 2)
-                        {
-                            S_StartSound(NULL, sfx_secmove);
-                            return ga_nothing;
-                        }
-                        ConfigChanged = true;
-                    }
-                }
+                if (CHANGESLIDER(&Settings.Brightness, 2, 200))
+                    P_RefreshBrightness();
                 break;
 
             case MTXT_OPTIONS:
@@ -1399,6 +1245,7 @@ int M_MenuTicker(void) // 80007E0C
                     SET_MENU(Menu_Defaults);
                     MenuCall = M_DefaultsDrawer;
                     cursorpos = 0;
+                    lastsetdefaults = -1;
 
                     MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
                     M_RestoreMenuData(true);
@@ -1417,7 +1264,7 @@ int M_MenuTicker(void) // 80007E0C
                     M_UpdateSkillPreset();
                     SET_MENU(Menu_Skill);
                     MenuCall = M_MenuTitleDrawer;
-                    cursorpos = 1;  // Set Default Bring it on!
+                    cursorpos = SKILL_DEFAULT;
 
                     exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
 
@@ -1473,7 +1320,7 @@ int M_MenuTicker(void) // 80007E0C
 
                     SET_MENU(Menu_Custom_Skill);
                     MenuCall = M_CustomSkillDrawer;
-                    cursorpos = 0;
+                    cursorpos = 1;
                     linepos = 0;
 
                     exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
@@ -1556,7 +1403,7 @@ int M_MenuTicker(void) // 80007E0C
                 if (truebuttons || rightbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    if (skillsetup.monster_counts == 2)
+                    if (skillsetup.monster_counts == 3)
                         skillsetup.monster_counts = 0;
                     else
                         skillsetup.monster_counts++;
@@ -1567,7 +1414,7 @@ int M_MenuTicker(void) // 80007E0C
                 {
                     S_StartSound(NULL, sfx_switch2);
                     if (skillsetup.monster_counts == 0)
-                        skillsetup.monster_counts = 2;
+                        skillsetup.monster_counts = 3;
                     else
                         skillsetup.monster_counts--;
                     M_UpdateSkillPreset();
@@ -1910,47 +1757,14 @@ int M_MenuTicker(void) // 80007E0C
                 if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    enable_messages ^= true;
+                    Settings.EnableMessages ^= true;
                     ConfigChanged = true;
                     return ga_nothing;
                 }
                 break;
 
             case MTXT_OPACITY:
-                if (IS_HELD(PAD_RIGHT))
-                {
-                    HUDopacity += 4;
-                    if (HUDopacity <= 255)
-                    {
-                        if (HUDopacity & 4)
-                        {
-                            S_StartSound(NULL, sfx_secmove);
-                            return ga_nothing;
-                        }
-                        ConfigChanged = true;
-                    }
-                    else
-                    {
-                        HUDopacity = 255;
-                    }
-                }
-                else if (IS_HELD(PAD_LEFT))
-                {
-                    HUDopacity -= 4;
-                    if (HUDopacity < 0)
-                    {
-                        HUDopacity = 0;
-                    }
-                    else
-                    {
-                        if (HUDopacity & 4)
-                        {
-                            S_StartSound(NULL, sfx_secmove);
-                            return ga_nothing;
-                        }
-                        ConfigChanged = true;
-                    }
-                }
+                CHANGESLIDER(&Settings.HudOpacity, 4, 255);
                 break;
 
             case MTXT_LOCK_MONSTERS:
@@ -2019,14 +1833,14 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
 
-            case MTXT_MOVEMENT:
+            case MTXT_PLAYER:
                 if (truebuttons)
                 {
                     S_StartSound(NULL, sfx_pistol);
                     M_SaveMenuData();
 
-                    SET_MENU(Menu_Movement);
-                    MenuCall = M_MovementDrawer;
+                    SET_MENU(Menu_Player);
+                    MenuCall = M_PlayerSetupDrawer;
                     cursorpos = 0;
 
                     MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
@@ -2036,41 +1850,12 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
 
-            case MTXT_SENSITIVITY:
-                if (IS_HELD(PAD_RIGHT))
-                {
-                    playerconfigs[0].sensitivity += 1;
-                    if (playerconfigs[0].sensitivity <= 100)
-                    {
-                        if (playerconfigs[0].sensitivity & 1)
-                        {
-                            S_StartSound(NULL, sfx_secmove);
-                            return ga_nothing;
-                        }
-                        ConfigChanged = true;
-                    }
-                    else
-                    {
-                        playerconfigs[0].sensitivity = 100;
-                    }
-                }
-                else if (IS_HELD(PAD_LEFT))
-                {
-                    playerconfigs[0].sensitivity -= 1;
-                    if (playerconfigs[0].sensitivity < 0)
-                    {
-                        playerconfigs[0].sensitivity = 0;
-                    }
-                    else
-                    {
-                        if (playerconfigs[0].sensitivity & 1)
-                        {
-                            S_StartSound(NULL, sfx_secmove);
-                            return ga_nothing;
-                        }
-                        ConfigChanged = true;
-                    }
-                }
+            case MTXT_LOOK_SENSITIVITY:
+                CHANGESLIDER8(&playerconfigs[0].looksensitivity, 1, 100);
+                break;
+
+            case MTXT_MOVE_SENSITIVITY:
+                CHANGESLIDER8(&playerconfigs[0].movesensitivity, 1, 100);
                 break;
 
             case MTXT_MANAGE_PAK:
@@ -2122,55 +1907,32 @@ int M_MenuTicker(void) // 80007E0C
                 {
                     i = casepos - MTXT_TEXTURE_FILTER;
                     S_StartSound(NULL, sfx_switch2);
-                    VideoFilters[i] ^= 1;
+                    Settings.VideoFilters[i] ^= 1;
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_BLOOD_COLOR:
+                if (truebuttons || rightbutton || leftbutton)
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    Settings.GreenBlood ^= 1;
                     ConfigChanged = true;
                     return ga_nothing;
                 }
                 break;
 
             case MTXT_MOTION_BOB:
-                if (IS_HELD(PAD_RIGHT))
-                {
-                    MotionBob += 0x8000; // increments
-                    if (MotionBob <= 0x100000) // Maximum is 32 in hex
-                    {
-                        if (MotionBob & 0x8000)
-                        {
-                            S_StartSound(NULL, sfx_secmove);
-                            return ga_nothing;
-                        }
-                        ConfigChanged = true;
-                    }
-                    else
-                    {
-                        MotionBob = 0x100000; // The Limit
-                    }
-                }
-                else if (IS_HELD(PAD_LEFT))
-                {
-                    MotionBob -= 0x8000; // decrements
-                    if (MotionBob < 0x0)
-                    {
-                        MotionBob = 0x0;
-                    }
-                    else
-                    {
-                        if (MotionBob & 0x8000)
-                        {
-                            S_StartSound(NULL, sfx_secmove);
-                            return ga_nothing;
-                        }
-                        ConfigChanged = true;
-                    }
-                }
+                CHANGESLIDER(&Settings.MotionBob, 0x8000, 0x100000);
                 break;
             case MTXT_RESOLUTION:
                 if (truebuttons || rightbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    VideoResolution += 1;
-                    if (VideoResolution > 2)
-                        VideoResolution = 0;
+                    VideoSettings.Resolution += 1;
+                    if (VideoSettings.Resolution > 2)
+                        VideoSettings.Resolution = 0;
                     I_BlankScreen(2);
                     I_RefreshVideo();
                     ConfigChanged = true;
@@ -2179,9 +1941,9 @@ int M_MenuTicker(void) // 80007E0C
                 if (leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    VideoResolution -= 1;
-                    if (VideoResolution < 0)
-                        VideoResolution = 2;
+                    VideoSettings.Resolution -= 1;
+                    if (VideoSettings.Resolution < 0)
+                        VideoSettings.Resolution = 2;
                     I_BlankScreen(2);
                     I_RefreshVideo();
                     ConfigChanged = true;
@@ -2193,7 +1955,7 @@ int M_MenuTicker(void) // 80007E0C
                 if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    BitDepth ^= 1;
+                    VideoSettings.BitDepth ^= 1;
                     I_BlankScreen(2);
                     I_RefreshVideo();
                     ConfigChanged = true;
@@ -2205,18 +1967,18 @@ int M_MenuTicker(void) // 80007E0C
                 if (truebuttons || rightbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    ScreenAspect += 1;
-                    if (ScreenAspect > 2)
-                        ScreenAspect = 0;
+                    VideoSettings.ScreenAspect += 1;
+                    if (VideoSettings.ScreenAspect > 2)
+                        VideoSettings.ScreenAspect = 0;
                     ConfigChanged = true;
                     return ga_nothing;
                 }
                 if (leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    ScreenAspect -= 1;
-                    if (ScreenAspect < 0)
-                        ScreenAspect = 2;
+                    VideoSettings.ScreenAspect -= 1;
+                    if (VideoSettings.ScreenAspect < 0)
+                        VideoSettings.ScreenAspect = 2;
                     ConfigChanged = true;
                     return ga_nothing;
                 }
@@ -2226,7 +1988,7 @@ int M_MenuTicker(void) // 80007E0C
                 if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    DitherFilter ^= true;
+                    VideoSettings.DitherFilter ^= true;
                     I_RefreshVideo();
                     ConfigChanged = true;
                     return ga_nothing;
@@ -2237,7 +1999,7 @@ int M_MenuTicker(void) // 80007E0C
                 if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    TvMode ^= 1;
+                    VideoSettings.TvMode ^= 1;
                     I_RefreshVideo();
                     ConfigChanged = true;
                     return ga_nothing;
@@ -2248,7 +2010,7 @@ int M_MenuTicker(void) // 80007E0C
                 if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    TvMode ^= 2;
+                    VideoSettings.TvMode ^= 2;
                     I_RefreshVideo();
                     ConfigChanged = true;
                     return ga_nothing;
@@ -2259,323 +2021,54 @@ int M_MenuTicker(void) // 80007E0C
                 if (truebuttons || rightbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    ColorDither += 1;
-                    if (ColorDither > 3)
-                        ColorDither = 0;
+                    Settings.ColorDither += 1;
+                    if (Settings.ColorDither > 3)
+                        Settings.ColorDither = 0;
                     ConfigChanged = true;
                     return ga_nothing;
                 }
                 if (leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    ColorDither -= 1;
-                    if (ColorDither < 0)
-                        ColorDither = 3;
+                    Settings.ColorDither -= 1;
+                    if (Settings.ColorDither < 0)
+                        Settings.ColorDither = 3;
                     ConfigChanged = true;
                     return ga_nothing;
                 }
                 break;
 
             case MTXT_FLASH_BRIGHTNESS:
-                if (IS_HELD(PAD_RIGHT))
-                {
-                    FlashBrightness += 1; // increments
-                    if (FlashBrightness  <= 32) // Maximum is 32
-                    {
-                        if (FlashBrightness & 1)
-                        {
-                            S_StartSound(NULL, sfx_secmove);
-                            return ga_nothing;
-                        }
-                        ConfigChanged = true;
-                    }
-                    else
-                    {
-                        FlashBrightness = 32; // The Limit
-                    }
-                }
-                else if (IS_HELD(PAD_LEFT))
-                {
-                    FlashBrightness -= 1; // decrements
-                    if (FlashBrightness < 0)
-                    {
-                        FlashBrightness = 0;
-                    }
-                    else
-                    {
-                        if (FlashBrightness & 1)
-                        {
-                            S_StartSound(NULL, sfx_secmove);
-                            return ga_nothing;
-                        }
-                        ConfigChanged = true;
-                    }
-                }
+                CHANGESLIDER(&Settings.FlashBrightness, 1, 32);
                 break;
 
             case MTXT_PRESET_MODERN:
-                if (truebuttons)
-                {
-                    S_StartSound(NULL, sfx_switch2);
-
-                    // Set movement/controller options
-                    MotionBob = 0x100000;
-
-                    // Set video options
-                    brightness = 125;
-                    VideoFilters[0] = VideoFilters[2] = 0;
-                    VideoFilters[1] = 1;
-                    TvMode = 0;
-                    NoGammaCorrect = false;
-                    DitherFilter = false;  // [Immorpher] new video option
-                    ColorDither = 0;  // [Immorpher] new video option
-
-                    // Set display options
-                    FlashBrightness = 32;  // [Immorpher] new video option
-                    StoryText = true; // [Immorpher] Skip story cut scenes?
-                    MapStats = true; // [Immorpher] Display automap stats?
-
-                    // Set HUD options
-                    enable_messages = true;
-                    HUDopacity = 128;
-                    HUDmargin = 19; // [Immorpher] HUD margin options
-                    ColoredHUD = true; // [Immorpher] Colored hud
-
-                    // Set sound options
-                    SfxVolume = 0x50;
-                    MusVolume = 0x50;
-
-                    // Reset functions
-                    for (int i = 0; i < MAXPLAYERS; i++)
-                    {
-                        ConfgNumb[i] = 0;    // gamepad configuration
-                        D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
-                        playerconfigs[i].crosshair = 2;
-                        playerconfigs[i].sensitivity = 0;
-                        playerconfigs[i].verticallook = -1;
-                        playerconfigs[i].autorun = true;
-                        playerconfigs[i].autoaim = false;
-                    }
-                    Display_X = Display_Y = 0;
-                    P_RefreshBrightness();
-                    I_RefreshVideo();
-                    S_SetMusicVolume(MusVolume);
-                    S_SetSoundVolume(SfxVolume);
-
-                    ConfigChanged = true;
-                    return ga_nothing;
-                }
-                break;
-
             case MTXT_PRESET_VANILLA:
-                if (truebuttons)
-                {
-                    S_StartSound(NULL, sfx_switch2);
-
-                    // Set movement/controller options
-                    MotionBob = 0x100000;
-
-                    // Set video options
-                    brightness = 0;
-                    VideoFilters[0] = VideoFilters[1] = VideoFilters[2] = 0;
-                    TvMode = 0;
-                    NoGammaCorrect = true;
-                    DitherFilter = false;  // [Immorpher] new video option
-                    ColorDither = 0;  // [Immorpher] new video option
-
-                    // Set display options
-                    FlashBrightness = 32;  // [Immorpher] new video option
-                    StoryText = false; // [Immorpher] Skip story cut scenes?
-                    MapStats = false; // [Immorpher] Display automap stats?
-
-                    // Set HUD options
-                    enable_messages = true;
-                    HUDopacity = 128;
-                    HUDmargin = 19; // [Immorpher] HUD margin options
-                    ColoredHUD = false; // [Immorpher] Colored hud
-
-                    // Set sound options
-                    SfxVolume = 0x50;
-                    MusVolume = 0x50;
-
-                    // Reset functions
-                    for (int i = 0; i < MAXPLAYERS; i++)
-                    {
-                        ConfgNumb[i] = 1;    // gamepad configuration
-                        D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
-                        playerconfigs[i].crosshair = 0;
-                        playerconfigs[i].sensitivity = 0;
-                        playerconfigs[i].verticallook = -1;
-                        playerconfigs[i].autorun = false;
-                        playerconfigs[i].autoaim = true;
-                    }
-                    Display_X = Display_Y = 0;
-                    P_RefreshBrightness();
-                    I_RefreshVideo();
-                    S_SetMusicVolume(MusVolume);
-                    S_SetSoundVolume(SfxVolume);
-
-                    ConfigChanged = true;
-                    return ga_nothing;
-                }
-                break;
-
             case MTXT_PRESET_MERCILESS:
-                if (truebuttons)
-                {
-                    S_StartSound(NULL, sfx_switch2);
-
-                    // Set movement/controller options
-                    MotionBob = 0x100000;
-
-                    // Set video options
-                    brightness = 100;
-                    VideoFilters[0] = VideoFilters[1] = VideoFilters[2] = 0;
-                    TvMode = 0;
-                    NoGammaCorrect = false;
-                    DitherFilter = false;  // [Immorpher] new video option
-                    ColorDither = 0;  // [Immorpher] new video option
-
-                    // Set display options
-                    FlashBrightness = 32;  // [Immorpher] new video option
-                    StoryText = true; // [Immorpher] Skip story cut scenes?
-                    MapStats = false; // [Immorpher] Display automap stats?
-
-                    // Set HUD options
-                    enable_messages = true;
-                    HUDopacity = 128;
-                    HUDmargin = 15; // [Immorpher] HUD margin options
-                    ColoredHUD = true; // [Immorpher] Colored hud
-
-                    // Set sound options
-                    SfxVolume = 100;
-                    MusVolume = 0x50;
-
-                    // Reset functions
-                    for (int i = 0; i < MAXPLAYERS; i++)
-                    {
-                        ConfgNumb[i] = 0;    // gamepad configuration
-                        D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
-                        playerconfigs[i].crosshair = 0;
-                        playerconfigs[i].sensitivity = 0;
-                        playerconfigs[i].verticallook = -1;
-                        playerconfigs[i].autorun = false;
-                        playerconfigs[i].autoaim = true;
-                    }
-                    Display_X = Display_Y = 0;
-                    P_RefreshBrightness();
-                    I_RefreshVideo();
-                    S_SetMusicVolume(MusVolume);
-                    S_SetSoundVolume(SfxVolume);
-                    ConfigChanged = true;
-
-                    return ga_nothing;
-                }
-                break;
-
             case MTXT_PRESET_RETRO:
-                if (truebuttons)
-                {
-                    S_StartSound(NULL, sfx_switch2);
-
-                    // Set movement/controller options
-                    MotionBob = 0x100000;
-
-                    // Set video options
-                    brightness = 200;
-                    VideoFilters[filt_textures] = VideoFilters[filt_sprites] = 0;
-                    VideoFilters[filt_skies] = 1;
-                    TvMode = 0;
-                    NoGammaCorrect = false;
-                    DitherFilter = false;  // [Immorpher] new video option
-                    ColorDither = 2;  // [Immorpher] new video option
-
-                    // Set display options
-                    FlashBrightness = 32;  // [Immorpher] new video option
-                    StoryText = true; // [Immorpher] Keep story cut scenes?
-                    MapStats = true; // [Immorpher] Display automap stats?
-
-                    // Set HUD options
-                    enable_messages = true;
-                    HUDopacity = 196;
-                    HUDmargin = 5; // [Immorpher] HUD margin options
-                    ColoredHUD = true; // [Immorpher] Colored hud
-
-                    // Set sound options
-                    SfxVolume = 100;
-                    MusVolume = 0x50;
-
-                    // Reset functions
-                    for (int i = 0; i < MAXPLAYERS; i++)
-                    {
-                        ConfgNumb[i] = 5;    // gamepad configuration
-                        D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
-                        playerconfigs[i].crosshair = 2;
-                        playerconfigs[i].sensitivity = 0;
-                        playerconfigs[i].verticallook = 1;
-                        playerconfigs[i].autorun = true;
-                        playerconfigs[i].autoaim = false;
-                    }
-                    Display_X = Display_Y = 0;
-                    P_RefreshBrightness();
-                    I_RefreshVideo();
-                    S_SetMusicVolume(MusVolume);
-                    S_SetSoundVolume(SfxVolume);
-                    ConfigChanged = true;
-
-                    return ga_nothing;
-                }
-                break;
-
             case MTXT_PRESET_ACCESSIBLE:
-                if (truebuttons)
+                if (IS_PRESSED(PAD_RIGHT_C))
                 {
+                    const gamesettingspreset_t *preset;
+
                     S_StartSound(NULL, sfx_switch2);
+                    preset = &SettingsPresets[casepos - MTXT_PRESET_MODERN];
 
-                    // Set movement/controller options
-                    MotionBob = 0x0;
-
-                    // Set video options
-                    brightness = 200;
-                    VideoFilters[0] = VideoFilters[1] = VideoFilters[2] = 0;
-                    TvMode = 0;
-                    NoGammaCorrect = false;
-                    DitherFilter = false;  // [Immorpher] new video option
-                    ColorDither = 0;  // [Immorpher] new video option
-
-                    // Set display options
-                    FlashBrightness = 0;  // [Immorpher] new video option
-                    StoryText = true; // [Immorpher] Skip story cut scenes?
-                    MapStats = true; // [Immorpher] Display automap stats?
-
-                    // Set HUD options
-                    enable_messages = true;
-                    HUDopacity = 255;
-                    HUDmargin = 15; // [Immorpher] HUD margin options (default 20)
-                    ColoredHUD = true; // [Immorpher] Colored hud
-
-                    // Set sound options
-                    SfxVolume = 100;
-                    MusVolume = 0x50;
-
-                    // Reset functions
+                    Settings = preset->settings;
+                    VideoSettings = preset->video;
                     for (int i = 0; i < MAXPLAYERS; i++)
                     {
-                        ConfgNumb[i] = 0;    // gamepad configuration
-                        D_memcpy(&CurrentControls[i], &DefaultControlSetups[ConfgNumb[i]], sizeof CurrentControls);
-                        playerconfigs[i].crosshair = 2;
-                        playerconfigs[i].sensitivity = 0;
-                        playerconfigs[i].verticallook = 1;
-                        playerconfigs[i].autorun = true;
-                        playerconfigs[i].autoaim = true;
+                        CurrentControls[i] = ControllerPresets[Settings.ControlPreset[i]].ctrl;
+                        playerconfigs[i] = preset->player;
                     }
-                    Display_X = Display_Y = 0;
+                    CurrentControls2[0] = ControllerPresets[Settings.ControlPreset[0]].ctrl2;
                     P_RefreshBrightness();
                     I_RefreshVideo();
-                    S_SetMusicVolume(MusVolume);
-                    S_SetSoundVolume(SfxVolume);
-                    ConfigChanged = true;
+                    S_SetMusicVolume(Settings.MusVolume);
+                    S_SetSoundVolume(Settings.SfxVolume);
 
+                    lastsetdefaults = casepos;
+                    ConfigChanged = true;
                     return ga_nothing;
                 }
                 break;
@@ -2584,7 +2077,7 @@ int M_MenuTicker(void) // 80007E0C
                 if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    StoryText ^= true;
+                    Settings.StoryText ^= true;
                     ConfigChanged = true;
                     return ga_nothing;
                 }
@@ -2594,7 +2087,7 @@ int M_MenuTicker(void) // 80007E0C
                 if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    MapStats ^= true;
+                    Settings.MapStats ^= true;
                     ConfigChanged = true;
                     return ga_nothing;
                 }
@@ -2617,47 +2110,14 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_MARGIN:
-                if (IS_HELD(PAD_RIGHT))
-                {
-                    HUDmargin += 1; // increments
-                    if (HUDmargin <= 20) // Maximum is 20
-                    {
-                        if (HUDmargin & 1)
-                        {
-                            S_StartSound(NULL, sfx_secmove);
-                            return ga_nothing;
-                        }
-                        ConfigChanged = true;
-                    }
-                    else
-                    {
-                        HUDmargin = 20; // The Limit
-                    }
-                }
-                else if (IS_HELD(PAD_LEFT))
-                {
-                    HUDmargin -= 1; // decrements
-                    if (HUDmargin < 0)
-                    {
-                        HUDmargin = 0;
-                    }
-                    else
-                    {
-                        if (HUDmargin & 1)
-                        {
-                            S_StartSound(NULL, sfx_secmove);
-                            return ga_nothing;
-                        }
-                        ConfigChanged = true;
-                    }
-                }
+                CHANGESLIDER(&Settings.HudMargin, 1, 20);
                 break;
 
-            case MTXT_COLORED:
+            case MTXT_TEXT_COLORS:
                 if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    ColoredHUD ^= true;
+                    Settings.HudTextColors ^= true;
                     ConfigChanged = true;
                     return ga_nothing;
                 }
@@ -2667,7 +2127,7 @@ int M_MenuTicker(void) // 80007E0C
                 if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    NoGammaCorrect = !NoGammaCorrect;
+                    VideoSettings.NoGammaCorrect = !VideoSettings.NoGammaCorrect;
                     I_RefreshVideo();
                     return ga_nothing;
                 }
@@ -2747,6 +2207,118 @@ int M_MenuTicker(void) // 80007E0C
                     playerconfigs[0].autoaim ^= true;
                     ConfigChanged = true;
                     return ga_nothing;
+                }
+                break;
+            case MTXT_PLAYER_COLOR:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    SET_MENU(Menu_PlayerColor);
+                    MenuCall = M_PlayerColorDrawer;
+                    cursorpos = 1;
+                    playerpreviewshoot = 0;
+                    playerpreviewrotate = 0;
+                    playercolorpreset = -1;
+                    for (int i = 0; i < ARRAYLEN(PlayerColorPresets); i++)
+                    {
+                        if (PlayerColorPresets[i].hsv[0] == playerconfigs[0].hsv[0]
+                                && PlayerColorPresets[i].hsv[1] == playerconfigs[0].hsv[1]
+                                && PlayerColorPresets[i].hsv[2] == playerconfigs[0].hsv[2])
+                        {
+                            playercolorpreset = i;
+                            break;
+                        }
+                    }
+
+                    MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
+                    M_RestoreMenuData(true);
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_CONTROLLER:
+            case MTXT_CONTROLLER_2:
+                if (truebuttons)
+                {
+                    S_StartSound(NULL, sfx_pistol);
+                    M_SaveMenuData();
+
+                    MenuCall = M_ControlPadDrawer;
+                    linepos = 0;
+                    buttonbindstate = 0;
+                    cursorpos = configcontroller = casepos - MTXT_CONTROLLER;
+
+                    MiniLoop(M_FadeInStart,M_FadeOutStart,M_ControlPadTicker,M_MenuGameDrawer);
+                    M_RestoreMenuData(true);
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_PLAYER_ROTATE:
+                if (truebuttons && !playerpreviewshoot)
+                {
+                    playerpreviewshoot = 12;
+                    S_StartSound(NULL, sfx_shotgun);
+                }
+                if (leftbutton)
+                    playerpreviewrotate = (playerpreviewrotate + 1) & 7;
+                if (rightbutton)
+                    playerpreviewrotate = (playerpreviewrotate - 1) & 7;
+                break;
+            case MTXT_PRESET_COLOR:
+                if (truebuttons || rightbutton)
+                {
+                    playercolorpreset += 1;
+                    if (playercolorpreset >= ARRAYLEN(PlayerColorPresets))
+                        playercolorpreset = 0;
+                    playerconfigs[0].hsv[0] = PlayerColorPresets[playercolorpreset].hsv[0];
+                    playerconfigs[0].hsv[1] = PlayerColorPresets[playercolorpreset].hsv[1];
+                    playerconfigs[0].hsv[2] = PlayerColorPresets[playercolorpreset].hsv[2];
+                    S_StartSound(NULL, sfx_switch2);
+                    R_UpdatePlayerPalette(0);
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                else if (leftbutton)
+                {
+                    playercolorpreset -= 1;
+                    if (playercolorpreset < 0)
+                        playercolorpreset = ARRAYLEN(PlayerColorPresets) - 1;
+                    playerconfigs[0].hsv[0] = PlayerColorPresets[playercolorpreset].hsv[0];
+                    playerconfigs[0].hsv[1] = PlayerColorPresets[playercolorpreset].hsv[1];
+                    playerconfigs[0].hsv[2] = PlayerColorPresets[playercolorpreset].hsv[2];
+                    S_StartSound(NULL, sfx_switch2);
+                    R_UpdatePlayerPalette(0);
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_HUE:
+            case MTXT_SATURATION:
+            case MTXT_VALUE:
+                {
+                    int cur = playerconfigs[0].hsv[casepos - MTXT_HUE];
+                    int next = cur;
+
+                    if (IS_HELD(PAD_RIGHT))
+                        next += 4;
+                    else if (IS_HELD(PAD_LEFT))
+                        next -= 4;
+
+                    if (casepos == MTXT_HUE)
+                        next = next & 0xff;
+                    else
+                        next = CLAMP(next, 0, 0xfc);
+
+                    if (next != cur)
+                    {
+                        playerconfigs[0].hsv[casepos - MTXT_HUE] = next;
+                        playercolorpreset = -1;
+                        R_UpdatePlayerPalette(0);
+                        S_StartSound(NULL, sfx_secmove);
+                        ConfigChanged = true;
+                        return ga_nothing;
+                    }
                 }
                 break;
             case MTXT_QUICK_SAVE:
@@ -3115,8 +2687,8 @@ static void M_DebugMenuDrawer(void) // 800091C0
 
 static int M_MenuCreditsTicker(void)
 {
-    int buttons = ticbuttons[0];
-    int oldbuttons = oldticbuttons[0];
+    int buttons = allticbuttons;
+    int oldbuttons = alloldticbuttons;
 
     if (IS_PRESSED(PAD_A) || IS_PRESSED(PAD_B) || IS_PRESSED(PAD_START))
     {
@@ -3176,7 +2748,7 @@ void M_VolumeDrawer(void) // 800095B4
     int i;
 
     ST_DrawString(-1, 20, "Sound", text_alpha | 0xc0000000);
-    item = Menu_Volume;
+    item = MenuItem;
 
     for(i = 0; i < itemlines; i++)
     {
@@ -3187,22 +2759,79 @@ void M_VolumeDrawer(void) // 800095B4
     ST_DrawSymbol(MenuItem->x - 37, MenuItem[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
     ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
-    ST_DrawSymbol(MusVolume + 83, 80, 69, text_alpha | 0xffffff00);
+    ST_DrawSymbol(Settings.MusVolume + 83, 80, 69, text_alpha | 0xffffff00);
 
     ST_DrawSymbol(82, 120, 68, text_alpha | 0xffffff00);
-    ST_DrawSymbol(SfxVolume + 83, 120, 69, text_alpha | 0xffffff00);
+    ST_DrawSymbol(Settings.SfxVolume + 83, 120, 69, text_alpha | 0xffffff00);
 }
 
-void M_MovementDrawer(void) // 80009738
+void M_DisplayDrawer(void) // 80009884
+{
+    const char *text;
+    const menuitem_t *item;
+    int i;
+    menuentry_t casepos;
+
+    ST_DrawString(-1, 20, "Display", text_alpha | 0xc0000000);
+
+    item = MenuItem;
+
+    for(i = 0; i < itemlines; i++)
+    {
+        casepos = item->casepos;
+
+        if (casepos == MTXT_TEXTURE_FILTER || casepos == MTXT_SPRITE_FILTER || casepos == MTXT_SKY_FILTER)
+        {
+            int ti = casepos - MTXT_TEXTURE_FILTER;
+            if (Settings.VideoFilters[ti] == 0)
+                text = "Bilinear";
+            else
+                text = "Off";
+        }
+        else if (casepos == MTXT_BLOOD_COLOR)
+        {
+            if (Settings.GreenBlood)
+                text = "Green";
+            else
+                text = "Red";
+        }
+        else
+        {
+            text = NULL;
+        }
+
+        if (casepos == MTXT_BRIGHTNESS)
+        {
+            ST_DrawSymbol(item->x + 140, item->y, 68, text_alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 141 + Settings.Brightness/2, item->y, 69, text_alpha | 0xffffff00);
+        }
+        else if (casepos == MTXT_FLASH_BRIGHTNESS)
+        {
+            ST_DrawSymbol(item->x + 140, item->y, 68, text_alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 141 + 100*Settings.FlashBrightness/32, item->y, 69, text_alpha | 0xffffff00);
+        }
+
+        if (text)
+            ST_Message(item->x + 140, item->y, text, text_alpha | 0xc0000000);
+
+        ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+
+        item++;
+    }
+
+    ST_DrawSymbol(MenuItem[0].x - 10, MenuItem[cursorpos].y - 2, 78, text_alpha | 0x90600000);
+}
+
+void M_PlayerSetupDrawer(void) // 80009738
 {
     char *text;
     const menuitem_t *item;
     int i;
     menuentry_t casepos;
 
-    ST_DrawString(-1, 20, "Movement", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Player Setup", text_alpha | 0xc0000000);
 
-    item = Menu_Movement;
+    item = MenuItem;
 
     for(i = 0; i < itemlines; i++)
     {
@@ -3222,6 +2851,17 @@ void M_MovementDrawer(void) // 80009738
             else
                 text = "Inverted";
         }
+        else if (casepos == MTXT_CROSSHAIR)
+        {
+            if (playerconfigs[0].crosshair == 0)
+                text = "None";
+            else if (playerconfigs[0].crosshair == 1)
+                text = "Dot";
+            else if (playerconfigs[0].crosshair == 2)
+                text = "Cross";
+            else
+                text = "Vertical";
+        }
         else if (casepos == MTXT_AUTOAIM) // [nova] Autoaim
         {
             if (playerconfigs[0].autoaim)
@@ -3234,26 +2874,30 @@ void M_MovementDrawer(void) // 80009738
             text = NULL;
         }
 
-        if (text)
-            ST_DrawString(item->x + 120, item->y, text, text_alpha | 0xc0000000);
+        if (casepos == MTXT_LOOK_SENSITIVITY)
+        {
+            ST_DrawSymbol(item->x + 140, item->y, 68, text_alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 141 + playerconfigs[0].looksensitivity, item->y, 69, text_alpha | 0xffffff00);
+        }
+        else if (casepos == MTXT_MOVE_SENSITIVITY)
+        {
+            ST_DrawSymbol(item->x + 140, item->y, 68, text_alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 141 + playerconfigs[0].movesensitivity, item->y, 69, text_alpha | 0xffffff00);
+        }
 
-        ST_DrawString(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+        if (text)
+            ST_Message(item->x + 140, item->y, text, text_alpha | 0xc0000000);
+
+        ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+
         item++;
     }
 
-    ST_DrawSymbol(MenuItem->x - 37, MenuItem[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
-
-    // Sensitivity
-    ST_DrawSymbol(82,120,68,text_alpha | 0xffffff00);
-    ST_DrawSymbol(playerconfigs[0].sensitivity + 83, 120, 69, text_alpha | 0xffffff00);
-
-    // Motion bob
-    ST_DrawSymbol(82, 80, 68, text_alpha | 0xffffff00);
-    ST_DrawSymbol(MotionBob/0x28F6 + 83, 80, 69, text_alpha | 0xffffff00);
+    ST_DrawSymbol(MenuItem[0].x - 10, MenuItem[cursorpos].y - 2, 78, text_alpha | 0x90600000);
 
 }
 
-void M_VideoDrawer(void) // 80009884
+void M_VideoDrawer(void)
 {
     const char *text;
     const menuitem_t *item;
@@ -3262,7 +2906,7 @@ void M_VideoDrawer(void) // 80009884
 
     ST_DrawString(-1, 20, "Video", text_alpha | 0xc0000000);
 
-    item = Menu_Video;
+    item = MenuItem;
 
     for(i = 0; i < itemlines; i++)
     {
@@ -3272,30 +2916,22 @@ void M_VideoDrawer(void) // 80009884
         if (M_ItemIsDisabled(casepos))
             alpha = (alpha * 96) >> 8;
 
-        if (casepos == MTXT_TEXTURE_FILTER || casepos == MTXT_SPRITE_FILTER || casepos == MTXT_SKY_FILTER)
-        {
-            int ti = casepos - MTXT_TEXTURE_FILTER;
-            if (VideoFilters[ti] == 0)
-                text = "Bilinear";
-            else
-                text = "Off";
-        }
-        else if (casepos == MTXT_RESOLUTION)
+        if (casepos == MTXT_RESOLUTION)
         {
             if (osTvType == OS_TV_PAL)
             {
-                if (VideoResolution == VIDEO_RES_HI_HORIZ)
+                if (VideoSettings.Resolution == VIDEO_RES_HI_HORIZ)
                     text = "640 x 288";
-                else if (VideoResolution == VIDEO_RES_HI_VERT)
+                else if (VideoSettings.Resolution == VIDEO_RES_HI_VERT)
                     text = "320 x 576";
                 else
                     text = "320 x 288";
             }
             else
             {
-                if (VideoResolution == VIDEO_RES_HI_HORIZ)
+                if (VideoSettings.Resolution == VIDEO_RES_HI_HORIZ)
                     text = "640 x 240";
-                else if (VideoResolution == VIDEO_RES_HI_VERT)
+                else if (VideoSettings.Resolution == VIDEO_RES_HI_VERT)
                     text = "320 x 480";
                 else
                     text = "320 x 240";
@@ -3303,55 +2939,55 @@ void M_VideoDrawer(void) // 80009884
         }
         else if (casepos == MTXT_COLOR_DEPTH)
         {
-            if (BitDepth == BITDEPTH_32)
+            if (VideoSettings.BitDepth == BITDEPTH_32)
                 text = "32-Bit";
             else
                 text = "16-Bit";
         }
         else if (casepos == MTXT_ASPECT_RATIO)
         {
-            if (ScreenAspect == 1)
+            if (VideoSettings.ScreenAspect == 1)
                 text = "16:10";
-            else if (ScreenAspect == 2)
+            else if (VideoSettings.ScreenAspect == 2)
                 text = "16:9";
             else
                 text = "4:3";
         }
         else if (casepos == MTXT_ANTIALIASING)
         {
-            if ((TvMode & 1) && VideoResolution != VIDEO_RES_HI_VERT)
+            if ((VideoSettings.TvMode & 1) && VideoSettings.Resolution != VIDEO_RES_HI_VERT)
                 text = "On";
             else
                 text = "Off";
         }
         else if (casepos == MTXT_INTERLACING)
         {
-            if (TvMode & 2)
+            if (VideoSettings.TvMode & 2)
                 text = "On";
             else
                 text = "Off";
         }
         else if (casepos == MTXT_GAMMA_CORRECT)
         {
-            if (NoGammaCorrect)
+            if (VideoSettings.NoGammaCorrect)
                 text = "Off";
             else
                 text = "On";
         }
         else if (casepos == MTXT_DITHER_FILTER)
         {
-            if (DitherFilter)
+            if (VideoSettings.DitherFilter)
                 text = "On";
             else
                 text = "Off";
         }
         else if (casepos == MTXT_COLOR_DITHER)
         {
-            if (ColorDither == 1)
+            if (Settings.ColorDither == 1)
                 text = "Square";
-            else if (ColorDither == 2)
+            else if (Settings.ColorDither == 2)
                 text = "Bayer";
-            else if (ColorDither == 3)
+            else if (Settings.ColorDither == 3)
                 text = "Noise";
             else
                 text = "Off";
@@ -3361,21 +2997,10 @@ void M_VideoDrawer(void) // 80009884
             text = NULL;
         }
 
-        if (casepos == MTXT_BRIGHTNESS)
-        {
-            ST_DrawSymbol(item->x + 140, item->y, 68, alpha | 0xffffff00);
-            ST_DrawSymbol(item->x + 141 + brightness/2, item->y, 69, alpha | 0xffffff00);
-        }
-        else if (casepos == MTXT_FLASH_BRIGHTNESS)
-        {
-            ST_DrawSymbol(item->x + 140, item->y, 68, alpha | 0xffffff00);
-            ST_DrawSymbol(item->x + 141 + 100*FlashBrightness/32, item->y, 69, alpha | 0xffffff00);
-        }
-
         if (text)
             ST_Message(item->x + 140, item->y, text, alpha | 0xc0000000);
 
-        if (casepos == MTXT_INTERLACING && VideoResolution == VIDEO_RES_HI_VERT)
+        if (casepos == MTXT_INTERLACING && VideoSettings.Resolution == VIDEO_RES_HI_VERT)
             text = "Deflickering";
         else
             text = MenuText[casepos];
@@ -3385,7 +3010,7 @@ void M_VideoDrawer(void) // 80009884
         item++;
     }
 
-    ST_DrawSymbol(Menu_Video[0].x - 10, Menu_Video[cursorpos].y - 2, 78, text_alpha | 0x90600000);
+    ST_DrawSymbol(MenuItem[0].x - 10, MenuItem[cursorpos].y - 2, 78, text_alpha | 0x90600000);
 }
 
 void M_StatusHUDDrawer(void) // 80009884
@@ -3397,7 +3022,7 @@ void M_StatusHUDDrawer(void) // 80009884
 
     ST_DrawString(-1, 20, "Status HUD", text_alpha | 0xc0000000);
 
-    item = Menu_StatusHUD;
+    item = MenuItem;
 
     for(i = 0; i < itemlines; i++)
     {
@@ -3405,39 +3030,28 @@ void M_StatusHUDDrawer(void) // 80009884
 
         if (casepos == MTXT_MESSAGES)
         {
-            if (enable_messages)
+            if (Settings.EnableMessages)
                 text = "On";
             else
                 text = "Off";
         }
-        else if (casepos == MTXT_COLORED)
+        else if (casepos == MTXT_TEXT_COLORS)
         {
-            if (ColoredHUD)
+            if (Settings.HudTextColors)
                 text = "On";
             else
                 text = "Off";
-        }
-        else if (casepos == MTXT_CROSSHAIR)
-        {
-            if (playerconfigs[0].crosshair == 0)
-                text = "None";
-            else if (playerconfigs[0].crosshair == 1)
-                text = "Dot";
-            else if (playerconfigs[0].crosshair == 2)
-                text = "Cross";
-            else
-                text = "Vertical";
         }
         else if (casepos == MTXT_STORY_TEXT)
         {
-            if (StoryText)
+            if (Settings.StoryText)
                 text = "On";
             else
                 text = "Off";
         }
         else if (casepos == MTXT_MAP_STATS)
         {
-            if (MapStats)
+            if (Settings.MapStats)
                 text = "On";
             else
                 text = "Off";
@@ -3450,12 +3064,17 @@ void M_StatusHUDDrawer(void) // 80009884
         if (casepos == MTXT_MARGIN)
         {
             ST_DrawSymbol(item->x + 100, item->y, 68, text_alpha | 0xffffff00);
-            ST_DrawSymbol(item->x + 101 + 100*HUDmargin/20, item->y, 69, text_alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 101 + 100*Settings.HudMargin/20, item->y, 69, text_alpha | 0xffffff00);
         }
         else if (casepos == MTXT_OPACITY)
         {
             ST_DrawSymbol(item->x + 100, item->y, 68, text_alpha | 0xffffff00);
-            ST_DrawSymbol(item->x + 101 + 100*HUDopacity/255, item->y, 69, text_alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 101 + 100*Settings.HudOpacity/255, item->y, 69, text_alpha | 0xffffff00);
+        }
+        else if (casepos == MTXT_MOTION_BOB)
+        {
+            ST_DrawSymbol(item->x + 100, item->y, 68, text_alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 101 + Settings.MotionBob/0x28F6, item->y, 69, text_alpha | 0xffffff00);
         }
 
         if (text)
@@ -3466,26 +3085,40 @@ void M_StatusHUDDrawer(void) // 80009884
         item++;
     }
 
-    ST_DrawSymbol(Menu_StatusHUD[0].x - 10, Menu_StatusHUD[cursorpos].y - 2, 78, text_alpha | 0x90600000);
+    ST_DrawSymbol(MenuItem[0].x - 10, MenuItem[cursorpos].y - 2, 78, text_alpha | 0x90600000);
 }
 
 void M_DefaultsDrawer(void) // [Immorpher] new defaults drawer
 {
+    char buf[40];
     const menuitem_t *item;
     int i;
 
-    ST_DrawString(-1, 20, "Set Defaults", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Reset to Defaults", text_alpha | 0xc0000000);
 
-    item = Menu_Defaults;
+    item = MenuItem;
 
     for(i = 0; i < itemlines; i++)
     {
         ST_DrawString(item->x, item->y, MenuText[item->casepos], text_alpha | 0xc0000000);
 
+        if (item->casepos != MTXT_RETURN)
+            ST_DrawSymbol(item->x + 108, item->y, 85, text_alpha | 0xffffff00);
+
         item++;
     }
 
-    ST_DrawSymbol(Menu_Defaults[0].x - 37, Menu_Defaults[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
+    ST_DrawSymbol(MenuItem[0].x - 37, MenuItem[cursorpos].y - 9, MenuAnimationTic + 70, text_alpha | 0xffffff00);
+
+    if (lastsetdefaults >= 0)
+        sprintf(buf, "defaults set to %s", MenuText[lastsetdefaults]);
+    else if (MenuItem[cursorpos].casepos != MTXT_RETURN)
+        sprintf(buf, "press \x85 to reset");
+    else
+        buf[0] = 0;
+
+    if (buf[0])
+        ST_DrawString(-1, SCREEN_HT - 30, buf, text_alpha | 0xffffff00);
 }
 
 void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
@@ -3608,22 +3241,11 @@ void M_DrawOverlay(int x, int y, int w, int h, int color) // 80009F58
 {
     I_CheckGFX();
 
-    gDPPipeSync(GFX1++);
-
-    gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
-
-    gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
-    gDPSetTexturePersp(GFX1++, G_TP_NONE);
-
-    gDPSetAlphaCompare(GFX1++, G_AC_THRESHOLD);
-
-    gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
-    gDPSetCombineMode(GFX1++, G_CC_D64COMB05, G_CC_D64COMB05);
-    gDPSetRenderMode(GFX1++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    R_RenderModes(rm_hudoverlay);
 
     gDPSetPrimColorD64(GFX1++, 0, 0, color);
 
-    gDPFillRectangle(GFX1++, x, y, w, h);
+    gDPFillRectangle(GFX1++, x, y, x+w, y+h);
     globallump = -1;
 }
 
@@ -3643,8 +3265,8 @@ int M_ScreenTicker(void) // 8000A0F8
     if ((gamevbls < gametic) && ((gametic & 3U) == 0))
         MenuAnimationTic = (MenuAnimationTic + 1) & 7;
 
-    buttons = M_ButtonResponder(ticbuttons[0]);
-    oldbuttons = oldticbuttons[0] & 0xffff0000;
+    buttons = M_ButtonResponder(allticbuttons);
+    oldbuttons = alloldticbuttons & 0xffff0000;
 
     if (!(buttons & ALL_JPAD))
     {
@@ -3964,8 +3586,8 @@ int M_SavePakTicker(void) // 8000A804
         MenuAnimationTic = (MenuAnimationTic + 1) & 7;
     }
 
-    buttons = M_ButtonResponder(ticbuttons[0]);
-    oldbuttons = oldticbuttons[0] & 0xffff0000;
+    buttons = M_ButtonResponder(allticbuttons);
+    oldbuttons = alloldticbuttons & 0xffff0000;
 
     if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
     {
@@ -4157,8 +3779,8 @@ int M_SaveGamePakTicker(void)
         MenuAnimationTic = (MenuAnimationTic + 1) & 7;
     }
 
-    buttons = M_ButtonResponder(ticbuttons[0]);
-    oldbuttons = oldticbuttons[0] & 0xffff0000;
+    buttons = M_ButtonResponder(allticbuttons);
+    oldbuttons = alloldticbuttons & 0xffff0000;
 
     if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
     {
@@ -4312,8 +3934,8 @@ int M_LoadPakTicker(void) // 8000AFE4
         MenuAnimationTic = (MenuAnimationTic + 1) & 7;
     }
 
-    buttons = M_ButtonResponder(ticbuttons[0]);
-    oldbuttons = oldticbuttons[0] & 0xffff0000;
+    buttons = M_ButtonResponder(allticbuttons);
+    oldbuttons = alloldticbuttons & 0xffff0000;
 
     if (!(buttons & ALL_JPAD))
     {
@@ -4478,8 +4100,8 @@ int M_LoadGamePakTicker(void)
         MenuAnimationTic = (MenuAnimationTic + 1) & 7;
     }
 
-    buttons = M_ButtonResponder(ticbuttons[0]);
-    oldbuttons = oldticbuttons[0] & 0xffff0000;
+    buttons = M_ButtonResponder(allticbuttons);
+    oldbuttons = alloldticbuttons & 0xffff0000;
 
     if (!(buttons & ALL_JPAD))
     {
@@ -4595,8 +4217,8 @@ int M_CenterDisplayTicker(void) // 8000B4C4
     unsigned int buttons, oldbuttons;
     int exit;
 
-    buttons = M_ButtonResponder(ticbuttons[0]);
-    oldbuttons = oldticbuttons[0] & 0xffff0000;
+    buttons = M_ButtonResponder(allticbuttons);
+    oldbuttons = alloldticbuttons & 0xffff0000;
 
     if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
     {
@@ -4607,42 +4229,42 @@ int M_CenterDisplayTicker(void) // 8000B4C4
     {
         if (buttons & PAD_LEFT)
         {
-            Display_X -= 1;
-            if (Display_X < -16)
-                Display_X = -16;
+            VideoSettings.Display_X -= 1;
+            if (VideoSettings.Display_X < -16)
+                VideoSettings.Display_X = -16;
             else
                 ConfigChanged = true;
         }
         else if (buttons & PAD_RIGHT)
         {
-            Display_X += 1;
-            if (Display_X > 24)
-                Display_X = 24;
+            VideoSettings.Display_X += 1;
+            if (VideoSettings.Display_X > 24)
+                VideoSettings.Display_X = 24;
             else
                 ConfigChanged = true;
         }
 
         if (buttons & PAD_UP)
         {
-            Display_Y -= 1;
-            if (Display_Y < -20)
-                Display_Y = -20;
+            VideoSettings.Display_Y -= 1;
+            if (VideoSettings.Display_Y < -20)
+                VideoSettings.Display_Y = -20;
             else
                 ConfigChanged = true;
         }
         else if (buttons & PAD_DOWN)
         {
-            Display_Y += 1;
-            if (Display_Y > 12)
-                Display_Y = 12;
+            VideoSettings.Display_Y += 1;
+            if (VideoSettings.Display_Y > 12)
+                VideoSettings.Display_Y = 12;
             else
                 ConfigChanged = true;
         }
 
-        if (IS_PRESSED(PAD_A) && (Display_X || Display_Y))
+        if (IS_PRESSED(PAD_A) && (VideoSettings.Display_X || VideoSettings.Display_Y))
         {
-            Display_X = 0;
-            Display_Y = 0;
+            VideoSettings.Display_X = 0;
+            VideoSettings.Display_Y = 0;
             ConfigChanged = true;
         }
 
@@ -4650,6 +4272,12 @@ int M_CenterDisplayTicker(void) // 8000B4C4
             I_RefreshVideo();
 
         exit = ga_nothing;
+    }
+
+    if (ConfigChanged)
+    {
+        I_SaveConfig();
+        ConfigChanged = false;
     }
 
     return exit;
@@ -4663,6 +4291,57 @@ void M_CenterDisplayDrawer(void) // 8000B604
     ST_DrawString(-1, SCREEN_HT - 30, "press \x8b to exit", text_alpha | 0xffffff00);
 }
 
+void M_PlayerColorDrawer(void)
+{
+    const menuitem_t *item;
+    int i;
+    menuentry_t casepos;
+    statenum_t state;
+
+    if (playerpreviewshoot >= 6)
+        state = S_PLAY_ATK2;
+    else if (playerpreviewshoot > 0)
+        state = S_PLAY_ATK1;
+    else
+        state = S_PLAY_RUN1 + (MenuAnimationTic&3);
+
+    M_DrawOverlay((SCREEN_WD>>1)-40, 44, 80, 104, (text_alpha*224)>>8);
+
+    F_DrawSprite(MT_PLAYER, &states[state], playerpreviewrotate,
+                 text_alpha | 0xffffff00, SCREEN_WD>>1, 134, FRACUNIT, 0);
+
+    ST_DrawString(-1, 20, "Player Color", text_alpha | 0xc0000000);
+
+    item = MenuItem;
+
+    for(i = 0; i < itemlines; i++)
+    {
+        casepos = item->casepos;
+
+        if (casepos == MTXT_HUE || casepos == MTXT_SATURATION || casepos == MTXT_VALUE)
+        {
+            ST_DrawSymbol(item->x + 110, item->y, 68, text_alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 111 + playerconfigs[0].hsv[casepos - MTXT_HUE]*25/63, item->y, 69, text_alpha | 0xffffff00);
+        }
+        else if (casepos == MTXT_PRESET_COLOR)
+        {
+            ST_Message(item->x + 110, item->y,
+                       playercolorpreset < 0 ? "Custom" : PlayerColorPresets[playercolorpreset].name,
+                       text_alpha | 0xc0000000);
+        }
+
+        if (MenuText[casepos])
+            ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+
+        item++;
+    }
+
+    if (cursorpos == 0)
+        ST_DrawSymbol((SCREEN_WD>>1)-5, 136, 95, text_alpha | 0x90600000);
+    else
+        ST_DrawSymbol(MenuItem[cursorpos].x - 10, MenuItem[cursorpos].y - 2, 78, text_alpha | 0x90600000);
+}
+
 #define CONTROLCOLSIZE ((ARRAYLEN(ControlText) - 2) / 2)
 
 int M_ControlPadTicker(void) // 8000B694
@@ -4671,8 +4350,8 @@ int M_ControlPadTicker(void) // 8000B694
     unsigned int oldbuttons;
     int code = 0;
 
-    buttons = M_ButtonResponder(ticbuttons[0]);
-    oldbuttons = M_ButtonResponder(oldticbuttons[0]);
+    buttons = M_ButtonResponder(allticbuttons);
+    oldbuttons = M_ButtonResponder(alloldticbuttons);
 
     if (buttonbindstate == 1)
     {
@@ -4683,7 +4362,7 @@ int M_ControlPadTicker(void) // 8000B694
             for (int i = 16; i < 32; i++)
             {
                 register int bit = 1 << i;
-                if ((ticbuttons[0] & bit) && !(oldticbuttons[0] & bit))
+                if ((allticbuttons & bit) && !(alloldticbuttons & bit))
                 {
                     code = (1 << i);
                     break;
@@ -4693,15 +4372,37 @@ int M_ControlPadTicker(void) // 8000B694
                 return ga_nothing;
         }
 
-        ConfgNumb[0] = -1;
-        CurrentControls[0].BUTTONS[m] = code;
-        /* if setting, unset anything previously bound to this button */
-        if (CurrentControls[0].BUTTONS[m])
+        Settings.ControlPreset[0] = -1;
+        if (configcontroller == 0)
         {
-            for (int i = 0; i < ARRAYLEN(CurrentControls[0].BUTTONS); i++)
-                if (i != m && CurrentControls[0].BUTTONS[i] == buttons)
-                    CurrentControls[0].BUTTONS[i] = 0;
+            CurrentControls[0].buttons[m] = code;
+            /* if setting, unset anything previously bound to this button */
+            if (CurrentControls[0].buttons[m])
+            {
+                for (int i = 0; i < ARRAYLEN(CurrentControls[0].buttons); i++)
+                    if (i != m && CurrentControls[0].buttons[i] == buttons)
+                        CurrentControls[0].buttons[i] = 0;
+            }
         }
+        else if (!(code & ~(PAD_A|PAD_B|PAD_Z_TRIG)))
+        {
+            if (CurrentControls2[0].a == m)
+                CurrentControls2[0].a = BT_NONE;
+            else if (CurrentControls2[0].b == m)
+                CurrentControls2[0].b = BT_NONE;
+            else if (CurrentControls2[0].z == m)
+                CurrentControls2[0].z = BT_NONE;
+
+            if (code == PAD_A)
+                CurrentControls2[0].a = m;
+            else if (code == PAD_B)
+                CurrentControls2[0].b = m;
+            else if (code == PAD_Z_TRIG)
+                CurrentControls2[0].z = m;
+        }
+        else
+            return ga_nothing;
+
         S_StartSound(NULL,sfx_switch2);
         ConfigChanged = true;
         buttonbindstate = 2;
@@ -4742,8 +4443,9 @@ int M_ControlPadTicker(void) // 8000B694
                     cursorpos = 1;
                 else
                     cursorpos -= 1;
-                if (cursorpos < 0)
-                    cursorpos = 0;
+
+                if (cursorpos < configcontroller) // hack
+                    cursorpos = configcontroller;
                 else
                     S_StartSound(NULL, sfx_switch1);
             }
@@ -4781,16 +4483,16 @@ int M_ControlPadTicker(void) // 8000B694
     {
         if (IS_PRESSED(PAD_A) || IS_PRESSED(PAD_RIGHT))
         {
-            ConfgNumb[0] += 1;
-            if(ConfgNumb[0] >= ARRAYLEN(DefaultControlSetups))
-                ConfgNumb[0] = 0;
+            Settings.ControlPreset[0] += 1;
+            if(Settings.ControlPreset[0] >= ARRAYLEN(ControllerPresets))
+                Settings.ControlPreset[0] = 0;
             ConfigChanged = true;
         }
         else if (IS_PRESSED(PAD_LEFT))
         {
-            ConfgNumb[0] -= 1;
-            if (ConfgNumb[0] < 0)
-                ConfgNumb[0] = ARRAYLEN(DefaultControlSetups) - 1;
+            Settings.ControlPreset[0] -= 1;
+            if (Settings.ControlPreset[0] < 0)
+                Settings.ControlPreset[0] = ARRAYLEN(ControllerPresets) - 1;
             ConfigChanged = true;
         }
         else
@@ -4798,7 +4500,9 @@ int M_ControlPadTicker(void) // 8000B694
             return ga_nothing;
         }
 
-        D_memcpy(&CurrentControls[0], &DefaultControlSetups[ConfgNumb[0]], sizeof CurrentControls);
+        D_memcpy(&CurrentControls[0], &ControllerPresets[Settings.ControlPreset[0]].ctrl, sizeof(controls_t));
+        D_memcpy(&CurrentControls2[0], &ControllerPresets[Settings.ControlPreset[0]].ctrl2, sizeof(controls2_t));
+
         S_StartSound(NULL, sfx_switch2);
     }
     else if (cursorpos == 1)
@@ -4811,7 +4515,8 @@ int M_ControlPadTicker(void) // 8000B694
             STICK_STRAFE | STICK_VLOOK
         };
 
-        int mode = CurrentControls[0].STICK_MODE;
+        u8 *modeptr = configcontroller == 0 ? &CurrentControls[0].stick : &CurrentControls2[0].stick;
+        int mode = *modeptr;
         int modeindex = 0;
 
         for (int i = 0; i < ARRAYLEN(modes); i++)
@@ -4841,13 +4546,19 @@ int M_ControlPadTicker(void) // 8000B694
             return ga_nothing;
         }
 
-        ConfgNumb[0] = -1;
-        CurrentControls[0].STICK_MODE = modes[modeindex];
+        Settings.ControlPreset[0] = -1;
+        *modeptr = modes[modeindex];
         S_StartSound(NULL,sfx_switch2);
     }
     else if (buttons & PAD_A)
     {
         buttonbindstate = 1;
+    }
+
+    if (ConfigChanged)
+    {
+        I_SaveConfig();
+        ConfigChanged = false;
     }
 
     return ga_nothing;
@@ -4897,16 +4608,19 @@ void M_ControlPadDrawer(void) // 8000B988
     int c, stick;
     int cursor_alpha = text_alpha;
 
-    ST_DrawString(-1, 20, "Controls", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, configcontroller == 0 ? "Controller Setup" : "Controller 2 Setup", text_alpha | 0xc0000000);
 
-    if (ConfgNumb[0] == -1)
-        sprintf(buffer, ControlText[0], "Custom");
-    else
-        sprintf(buffer, ControlText[0], ControlSetupNames[ConfgNumb[0]]);
-    ST_Message(28, 40, buffer, text_alpha | 0xc0000000);
+    if (configcontroller == 0)
+    {
+        if (Settings.ControlPreset[0] == -1)
+            sprintf(buffer, ControlText[0], "Custom");
+        else
+            sprintf(buffer, ControlText[0], ControllerPresets[Settings.ControlPreset[0]].name);
+        ST_Message(28, 40, buffer, text_alpha | 0xc0000000);
+    }
 
     c = sprintf(buffer, ControlText[1]);
-    stick = CurrentControls[0].STICK_MODE;
+    stick = configcontroller == 0 ? CurrentControls[0].stick : CurrentControls2[0].stick;
     if (stick & STICK_MOVE)
         c += sprintf(&buffer[c], " move");
     else if (stick & STICK_VLOOK)
@@ -4919,10 +4633,21 @@ void M_ControlPadDrawer(void) // 8000B988
 
     for(int i = 2; i < ARRAYLEN(ControlText); i++)
     {
-        int code = CurrentControls[0].BUTTONS[ControlMappings[i - 2]];
+        int code;
         int x = (i < (2 + CONTROLCOLSIZE)) ? 18 : 170;
         int y = ((i - 2) % CONTROLCOLSIZE) * 16 + 68;
         int len = D_strlen(ControlText[i]);
+
+        if (configcontroller == 0)
+            code = CurrentControls[0].buttons[ControlMappings[i - 2]];
+        else if (CurrentControls2[0].a == i)
+            code = PAD_A;
+        else if (CurrentControls2[0].b == i)
+            code = PAD_B;
+        else if (CurrentControls2[0].z == i)
+            code = PAD_Z_TRIG;
+        else
+            code = 0;
 
         ST_Message(x + 98 - len * 8, y + 3, ControlText[i], text_alpha | 0xc0000000);
         if (code)
@@ -5009,6 +4734,8 @@ void M_CustomSkillDrawer(void)
                 text = "Normal";
             else if (skillsetup.monster_counts == sk_hard)
                 text = "More";
+            else if (skillsetup.monster_counts == 3)
+                text = "None";
             break;
         case MTXT_MONSTER_SPEED:
             if (skillsetup.monster_speed == 0)

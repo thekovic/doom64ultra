@@ -260,6 +260,7 @@ typedef struct __attribute__((__packed__)) ALIGNED(8) {
     u32 mapstats: 1;
     u32 enablemessages: 1;
     u32 coloredhud: 1;
+    u32 greenblood: 1;
     u32 hudmargin: 5;
     u32 hudopacity: 8;
     u32 sfxvolume: 7;
@@ -291,29 +292,30 @@ void I_SaveConfig(void)
 
     bzero(&config, sizeof config);
 
-    config.brightness = brightness;
-    config.displayx = Display_X + 16;
-    config.displayx = Display_Y + 20;
-    config.texturefilter = VideoFilters[0];
-    config.spritefilter = VideoFilters[1];
-    config.skyfilter = VideoFilters[2];
-    config.tvmode = TvMode;
-    config.screenaspect = ScreenAspect;
-    config.videoresolution = VideoResolution;
-    config.bitdepth = BitDepth;
-    config.nogammacorrect = NoGammaCorrect;
-    config.ditherfilter = DitherFilter;
-    config.colordither = ColorDither;
-    config.flashbrightness = FlashBrightness;
-    config.motionbob = MotionBob >> 15;
-    config.storytext = StoryText;
-    config.mapstats = MapStats;
-    config.enablemessages = enable_messages;
-    config.coloredhud = ColoredHUD;
-    config.hudmargin = HUDmargin;
-    config.hudopacity = HUDopacity;
-    config.sfxvolume = SfxVolume;
-    config.musvolume = MusVolume;
+    config.brightness = Settings.Brightness;
+    config.displayx = VideoSettings.Display_X + 16;
+    config.displayx = VideoSettings.Display_Y + 20;
+    config.texturefilter = Settings.VideoFilters[0];
+    config.spritefilter = Settings.VideoFilters[1];
+    config.skyfilter = Settings.VideoFilters[2];
+    config.tvmode = VideoSettings.TvMode;
+    config.screenaspect = VideoSettings.ScreenAspect;
+    config.videoresolution = VideoSettings.Resolution;
+    config.bitdepth = VideoSettings.BitDepth;
+    config.nogammacorrect = VideoSettings.NoGammaCorrect;
+    config.ditherfilter = VideoSettings.DitherFilter;
+    config.colordither = Settings.ColorDither;
+    config.flashbrightness = Settings.FlashBrightness;
+    config.motionbob = Settings.MotionBob >> 15;
+    config.storytext = Settings.StoryText;
+    config.mapstats = Settings.MapStats;
+    config.enablemessages = Settings.EnableMessages;
+    config.coloredhud = Settings.HudTextColors;
+    config.greenblood = Settings.GreenBlood;
+    config.hudmargin = Settings.HudMargin;
+    config.hudopacity = Settings.HudOpacity;
+    config.sfxvolume = Settings.SfxVolume;
+    config.musvolume = Settings.MusVolume;
 
     P_ArchivePlayerConfig(0, &config.player);
 
@@ -335,36 +337,37 @@ static boolean I_LoadConfig(void)
     if (config.crc != crc)
         return false;
 
-    brightness = config.brightness % 201;
-    Display_X = ((int)config.displayx) % 41 - 16;
-    Display_Y = ((int)config.displayx) % 33 - 20;
-    VideoFilters[0] = config.texturefilter;
-    VideoFilters[1] = config.spritefilter;
-    VideoFilters[2] = config.skyfilter;
-    TvMode = config.tvmode;
-    ScreenAspect = config.screenaspect % 3;
-    VideoResolution = config.videoresolution % 3;
-    BitDepth = config.bitdepth;
-    NoGammaCorrect = config.nogammacorrect;
-    DitherFilter = config.ditherfilter;
-    ColorDither = config.colordither;
-    FlashBrightness = config.flashbrightness % 33;
-    MotionBob = (config.motionbob % 33) << 15;
-    StoryText = config.storytext;
-    MapStats = config.mapstats;
-    enable_messages = config.enablemessages;
-    ColoredHUD = config.coloredhud;
-    HUDmargin = config.hudmargin % 21;
-    HUDopacity = config.hudopacity;
-    SfxVolume = config.sfxvolume % 101;
-    MusVolume = config.musvolume % 101;
+    Settings.Brightness = config.brightness % 201;
+    VideoSettings.Display_X = ((int)config.displayx) % 41 - 16;
+    VideoSettings.Display_Y = ((int)config.displayx) % 33 - 20;
+    Settings.VideoFilters[0] = config.texturefilter;
+    Settings.VideoFilters[1] = config.spritefilter;
+    Settings.VideoFilters[2] = config.skyfilter;
+    VideoSettings.TvMode = config.tvmode;
+    VideoSettings.ScreenAspect = config.screenaspect % 3;
+    VideoSettings.Resolution = config.videoresolution % 3;
+    VideoSettings.BitDepth = config.bitdepth;
+    VideoSettings.NoGammaCorrect = config.nogammacorrect;
+    VideoSettings.DitherFilter = config.ditherfilter;
+    Settings.ColorDither = config.colordither;
+    Settings.FlashBrightness = config.flashbrightness % 33;
+    Settings.MotionBob = (config.motionbob % 33) << 15;
+    Settings.StoryText = config.storytext;
+    Settings.MapStats = config.mapstats;
+    Settings.EnableMessages = config.enablemessages;
+    Settings.HudTextColors = config.coloredhud;
+    Settings.GreenBlood = config.greenblood;
+    Settings.HudMargin = config.hudmargin % 21;
+    Settings.HudOpacity = config.hudopacity;
+    Settings.SfxVolume = config.sfxvolume % 101;
+    Settings.MusVolume = config.musvolume % 101;
 
     P_UnArchivePlayerConfig(0, &config.player);
 
     P_RefreshBrightness();
     I_RefreshVideo();
-    S_SetSoundVolume(SfxVolume);
-    S_SetMusicVolume(MusVolume);
+    S_SetSoundVolume(Settings.SfxVolume);
+    S_SetMusicVolume(Settings.MusVolume);
 
     return true;
 }

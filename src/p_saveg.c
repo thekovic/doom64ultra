@@ -46,13 +46,18 @@ static u32 read_button(u32 button)
 void P_ArchivePlayerConfig(int pi, savedplayerconfig_t *buf)
 {
     const controls_t *controls = &CurrentControls[pi];
+    const controls2_t *controls2 = &CurrentControls2[pi>>1];
 
-    buf->sensitivity = playerconfigs[pi].sensitivity;
+    buf->looksensitivity = playerconfigs[pi].looksensitivity;
+    buf->movesensitivity = playerconfigs[pi].movesensitivity;
     buf->crosshair = playerconfigs[pi].crosshair;
     buf->autorun = playerconfigs[pi].autorun;
     buf->autoaim = playerconfigs[pi].autoaim;
     buf->vlookinverted = playerconfigs[pi].verticallook == -1 ? 1 : 0;
-    if (ConfgNumb[pi] == -1)
+    buf->hue = playerconfigs[pi].hue >> 2;
+    buf->saturation = playerconfigs[pi].saturation >> 2;
+    buf->value = playerconfigs[pi].value >> 2;
+    if (Settings.ControlPreset[pi] == -1)
     {
         buf->customconfig = 1;
         buf->confignum = 0;
@@ -60,61 +65,86 @@ void P_ArchivePlayerConfig(int pi, savedplayerconfig_t *buf)
     else
     {
         buf->customconfig = 0;
-        buf->confignum = ConfgNumb[pi];
+        buf->confignum = Settings.ControlPreset[pi];
     }
 
-    buf->bt_right = write_button(controls->BT_RIGHT);
-    buf->bt_left = write_button(controls->BT_LEFT);
-    buf->bt_forward = write_button(controls->BT_FORWARD);
-    buf->bt_back = write_button(controls->BT_BACK);
-    buf->bt_attack = write_button(controls->BT_ATTACK);
-    buf->bt_use = write_button(controls->BT_USE);
-    buf->bt_map = write_button(controls->BT_MAP);
-    buf->bt_speed = write_button(controls->BT_SPEED);
-    buf->bt_strafe = write_button(controls->BT_STRAFE);
-    buf->bt_strafeleft = write_button(controls->BT_STRAFELEFT);
-    buf->bt_straferight = write_button(controls->BT_STRAFERIGHT);
-    buf->bt_weaponbackward = write_button(controls->BT_WEAPONBACKWARD);
-    buf->bt_weaponforward = write_button(controls->BT_WEAPONFORWARD);
-    buf->bt_look = write_button(controls->BT_LOOK);
-    buf->bt_lookup = write_button(controls->BT_LOOKUP);
-    buf->bt_lookdown = write_button(controls->BT_LOOKDOWN);
-    buf->bt_jump = write_button(controls->BT_JUMP);
-    buf->bt_crouch = write_button(controls->BT_CROUCH);
-    buf->stickmode = controls->STICK_MODE;
+    buf->bt_right = write_button(controls->buttons[BT_RIGHT]);
+    buf->bt_left = write_button(controls->buttons[BT_LEFT]);
+    buf->bt_forward = write_button(controls->buttons[BT_FORWARD]);
+    buf->bt_back = write_button(controls->buttons[BT_BACK]);
+    buf->bt_attack = write_button(controls->buttons[BT_ATTACK]);
+    buf->bt_use = write_button(controls->buttons[BT_USE]);
+    buf->bt_map = write_button(controls->buttons[BT_MAP]);
+    buf->bt_speed = write_button(controls->buttons[BT_SPEED]);
+    buf->bt_strafe = write_button(controls->buttons[BT_STRAFE]);
+    buf->bt_strafeleft = write_button(controls->buttons[BT_STRAFELEFT]);
+    buf->bt_straferight = write_button(controls->buttons[BT_STRAFERIGHT]);
+    buf->bt_weaponbackward = write_button(controls->buttons[BT_WEAPONBACKWARD]);
+    buf->bt_weaponforward = write_button(controls->buttons[BT_WEAPONFORWARD]);
+    buf->bt_look = write_button(controls->buttons[BT_LOOK]);
+    buf->bt_lookup = write_button(controls->buttons[BT_LOOKUP]);
+    buf->bt_lookdown = write_button(controls->buttons[BT_LOOKDOWN]);
+    buf->bt_jump = write_button(controls->buttons[BT_JUMP]);
+    buf->bt_crouch = write_button(controls->buttons[BT_CROUCH]);
+    buf->stickmode = controls->stick;
+
+    buf->stickmode2 = controls2->stick;
+    buf->ctrl2a = controls2->a;
+    buf->ctrl2b = controls2->b;
+    buf->ctrl2z = controls2->z;
 }
 
 void P_UnArchivePlayerConfig(int pi, const savedplayerconfig_t *buf)
 {
-    playerconfigs[pi].sensitivity = buf->sensitivity;
+    playerconfigs[pi].looksensitivity = buf->looksensitivity;
+    playerconfigs[pi].movesensitivity = buf->movesensitivity;
     playerconfigs[pi].crosshair = buf->crosshair;
     playerconfigs[pi].autorun = buf->autorun;
     playerconfigs[pi].autoaim = buf->autoaim;
     playerconfigs[pi].verticallook = buf->vlookinverted ? -1 : 1;
+    playerconfigs[pi].hue = buf->hue << 2;
+    playerconfigs[pi].saturation = buf->saturation << 2;
+    playerconfigs[pi].value = buf->value << 2;
 
     if (buf->customconfig)
-        ConfgNumb[pi] = -1;
+        Settings.ControlPreset[pi] = -1;
     else
-        ConfgNumb[pi] = buf->confignum % MAXCONTROLSETUPS;
-    CurrentControls[pi].BT_RIGHT = read_button(buf->bt_right);
-    CurrentControls[pi].BT_LEFT = read_button(buf->bt_left);
-    CurrentControls[pi].BT_FORWARD = read_button(buf->bt_forward);
-    CurrentControls[pi].BT_BACK = read_button(buf->bt_back);
-    CurrentControls[pi].BT_ATTACK = read_button(buf->bt_attack);
-    CurrentControls[pi].BT_USE = read_button(buf->bt_use);
-    CurrentControls[pi].BT_MAP = read_button(buf->bt_map);
-    CurrentControls[pi].BT_SPEED = read_button(buf->bt_speed);
-    CurrentControls[pi].BT_STRAFE = read_button(buf->bt_strafe);
-    CurrentControls[pi].BT_STRAFELEFT = read_button(buf->bt_strafeleft);
-    CurrentControls[pi].BT_STRAFERIGHT = read_button(buf->bt_straferight);
-    CurrentControls[pi].BT_WEAPONBACKWARD = read_button(buf->bt_weaponbackward);
-    CurrentControls[pi].BT_WEAPONFORWARD = read_button(buf->bt_weaponforward);
-    CurrentControls[pi].BT_LOOK = read_button(buf->bt_look);
-    CurrentControls[pi].BT_LOOKUP = read_button(buf->bt_lookup);
-    CurrentControls[pi].BT_LOOKDOWN = read_button(buf->bt_lookdown);
-    CurrentControls[pi].BT_JUMP = read_button(buf->bt_jump);
-    CurrentControls[pi].BT_CROUCH = read_button(buf->bt_crouch);
-    CurrentControls[pi].STICK_MODE = buf->stickmode ? buf->stickmode : (STICK_TURN | STICK_MOVE);
+        Settings.ControlPreset[pi] = buf->confignum % MAXCONTROLSETUPS;
+    CurrentControls[pi].buttons[BT_RIGHT] = read_button(buf->bt_right);
+    CurrentControls[pi].buttons[BT_LEFT] = read_button(buf->bt_left);
+    CurrentControls[pi].buttons[BT_FORWARD] = read_button(buf->bt_forward);
+    CurrentControls[pi].buttons[BT_BACK] = read_button(buf->bt_back);
+    CurrentControls[pi].buttons[BT_ATTACK] = read_button(buf->bt_attack);
+    CurrentControls[pi].buttons[BT_USE] = read_button(buf->bt_use);
+    CurrentControls[pi].buttons[BT_MAP] = read_button(buf->bt_map);
+    CurrentControls[pi].buttons[BT_SPEED] = read_button(buf->bt_speed);
+    CurrentControls[pi].buttons[BT_STRAFE] = read_button(buf->bt_strafe);
+    CurrentControls[pi].buttons[BT_STRAFELEFT] = read_button(buf->bt_strafeleft);
+    CurrentControls[pi].buttons[BT_STRAFERIGHT] = read_button(buf->bt_straferight);
+    CurrentControls[pi].buttons[BT_WEAPONBACKWARD] = read_button(buf->bt_weaponbackward);
+    CurrentControls[pi].buttons[BT_WEAPONFORWARD] = read_button(buf->bt_weaponforward);
+    CurrentControls[pi].buttons[BT_LOOK] = read_button(buf->bt_look);
+    CurrentControls[pi].buttons[BT_LOOKUP] = read_button(buf->bt_lookup);
+    CurrentControls[pi].buttons[BT_LOOKDOWN] = read_button(buf->bt_lookdown);
+    CurrentControls[pi].buttons[BT_JUMP] = read_button(buf->bt_jump);
+    CurrentControls[pi].buttons[BT_CROUCH] = read_button(buf->bt_crouch);
+    CurrentControls[pi].stick = buf->stickmode ? buf->stickmode : (STICK_MOVE | STICK_STRAFE);
+
+    if (!(pi & 1))
+    {
+        int pi2 = pi>>1;
+
+        CurrentControls2[pi2].stick = buf->stickmode2 ? buf->stickmode2 : STICK_TURN | STICK_VLOOK;
+        CurrentControls2[pi2].a = buf->ctrl2a;
+        CurrentControls2[pi2].b = buf->ctrl2b;
+        CurrentControls2[pi2].z = buf->ctrl2z;
+        if (CurrentControls2[pi2].a >= NUMBUTTONS || CurrentControls2[pi2].a <= BT_NONE)
+            CurrentControls2[pi2].a = BT_NONE;
+        if (CurrentControls2[pi2].b >= NUMBUTTONS || CurrentControls2[pi2].b <= BT_NONE)
+            CurrentControls2[pi2].b = BT_NONE;
+        if (CurrentControls2[pi2].z >= NUMBUTTONS || CurrentControls2[pi2].z <= BT_NONE)
+            CurrentControls2[pi2].z = BT_NONE;
+    }
 }
 
 #define INVALID_MOBJ ((u16) 0xffff)
@@ -162,7 +192,7 @@ u32 P_ArchivePlayers (u8 *savep)
         dest = (player_t *)savep;
         D_memcpy (dest,&players[i],sizeof(player_t));
         dest->mo = NULL;
-        dest->messages[0] = dest->messages[1] = dest->messages[2] = dest->messages[3] = NULL;
+        dest->messages[0] = dest->messages[1] = dest->messages[2] = NULL;
         dest->attacker = (void*)(u32)MobjIndex(dest->attacker);
         dest->controls = NULL;
         if (dest->lastsoundsector)
@@ -192,8 +222,8 @@ u32 P_UnArchivePlayers (const u8 *savep)
         players[i].mo = NULL;
         players[i].controls = &CurrentControls[i];
         players[i].config = &playerconfigs[i];
-        players[i].messagetics[0] = players[i].messagetics[1] = players[i].messagetics[2] = players[i].messagetics[3] = 0;
-        players[i].messages[0] = players[i].messages[1] = players[i].messages[2] = players[i].messages[3] = NULL;
+        players[i].messagetics[0] = players[i].messagetics[1] = players[i].messagetics[2] = 0;
+        players[i].messages[0] = players[i].messages[1] = players[i].messages[2] = NULL;
         if (players[i].lastsoundsector)
             players[i].lastsoundsector =  &sectors[(int)players[i].lastsoundsector];
 

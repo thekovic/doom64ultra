@@ -20,6 +20,8 @@ int lastticon;                  // 80063140
 SDATA int vblsinframe[MAXPLAYERS];  // 80063144 /* range from 4 to 8 */
 SDATA int ticbuttons[MAXCONTROLLERS];       // 80063148
 SDATA int oldticbuttons[MAXCONTROLLERS];    // 8006314C
+SDATA int allticbuttons;
+SDATA int alloldticbuttons;
 
 //extern boolean run_hectic_demo;
 
@@ -57,6 +59,8 @@ static void D_DoomLoop(void)
     int exit;
 
     customskill = SkillPresets[1].skill;
+    allticbuttons = 0;
+    alloldticbuttons = 0;
     for (int i = 0; i < MAXCONTROLLERS; i++)
     {
         ticbuttons[i] = 0;
@@ -220,12 +224,25 @@ int MiniLoop(void(*start)(void), void(*stop)(int),
     {
         vblsinframe[0] = *&drawsync1;
 
+        alloldticbuttons = allticbuttons;
+        allticbuttons = 0;
         for (int i = 0; i < MAXCONTROLLERS; i++)
         {
             // get buttons for next tic
             oldticbuttons[i] = ticbuttons[i];
 
             ticbuttons[i] = I_GetControllerData(i);
+            if (i < 2)
+            {
+                int buttons = ticbuttons[i];
+                int s;
+
+                allticbuttons |= buttons & 0xffff0000;
+                s = ABSMAX(STICK_X(allticbuttons), STICK_X(buttons));
+                allticbuttons = (allticbuttons & ~0xff00) | ((CLAMP(s, -127, 127) & 0xff) << 8);
+                s = ABSMAX(STICK_Y(allticbuttons), STICK_Y(buttons));
+                allticbuttons = (allticbuttons & ~0xff) | (CLAMP(s, -127, 127) & 0xff);
+            }
         }
 
         buttons = ticbuttons[0];
