@@ -86,10 +86,6 @@ SECTIONS
     /DISCARD/ :
     {
         BUILD_DIR/src/asm/entry.o(.text);
-        *crti.o;
-        *crtbegin.o;
-        *crtend.o;
-        *crtn.o;
     }
 #ifdef NDEBUG
     /* Discard everything not specifically mentioned above. */

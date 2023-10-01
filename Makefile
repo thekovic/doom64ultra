@@ -183,7 +183,7 @@ CFLAGS = -Wall -mno-check-zero-division -march=vr4300 -mtune=vr4300 \
          -fno-common -G0 -D_MIPS_SZLONG=32 -D_MIPS_SZINT=32 -g -ggdb -mabi=32 \
          -ffreestanding -fuse-linker-plugin -mfix4300 $(DEF_INC_CFLAGS)
 ASFLAGS := -mno-check-zero-division -march=vr4300 -mabi=32 $(foreach i,$(INCLUDE_DIRS),-I$(i))
-LDFLAGS :=
+LDFLAGS := -nostartfiles
 
 SIZE_CFLAGS :=
 FAST_CFLAGS :=
@@ -273,7 +273,7 @@ $(LIBDOOM64): $(O_FILES)
 	$(V)$(AR) rcs -o $@ $(O_FILES)
 
 libultra:
-	$(V)$(MAKE) -s -C libultra_modern VERSION=$(LIBULTRA_VER) "EXT_CFLAGS=$(LIBULTRA_CFLAGS)"
+	$(V)$(MAKE) -s -C libultra_modern VERSION=$(LIBULTRA_VER) "EXT_CFLAGS=$(LIBULTRA_CFLAGS)" VERBOSE=$(VERBOSE)
 
 $(LIBULTRA): libultra
 
