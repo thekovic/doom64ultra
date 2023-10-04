@@ -661,10 +661,6 @@ static COLD bool I_DebugSetMode(u16 *fb)
             case OS_TV_MPAL: mode = &osViModeMpalHan1; break;
             default: mode = &osViModeNtscHan1; break;
         }
-        mode->comRegs.xScale = 1024;
-        mode->comRegs.width = 640;
-        mode->fldRegs[0].origin = 320 * 4;
-        mode->fldRegs[1].origin = 320 * 8;
         hires = true;
     }
     else
@@ -750,7 +746,7 @@ static COLD void NO_RETURN I_DebuggerThread(void *arg)
 
             blit32_TextExplicit(fb, 0xffff, 1, 320<<shift, 240<<shift, blit_Clip, 32, 24, FAULT_MSG_BUFFER);
 
-            osInvalDCache(fb, 640*480*2);
+            osInvalDCache(fb, CFB_SIZE);
 
             __osRestoreInt(mask);
 
