@@ -19,8 +19,8 @@ spritedef_t     sprites[NUMSPRITES];
 
 int firstplayerlump;
 int lastplayerlump;
-u16 baseplayerpalette[256];
-u16 playerpalettes[MAXPLAYERS][256];
+u16 baseplayerpalette[256] ALIGNED(8);
+u16 playerpalettes[MAXPLAYERS][256] ALIGNED(8);
 
 int bloodlump;
 int giblump;
