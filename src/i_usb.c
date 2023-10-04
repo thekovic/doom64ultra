@@ -2048,7 +2048,7 @@ static void I_USBWriteScreenshot(void)
     while (__osSpDeviceBusy() || __osDpDeviceBusy());
 
     frame = CFB(vid_side);
-    depth = BitDepth == BITDEPTH_32 ? 4 : 2;
+    depth = VideoSettings.BitDepth == BITDEPTH_32 ? 4 : 2;
     osInvalDCache(frame, depth * XResolution * YResolution);
     I_USBWriteImage(CFB(vid_side), XResolution, YResolution, depth);
 
