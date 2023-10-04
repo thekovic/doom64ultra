@@ -230,6 +230,7 @@ SEC_STARTUP void I_InitDebugging()
                     (void*)(debugThreadStack+DEBUG_THREAD_STACK/sizeof(u64)),
                     OS_PRIORITY_RMON);
     debugThread.context.sr |= SR_CU1;
+    debugThread.fp = 0;
     osStartThread(&debugThread);
 #endif /* !defined(NDEBUG) */
 }
