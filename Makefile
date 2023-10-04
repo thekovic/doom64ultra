@@ -72,8 +72,6 @@ else
     endif
 endif
 
-SRC_DIRS :=
-
 # Whether to hide commands or not
 VERBOSE ?= 0
 ifeq ($(VERBOSE),0)
@@ -100,13 +98,13 @@ BOOT		:= /usr/lib/n64/PR/bootcode/boot.6102
 BOOT_OBJ	:= $(BUILD_DIR)/boot.6102.o
 
 # Directories containing source files
-SRC_DIRS += src
-ASM_DIR += src/asm
-ALL_DIRS := $(BUILD_DIR) $(addprefix $(BUILD_DIR)/,$(SRC_DIRS) $(ASM_DIR))
+SRC_DIRS = src
+ALL_DIRS := $(BUILD_DIR) $(addprefix $(BUILD_DIR)/,$(SRC_DIRS))
 
 C_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c))
 S_FILES           := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.s))
-BOOT_S_FILES      := $(wildcard $(ASM_DIR)/*.s)
+BOOT_S_FILES      := src/rom_header.s src/entry.s
+S_FILES           := $(filter-out $(BOOT_S_FILES),$(S_FILES))
 
 # Files compiled with -Ofast
 FAST_C_FILES      := src/i_sram.c
@@ -240,7 +238,7 @@ clean:
 
 $(BUILD_DIR)/DOOM64.%.o: data/DOOM64.%
 	$(call print,Packing data:,$<,$@)
-	$(V)$(LD) -r -b binary $< -o $@
+	$(V)$(OBJCOPY) -I binary -B mips:3000 -O elf32-bigmips $< $@
 
 # Compile C code
 
@@ -255,7 +253,7 @@ $(BUILD_DIR)/%.o: $(BUILD_DIR)/%.c $(DEFINES_TXT)
 	$(V)$(CC) -c $(CFLAGS) $(FAST_CFLAGS) -MMD -MF $(BUILD_DIR)/$*.d  -o $@ $<
 
 # Assemble assembly code
-$(BUILD_DIR)/%.o: %.s $(DEFINES_TXT)
+$(BUILD_DIR)/src/%.o: src/%.s $(DEFINES_TXT)
 	$(call print,Assembling:,$<,$@)
 	$(V)$(CC) -c $(ASFLAGS) $(foreach i,$(INCLUDE_DIRS),-Wa,-I$(i)) -x assembler-with-cpp -MMD -MF $(BUILD_DIR)/$*.d  -o $@ $<
 
@@ -265,7 +263,7 @@ $(BUILD_DIR)/$(LD_SCRIPT): src/$(LD_SCRIPT) $(CONFIG_H) $(DEFINES_TXT)
 	$(V)$(CPP) $(CPPFLAGS) -DBUILD_DIR=$(BUILD_DIR) $(LD_DEFINES) -MMD -MP -MT $@ -MF $@.d -o $@ $<
 
 $(BOOT_OBJ): $(BOOT)
-	$(V)$(OBJCOPY) -I binary -B mips -O elf32-bigmips $< $@
+	$(V)$(OBJCOPY) -I binary -B mips:3000 -O elf32-bigmips --rename-section .data=.text $< $@
 
 # Link final ELF file
 $(LIBDOOM64): $(O_FILES)

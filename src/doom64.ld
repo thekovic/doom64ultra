@@ -16,14 +16,14 @@ SECTIONS
 {
     .boot :
     {
-        KEEP(BUILD_DIR/src/asm/rom_header.o(.text)); /* ROM Header */
-        KEEP(BUILD_DIR/boot.6102.o(.data)); /* CIC 6102 bootcode */
+        KEEP(BUILD_DIR/src/rom_header.o(.rodata)); /* ROM Header */
+        KEEP(BUILD_DIR/boot.6102.o(.text)); /* CIC 6102 bootcode */
         . = 0x1000;
     } AT>rom
 
     .code : SUBALIGN(16)
     {
-        KEEP(BUILD_DIR/src/asm/entry.o(.start));
+        KEEP(BUILD_DIR/src/entry.o(.start));
         _gp = ALIGN(16) + 0x8000;
         *.o(.sdata);
         :*.o(.text.hot);
@@ -85,7 +85,9 @@ SECTIONS
 
     /DISCARD/ :
     {
-        BUILD_DIR/src/asm/entry.o(.text);
+        BUILD_DIR/src/entry.o(.text);
+        *(.MIPS.abiflags);
+        *(.reginfo);
     }
 #ifdef NDEBUG
     /* Discard everything not specifically mentioned above. */
