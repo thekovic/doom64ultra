@@ -176,12 +176,17 @@ C_DEFINES := $(foreach d,$(DEFINES),-D$(d))
 LD_DEFINES := $(C_DEFINES) $(foreach d,$(OPTIONS),"-D$(d)") -DLIBULTRA=$(LIBULTRA_VER)
 DEF_INC_CFLAGS := $(foreach i,$(INCLUDE_DIRS),-I$(i)) $(C_DEFINES)
 
-CFLAGS = -Wall -mno-check-zero-division -march=vr4300 -mtune=vr4300 \
+CFLAGS = -Wall -march=vr4300 -mtune=vr4300 \
+         -mabi=eabi -mno-abicalls -mgp32 \
          -D_LANGUAGE_C -D_ULTRA64 -D__EXTENSIONS__ \
-         -fno-common -G0 -D_MIPS_SZLONG=32 -D_MIPS_SZINT=32 -g -ggdb -mabi=32 \
-         -ffreestanding -fuse-linker-plugin -mfix4300 $(DEF_INC_CFLAGS)
-ASFLAGS := -mno-check-zero-division -march=vr4300 -mabi=32 $(foreach i,$(INCLUDE_DIRS),-I$(i))
-LDFLAGS := -nostartfiles
+         -fno-common -G0 -D_MIPS_SZLONG=32 -D_MIPS_SZINT=32 -D_MIPS_SIM=2 -g -ggdb \
+         -ffreestanding -fuse-linker-plugin \
+         -mfix4300 -mhard-float -mno-check-zero-division \
+         $(DEF_INC_CFLAGS)
+ASFLAGS := -march=vr4300 -mtune=vr4300 -D_MIPS_SIM=2 -mno-check-zero-division \
+           -mabi=eabi -mno-abicalls -mgp32 \
+           $(foreach i,$(INCLUDE_DIRS),-I$(i))
+LDFLAGS := -mabi=eabi -mno-abicalls -mgp32 -nostartfiles
 
 SIZE_CFLAGS :=
 FAST_CFLAGS :=
