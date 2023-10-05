@@ -248,6 +248,7 @@ typedef struct __attribute__((__packed__)) ALIGNED(8) {
     u32 spritefilter: 1;
     u32 skyfilter: 1;
     u32 tvmode: 2;
+    u32 antialiasing: 1;
     u32 screenaspect: 2;
     u32 videoresolution: 2;
     u32 bitdepth: 1;
@@ -299,6 +300,7 @@ void I_SaveConfig(void)
     config.spritefilter = Settings.VideoFilters[1];
     config.skyfilter = Settings.VideoFilters[2];
     config.tvmode = VideoSettings.TvMode;
+    config.antialiasing = VideoSettings.AntiAliasing;
     config.screenaspect = VideoSettings.ScreenAspect;
     config.videoresolution = VideoSettings.Resolution;
     config.bitdepth = VideoSettings.BitDepth;
@@ -344,6 +346,7 @@ static boolean I_LoadConfig(void)
     Settings.VideoFilters[1] = config.spritefilter;
     Settings.VideoFilters[2] = config.skyfilter;
     VideoSettings.TvMode = config.tvmode;
+    VideoSettings.AntiAliasing = config.antialiasing;
     VideoSettings.ScreenAspect = config.screenaspect % 3;
     VideoSettings.Resolution = config.videoresolution % 3;
     VideoSettings.BitDepth = config.bitdepth;

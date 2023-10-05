@@ -51,6 +51,8 @@ void R_RenderWorld(subsector_t *sub) // 80026638
     gDPSetPrimColor(GFX1++, 0, frontsector->lightlevel, 0, 0, 0, 255);
     R_RenderFilter(filt_textures);
 
+    R_RenderModes(rm_texture);
+
     numverts = sub->numverts;
 
     /* */
@@ -68,8 +70,6 @@ void R_RenderWorld(subsector_t *sub) // 80026638
 
         lf++;
     }
-
-    R_RenderModes(rm_texture);
 
     /* */
     /* Render Ceilings */
@@ -264,6 +264,7 @@ void R_WallPrep(seg_t *seg) // 80026A44
                 // clip middle color upper
                 upcolor = tmp_lowcolor;
             }
+            R_RenderModes(rm_texture);
 
             DEBUG_COUNTER(LastVisSegs += 1);
             R_RenderWall(seg, li->flags, textures[side->toptexture],
@@ -321,6 +322,7 @@ void R_WallPrep(seg_t *seg) // 80026A44
                 // clip middle color lower
                 lowcolor = tmp_upcolor;
             }
+            R_RenderModes(rm_texture);
 
             R_RenderWall(seg, li->flags, textures[side->bottomtexture],
                          b_floorheight, f_floorheight,
@@ -344,6 +346,11 @@ void R_WallPrep(seg_t *seg) // 80026A44
         {
             return;
         }
+        R_RenderModes(rm_transparenttexture);
+    }
+    else
+    {
+        R_RenderModes(rm_texture);
     }
 
     if (li->flags & ML_DONTPEGBOTTOM)
@@ -370,9 +377,9 @@ void R_WallPrep(seg_t *seg) // 80026A44
 
     DEBUG_COUNTER(LastVisSegs += 1);
     R_RenderWall(seg, li->flags, textures[side->midtexture],
-                 m_top, m_bottom,
-                 rowoffs - height, rowoffs,
-                 topcolor, bottomcolor);
+            m_top, m_bottom,
+            rowoffs - height, rowoffs,
+            topcolor, bottomcolor);
 
     if ((li->flags & (ML_CHECKFLOORHEIGHT|ML_SWITCHX08)) == (ML_CHECKFLOORHEIGHT|ML_SWITCHX08))
     {
@@ -462,8 +469,6 @@ void R_RenderWall(seg_t *seg, int flags, int texture, int topHeight, int bottomH
             globallump = texture;
             globalcm = (cms | cmt);
         }
-
-        R_RenderModes(rm_texture);
 
         gSPVertex(GFX1++, VTX1, 4, 0);
         gSP1Quadrangle(GFX1++, 0, 1, 2, 3, 1);

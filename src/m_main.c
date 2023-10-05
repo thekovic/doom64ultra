@@ -128,6 +128,7 @@ int DrawerStatus;
     _F(MTXT_GAMMA_CORRECT, "Gamma Correct") \
     _F(MTXT_DITHER_FILTER, "Dither Filter") \
     _F(MTXT_COLOR_DITHER, "Color Dither") \
+    _F(MTXT_RESAMPLING, "Screen Filter") \
     _F(MTXT_ANTIALIASING, "Anti-Aliasing") \
     _F(MTXT_INTERLACING, "Interlacing") \
     _F(MTXT_CENTER_DISPLAY, "Center Display") \
@@ -253,10 +254,11 @@ const menuitem_t Menu_Video[] =
     { MTXT_GAMMA_CORRECT,    42, 90},
     { MTXT_DITHER_FILTER,    42, 100},
     { MTXT_COLOR_DITHER,     42, 110},
-    { MTXT_ANTIALIASING,     42, 120},
-    { MTXT_INTERLACING,      42, 130},
-    { MTXT_CENTER_DISPLAY,   42, 140},
-    { MTXT_MRETURN,          42, 160},
+    { MTXT_RESAMPLING,       42, 120},
+    { MTXT_ANTIALIASING,     42, 130},
+    { MTXT_INTERLACING,      42, 140},
+    { MTXT_CENTER_DISPLAY,   42, 150},
+    { MTXT_MRETURN,          42, 170},
 };
 
 const menuitem_t Menu_Display[] =
@@ -673,7 +675,7 @@ static boolean M_ItemIsDisabled(menuentry_t casepos)
         if (casepos == MTXT_COLOR_DEPTH || casepos == MTXT_RESOLUTION)
             return true;
     }
-    if (casepos == MTXT_ANTIALIASING)
+    if (casepos == MTXT_RESAMPLING)
     {
         if (VideoSettings.Resolution == VIDEO_RES_HI_VERT)
             return true;
@@ -1995,12 +1997,22 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
 
-            case MTXT_ANTIALIASING:
+            case MTXT_RESAMPLING:
                 if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
                     VideoSettings.TvMode ^= 1;
                     I_RefreshVideo();
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
+
+            case MTXT_ANTIALIASING:
+                if (truebuttons || rightbutton || leftbutton)
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    VideoSettings.AntiAliasing ^= 1;
                     ConfigChanged = true;
                     return ga_nothing;
                 }
@@ -2953,9 +2965,16 @@ void M_VideoDrawer(void)
             else
                 text = "4:3";
         }
-        else if (casepos == MTXT_ANTIALIASING)
+        else if (casepos == MTXT_RESAMPLING)
         {
             if ((VideoSettings.TvMode & 1) && VideoSettings.Resolution != VIDEO_RES_HI_VERT)
+                text = "Resample";
+            else
+                text = "None";
+        }
+        else if (casepos == MTXT_ANTIALIASING)
+        {
+            if (VideoSettings.AntiAliasing)
                 text = "On";
             else
                 text = "Off";
