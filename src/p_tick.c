@@ -1,5 +1,4 @@
 #include "doomdef.h"
-#include "i_debug.h"
 #include "p_local.h"
 #include "st_main.h"
 
@@ -282,9 +281,6 @@ int P_Ticker (void)//80021A00
     playerbuttons[0] = P_GetButtons(pl, ticbuttons[0], ticbuttons[1]);
     if (menuaction == ga_exit) // avoid button presses triggering again in the game
         oldplayerbuttons[0] = playerbuttons[0];
-
-    if (menuaction == ga_exit)
-        D_printf("%08lx %08lx\n", oldplayerbuttons[0], playerbuttons[0]);
 
     AM_Control(pl);
     P_PlayerThink(pl);
