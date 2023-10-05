@@ -88,6 +88,7 @@ const gamesettingspreset_t SettingsPresets[] = {
     },
     { // Vanilla
         {
+            .ControlPreset = { 1 },
             .MotionBob = 0x100000,
             .FlashBrightness = 32,
             .EnableMessages = true,
@@ -118,6 +119,7 @@ const gamesettingspreset_t SettingsPresets[] = {
             .HudOpacity = 128,
             .HudMargin = 15,
             .HudTextColors = true,
+            .ColorDither = 3,
             .SfxVolume = 100,
             .MusVolume = 80,
         },
@@ -134,6 +136,7 @@ const gamesettingspreset_t SettingsPresets[] = {
     },
     { // Retro
         {
+            .ControlPreset = { 7 },
             .MotionBob = 0x100000,
             .Brightness = 200,
             .FlashBrightness = 32,
@@ -205,13 +208,13 @@ const controlpreset_t ControllerPresets[MAXCONTROLSETUPS] ALIGNED(16) = {
                 [BT_STRAFE]         = 0,
                 [BT_STRAFELEFT]     = 0,
                 [BT_STRAFERIGHT]    = 0,
-                [BT_WEAPONBACKWARD] = PAD_DOWN,
-                [BT_WEAPONFORWARD]  = PAD_RIGHT,
+                [BT_WEAPONBACKWARD] = 0,
+                [BT_WEAPONFORWARD]  = PAD_R_TRIG,
                 [BT_LOOK]           = 0,
                 [BT_LOOKUP]         = PAD_UP_C,
                 [BT_LOOKDOWN]       = PAD_DOWN_C,
                 [BT_JUMP]           = PAD_A,
-                [BT_CROUCH]         = PAD_R_TRIG,
+                [BT_CROUCH]         = PAD_DOWN,
             },
             .stick = STICK_MOVE | STICK_STRAFE
         },

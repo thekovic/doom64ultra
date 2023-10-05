@@ -54,6 +54,7 @@ void P_ArchivePlayerConfig(int pi, savedplayerconfig_t *buf)
     buf->autorun = playerconfigs[pi].autorun;
     buf->autoaim = playerconfigs[pi].autoaim;
     buf->vlookinverted = playerconfigs[pi].verticallook == -1 ? 1 : 0;
+    buf->lookspring = playerconfigs[pi].lookspring;
     buf->hue = playerconfigs[pi].hue >> 2;
     buf->saturation = playerconfigs[pi].saturation >> 2;
     buf->value = playerconfigs[pi].value >> 2;
@@ -102,6 +103,7 @@ void P_UnArchivePlayerConfig(int pi, const savedplayerconfig_t *buf)
     playerconfigs[pi].autorun = buf->autorun;
     playerconfigs[pi].autoaim = buf->autoaim;
     playerconfigs[pi].verticallook = buf->vlookinverted ? -1 : 1;
+    playerconfigs[pi].lookspring = buf->lookspring;
     playerconfigs[pi].hue = buf->hue << 2;
     playerconfigs[pi].saturation = buf->saturation << 2;
     playerconfigs[pi].value = buf->value << 2;

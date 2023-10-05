@@ -580,6 +580,7 @@ typedef struct
     s8   verticallook;
     bool autorun;
     bool autoaim;
+    bool lookspring;
     union {
         struct {
             u8   hue;

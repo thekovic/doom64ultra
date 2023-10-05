@@ -259,7 +259,7 @@ int MiniLoop(void(*start)(void), void(*stop)(int),
                 }
 
                 buttons = *demobuffer++;
-                ticbuttons[0] = buttons;
+                allticbuttons = ticbuttons[0] = buttons;
             }
 
             if (demorecording)

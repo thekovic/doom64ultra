@@ -526,6 +526,7 @@ int G_PlayDemoPtr (customskill_t skill, int map) // 800049D0
         playerconfigs[0].autoaim = true;
         playerconfigs[0].verticallook = 1;
         playerconfigs[0].crosshair = 0;
+        playerconfigs[0].lookspring = false;
         /* skip analog and key configuration */
         demobuffer += 14;
         gametype = gt_single;

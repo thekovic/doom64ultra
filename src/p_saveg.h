@@ -9,6 +9,7 @@ typedef struct ALIGNED(4) {
     u32 autorun: 1;
     u32 autoaim: 1;
     u32 vlookinverted: 1;
+    u32 lookspring: 1;
     u32 hue: 6;
     u32 saturation: 6;
     u32 value: 6;

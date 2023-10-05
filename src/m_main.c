@@ -104,6 +104,7 @@ int DrawerStatus;
     _F(MTXT_MOVE_SENSITIVITY, "Move Sensitivity") \
     _F(MTXT_LOOK_SENSITIVITY, "Look Sensitivity") \
     _F(MTXT_VERTICAL_LOOK, "Vertical Look") \
+    _F(MTXT_LOOK_SPRING, "Look Spring") \
     _F(MTXT_CROSSHAIR, "Crosshair") \
     _F(MTXT_AUTORUN, "Auto Run") \
     _F(MTXT_AUTOAIM, "Auto Aim") \
@@ -227,13 +228,14 @@ const menuitem_t Menu_Player[] =
     { MTXT_MOVE_SENSITIVITY,   42, 60},
     { MTXT_LOOK_SENSITIVITY,   42, 70},
     { MTXT_VERTICAL_LOOK,      42, 80},
-    { MTXT_CROSSHAIR,          42, 90},
-    { MTXT_AUTORUN,            42, 100},
-    { MTXT_AUTOAIM,            42, 110},
-    { MTXT_PLAYER_COLOR,       42, 130},
+    { MTXT_LOOK_SPRING,        42, 90},
+    { MTXT_CROSSHAIR,          42, 100},
+    { MTXT_AUTORUN,            42, 110},
+    { MTXT_AUTOAIM,            42, 120},
     { MTXT_CONTROLLER,         42, 140},
     { MTXT_CONTROLLER_2,       42, 150},
-    { MTXT_MRETURN,            42, 170},
+    { MTXT_PLAYER_COLOR,       42, 170},
+    { MTXT_MRETURN,            42, 190},
 };
 
 const menuitem_t Menu_PlayerColor[] =
@@ -2212,6 +2214,15 @@ int M_MenuTicker(void) // 80007E0C
                     return ga_nothing;
                 }
                 break;
+            case MTXT_LOOK_SPRING:
+                if (truebuttons || rightbutton || leftbutton)
+                {
+                    S_StartSound(NULL, sfx_switch2);
+                    playerconfigs[0].lookspring ^= 1;
+                    ConfigChanged = true;
+                    return ga_nothing;
+                }
+                break;
             case MTXT_AUTOAIM:
                 if (truebuttons || rightbutton || leftbutton)
                 {
@@ -2267,7 +2278,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_PLAYER_ROTATE:
-                if (truebuttons && !playerpreviewshoot)
+                if ((truebuttons || IS_PRESSED(PAD_Z_TRIG)) && !playerpreviewshoot)
                 {
                     playerpreviewshoot = 12;
                     S_StartSound(NULL, sfx_shotgun);
@@ -2862,6 +2873,13 @@ void M_PlayerSetupDrawer(void) // 80009738
                 text = "Normal";
             else
                 text = "Inverted";
+        }
+        else if (casepos == MTXT_LOOK_SPRING)
+        {
+            if (playerconfigs[0].lookspring)
+                text = "On";
+            else
+                text = "Off";
         }
         else if (casepos == MTXT_CROSSHAIR)
         {

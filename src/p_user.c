@@ -743,8 +743,7 @@ SEC_GAME void P_MovePlayer (player_t *player, const buildmove_t* move) // 800228
     }
 
     // [nova] handle lookspring
-    if (player->config->autoaim && !(player->controls->stick & STICK_VLOOK)
-            && !(playerbuttons[player - players] & BB_LOOK))
+    if (player->config->lookspring)
     {
         if (player->pitch == 0)
             player->lookspring = 0;
@@ -1087,9 +1086,9 @@ SEC_GAME void P_PlayerThink (player_t *player) // 80022D60
         if (weapon == wp_nochange)
             weapon = player->readyweapon;
 
-        // [nova] use goldeneye/pd style weapon back if the button is not bound
-        if (P_ButtonOrShift(BB_WEAPONBACKWARD, BB_WEAPONFORWARD, BB_ATTACK,
-                            buttons, oldbuttons))
+        // [nova] use goldeneye/pd style weapon back
+        if (((buttons & BB_WEAPONBACKWARD) && !(oldbuttons & BB_WEAPONBACKWARD))
+            || ((buttons & BB_WEAPONFORWARD) && (buttons & BB_ATTACK) && !(oldbuttons & BB_ATTACK)))
         {
             // [nova] always cycle weapons
             weaponsearch = weapon;
