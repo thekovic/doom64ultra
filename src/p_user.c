@@ -1174,18 +1174,8 @@ SEC_GAME void P_PlayerThink (player_t *player) // 80022D60
     /* check for use */
     /* */
 
-    if ((buttons & BB_USE))
-    {
-        if (player->usedown == false)
-        {
-            P_UseLines(player);
-            player->usedown = true;
-        }
-    }
-    else
-    {
-        player->usedown = false;
-    }
+    if ((buttons & BB_USE) && !(oldbuttons & BB_USE))
+        P_UseLines(player);
 
     /* */
     /* cycle psprites */

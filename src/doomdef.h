@@ -652,7 +652,6 @@ typedef struct player_s
     u8             automapflags;
 
     bool           onground;               /* [d64] */
-    bool           usedown;                /* true if button down last tic */
     bool           attackdown;             /* true if button down last tic */
     u8             turnheld;                /* for accelerative turning */
     u8             pitchheld;                /* for accelerative vlook */

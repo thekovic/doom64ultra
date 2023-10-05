@@ -1,4 +1,5 @@
 #include "doomdef.h"
+#include "i_debug.h"
 #include "p_local.h"
 #include "st_main.h"
 
@@ -153,7 +154,7 @@ void P_RunMobjLate (void)
 ==============
 */
 
-void P_CheckCheats (void) // 8002187C
+gameaction_t P_CheckCheats (void) // 8002187C
 {
     unsigned int buttons;
     int exit;
@@ -173,7 +174,7 @@ void P_CheckCheats (void) // 8002187C
             M_PauseMenu();
         }
 
-        return;
+        return ga_nothing;
     }
 
     exit = M_MenuTicker();
@@ -192,6 +193,8 @@ void P_CheckCheats (void) // 8002187C
         ticon = lastticon;
         ticsinframe = lastticon >> 2;
     }
+
+    return exit;
 }
 
 void G_DoReborn (int playernum);//extern
@@ -235,13 +238,14 @@ void P_RunMobjBase (void);
 int P_Ticker (void)//80021A00
 {
     player_t *pl;
+    gameaction_t menuaction;
 
     gameaction = ga_nothing;
 
     //
     // check for pause and cheats
     //
-    P_CheckCheats();
+    menuaction = P_CheckCheats();
 
     DEBUG_CYCLES_START(world_start);
 
@@ -272,8 +276,16 @@ int P_Ticker (void)//80021A00
             gameaction = ga_died;
     }
 
-    oldplayerbuttons[0] = playerbuttons[0];
+
+    if (menuaction != ga_exit)
+        oldplayerbuttons[0] = playerbuttons[0];
     playerbuttons[0] = P_GetButtons(pl, ticbuttons[0], ticbuttons[1]);
+    if (menuaction == ga_exit) // avoid button presses triggering again in the game
+        oldplayerbuttons[0] = playerbuttons[0];
+
+    if (menuaction == ga_exit)
+        D_printf("%08lx %08lx\n", oldplayerbuttons[0], playerbuttons[0]);
+
     AM_Control(pl);
     P_PlayerThink(pl);
 

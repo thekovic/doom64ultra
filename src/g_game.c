@@ -120,7 +120,6 @@ void G_PlayerReborn (int player) // 80004630
     p = &players[player];
     bzero(p,  sizeof(*p));
 
-    p->usedown = true; // don't do anything immediately
     p->attackdown = false;
     p->playerstate = PST_LIVE;
     p->health = MAXHEALTH;

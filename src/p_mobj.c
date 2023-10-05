@@ -281,8 +281,8 @@ void P_SpawnPlayer(/*mapthing_t *mthing*/) // 80018F94
     p->weaponwheelalpha = 0;
     cameratarget = p->mo;
 
-    playerbuttons[0] = 0;
-    oldplayerbuttons[0] = 0;
+    // don't do anything immediately
+    playerbuttons[0] = oldplayerbuttons[0] = BB_USE;
 
 #ifdef DEVCHEATS
     if (p->cheats & (CF_WALLBLOCKING|CF_NOCLIP))

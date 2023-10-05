@@ -3,7 +3,7 @@
 #include "doomdef.h"
 #include "st_main.h"
 
-extern void P_CheckCheats (void);
+extern gameaction_t P_CheckCheats (void);
 
 #define T_NULL          ""
 
