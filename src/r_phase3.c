@@ -1155,7 +1155,10 @@ void R_RenderPSprites(void) // 80028f20
     gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
     gDPSetTexturePersp(GFX1++, G_TP_NONE);
     gDPSetCombineMode(GFX1++, G_CC_D64COMB17, G_CC_D64COMB18);
-    R_RenderFilter(filt_sprites);
+    if (VideoSettings.ScreenAspect)
+        R_RenderFilter(filt_sprites);
+    else
+        gDPSetTextureFilter(GFX1++, G_TF_POINT);
 
     psp = &viewplayer->psprites[0];
 

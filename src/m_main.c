@@ -3169,16 +3169,8 @@ void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
 
     data = W_CacheLumpName(name, PU_CACHE, dec_jag, sizeof(gfxN64_t));
 
-    gDPPipeSync(GFX1++);
-    gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
-
-    gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
-    gDPSetTexturePersp(GFX1++, G_TP_NONE);
-
-    gDPSetAlphaCompare(GFX1++, G_AC_THRESHOLD);
-
-    gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
-    gDPSetCombineMode(GFX1++, G_CC_D64COMB03, G_CC_D64COMB03);
+    R_RenderModes(rm_background);
+    gDPSetTextureFilter(GFX1++, ((osTvType == OS_TV_PAL) ? G_TF_BILERP : G_TF_POINT));
 
     if (color == 0xff)
     {
@@ -4342,7 +4334,9 @@ void M_PlayerColorDrawer(void)
     else
         state = S_PLAY_RUN1 + (MenuAnimationTic&3);
 
-    M_DrawOverlay((SCREEN_WD>>1)-40, 44, 80, 104, (text_alpha*224)>>8);
+    M_DrawOverlay(((SCREEN_WD>>1)-40)<<(hudxshift-2), 44<<(hudyshift-2),
+                  80<<(hudxshift-2), 104<<(hudyshift-2),
+                  (text_alpha*224)>>8);
 
     F_DrawSprite(MT_PLAYER, &states[state], playerpreviewrotate,
                  text_alpha | 0xffffff00, SCREEN_WD>>1, 134, FRACUNIT, 0);

@@ -235,7 +235,8 @@ SEC_GAME void P_PlayerZMovement (mobj_t *mo) // 80021f38
             if (mo->momz < -(GRAVITY*2))    /* squat down */
             {
                 mo->player->deltaviewheight = mo->momz>>3;
-                S_StartSound (mo, sfx_oof);
+                if (!(mo->player->cheats & CF_FLYMODE))
+                    S_StartSound (mo, sfx_oof);
             }
             mo->momz = 0;
         }

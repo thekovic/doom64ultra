@@ -284,6 +284,7 @@ typedef enum {
     rm_hudsprite,
     rm_hudtext,
     rm_hudoverlay,
+    rm_background,
 } rendermode_t;
 
 extern void R_RenderModes(rendermode_t mode) HOT;

@@ -520,7 +520,7 @@ void R_RenderModes(rendermode_t mode)
         gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A,
                 mode == rm_transparenttexture
                 ? (VideoSettings.AntiAliasing ? G_RM_XLU_SURF2 : G_RM_TEX_EDGE2)
-                : (VideoSettings.AntiAliasing ? G_RM_TEX_EDGE2 : G_RM_OPA_SURF2));
+                : (VideoSettings.AntiAliasing ? G_RM_TEX_EDGE2 : G_RM_NOOP2));
         R_RenderFilter(filt_textures);
     }
     else if (mode == rm_switch)
@@ -618,6 +618,15 @@ void R_RenderModes(rendermode_t mode)
         gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
         gDPSetCombineMode(GFX1++, G_CC_D64COMB05, G_CC_D64COMB05);
         gDPSetRenderMode(GFX1++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    }
+    else if (mode == rm_background)
+    {
+        gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
+        gDPSetTextureLUT(GFX1++, G_TT_RGBA16);
+        gDPSetTexturePersp(GFX1++, G_TP_NONE);
+        gDPSetAlphaCompare(GFX1++, G_AC_THRESHOLD);
+        gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
+        gDPSetCombineMode(GFX1++, G_CC_D64COMB03, G_CC_D64COMB03);
     }
 
     lastrender = mode;
