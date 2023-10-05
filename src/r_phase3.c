@@ -172,15 +172,15 @@ void R_WallPrep(seg_t *seg) // 80026A44
     int pic;
 
     unsigned int height2;
-    unsigned int r1, g1, b1;
-    unsigned int r2, g2, b2;
+    unsigned int r1 = 0, g1 = 0, b1 = 0;
+    unsigned int r2 = 0, g2 = 0, b2 = 0;
     unsigned int thingcolor;
     unsigned int upcolor;
     unsigned int lowcolor;
-    unsigned int topcolor;
-    unsigned int bottomcolor;
-    unsigned int tmp_upcolor;
-    unsigned int tmp_lowcolor;
+    unsigned int topcolor = 0;
+    unsigned int bottomcolor = 0;
+    unsigned int tmp_upcolor = 0;
+    unsigned int tmp_lowcolor = 0;
     int curRowoffset;
 
     li = seg->linedef;
