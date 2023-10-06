@@ -647,20 +647,22 @@ char *I_PrintFault(OSThread *curr, char *out)
     return out;
 }
 
+static OSViMode debug_vi_mode;
+
 static COLD bool I_DebugSetMode(u16 *fb)
 {
-    OSViMode *mode;
     bool hires = false;
 
-    bzero(fb,  CFB_SIZE);
+    for (int i = 0; i < CFB_SIZE/sizeof(u16); i++)
+        fb[i] = 0x0001;
 
     if (CFB_SIZE >= 640*480*sizeof(u16))
     {
         switch(osTvType)
         {
-            case OS_TV_PAL: mode = &osViModePalHan1; break;
-            case OS_TV_MPAL: mode = &osViModeMpalHan1; break;
-            default: mode = &osViModeNtscHan1; break;
+            case OS_TV_PAL: debug_vi_mode = osViModePalHan1; break;
+            case OS_TV_MPAL: debug_vi_mode = osViModeMpalHan1; break;
+            default: debug_vi_mode = osViModeNtscHan1; break;
         }
         hires = true;
     }
@@ -668,13 +670,15 @@ static COLD bool I_DebugSetMode(u16 *fb)
     {
         switch(osTvType)
         {
-            case OS_TV_PAL: mode = &osViModePalLan1; break;
-            case OS_TV_MPAL: mode = &osViModeMpalLan1; break;
-            default: mode = &osViModeNtscLan1; break;
+            case OS_TV_PAL: debug_vi_mode = osViModePalLan1; break;
+            case OS_TV_MPAL: debug_vi_mode = osViModeMpalLan1; break;
+            default: debug_vi_mode = osViModeNtscLan1; break;
         }
     }
 
-    osViSetMode(mode);
+    debug_vi_mode.comRegs.ctrl &= ~(VI_CTRL_GAMMA_DITHER_ON|VI_CTRL_ANTIALIAS_MODE_3);
+
+    osViSetMode(&debug_vi_mode);
     osViBlack(FALSE);
     osViSwapBuffer(fb);
     __osViSwapContext();
