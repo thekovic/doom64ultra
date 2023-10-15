@@ -363,11 +363,8 @@ void P_Start (void) // 80021C50
 
     DrawerStatus = 1;
 
-        if (gamemap == 33) {  /* Add by default God Mode in player  */
-             players[0].cheats |= CF_GODMODE;
-        }
-        else if (gamemap == 32)  /* Remove by default God Mode in player  */
-            players[0].cheats &= ~CF_GODMODE;
+    if (gamemap == 33)  /* Add by default God Mode in player  */
+        players[0].cheats |= CF_GODMODE;
 
     gamepaused = false;
     validcount = 1;
