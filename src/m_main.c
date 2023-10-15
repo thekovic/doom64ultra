@@ -958,7 +958,7 @@ static bool M_ModifySlider(int *value, int step, int max, int buttons, int oldbu
     }
     else if (IS_HELD(PAD_LEFT))
     {
-        *value -= 1;
+        *value -= step;
         if (*value < 0)
         {
             *value = 0;
