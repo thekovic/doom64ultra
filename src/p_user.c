@@ -1097,6 +1097,22 @@ SEC_GAME void P_PlayerThink (player_t *player) // 80022D60
         {
             // [nova] always cycle weapons
             weaponsearch = weapon;
+            if (player->cycledir > 0)
+            {
+                // override into a back command if the weapon is still lowering
+                if (player->pendingweapon != player->readyweapon)
+                {
+                    do
+                    {
+                        weaponsearch--;
+                        if (weaponsearch < 0)
+                            weaponsearch = NUMWEAPONS - 1;
+                    }
+                    while (!player->weaponowned[weaponsearch] && weaponsearch != weapon);
+                    player->weaponwheeltarget -= WHEEL_WEAPON_SIZE;
+                }
+                player->cycledir = -1;
+            }
             do
             {
                 weaponsearch--;
@@ -1108,20 +1124,28 @@ SEC_GAME void P_PlayerThink (player_t *player) // 80022D60
             player->pendingweapon = weaponsearch;
             player->weaponwheeltarget -= WHEEL_WEAPON_SIZE;
         }
-        else if ((buttons & BB_WEAPONFORWARD) && !(oldbuttons & BB_WEAPONFORWARD))
+        else if (buttons & BB_WEAPONFORWARD)
         {
-            // [nova] always cycle weapons
-            weaponsearch = weapon;
-            do
+            if (!(oldbuttons & BB_WEAPONFORWARD))
             {
-                weaponsearch++;
-                if (weaponsearch >= NUMWEAPONS)
-                    weaponsearch = 0;
-            }
-            while (!player->weaponowned[weaponsearch] && weaponsearch != weapon);
+                // [nova] always cycle weapons
+                weaponsearch = weapon;
+                player->cycledir = 1;
+                do
+                {
+                    weaponsearch++;
+                    if (weaponsearch >= NUMWEAPONS)
+                        weaponsearch = 0;
+                }
+                while (!player->weaponowned[weaponsearch] && weaponsearch != weapon);
 
-            player->pendingweapon = weaponsearch;
-            player->weaponwheeltarget += WHEEL_WEAPON_SIZE;
+                player->pendingweapon = weaponsearch;
+                player->weaponwheeltarget += WHEEL_WEAPON_SIZE;
+            }
+        }
+        else
+        {
+            player->cycledir = 0;
         }
     }
 

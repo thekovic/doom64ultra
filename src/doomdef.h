@@ -653,6 +653,7 @@ typedef struct player_s
 
     bool           onground;               /* [d64] */
     bool           attackdown;             /* true if button down last tic */
+    s8             cycledir;               /* ge/pd style weapon cycling */
     u8             turnheld;                /* for accelerative turning */
     u8             pitchheld;                /* for accelerative vlook */
     u8             falltimer;                /* for jump grace period */
