@@ -145,6 +145,8 @@ void P_RunMobjLate (void)
 }
 #endif // 0
 
+u8 pausecursorpos = 0;
+
 /*
 ==============
 =
@@ -170,6 +172,7 @@ gameaction_t P_CheckCheats (void) // 8002187C
 
             lastticon = ticon;
 
+            cursorpos = pausecursorpos;
             M_PauseMenu();
         }
 
@@ -179,7 +182,10 @@ gameaction_t P_CheckCheats (void) // 8002187C
     exit = M_MenuTicker();
 
     if (exit)
+    {
+        pausecursorpos = cursorpos;
         M_MenuClearCall(ga_nothing);
+    }
 
     if (exit == ga_warped || exit == ga_recorddemo || exit == ga_restart || exit == ga_exitdemo || exit == ga_loadquicksave)
     {
