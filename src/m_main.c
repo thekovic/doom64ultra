@@ -3213,7 +3213,7 @@ void M_DefaultsDrawer(void) // [Immorpher] new defaults drawer
         ST_DrawString(item->x, item->y, MenuText[item->casepos], text_alpha | 0xff000000);
 
         if (item->casepos != MTXT_RETURN)
-            ST_DrawSymbol(item->x + 108, item->y, 85, text_alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 108, item->y, 87, text_alpha | 0xffffff00);
 
         item++;
     }
@@ -4040,7 +4040,7 @@ void M_LoadPakStart(void) // 8000AEEC
 
 void M_LoadPakStop(int exit) // 8000AF8C
 {
-    M_FadeOutStart(ga_exit);
+    M_FadeOutStart(exit);
     I_FreePakData();
 }
 
@@ -4196,7 +4196,7 @@ void M_LoadGamePakStart(void)
 
 void M_LoadGamePakStop(int exit)
 {
-    M_FadeOutStart(ga_exit);
+    M_FadeOutStart(exit);
 
     Z_Free(GamePak_Data);
     GamePak_Data = NULL;
