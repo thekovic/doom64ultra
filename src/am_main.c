@@ -459,7 +459,7 @@ void AM_Drawer (void) // 800009AC
     }
     else
     {
-        AM_DrawThing(p->mo, 0, ts, tc, xpos, ypos, thingscale);
+        AM_DrawThing(p->mo, p->mo->angle + ANG180, ts, tc, xpos, ypos, thingscale);
     }
 
 
