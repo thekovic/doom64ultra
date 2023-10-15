@@ -742,14 +742,7 @@ void P_SetLightFactor(int lightfactor) // 8000F458
             base_b = v;
         }
 
-        // [GEC] New Cheat Codes
-        if (players[0].cheats & CF_FULLBRIGHT)
-        {
-            base_r = 255;
-            base_g = 255;
-            base_b = 255;
-        }
-        else if (players[0].cheats & CF_NOCOLORS)
+        if (players[0].cheats & CF_NOCOLORS)
         {
             base_r = v & 255;
             base_g = v & 255;

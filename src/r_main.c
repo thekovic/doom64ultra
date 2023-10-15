@@ -293,10 +293,17 @@ void R_RenderPlayerView(void) // 80023448
     gDPSetAlphaCompare(GFX1++, G_AC_THRESHOLD);
     gDPSetBlendColor(GFX1++, 0, 0, 0, 0);
 
-    FnearA = (1000 - FogNear);
-    FnearB = ((0-FogNear) << 8) + 128000;
-    Fnear  = (((128000 / FnearA) << 16) | ((FnearB / FnearA) & 0xffff));
-    gMoveWd(GFX1++, G_MW_FOG, G_MWO_FOG, Fnear);
+    if (!(players[0].cheats & CF_FULLBRIGHT))
+    {
+        FnearA = (1000 - FogNear);
+        FnearB = ((0-FogNear) << 8) + 128000;
+        Fnear  = (((128000 / FnearA) << 16) | ((FnearB / FnearA) & 0xffff));
+        gMoveWd(GFX1++, G_MW_FOG, G_MWO_FOG, Fnear);
+    }
+    else
+    {
+        gSPFogPosition(GFX1++, 996, 1000);
+    }
 
     // Apply Fog Color
     fog = FogColor;
