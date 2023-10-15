@@ -516,7 +516,7 @@ void R_RenderModes(rendermode_t mode)
             gDPSetColorDither(GFX1++, G_CD_DISABLE);
         }
     }
-    else if (mode == rm_texture || mode == rm_transparenttexture)
+    else if (mode == rm_texture)
     {
         if (lastrender != rm_liquid) {
             gSPTexture(GFX1++, (1024 << 6)-1, (1024 << 6)-1, 0, G_TX_RENDERTILE, G_ON);
@@ -525,9 +525,7 @@ void R_RenderModes(rendermode_t mode)
             }
         }
         gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A,
-                mode == rm_transparenttexture
-                ? (VideoSettings.AntiAliasing ? G_RM_XLU_SURF2 : G_RM_TEX_EDGE2)
-                : (VideoSettings.AntiAliasing ? G_RM_TEX_EDGE2 : G_RM_NOOP2));
+                (VideoSettings.AntiAliasing ? (G_RM_AA_XLU_SURF2) : (G_RM_TEX_EDGE2)));
         R_RenderFilter(filt_textures);
     }
     else if (mode == rm_switch)
@@ -537,7 +535,7 @@ void R_RenderModes(rendermode_t mode)
             gDPSetCombineMode(GFX1++, G_CC_D64COMB07, G_CC_D64COMB08);
         }
         gDPSetRenderMode(GFX1++, G_RM_FOG_SHADE_A,
-                VideoSettings.AntiAliasing ? G_RM_TEX_EDGE2 : G_RM_OPA_SURF2);
+                (VideoSettings.AntiAliasing ? (G_RM_AA_OPA_SURF2) : (G_RM_OPA_SURF2)));
         R_RenderFilter(filt_textures);
     }
     else if (mode == rm_liquid)

@@ -49,7 +49,6 @@ void R_RenderWorld(subsector_t *sub) // 80026638
     I_CheckGFX();
 
     gDPSetPrimColor(GFX1++, 0, frontsector->lightlevel, 0, 0, 0, 255);
-    R_RenderFilter(filt_textures);
 
     R_RenderModes(rm_texture);
 
@@ -350,12 +349,9 @@ void R_WallPrep(seg_t *seg) // 80026A44
         {
             return;
         }
-        R_RenderModes(rm_transparenttexture);
     }
-    else
-    {
-        R_RenderModes(rm_texture);
-    }
+
+    R_RenderModes(rm_texture);
 
     if (li->flags & ML_DONTPEGBOTTOM)
     {

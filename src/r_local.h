@@ -274,7 +274,6 @@ typedef enum {
     rm_nothing = -1,
     rm_reset = 0,
     rm_texture,
-    rm_transparenttexture,
     rm_liquid,
     rm_switch,
     rm_laser,
