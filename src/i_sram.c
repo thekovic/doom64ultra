@@ -892,7 +892,8 @@ static void I_DeleteQuickLoad(void)
 
 boolean I_IsQuickSaveAvailable(void)
 {
-    return SramPresent && P_CurrentQuickSaveSize(QUICKSAVE_SIZE) <= QUICKSAVE_SIZE;
+    return SramPresent && P_CurrentQuickSaveSize(QUICKSAVE_SIZE) <= QUICKSAVE_SIZE
+        && players[0].playerstate == PST_LIVE;
 }
 
 boolean I_IsQuickLoadAvailable(void)
