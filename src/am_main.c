@@ -154,40 +154,28 @@ void AM_Control (player_t *player) // 800004F4
     scale = (scale / 1500) << 8;
 
     /* Analyze analog stick movement (left / right) */
-    sensitivity = STICK_Y(buttons);
-
-    if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
-    {
-        player->automapx += (sensitivity * scale) / 80;
-    }
-
-    /* Analyze analog stick movement (up / down) */
     sensitivity = STICK_X(buttons);
 
     if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
-    {
+        player->automapx += (sensitivity * scale) / 80;
+
+    /* Analyze analog stick movement (up / down) */
+    sensitivity = STICK_Y(buttons);
+
+    if(sensitivity >= MAXSENSIVITY || sensitivity <= -MAXSENSIVITY)
         player->automapy += (sensitivity * scale) / 80;
-    }
 
     /* X movement */
     if (player->automapx > am_box[BOXRIGHT])
-    {
         player->automapx = am_box[BOXRIGHT];
-    }
     else if (player->automapx < am_box[BOXLEFT])
-    {
         player->automapx = am_box[BOXLEFT];
-    }
 
     /* Y movement */
     if (player->automapy > am_box[BOXTOP])
-    {
         player->automapy = am_box[BOXTOP];
-    }
     else if (player->automapy < am_box[BOXBOTTOM])
-    {
         player->automapy = am_box[BOXBOTTOM];
-    }
 
     /* Zoom scale in */
     if (buttons & PAD_L_TRIG)
