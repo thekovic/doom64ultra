@@ -956,7 +956,11 @@ SEC_GAME void P_DeathThink (player_t *player) // 80022914
         }
 
         if (respawnpressed)
+        {
             player->playerstate = PST_REBORN;
+            if (!customskill.pistol_start)
+                doLoadSave = true;
+        }
     }
 
     if (player->bonuscount)

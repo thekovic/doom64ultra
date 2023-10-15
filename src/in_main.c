@@ -153,6 +153,8 @@ void IN_Stop(int exit) // 80004DB0
 {
     S_StopMusic();
 
+    I_SaveProgress(&LevelSaveBuffer);
+
     if ((nextmap >= 0) && (nextmap < LASTLEVEL))
     {
         MenuAnimationTic = 0;
