@@ -180,16 +180,16 @@ void R_WallPrep(seg_t *seg) // 80026A44
     unsigned int bottomcolor = 0;
     unsigned int tmp_upcolor = 0;
     unsigned int tmp_lowcolor = 0;
-    int curRowoffset;
+    int toffset;
 
     li = seg->linedef;
     side = seg->sidedef;
 
     // [GEC] Prevents errors in textures in T coordinates, but is not applied to switches
-    curRowoffset = (side->rowoffset & (1023 << FRACBITS)) - 1024;
+    toffset = side->rowoffset >> FRACBITS;
 
-    f_ceilingheight = frontsector->ceilingheight >> 16;
-    f_floorheight = frontsector->floorheight >> 16;
+    f_ceilingheight = frontsector->ceilingheight >> FRACBITS;
+    f_floorheight = frontsector->floorheight >> FRACBITS;
 
     thingcolor = lights[frontsector->colors[2]].rgba;
     upcolor = lights[frontsector->colors[3]].rgba;
@@ -219,20 +219,20 @@ void R_WallPrep(seg_t *seg) // 80026A44
     backsector = seg->backsector;
     if (backsector)
     {
-        b_floorheight = backsector->floorheight >> 16;
-        b_ceilingheight = backsector->ceilingheight >> 16;
+        b_floorheight = backsector->floorheight >> FRACBITS;
+        b_ceilingheight = backsector->ceilingheight >> FRACBITS;
 
         if ((backsector->ceilingheight < frontsector->ceilingheight) && (backsector->ceilingpic != -1))
         {
             if (li->flags & ML_DONTPEGTOP)
             {
                 height = (f_ceilingheight - b_ceilingheight);
-                rowoffs = (curRowoffset >> 16) + height;
+                rowoffs = toffset + height;
             }
             else
             {
                 height = (f_ceilingheight - b_ceilingheight);
-                rowoffs = ((height + 127) & -128) + (curRowoffset >> 16);
+                rowoffs = ((height + 127) & -128) + toffset;
             }
 
             if (li->flags & ML_BLENDING)
@@ -241,16 +241,16 @@ void R_WallPrep(seg_t *seg) // 80026A44
                 {
                     if (f_floorheight < f_ceilingheight)
                     {
-                        height2 = ((height << 16) / (f_ceilingheight - f_floorheight));
+                        height2 = ((height << FRACBITS) / (f_ceilingheight - f_floorheight));
                     }
                     else
                     {
                         height2 = 0;
                     }
 
-                    tmp_lowcolor = (((((r2 - r1) * height2) >> 16) + r1) << 24) |
-                                   (((((g2 - g1) * height2) >> 16) + g1) << 16) |
-                                   (((((b2 - b1) * height2) >> 16) + b1) << 8)  | 0xff;
+                    tmp_lowcolor = (((((r2 - r1) * height2) >> FRACBITS) + r1) << 24) |
+                                   (((((g2 - g1) * height2) >> FRACBITS) + g1) << 16) |
+                                   (((((b2 - b1) * height2) >> FRACBITS) + b1) << 8)  | 0xff;
                 }
 
                 if (li->flags & ML_INVERSEBLEND)
@@ -272,7 +272,7 @@ void R_WallPrep(seg_t *seg) // 80026A44
             DEBUG_COUNTER(LastVisSegs += 1);
             R_RenderWall(seg, li->flags, textures[side->toptexture],
                          f_ceilingheight, b_ceilingheight,
-                         rowoffs - height, rowoffs,
+                         rowoffs - height, height,
                          topcolor, bottomcolor);
 
             m_top = b_ceilingheight; // clip middle top height
@@ -283,7 +283,7 @@ void R_WallPrep(seg_t *seg) // 80026A44
                 else
                     pic = side->midtexture;
 
-                rowoffs = side->rowoffset >> 16;
+                rowoffs = side->rowoffset >> FRACBITS;
                 R_RenderSwitch(seg, pic, b_ceilingheight + rowoffs + 48, thingcolor);
             }
         }
@@ -293,13 +293,9 @@ void R_WallPrep(seg_t *seg) // 80026A44
             height = (f_ceilingheight - b_floorheight);
 
             if ((li->flags & ML_DONTPEGBOTTOM) == 0)
-            {
-                rowoffs = curRowoffset >> 16;
-            }
+                rowoffs = toffset;
             else
-            {
-                rowoffs = height + (curRowoffset >> 16);
-            }
+                rowoffs = height + toffset;
 
             if (li->flags & ML_BLENDING)
             {
@@ -307,16 +303,16 @@ void R_WallPrep(seg_t *seg) // 80026A44
                 {
                     if (f_floorheight < f_ceilingheight)
                     {
-                        height2 = ((height << 16) / (f_ceilingheight - f_floorheight));
+                        height2 = ((height << FRACBITS) / (f_ceilingheight - f_floorheight));
                     }
                     else
                     {
                         height2 = 0;
                     }
 
-                    tmp_upcolor = (((((r2 - r1) * height2) >> 16) + r1) << 24) |
-                                  (((((g2 - g1) * height2) >> 16) + g1) << 16) |
-                                  (((((b2 - b1) * height2) >> 16) + b1) << 8)  | 0xff;
+                    tmp_upcolor = (((((r2 - r1) * height2) >> FRACBITS) + r1) << 24) |
+                                  (((((g2 - g1) * height2) >> FRACBITS) + g1) << 16) |
+                                  (((((b2 - b1) * height2) >> FRACBITS) + b1) << 8)  | 0xff;
                 }
 
                 topcolor = tmp_upcolor;
@@ -329,7 +325,7 @@ void R_WallPrep(seg_t *seg) // 80026A44
 
             R_RenderWall(seg, li->flags, textures[side->bottomtexture],
                          b_floorheight, f_floorheight,
-                         rowoffs, rowoffs + (b_floorheight - f_floorheight),
+                         rowoffs, b_floorheight - f_floorheight,
                          topcolor, bottomcolor);
 
             m_bottom = b_floorheight; // clip middle bottom height
@@ -340,7 +336,7 @@ void R_WallPrep(seg_t *seg) // 80026A44
                 else
                     pic = side->midtexture;
 
-                rowoffs = side->rowoffset >> 16;
+                rowoffs = side->rowoffset >> FRACBITS;
                 R_RenderSwitch(seg, pic, b_floorheight + rowoffs - 16, thingcolor);
             }
         }
@@ -356,17 +352,17 @@ void R_WallPrep(seg_t *seg) // 80026A44
     if (li->flags & ML_DONTPEGBOTTOM)
     {
         height = m_top - m_bottom;
-        rowoffs = ((height + 127) & -128) + (curRowoffset >> 16);
+        rowoffs = ((height + 127) & -128) + toffset;
     }
     else if (li->flags & ML_DONTPEGTOP)
     {
-        rowoffs = (curRowoffset >> 16) - m_bottom;
+        rowoffs = toffset - m_bottom;
         height = m_top - m_bottom;
     }
     else
     {
         height = m_top - m_bottom;
-        rowoffs = (curRowoffset >> 16) + height;
+        rowoffs = toffset + height;
     }
 
     if (li->flags & ML_BLENDING)
@@ -377,9 +373,9 @@ void R_WallPrep(seg_t *seg) // 80026A44
 
     DEBUG_COUNTER(LastVisSegs += 1);
     R_RenderWall(seg, li->flags, textures[side->midtexture],
-            m_top, m_bottom,
-            rowoffs - height, rowoffs,
-            topcolor, bottomcolor);
+                 m_top, m_bottom,
+                 rowoffs - height, height,
+                 topcolor, bottomcolor);
 
     if ((li->flags & (ML_CHECKFLOORHEIGHT|ML_SWITCHX08)) == (ML_CHECKFLOORHEIGHT|ML_SWITCHX08))
     {
@@ -388,13 +384,13 @@ void R_WallPrep(seg_t *seg) // 80026A44
         else
             pic = side->bottomtexture;
 
-        rowoffs = side->rowoffset >> 16;
+        rowoffs = side->rowoffset >> FRACBITS;
         R_RenderSwitch(seg, pic, m_bottom + rowoffs + 48, thingcolor);
     }
 }
 
 void R_RenderWall(seg_t *seg, int flags, int texture, int topHeight, int bottomHeight,
-                  int topOffset, int bottomOffset, int topColor, int bottomColor) // 80027138
+                  int topOffset, int offsetHeight, int topColor, int bottomColor) // 80027138
 {
     byte *data;
     byte *src;
@@ -403,109 +399,109 @@ void R_RenderWall(seg_t *seg, int flags, int texture, int topHeight, int bottomH
     int cms, cmt;
     int wshift, hshift;
 
+    if ((texture >> 4) == firsttex + 1)
+        return;
+
+    topOffset = (topOffset & 1023) - 1024;
+
+    v1 = seg->v1;
+    v2 = seg->v2;
+
+    // x coordinates
+    VTX1[0].v.ob[0] = VTX1[3].v.ob[0] = (signed short)(v1->x >> 16);
+    VTX1[1].v.ob[0] = VTX1[2].v.ob[0] = (signed short)(v2->x >> 16);
+
+    // y coordinates
+    VTX1[0].v.ob[1] = VTX1[1].v.ob[1] = topHeight;
+    VTX1[3].v.ob[1] = VTX1[2].v.ob[1] = bottomHeight;
+
+    // z coordinates
+    VTX1[0].v.ob[2] = VTX1[3].v.ob[2] = (signed short)-(v1->y >> 16);
+    VTX1[1].v.ob[2] = VTX1[2].v.ob[2] = (signed short)-(v2->y >> 16);
+
+    // vertex color
+    *(int*)VTX1[0].v.cn = *(int*)VTX1[1].v.cn = topColor;
+    *(int*)VTX1[2].v.cn = *(int*)VTX1[3].v.cn = bottomColor;
+
+    // texture s coordinates
     // [GEC] Prevents errors in textures in S coordinates
-    int curTextureoffset = ((seg->sidedef->textureoffset + seg->offset) & (1023 << FRACBITS)) - 1024;
+    VTX1[0].v.tc[0] = VTX1[3].v.tc[0] = (((seg->sidedef->textureoffset + seg->offset) >> 11) & ((1023 << 5) | 0x1f)) - (1024 << 5);
+    VTX1[1].v.tc[0] = VTX1[2].v.tc[0] = VTX1[0].v.tc[0] + (seg->length << 1);
 
-    if (texture != 16)
-    {
-        if (flags & ML_HMIRROR) {
-            cms = G_TX_MIRROR;
-        }
-        else {
-            cms = G_TX_NOMIRROR;
-        }
+    // texture t coordinates
+    VTX1[0].v.tc[1] = VTX1[1].v.tc[1] = topOffset << 5;
+    VTX1[2].v.tc[1] = VTX1[3].v.tc[1] = (topOffset + offsetHeight) << 5;
 
-        if (flags & ML_VMIRROR) {
-            cmt = G_TX_MIRROR;
-        }
-        else {
-            cmt = G_TX_NOMIRROR;
-        }
-
-        if ((texture != globallump) || (globalcm != (cms | cmt)))
-        {
-            /*
-            In Doom 64 all textures are compressed with the second method (dec_d64),
-            in the original line it was declared that if a texture was not stored,
-            it would be stored from the DOOM64.WAD and decompressed with the Jaguar Doom
-            method (dec_jag) which is wrong since all the textures are previously
-            loaded from the P_Init function with the second decompression method (dec_d64)
-            */
-            //data = W_CacheLumpNum(texture >> 4, PU_CACHE, dec_jag); // error decomp mode
-            data = W_CacheLumpNum(texture >> 4, PU_CACHE, dec_d64, sizeof(textureN64_t)); /* [GEC] FIXED */
-
-            wshift = ((textureN64_t*)data)->wshift;
-            hshift = ((textureN64_t*)data)->hshift;
-
-            src = data + sizeof(textureN64_t);
-
-            // Load Image Data
-            gDPSetTextureImage(GFX1++, G_IM_FMT_CI, G_IM_SIZ_16b , 1, src);
-            gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
-
-            gDPLoadSync(GFX1++);
-            gDPLoadBlock(GFX1++, G_TX_LOADTILE, 0, 0,
-                         (((1 << wshift) * (1 << hshift)) >> 2) - 1, 0);
-
-            gDPPipeSync(GFX1++);
-            gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_4b,
-                       (((1 << wshift) >> 1) + 7) >> 3, 0, G_TX_RENDERTILE, 0,
-                       cmt, hshift, 0,
-                       cms, wshift, 0);
-
-            gDPSetTileSize(GFX1++, G_TX_RENDERTILE, 0, 0,
-                           ((1 << wshift) - 1) << 2,
-                           ((1 << hshift) - 1) << 2);
-
-            // Load Palette Data
-            gDPSetTextureImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b , 1,
-                               src + (1 << ((wshift + hshift + 31) & 31)) + ((texture & 15) << 5));
-
-            gDPTileSync(GFX1++);
-            gDPSetTile(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_4b, 0, 256, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
-
-            gDPLoadSync(GFX1++);
-            gDPLoadTLUTCmd(GFX1++, G_TX_LOADTILE, 15);
-
-            gDPPipeSync(GFX1++);
-
-            globallump = texture;
-            globalcm = (cms | cmt);
-        }
-
-        gSPVertex(GFX1++, VTX1, 4, 0);
-        gSP1Quadrangle(GFX1++, 0, 1, 2, 3, 1);
-        DEBUG_COUNTER(LastVisTriangles += 2);
-
-        v1 = seg->v1;
-        v2 = seg->v2;
-
-        // x coordinates
-        VTX1[0].v.ob[0] = VTX1[3].v.ob[0] = (signed short)(v1->x >> 16);
-        VTX1[1].v.ob[0] = VTX1[2].v.ob[0] = (signed short)(v2->x >> 16);
-
-        // y coordinates
-        VTX1[0].v.ob[1] = VTX1[1].v.ob[1] = topHeight;
-        VTX1[3].v.ob[1] = VTX1[2].v.ob[1] = bottomHeight;
-
-        // z coordinates
-        VTX1[0].v.ob[2] = VTX1[3].v.ob[2] = (signed short)-(v1->y >> 16);
-        VTX1[1].v.ob[2] = VTX1[2].v.ob[2] = (signed short)-(v2->y >> 16);
-
-        // texture s coordinates
-        VTX1[0].v.tc[0] = VTX1[3].v.tc[0] = (curTextureoffset >> 11);
-        VTX1[1].v.tc[0] = VTX1[2].v.tc[0] = VTX1[0].v.tc[0] + (seg->length << 1);
-
-        // texture t coordinates
-        VTX1[0].v.tc[1] = VTX1[1].v.tc[1] = (topOffset << 5);
-        VTX1[2].v.tc[1] = VTX1[3].v.tc[1] = (bottomOffset << 5);
-
-        // vertex color
-        *(int*)VTX1[0].v.cn = *(int*)VTX1[1].v.cn = topColor;
-        *(int*)VTX1[2].v.cn = *(int*)VTX1[3].v.cn = bottomColor;
-
-        VTX1 += 4;
+    if (flags & ML_HMIRROR) {
+        cms = G_TX_MIRROR;
     }
+    else {
+        cms = G_TX_NOMIRROR;
+    }
+
+    if (flags & ML_VMIRROR) {
+        cmt = G_TX_MIRROR;
+    }
+    else {
+        cmt = G_TX_NOMIRROR;
+    }
+
+    if ((texture != globallump) || (globalcm != (cms | cmt)))
+    {
+        /*
+        In Doom 64 all textures are compressed with the second method (dec_d64),
+        in the original line it was declared that if a texture was not stored,
+        it would be stored from the DOOM64.WAD and decompressed with the Jaguar Doom
+        method (dec_jag) which is wrong since all the textures are previously
+        loaded from the P_Init function with the second decompression method (dec_d64)
+        */
+        //data = W_CacheLumpNum(texture >> 4, PU_CACHE, dec_jag); // error decomp mode
+        data = W_CacheLumpNum(texture >> 4, PU_CACHE, dec_d64, sizeof(textureN64_t)); /* [GEC] FIXED */
+
+        wshift = ((textureN64_t*)data)->wshift;
+        hshift = ((textureN64_t*)data)->hshift;
+
+        src = data + sizeof(textureN64_t);
+
+        // Load Image Data
+        gDPSetTextureImage(GFX1++, G_IM_FMT_CI, G_IM_SIZ_16b , 1, src);
+        gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
+
+        gDPLoadSync(GFX1++);
+        gDPLoadBlock(GFX1++, G_TX_LOADTILE, 0, 0,
+                     (((1 << wshift) * (1 << hshift)) >> 2) - 1, 0);
+
+        gDPPipeSync(GFX1++);
+        gDPSetTile(GFX1++, G_IM_FMT_CI, G_IM_SIZ_4b,
+                   (((1 << wshift) >> 1) + 7) >> 3, 0, G_TX_RENDERTILE, 0,
+                   cmt, hshift, 0,
+                   cms, wshift, 0);
+
+        gDPSetTileSize(GFX1++, G_TX_RENDERTILE, 0, 0,
+                       ((1 << wshift) - 1) << 2,
+                       ((1 << hshift) - 1) << 2);
+
+        // Load Palette Data
+        gDPSetTextureImage(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_16b , 1,
+                           src + (1 << ((wshift + hshift + 31) & 31)) + ((texture & 15) << 5));
+
+        gDPTileSync(GFX1++);
+        gDPSetTile(GFX1++, G_IM_FMT_RGBA, G_IM_SIZ_4b, 0, 256, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
+
+        gDPLoadSync(GFX1++);
+        gDPLoadTLUTCmd(GFX1++, G_TX_LOADTILE, 15);
+
+        gDPPipeSync(GFX1++);
+
+        globallump = texture;
+        globalcm = (cms | cmt);
+    }
+
+    gSPVertex(GFX1++, VTX1, 4, 0);
+    gSP1Quadrangle(GFX1++, 0, 1, 2, 3, 1);
+    DEBUG_COUNTER(LastVisTriangles += 2);
+
+    VTX1 += 4;
 }
 
 void R_RenderSwitch(seg_t *seg, int texture, int topOffset, int color) // 80027654
@@ -519,6 +515,44 @@ void R_RenderSwitch(seg_t *seg, int texture, int topOffset, int color) // 800276
     int wshift = 5, hshift = 5;
 
     if (texture <= 1) return;
+
+    v1 = seg->linedef->v1;
+    v2 = seg->linedef->v2;
+
+    x = (v1->x + v2->x);
+    if (x < 0) {x = x + 1;}
+
+    y = (v1->y + v2->y);
+    if (y < 0) {y = y + 1;}
+
+    x >>= 1;
+    y >>= 1;
+
+    cos = finecosine(seg->angle >> ANGLETOFINESHIFT) << 1;
+    sin = finesine(seg->angle >> ANGLETOFINESHIFT) << 1;
+
+    // x coordinates
+    VTX1[0].v.ob[0] = VTX1[3].v.ob[0] = ((x) - (cos << 3) + sin) >> 16;
+    VTX1[1].v.ob[0] = VTX1[2].v.ob[0] = ((x) + (cos << 3) + sin) >> 16;
+
+    // y coordinates
+    VTX1[0].v.ob[1] = VTX1[1].v.ob[1] = topOffset;
+    VTX1[3].v.ob[1] = VTX1[2].v.ob[1] = topOffset - 32;
+
+    // z coordinates
+    VTX1[0].v.ob[2] = VTX1[3].v.ob[2] = ((-y) + (sin << 3) + cos) >> 16;
+    VTX1[1].v.ob[2] = VTX1[2].v.ob[2] = ((-y) - (sin << 3) + cos) >> 16;
+
+    // texture s coordinates
+    VTX1[0].v.tc[0] = VTX1[3].v.tc[0] = (0 << 6);
+    VTX1[1].v.tc[0] = VTX1[2].v.tc[0] = ((1 << wshift) << 6);
+
+    // texture t coordinates
+    VTX1[0].v.tc[1] = VTX1[1].v.tc[1] = (0 << 6);
+    VTX1[2].v.tc[1] = VTX1[3].v.tc[1] = ((1 << hshift) << 6);
+
+    // vertex color
+    *(int*)VTX1[0].v.cn = *(int*)VTX1[1].v.cn = *(int*)VTX1[2].v.cn = *(int*)VTX1[3].v.cn = color;
 
     if (texture != globallump)
     {
@@ -575,44 +609,6 @@ void R_RenderSwitch(seg_t *seg, int texture, int topOffset, int color) // 800276
     gSPVertex(GFX1++, VTX1, 4, 0);
     gSP1Quadrangle(GFX1++, 0, 1, 2, 3, 1);
     DEBUG_COUNTER(LastVisTriangles += 2);
-
-    v1 = seg->linedef->v1;
-    v2 = seg->linedef->v2;
-
-    x = (v1->x + v2->x);
-    if (x < 0) {x = x + 1;}
-
-    y = (v1->y + v2->y);
-    if (y < 0) {y = y + 1;}
-
-    x >>= 1;
-    y >>= 1;
-
-    cos = finecosine(seg->angle >> ANGLETOFINESHIFT) << 1;
-    sin = finesine(seg->angle >> ANGLETOFINESHIFT) << 1;
-
-    // x coordinates
-    VTX1[0].v.ob[0] = VTX1[3].v.ob[0] = ((x) - (cos << 3) + sin) >> 16;
-    VTX1[1].v.ob[0] = VTX1[2].v.ob[0] = ((x) + (cos << 3) + sin) >> 16;
-
-    // y coordinates
-    VTX1[0].v.ob[1] = VTX1[1].v.ob[1] = topOffset;
-    VTX1[3].v.ob[1] = VTX1[2].v.ob[1] = topOffset - 32;
-
-    // z coordinates
-    VTX1[0].v.ob[2] = VTX1[3].v.ob[2] = ((-y) + (sin << 3) + cos) >> 16;
-    VTX1[1].v.ob[2] = VTX1[2].v.ob[2] = ((-y) - (sin << 3) + cos) >> 16;
-
-    // texture s coordinates
-    VTX1[0].v.tc[0] = VTX1[3].v.tc[0] = (0 << 6);
-    VTX1[1].v.tc[0] = VTX1[2].v.tc[0] = ((1 << wshift) << 6);
-
-    // texture t coordinates
-    VTX1[0].v.tc[1] = VTX1[1].v.tc[1] = (0 << 6);
-    VTX1[2].v.tc[1] = VTX1[3].v.tc[1] = ((1 << hshift) << 6);
-
-    // vertex color
-    *(int*)VTX1[0].v.cn = *(int*)VTX1[1].v.cn = *(int*)VTX1[2].v.cn = *(int*)VTX1[3].v.cn = color;
 
     VTX1 += 4;
 }
