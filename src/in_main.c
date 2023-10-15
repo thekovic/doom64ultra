@@ -144,7 +144,7 @@ void IN_Start(void) // 80004AF0
             CurPasswordSlot = 0;
     }
 
-    S_StartMusic(114);
+    S_StartMusic(mus_complete);
 }
 
 extern const menuitem_t Menu_Save[3];

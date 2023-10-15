@@ -376,7 +376,7 @@ void P_Start (void) // 80021C50
 
     if (gameaction == ga_loadquicksave)
     {
-        MusicID = MapInfo[gamemap].MusicSeq-92;
+        MusicID = MapInfo[gamemap].MusicSeq-(NUMSFX-1);
         S_StartMusic(MapInfo[gamemap].MusicSeq);
         P_RefreshBrightness();
 
@@ -397,7 +397,7 @@ void P_Start (void) // 80021C50
 
         start_time = ticon;
 
-        MusicID = MapInfo[gamemap].MusicSeq-92;
+        MusicID = MapInfo[gamemap].MusicSeq-(NUMSFX-1);
         S_StartMusic(MapInfo[gamemap].MusicSeq);
     }
 }
