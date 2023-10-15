@@ -157,31 +157,7 @@ void IN_Stop(int exit) // 80004DB0
     {
         MenuAnimationTic = 0;
         MenuIdx = 0;
-        if (SramPresent && I_CheckControllerPak() == 0 && !customskill.permadeath)
-        {
-            MenuItem = Menu_Save;
-            itemlines = ARRAYLEN(Menu_Save);
-            MenuCall = M_MenuTitleDrawer;
-            cursorpos = 0;
-            MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
-        }
-        else if (SramPresent)
-        {
-            MenuCall = M_SaveGamePakDrawer;
-            MiniLoop(M_SaveGamePakStart,M_SaveGamePakStop,M_SaveGamePakTicker,M_MenuGameDrawer);
-        }
-        else
-        {
-            if (!EnableExpPak && !customskill.permadeath)
-                EnableExpPak = (M_ControllerPak() == 0);
-
-            if (EnableExpPak)
-            {
-                MenuCall = M_SavePakDrawer;
-                MiniLoop(M_SavePakStart,M_SavePakStop,M_SavePakTicker,M_MenuGameDrawer);
-            }
-        }
-        MenuCall = NULL;
+        M_SaveMenu();
     }
 
     I_WIPE_FadeOutScreen();

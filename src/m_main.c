@@ -18,12 +18,7 @@ static void M_WmsCreditsDrawer(void);
 static void M_CustomSkillDrawer(void);
 static void M_UpdateSkillPreset(void);
 
-static levelsave_t *GamePak_Data = NULL;
-levelsave_t LevelSaveBuffer;
-boolean doLoadSave = false;
-
-//intermission
-int DrawerStatus;
+static bool M_SaveMustMove(void);
 
 #define MENU_STRINGS \
     _F(MTXT_MAIN_MENU, "Main Menu") \
@@ -483,6 +478,13 @@ static const struct {
 
 gamesettings_t Settings;
 
+static levelsave_t *GamePak_Data = NULL;
+levelsave_t LevelSaveBuffer;
+boolean doLoadSave = false;
+
+//intermission
+int DrawerStatus;
+
 menudata_t MenuData[8]; // 800A54F0
 int MenuAnimationTic;   // 800a5570
 int cursorpos;          // 800A5574
@@ -518,6 +520,17 @@ static u8 playerpreviewrotate;
 static s8 playercolorpreset;
 static s8 lastsetdefaults;
 static s16 logo_alpha;
+
+typedef enum {
+    copy_none,
+    copy_game_pak,
+    copy_controller_pak,
+} copysource_t;
+
+static u8 copysource = copy_none;
+static u8 copyindex;
+static u8 lastpaksave = 0;
+static u8 lastgamepaksave = 0;
 
 controls_t CurrentControls[MAXPLAYERS] ALIGNED(16);
 controls2_t CurrentControls2[1];
@@ -817,6 +830,8 @@ void M_SaveMenuData(void) // 80007B2C
 {
     menudata_t *mdat;
 
+    assert(MenuIdx < ARRAYLEN(MenuData) - 1);
+
     // Save Actual Menu Page
     mdat = &MenuData[MenuIdx];
     MenuIdx += 1;
@@ -833,6 +848,8 @@ void M_SaveMenuData(void) // 80007B2C
 void M_RestoreMenuData(boolean alpha_in) // 80007BB8
 {
     menudata_t *mdat;
+
+    assert(MenuIdx > 0);
 
     // Restore Previous Save Menu Page
     MenuIdx -= 1;
@@ -1059,7 +1076,7 @@ int M_MenuTicker(void) // 80007E0C
 
         if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
         {
-            if (MenuItem == Menu_Title)
+            if (MenuItem == Menu_Title || (MenuItem == Menu_Save && MenuIdx == 0))
             {
                 return ga_nothing;
             }
@@ -1302,12 +1319,7 @@ int M_MenuTicker(void) // 80007E0C
                         // Check ControllerPak
                         EnableExpPak = (M_ControllerPak() == 0);
 
-                        // Free Pak_Data
-                        if (Pak_Data)
-                        {
-                            Z_Free(Pak_Data);
-                            Pak_Data = NULL;
-                        }
+                        I_FreePakData();
                     }
 
                     return ga_exit;
@@ -2107,7 +2119,7 @@ int M_MenuTicker(void) // 80007E0C
             case MTXT_PRESET_MERCILESS:
             case MTXT_PRESET_RETRO:
             case MTXT_PRESET_ACCESSIBLE:
-                if (IS_PRESSED(PAD_RIGHT_C))
+                if (IS_PRESSED(PAD_DOWN_C))
                 {
                     const gamesettingspreset_t *preset;
 
@@ -2391,7 +2403,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_QUICK_SAVE:
-                if (IS_PRESSED(PAD_RIGHT_C))
+                if (IS_PRESSED(PAD_DOWN_C))
                 {
                     if (I_IsQuickSaveAvailable())
                     {
@@ -2406,7 +2418,7 @@ int M_MenuTicker(void) // 80007E0C
                 }
                 break;
             case MTXT_QUICK_LOAD:
-                if (IS_PRESSED(PAD_RIGHT_C))
+                if (IS_PRESSED(PAD_DOWN_C))
                     return ga_loadquicksave;
                 break;
             case MTXT_LOAD_QUICK_LOAD:
@@ -2437,10 +2449,10 @@ int M_MenuTicker(void) // 80007E0C
                         {
                             MenuCall = M_SaveGamePakDrawer;
                             exit = MiniLoop(M_SaveGamePakStart,M_SaveGamePakStop,M_SaveGamePakTicker,M_MenuGameDrawer);
-                            MenuCall = NULL;
                         }
-                        if (exit != ga_completed && exit != ga_warped)
-                            M_RestoreMenuData(true);
+                        MenuCall = NULL;
+                        if (exit == ga_exit || MenuData[0].menu_item != Menu_Save)
+                            M_RestoreMenuData(exit == ga_exit);
                     }
                     if (exit == ga_exit)
                         exit = ga_nothing;
@@ -2476,8 +2488,8 @@ int M_MenuTicker(void) // 80007E0C
                         }
                     }
 
-                    if (exit != ga_completed && exit != ga_warped)
-                        M_RestoreMenuData(true);
+                    if (exit == ga_exit || MenuData[0].menu_item != Menu_Save)
+                        M_RestoreMenuData(exit == ga_exit);
 
                     if (exit == ga_exit)
                         return ga_nothing;
@@ -2513,6 +2525,7 @@ void M_MenuTitleDrawer(void) // 80008E7C
     const menuitem_t *item;
     int i;
     int y;
+    const char *title;
 
     if (MenuItem == Menu_Title)
     {
@@ -2557,7 +2570,14 @@ void M_MenuTitleDrawer(void) // 80008E7C
     }
     else if (MenuItem == Menu_Save)
     {
-        ST_DrawString(-1, 20, "Save Game", text_alpha | 0xc0000000);
+        if (copysource == copy_none)
+            title = "Save Game";
+        else if (!M_SaveMustMove())
+            title = "Copy Game File";
+        else
+            title = "Move Game File";
+
+        ST_DrawString(-1, 20, title, text_alpha | 0xff000000);
     }
 
     item = MenuItem;
@@ -2583,7 +2603,7 @@ void M_MenuTitleDrawer(void) // 80008E7C
         }
         else if (casepos == MTXT_QUICK_SAVE || casepos == MTXT_QUICK_LOAD)
         {
-            ST_DrawSymbol(240, y, 85, alpha | 0xffffff00);
+            ST_DrawSymbol(240, y, 87, alpha | 0xffffff00);
         }
 
         ST_DrawString(item->x, y, MenuText[casepos], alpha | color);
@@ -3331,6 +3351,49 @@ void M_DrawOverlay(int x, int y, int w, int h, int color) // 80009F58
     globallump = -1;
 }
 
+static void M_MoveScrollCursor(int buttons, int max)
+{
+
+    if (!(buttons & ALL_JPAD))
+    {
+        m_vframe1 = 0;
+    }
+    else
+    {
+        m_vframe1 -= vblsinframe[0];
+
+        if (m_vframe1 <= 0)
+        {
+            m_vframe1 = 0xf; // TICRATE/2
+
+            if (buttons & PAD_DOWN)
+            {
+                cursorpos += 1;
+
+                if (cursorpos < max)
+                    S_StartSound(NULL, sfx_switch1);
+                else
+                    cursorpos = max - 1;
+
+                if ((linepos + 5) < cursorpos)
+                    linepos += 1;
+            }
+            else if (buttons & PAD_UP)
+            {
+                cursorpos -= 1;
+
+                if (cursorpos < 0)
+                    cursorpos = 0;
+                else
+                    S_StartSound(NULL, sfx_switch1);
+
+                if(cursorpos < linepos)
+                    linepos -= 1;
+            }
+        }
+    }
+}
+
 int M_ManagePakTicker(void) // 8000A0F8
 {
     int exit;
@@ -3350,44 +3413,7 @@ int M_ManagePakTicker(void) // 8000A0F8
     buttons = M_ButtonResponder(allticbuttons);
     oldbuttons = alloldticbuttons & 0xffff0000;
 
-    if (!(buttons & ALL_JPAD))
-    {
-        m_vframe1 = 0;
-    }
-    else
-    {
-        m_vframe1 -= vblsinframe[0];
-
-        if (m_vframe1 <= 0)
-        {
-            m_vframe1 = 0xf; // TICRATE/2
-
-            if (buttons & PAD_DOWN)
-            {
-                cursorpos += 1;
-
-                if (cursorpos < 16)
-                    S_StartSound(NULL, sfx_switch1);
-                else
-                    cursorpos = 15;
-
-                if ((linepos + 5) < cursorpos)
-                    linepos += 1;
-            }
-            else if (buttons & PAD_UP)
-            {
-                cursorpos -= 1;
-
-                if (cursorpos < 0)
-                    cursorpos = 0;
-                else
-                    S_StartSound(NULL, sfx_switch1);
-
-                if(cursorpos < linepos)
-                    linepos -= 1;
-            }
-        }
-    }
+    M_MoveScrollCursor(buttons, 16);
 
     if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
     {
@@ -3396,7 +3422,7 @@ int M_ManagePakTicker(void) // 8000A0F8
     }
     else
     {
-        if (IS_PRESSED(PAD_RIGHT_C))
+        if (IS_PRESSED(PAD_UP_C))
         {
             fState = &FileState[cursorpos];
 
@@ -3528,7 +3554,7 @@ void M_ManagePakDrawer(void) // 8000A3E4
         ST_DrawSymbol(23, (cursorpos - linepos) * 16 + 52, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
         ST_DrawString(-1, SCREEN_HT - 40, "press \x8b to exit", text_alpha | 0xffffff00);
-        ST_DrawString(-1, SCREEN_HT - 25, "press \x85 to delete", text_alpha | 0xffffff00);
+        ST_DrawString(-1, SCREEN_HT - 25, "press \x86 to delete", text_alpha | 0xffffff00);
     }
 #else /* REGION == REGION_JP */
     else
@@ -3587,14 +3613,56 @@ void M_ManagePakDrawer(void) // 8000A3E4
         ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 51, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
         ST_DrawString(-1, SCREEN_HT - 40, "press \x8b to exit", text_alpha | 0xffffff00);
-        ST_DrawString(-1, SCREEN_HT - 25, "press \x85 to delete", text_alpha | 0xffffff00);
+        ST_DrawString(-1, SCREEN_HT - 25, "press \x86 to delete", text_alpha | 0xffffff00);
     }
 #endif /* REGION == REGION_JP */
 }
 
 static INLINE_ALWAYS levelsave_t *M_PakDataIndex(int pos)
 {
-    return (void *) &Pak_Data[pos * 32];
+    return (void *) &Pak_Data[pos * sizeof(levelsave_t)];
+}
+
+static void M_CopySaveTo(levelsave_t *save)
+{
+    if (copysource == copy_game_pak)
+    {
+        *save = GamePak_Data[copyindex];
+        if (save->skill.permadeath)
+        {
+            GamePak_Data[copyindex].present = 0;
+            I_DeleteSramSave(copyindex);
+        }
+    }
+    else if (copysource == copy_controller_pak)
+    {
+        *save = *M_PakDataIndex(copyindex);
+        if (save->skill.permadeath)
+        {
+            if (I_DeletePakFile(copyindex) == 0)
+                FileState[copyindex].file_size = 0;
+            else
+                FilesUsed = -1;
+        }
+    }
+    else
+    {
+        I_SaveProgress(save);
+    }
+}
+
+static bool M_SaveMustMove(void)
+{
+    levelsave_t *save;
+
+    if (copysource == copy_game_pak)
+        save = &GamePak_Data[copyindex];
+    else if (copysource == copy_controller_pak)
+        save = M_PakDataIndex(copyindex);
+    else
+        return false;
+
+    return I_IsSaveValid(save) && save->skill.permadeath;
 }
 
 void M_SavePakStart(void) // 8000A6E8
@@ -3603,7 +3671,7 @@ void M_SavePakStart(void) // 8000A6E8
     int ret;
     int size;
 
-    cursorpos = 0;
+    cursorpos = lastpaksave;
     linepos = 0;
     last_ticon = 0;
 
@@ -3612,7 +3680,7 @@ void M_SavePakStart(void) // 8000A6E8
     {
         if (I_ReadPakFile() == 0)
         {
-            size = Pak_Size / 32;
+            size = Pak_Size / sizeof(levelsave_t);
 
             i = 0;
             if (size != 0)
@@ -3647,22 +3715,16 @@ void M_SavePakStart(void) // 8000A6E8
 
 void M_SavePakStop(int exit) // 8000A7B4
 {
-    S_StartSound(NULL, sfx_pistol);
+    M_FadeOutStart(MenuData[0].menu_item == Menu_Save ? exit : ga_exit);
 
-    M_FadeOutStart(exit);
-
-    if (Pak_Data)
-    {
-        Z_Free(Pak_Data);
-        Pak_Data = NULL;
-    }
+    if (copysource == copy_none)
+        I_FreePakData();
 }
 
 int M_SavePakTicker(void) // 8000A804
 {
     unsigned int buttons;
     unsigned int oldbuttons;
-    int size;
 
     if ((gamevbls < gametic) && ((gametic & 3U) == 0)) {
         MenuAnimationTic = (MenuAnimationTic + 1) & 7;
@@ -3670,11 +3732,6 @@ int M_SavePakTicker(void) // 8000A804
 
     buttons = M_ButtonResponder(allticbuttons);
     oldbuttons = alloldticbuttons & 0xffff0000;
-
-    if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
-    {
-        return ga_exit;
-    }
 
     if (FilesUsed == -1)
     {
@@ -3691,72 +3748,33 @@ int M_SavePakTicker(void) // 8000A804
         linepos = 0;
     }
 
-    if (!(buttons & ALL_JPAD)) {
-        m_vframe1 = 0;
-    }
-    else
-    {
-        m_vframe1 -= vblsinframe[0];
-
-        if (m_vframe1 <= 0)
-        {
-            m_vframe1 = 0xf; // TICRATE/2
-
-            if (buttons & PAD_DOWN)
-            {
-                cursorpos += 1;
-
-                size = (Pak_Size / 32) - 1;
-
-                if (size < cursorpos)
-                    cursorpos = size;
-                else
-                    S_StartSound(NULL, sfx_switch1);
-
-
-                if ((linepos + 5) < cursorpos)
-                    linepos += 1;
-            }
-            else if (buttons & PAD_UP)
-            {
-                cursorpos -= 1;
-
-                if (cursorpos < 0)
-                    cursorpos = 0;
-                else
-                    S_StartSound(NULL, sfx_switch1);
-
-                if(cursorpos < linepos)
-                    linepos -= 1;
-            }
-        }
-    }
-
     if (last_ticon == 0)
     {
-        if (IS_PRESSED(PAD_A))
+        if ((MenuIdx < 2 && IS_PRESSED(PAD_START)) || IS_PRESSED(PAD_B))
         {
             S_StartSound(NULL, sfx_pistol);
-            levelsave_t save;
-            I_SaveProgress(&save);
-            D_memcpy(M_PakDataIndex(cursorpos), &save, sizeof save);
+            return ga_exit;
+        }
 
+        M_MoveScrollCursor(buttons, Pak_Size / sizeof(levelsave_t));
+        if (IS_PRESSED(PAD_DOWN_C))
+        {
+            S_StartSound(NULL, sfx_pistol);
+            M_CopySaveTo(M_PakDataIndex(cursorpos));
             if (I_SavePakFile(File_Num, PFS_WRITE, Pak_Data, Pak_Size) == 0)
             {
                 last_ticon = ticon;
+                lastpaksave = cursorpos;
             }
             else
             {
-                FilesUsed = -1;
-                if (Pak_Data)
-                {
-                    Z_Free(Pak_Data);
-                    Pak_Data = NULL;
-                }
+                lastpaksave = 0;
+                I_FreePakData();
             }
         }
     }
-    else if ((ticon - last_ticon) >= 60)
+    else if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_A) || IS_PRESSED(PAD_B)
+            || (ticon - last_ticon) >= 60)
     {
         return ga_completed;
     }
@@ -3768,8 +3786,16 @@ void M_SavePakDrawer(void) // 8000AB44
 {
     int i;
     char buffer[36];
+    char *title;
 
-    ST_DrawString(-1, 20, "Controller Pak", text_alpha | 0xc0000000);
+    if (copysource == copy_none)
+        title = "Save To Controller Pak";
+    else if (!M_SaveMustMove())
+        title = "Copy To Controller Pak";
+    else
+        title = "Move To Controller Pak";
+
+    ST_DrawString(-1, 20, title, text_alpha | 0xff000000);
 
     if (FilesUsed == -1)
     {
@@ -3805,7 +3831,8 @@ void M_SavePakDrawer(void) // 8000AB44
 
         ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 56, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
-        ST_DrawString(-1, SCREEN_HT - 30, "press \x8b to cancel", text_alpha | 0xffffff00);
+        ST_DrawString(-1, SCREEN_HT - 40, "press \x87 to save", text_alpha | 0xffffff00);
+        ST_DrawString(-1, SCREEN_HT - 25, "press \x8b to cancel", text_alpha | 0xffffff00);
     }
 }
 
@@ -3813,10 +3840,13 @@ void M_SaveGamePakStart(void)
 {
     int i;
 
-    GamePak_Data = Z_Malloc(sizeof(levelsave_t) * MAXSRAMSAVES, PU_STATIC, NULL);
-    I_ReadSramSaves(GamePak_Data);
+    if (!GamePak_Data)
+    {
+        GamePak_Data = Z_Malloc(sizeof(levelsave_t) * MAXSRAMSAVES, PU_STATIC, NULL);
+        I_ReadSramSaves(GamePak_Data);
+    }
 
-    cursorpos = 0;
+    cursorpos = lastgamepaksave;
     linepos = 0;
     last_ticon = 0;
 
@@ -3844,12 +3874,13 @@ void M_SaveGamePakStart(void)
 
 void M_SaveGamePakStop(int exit)
 {
-    S_StartSound(NULL, sfx_pistol);
+    M_FadeOutStart(MenuData[0].menu_item == Menu_Save ? exit : ga_exit);
 
-    M_FadeOutStart(exit);
-
-    Z_Free(GamePak_Data);
-    GamePak_Data = NULL;
+    if (copysource == copy_none)
+    {
+        Z_Free(GamePak_Data);
+        GamePak_Data = NULL;
+    }
 }
 
 int M_SaveGamePakTicker(void)
@@ -3864,61 +3895,28 @@ int M_SaveGamePakTicker(void)
     buttons = M_ButtonResponder(allticbuttons);
     oldbuttons = alloldticbuttons & 0xffff0000;
 
-    if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
-    {
-        return ga_exit;
-    }
-
-    if (!(buttons & ALL_JPAD)) {
-        m_vframe1 = 0;
-    }
-    else
-    {
-        m_vframe1 -= vblsinframe[0];
-
-        if (m_vframe1 <= 0)
-        {
-            m_vframe1 = 0xf; // TICRATE/2
-
-            if (buttons & PAD_DOWN)
-            {
-                cursorpos += 1;
-
-                if (MAXSRAMSAVES - 1 < cursorpos)
-                    cursorpos = MAXSRAMSAVES - 1;
-                else
-                    S_StartSound(NULL, sfx_switch1);
-
-
-                if ((linepos + 5) < cursorpos)
-                    linepos += 1;
-            }
-            else if (buttons & PAD_UP)
-            {
-                cursorpos -= 1;
-
-                if (cursorpos < 0)
-                    cursorpos = 0;
-                else
-                    S_StartSound(NULL, sfx_switch1);
-
-                if(cursorpos < linepos)
-                    linepos -= 1;
-            }
-        }
-    }
-
     if (last_ticon == 0)
     {
-        if (IS_PRESSED(PAD_A))
+        if ((MenuIdx < 2 && IS_PRESSED(PAD_START)) || IS_PRESSED(PAD_B))
         {
             S_StartSound(NULL, sfx_pistol);
-            I_SaveProgress(&GamePak_Data[cursorpos]);;
-            I_SaveProgressToSram(cursorpos, &GamePak_Data[cursorpos]);
+            return ga_exit;
+        }
+
+        M_MoveScrollCursor(buttons, MAXSRAMSAVES);
+
+        if (IS_PRESSED(PAD_DOWN_C))
+        {
+            S_StartSound(NULL, sfx_pistol);
+            levelsave_t *save = &GamePak_Data[cursorpos];
+            M_CopySaveTo(save);
+            I_SaveProgressToSram(cursorpos, save);
             last_ticon = ticon;
+            lastgamepaksave = cursorpos;
         }
     }
-    else if ((ticon - last_ticon) >= 60)
+    else if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_A) || IS_PRESSED(PAD_B)
+            || (ticon - last_ticon) >= 60)
     {
         return ga_completed;
     }
@@ -3930,8 +3928,17 @@ void M_SaveGamePakDrawer(void) // 8000AB44
 {
     int i;
     char buffer[36];
+    char *title;
 
-    ST_DrawString(-1, 20, "Game Pak", text_alpha | 0xc0000000);
+    if (copysource == copy_none)
+        title = "Save To Game Pak";
+    else if (!M_SaveMustMove())
+        title = "Copy To Game Pak";
+    else
+        title = "Move To Game Pak";
+
+    ST_DrawString(-1, 20, title, text_alpha | 0xff000000);
+    ST_DrawString(-1, 20, title, text_alpha | 0xff000000);
 
     for(i = linepos; i < (linepos + 6); i++)
     {
@@ -3955,7 +3962,45 @@ void M_SaveGamePakDrawer(void) // 8000AB44
 
     ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 56, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
-    ST_DrawString(-1, SCREEN_HT - 30, "press \x8b to cancel", text_alpha | 0xffffff00);
+    ST_DrawString(-1, SCREEN_HT - 40, "press \x87 to save", text_alpha | 0xffffff00);
+    ST_DrawString(-1, SCREEN_HT - 25, "press \x8b to cancel", text_alpha | 0xffffff00);
+}
+
+int M_SaveMenu(void)
+{
+    int exit;
+
+    if (SramPresent && I_CheckControllerPak() == 0)
+    {
+        MenuItem = Menu_Save;
+        itemlines = ARRAYLEN(Menu_Save);
+        MenuCall = M_MenuTitleDrawer;
+        cursorpos = 0;
+        exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_MenuTicker, M_MenuGameDrawer);
+    }
+    else if (SramPresent)
+    {
+        MenuCall = M_SaveGamePakDrawer;
+        exit = MiniLoop(M_SaveGamePakStart,M_SaveGamePakStop,M_SaveGamePakTicker,M_MenuGameDrawer);
+    }
+    else
+    {
+        if (!EnableExpPak && !customskill.permadeath)
+            EnableExpPak = (M_ControllerPak() == 0);
+
+        if (EnableExpPak)
+        {
+            MenuCall = M_SavePakDrawer;
+            exit = MiniLoop(M_SavePakStart,M_SavePakStop,M_SavePakTicker,M_MenuGameDrawer);
+        }
+        else
+        {
+            exit = ga_exit;
+        }
+    }
+    MenuCall = NULL;
+
+    return exit;
 }
 
 void M_LoadPakStart(void) // 8000AEEC
@@ -3966,7 +4011,7 @@ void M_LoadPakStart(void) // 8000AEEC
     cursorpos = 0;
     linepos = 0;
 
-    size = Pak_Size / 32;
+    size = Pak_Size / sizeof(levelsave_t);
 
     i = 0;
     if (size != 0)
@@ -3995,21 +4040,14 @@ void M_LoadPakStart(void) // 8000AEEC
 
 void M_LoadPakStop(int exit) // 8000AF8C
 {
-    S_StartSound(NULL, sfx_pistol);
     M_FadeOutStart(ga_exit);
-
-    if (Pak_Data)
-    {
-        Z_Free(Pak_Data);
-        Pak_Data = NULL;
-    }
+    I_FreePakData();
 }
 
 int M_LoadPakTicker(void) // 8000AFE4
 {
     unsigned int buttons;
     unsigned int oldbuttons;
-    int size;
     int exit;
 
     if ((gamevbls < gametic) && ((gametic & 3U) == 0)) {
@@ -4019,53 +4057,14 @@ int M_LoadPakTicker(void) // 8000AFE4
     buttons = M_ButtonResponder(allticbuttons);
     oldbuttons = alloldticbuttons & 0xffff0000;
 
-    if (!(buttons & ALL_JPAD))
-    {
-        m_vframe1 = 0;
-    }
-    else
-    {
-        m_vframe1 -= vblsinframe[0];
-
-        if (m_vframe1 <= 0)
-        {
-            m_vframe1 = 0xf; // TICRATE/2
-
-            if (buttons & PAD_DOWN)
-            {
-                cursorpos += 1;
-
-                size = (Pak_Size / 32) - 1;
-
-                if (size < cursorpos)
-                    cursorpos = size;
-                else
-                    S_StartSound(NULL, sfx_switch1);
-
-                if ((linepos + 5) < cursorpos)
-                    linepos += 1;
-
-            }
-            else if (buttons & PAD_UP)
-            {
-                cursorpos -= 1;
-
-                if (cursorpos < 0)
-                    cursorpos = 0;
-                else
-                    S_StartSound(NULL, sfx_switch1);
-
-                if(cursorpos < linepos)
-                    linepos -= 1;
-            }
-        }
-    }
+    M_MoveScrollCursor(buttons, Pak_Size / sizeof(levelsave_t));
 
     if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
     {
+        S_StartSound(NULL, sfx_pistol);
         exit = ga_exit;
     }
-    else if (IS_PRESSED(PAD_A) && I_IsSaveValid(M_PakDataIndex(cursorpos)))
+    else if (IS_PRESSED(PAD_DOWN_C) && I_IsSaveValid(M_PakDataIndex(cursorpos)))
     {
         S_StartSound(NULL, sfx_pistol);
 
@@ -4084,6 +4083,29 @@ int M_LoadPakTicker(void) // 8000AFE4
         }
         exit = ga_warped;
     }
+    else if (IS_PRESSED(PAD_RIGHT_C) && I_IsSaveValid(M_PakDataIndex(cursorpos)))
+    {
+        copysource = copy_controller_pak;
+        copyindex = cursorpos;
+        S_StartSound(NULL, sfx_pistol);
+        M_SaveMenuData();
+        int savedlinepos = linepos;
+        M_SaveMenu();
+        linepos = savedlinepos;
+        M_RestoreMenuData(true);
+        copysource = copy_none;
+        exit = ga_nothing;
+    }
+    else if (IS_PRESSED(PAD_UP_C) && I_IsSaveValid(M_PakDataIndex(cursorpos)))
+    {
+        S_StartSound(NULL, sfx_saw2);
+        GamePak_Data[cursorpos].present = 0;
+        if (I_DeletePakFile(cursorpos) == 0)
+            FileState[cursorpos].file_size = 0;
+        else
+            FilesUsed = -1;
+        exit = ga_nothing;
+    }
     else
     {
         exit = ga_nothing;
@@ -4096,6 +4118,7 @@ void M_LoadPakDrawer(void) // 8000B270
 {
     int i;
     char buffer[32];
+    char *copytext;
 
     ST_DrawString(-1, 20, "Controller Pak", text_alpha | 0xff000000);
 
@@ -4128,7 +4151,15 @@ void M_LoadPakDrawer(void) // 8000B270
 
     ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 56, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
-    ST_DrawString(-1, SCREEN_HT - 30, "press \x8b to cancel", text_alpha | 0xffffff00);
+    if (!M_SaveMustMove())
+        copytext = "\x85 copy";
+    else
+        copytext = "\x85 move";
+
+    ST_DrawString((SCREEN_WD>>1)-80, SCREEN_HT - 40, "\x87 load", text_alpha | 0xffffff00);
+    ST_DrawString((SCREEN_WD>>1)-80, SCREEN_HT - 25, "\x8b cancel", text_alpha | 0xffffff00);
+    ST_DrawString((SCREEN_WD>>1)+40, SCREEN_HT - 40, "\x86 delete", text_alpha | 0xffffff00);
+    ST_DrawString((SCREEN_WD>>1)+40, SCREEN_HT - 25, copytext, text_alpha | 0xffffff00);
 }
 
 void M_LoadGamePakStart(void)
@@ -4165,7 +4196,6 @@ void M_LoadGamePakStart(void)
 
 void M_LoadGamePakStop(int exit)
 {
-    S_StartSound(NULL, sfx_pistol);
     M_FadeOutStart(ga_exit);
 
     Z_Free(GamePak_Data);
@@ -4185,51 +4215,14 @@ int M_LoadGamePakTicker(void)
     buttons = M_ButtonResponder(allticbuttons);
     oldbuttons = alloldticbuttons & 0xffff0000;
 
-    if (!(buttons & ALL_JPAD))
-    {
-        m_vframe1 = 0;
-    }
-    else
-    {
-        m_vframe1 -= vblsinframe[0];
-
-        if (m_vframe1 <= 0)
-        {
-            m_vframe1 = 0xf; // TICRATE/2
-
-            if (buttons & PAD_DOWN)
-            {
-                cursorpos += 1;
-
-                if (MAXSRAMSAVES - 1 < cursorpos)
-                    cursorpos = MAXSRAMSAVES - 1;
-                else
-                    S_StartSound(NULL, sfx_switch1);
-
-                if ((linepos + 5) < cursorpos)
-                    linepos += 1;
-
-            }
-            else if (buttons & PAD_UP)
-            {
-                cursorpos -= 1;
-
-                if (cursorpos < 0)
-                    cursorpos = 0;
-                else
-                    S_StartSound(NULL, sfx_switch1);
-
-                if(cursorpos < linepos)
-                    linepos -= 1;
-            }
-        }
-    }
+    M_MoveScrollCursor(buttons, MAXSRAMSAVES);
 
     if (IS_PRESSED(PAD_START) || IS_PRESSED(PAD_B))
     {
+        S_StartSound(NULL, sfx_pistol);
         exit = ga_exit;
     }
-    else if (IS_PRESSED(PAD_A) && I_IsSaveValid(&GamePak_Data[cursorpos]))
+    else if (IS_PRESSED(PAD_DOWN_C) && I_IsSaveValid(&GamePak_Data[cursorpos]))
     {
         S_StartSound(NULL, sfx_pistol);
 
@@ -4248,7 +4241,20 @@ int M_LoadGamePakTicker(void)
     }
     else if (IS_PRESSED(PAD_RIGHT_C) && I_IsSaveValid(&GamePak_Data[cursorpos]))
     {
+        copysource = copy_game_pak;
+        copyindex = cursorpos;
         S_StartSound(NULL, sfx_pistol);
+        M_SaveMenuData();
+        int savedlinepos = linepos;
+        M_SaveMenu();
+        linepos = savedlinepos;
+        M_RestoreMenuData(true);
+        copysource = copy_none;
+        exit = ga_nothing;
+    }
+    else if (IS_PRESSED(PAD_UP_C) && I_IsSaveValid(&GamePak_Data[cursorpos]))
+    {
+        S_StartSound(NULL, sfx_saw2);
         GamePak_Data[cursorpos].present = 0;
         I_DeleteSramSave(cursorpos);
         exit = ga_nothing;
@@ -4265,6 +4271,7 @@ void M_LoadGamePakDrawer(void)
 {
     int i;
     char buffer[32];
+    char *copytext;
 
     ST_DrawString(-1, 20, "Game Pak", text_alpha | 0xff000000);
 
@@ -4290,8 +4297,15 @@ void M_LoadGamePakDrawer(void)
 
     ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 56, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
-    ST_DrawString(-1, SCREEN_HT - 40, "press \x8b to cancel", text_alpha | 0xffffff00);
-    ST_DrawString(-1, SCREEN_HT - 25, "press \x85 to delete", text_alpha | 0xffffff00);
+    if (!M_SaveMustMove())
+        copytext = "\x85 copy";
+    else
+        copytext = "\x85 move";
+
+    ST_DrawString((SCREEN_WD>>1)-80, SCREEN_HT - 40, "\x87 load", text_alpha | 0xffffff00);
+    ST_DrawString((SCREEN_WD>>1)-80, SCREEN_HT - 25, "\x8b cancel", text_alpha | 0xffffff00);
+    ST_DrawString((SCREEN_WD>>1)+40, SCREEN_HT - 40, "\x86 delete", text_alpha | 0xffffff00);
+    ST_DrawString((SCREEN_WD>>1)+40, SCREEN_HT - 25, copytext, text_alpha | 0xffffff00);
 }
 
 int M_CenterDisplayTicker(void) // 8000B4C4

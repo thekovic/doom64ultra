@@ -1089,6 +1089,7 @@ extern u8 hudyshift;
 
 int M_RunTitle(void) SEC_MENU; // 80007630
 void M_PauseMenu(void) SEC_MENU;
+int M_SaveMenu(void) SEC_MENU;
 
 int M_ControllerPak(void) SEC_MENU; // 80007724
 int M_ButtonResponder(int buttons) SEC_MENU; // 80007960
@@ -1323,7 +1324,7 @@ extern Mtx *MTX2;   // 800A4A14
 void I_Init(void) SEC_STARTUP; // 80005C50
 NO_RETURN void I_Reset(void) COLD;
 
-#define MAXSRAMSAVES 16
+#define MAXSRAMSAVES 32
 
 typedef struct __attribute__((__packed__)) ALIGNED(8)  {
     u16 crc;
@@ -1375,6 +1376,7 @@ int I_DeletePakFile(int filenumb); // 80007224
 int I_SavePakFile(int filenumb, int flag, byte *data, int size); // 80007308
 int I_ReadPakFile(void); // 800073B8
 int I_CreatePakFile(void); // 800074D4
+void I_FreePakData(void);
 
 void I_RumbleAmbient(int pad, int count);
 void I_RumbleShot(int pad, int tics);

@@ -1425,6 +1425,16 @@ int I_ReadPakFile(void) // 800073B8
     return ret;
 }
 
+void I_FreePakData(void)
+{
+    FilesUsed = -1;
+    if (Pak_Data)
+    {
+        Z_Free(Pak_Data);
+        Pak_Data = NULL;
+    }
+}
+
 int I_CreatePakFile(void) // 800074D4
 {
     int ret;
