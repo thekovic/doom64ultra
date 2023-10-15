@@ -388,7 +388,7 @@ void I_SaveProgress(levelsave_t *save)
     {
         if(i != wp_fist && i != wp_pistol)
         {
-            if(players[0].weaponowned[bit])
+            if(players[0].weaponowned[i])
                 save->weapons |= (1 << bit);
             bit++;
         }
