@@ -89,6 +89,7 @@ int DrawerStatus;
     _F(MTXT_WALL_BLOCKING, "WALL BLOCKING") \
     _F(MTXT_LOCK_MONSTERS, "LOCK MONSTERS") \
     _F(MTXT_MAP_EVERYTHING, "MAP EVERYTHING") \
+    _F(MTXT_HEALTH_BOOST, "HEALTH BOOST") \
     _F(MTXT_MUSIC_TEST, "MUSIC TEST") \
     _F(MTXT_RECORD_DEMO, "Record Demo") \
     _F(MTXT_CREDITS, "Show Credits") \
@@ -364,13 +365,14 @@ const menuitem_t Menu_Features[] =
     { MTXT_MAP_EVERYTHING, 40, 100},
     { MTXT_WALL_BLOCKING,  40, 110},
     { MTXT_LOCK_MONSTERS,  40, 120},
-    { MTXT_WARP,           40, 130},
-    { MTXT_MUSIC_TEST,     40, 140},
+    { MTXT_HEALTH_BOOST,   40, 130},
+    { MTXT_WARP,           40, 140},
+    { MTXT_MUSIC_TEST,     40, 150},
 
-    { MTXT_CREDITS,        40, 160},
-    { MTXT_DEBUG,          40, 170},
+    { MTXT_CREDITS,        40, 170},
+    { MTXT_DEBUG,          40, 180},
 
-    { MTXT_MRETURN,        40, 190},
+    { MTXT_MRETURN,        40, 200},
 };
 
 static const menuitem_t Menu_Debug[] =
@@ -1596,6 +1598,8 @@ int M_MenuTicker(void) // 80007E0C
 
                     exit = MiniLoop(M_FadeInStart,M_FadeOutStart,M_MenuTicker,M_MenuGameDrawer);
                     M_RestoreMenuData((exit == ga_exit));
+                    if ((players[0].cheats & CF_HEALTH) && players[0].playerstate == PST_DEAD)
+                        players[0].playerstate = PST_LIVE;
                     players[0].cheats |= cheats;
 
                     if (exit == ga_exit)
@@ -1797,6 +1801,37 @@ int M_MenuTicker(void) // 80007E0C
                 {
                     S_StartSound(NULL, sfx_switch2);
                     players[0].cheats ^= CF_ALLMAP;
+                    return ga_nothing;
+                }
+                break;
+            case MTXT_HEALTH_BOOST:
+                if (truebuttons || rightbutton || leftbutton)
+                {
+                    players[0].cheats |= CF_HEALTH;
+                    players[0].health = MAXHEALTH;
+                    players[0].mo->health = MAXHEALTH;
+                    if (players[0].playerstate == PST_DEAD)
+                    {
+                        players[0].viewheight = VIEWHEIGHT;
+                        players[0].mo->flags
+                            = (players[0].mo->flags|MF_SOLID|MF_SHOOTABLE)
+                            & ~(MF_CORPSE|MF_DROPOFF);
+                        switch (players[0].psprites[ps_weapon].state->sprite)
+                        {
+                            case SPR_SAWG: players[0].readyweapon = wp_chainsaw; break;
+                            case SPR_PISG: players[0].readyweapon = wp_pistol; break;
+                            case SPR_SHT1: players[0].readyweapon = wp_shotgun; break;
+                            case SPR_SHT2: players[0].readyweapon = wp_supershotgun; break;
+                            case SPR_CHGG: players[0].readyweapon = wp_chaingun; break;
+                            case SPR_ROCK: players[0].readyweapon = wp_missile; break;
+                            case SPR_PLAS: players[0].readyweapon = wp_plasma; break;
+                            case SPR_BFGG: players[0].readyweapon = wp_bfg; break;
+                            case SPR_LASR: players[0].readyweapon = wp_laser; break;
+                            default: players[0].readyweapon = wp_fist; break;
+                        }
+                        P_SetupPsprites(0);
+                        P_SetMobjState(players[0].mo, S_PLAY_RUN1);
+                    }
                     return ga_nothing;
                 }
                 break;
@@ -2572,6 +2607,10 @@ void M_FeaturesDrawer(void) // 800091C0
             else if (m_actualmap > 28 && m_actualmap <= 32)
                 text = "WARP TO SECRET";
         }
+        else if (item->casepos == MTXT_HEALTH_BOOST && players[0].playerstate == PST_DEAD)
+        {
+            text = "RESURRECT";
+        }
 
         ST_Message(item->x, item->y, text, text_alpha | 0xffffff00);
 
@@ -2604,6 +2643,9 @@ void M_FeaturesDrawer(void) // 800091C0
                 break;
             case MTXT_MAP_EVERYTHING:
                 text = (!(players[0].cheats & CF_ALLMAP)) ? "OFF": "ON";
+                break;
+            case MTXT_HEALTH_BOOST:
+                text = (!(players[0].cheats & CF_HEALTH)) ? "-" : "100%";
                 break;
             case MTXT_MUSIC_TEST:
                 sprintf(textbuff, "%d", MusicID);
