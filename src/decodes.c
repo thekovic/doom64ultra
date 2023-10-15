@@ -47,7 +47,7 @@ DECODE BASED ROUTINES
 void AllocDecodeBuffers(void)
 {
     if (!decoder)
-        decoder = Z_Malloc(sizeof(decoder_t), PU_STATIC, 0);
+        decoder = Z_BumpAlloc(sizeof(decoder_t));
 }
 
 /*

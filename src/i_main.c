@@ -624,8 +624,6 @@ void I_Init(void) // 80005C50
     // Init the video mode...
     I_RefreshVideo();
 
-    Z_Reserve(AUDIO_HEAP_ADDR(), AUDIO_HEAP_SIZE + CFB_SIZE);
-
     {
         void *fb = CFB0_ADDR();
         bzero(fb,  CFB_SIZE);
@@ -682,9 +680,6 @@ void I_Init(void) // 80005C50
     osCreateThread(&joy_thread, SYS_THREAD_ID_JOY, I_ControllerThread, (void *)0,
                    (void*)(joy_stack + JOY_STACKSIZE/sizeof(u64)), 11);
     osStartThread(&joy_thread);
-
-    D_printf ("S_Init: Setting up sound.\n");
-    S_Init();
 
     /* Create and start ticker thread... */
     osCreateThread(&sys_ticker_thread, SYS_THREAD_ID_TICKER, I_SystemTicker, (void *)0,

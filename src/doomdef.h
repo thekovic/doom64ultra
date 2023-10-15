@@ -851,7 +851,9 @@ typedef struct
 } memzone_t;
 
 extern  memzone_t   *mainzone;
+extern  void        *audio_heap_start;
 
+void    *Z_BumpAlloc(int size) SEC_STARTUP;
 void    Z_Init (void) SEC_STARTUP;
 memzone_t *Z_InitZone (byte *base, int size) SEC_STARTUP;
 
@@ -923,6 +925,7 @@ void    *W_GetLump(int lump, decodetype dectype, int usable);
 void    *W_CacheLumpNum (int lump, int tag, decodetype dectype, int usable) HOT;
 void    *W_CacheLumpName (char *name, int tag, decodetype dectype, int usable);
 
+void    *W_GetInitLump (char *name, decodetype dectype, int usable) SEC_STARTUP;
 void    W_OpenMapWad(int mapnum) SEC_STARTUP;
 void    W_FreeMapLumps(void) SEC_STARTUP;
 void    W_FreeMapLump(void *ptr) SEC_STARTUP;

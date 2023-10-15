@@ -144,8 +144,8 @@ static boolean I_SramVerify(u32 capacity)
 
 static void I_DetectSramType(void)
 {
-    write_buf = Z_Malloc(SRAM_PAGE_SIZE*4, PU_STATIC, NULL);
-    read_buf = Z_Malloc(SRAM_PAGE_SIZE*4, PU_STATIC, NULL);
+    write_buf = Z_BumpAlloc(SRAM_PAGE_SIZE*8);
+    read_buf = &write_buf[SRAM_PAGE_SIZE*4];
     if(I_SramVerify(SRAM_PAGE_SIZE))
     {
         SramPresent = true;
@@ -165,8 +165,7 @@ static void I_DetectSramType(void)
                 SramSize = SRAM_PAGE_SIZE*4;
         }
     }
-    Z_Free(write_buf);
-    Z_Free(read_buf);
+    Z_BumpAlloc(-SRAM_PAGE_SIZE*8); /* free the bumped memory */
     write_buf = read_buf = NULL;
 }
 

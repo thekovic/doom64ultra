@@ -129,17 +129,17 @@ static const symboldata_t symboldata[] = // 8005B260
     {134, 96,   7, 13}, // Right arrow
 };
 
-static int card_x[6] = {78, 89, 100, 78, 89, 100};      // 8005b870
+static const int card_x[6] = {78, 89, 100, 78, 89, 100};      // 8005b870
 
 void ST_Init(void) // 80029BA0
 {
-    sfontlump = W_CacheLumpName("SFONT",PU_STATIC,dec_jag, sizeof(spriteN64_t));
-    statuslump = W_CacheLumpName("STATUS",PU_STATIC,dec_jag, sizeof(spriteN64_t));
+    sfontlump = W_GetInitLump("SFONT", dec_jag, sizeof(spriteN64_t));
+    statuslump = W_GetInitLump("STATUS", dec_jag, sizeof(spriteN64_t));
     symbolslump = W_GetNumForName("SYMBOLS");
 #if REGION == REGION_JP
     int jpmsg = W_GetNumForName("JPMSG01");
     for (int i = 0; i < 45; i++)
-        jpmpsgs[i] = W_CacheLumpNum(jpmsg++,PU_STATIC,dec_jag, sizeof(spriteN64_t));
+        jpmpsgs[i] = W_GetInitLump(jpmsg++, dec_jag, sizeof(spriteN64_t));
     japfontlump = W_GetNumForName("JAPFONT");
 #endif
 }

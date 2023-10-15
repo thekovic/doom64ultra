@@ -35,8 +35,6 @@ void D_DoomMain(void *arg) // 800027C0
     D_printstatic ("DOOM 64 ULTRA " D64ULTRA_VERSION "\n");
     D_printstatic("L_Init: Logging enabled.\n");
     L_Init();
-    D_printf ("Z_Init: Init zone memory allocation daemon. \n");
-    Z_Init();
     D_printf ("I_Init: Setting up N64 state.\n");
     I_Init();
     D_printf ("W_Init: Init WADfile.\n");
@@ -45,6 +43,12 @@ void D_DoomMain(void *arg) // 800027C0
     R_Init();
     D_printf ("ST_Init: Init status bar.\n");
     ST_Init();
+    D_printf ("Z_Init: Init zone memory allocation daemon. \n");
+    Z_Init();
+    D_printf ("S_Init: Setting up sound.\n");
+    S_Init();
+
+    Z_Reserve(audio_heap_start, CFB0_ADDR() + CFB_SIZE - (byte*) audio_heap_start);
 
     gamevbls = 0;
     gametic = 0;

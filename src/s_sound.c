@@ -13,19 +13,32 @@
 
 #define SYS_FRAMES_PER_SEC 30
 
+#ifdef NDEBUG
+#define AUDIO_HEAP_BASE_SIZE 0x25000
+#else
+// alHeapDBAlloc stores extra debug info
+#define AUDIO_HEAP_BASE_SIZE 0x26000
+#endif
+#define BASEPROG_SIZE (ALIGN(_bss_end, 32) - (u32)BASE_RAM_ADDR)
+#define AUDIO_HEAP_SIZE ALIGN( \
+        AUDIO_HEAP_BASE_SIZE \
+        + ALIGN(_doom64_wmdSegmentRomEnd - _doom64_wmdSegmentRomStart, 16) \
+        + ALIGN(_doom64_wsdSegmentRomEnd - _doom64_wsdSegmentRomStart, 16) \
+    , 64)
+
 extern void wess_set_tweaks2(WessTweakAttr *attr);
 extern void wess_get_tweaks2(WessTweakAttr *attr);
 
 int S_AdjustSoundParams(mobj_t *listener, fixed_t x, fixed_t y, fixed_t z, u8* vol, u8* pan) HOT; // 80029A48
+
+void *audio_heap_start;
 
 void S_Init(void) // 80029590
 {
 #if SOUND == 0
     return;
 #endif
-    u8* const audio_heap = AUDIO_HEAP_ADDR();
-    u32 audioHeapEnd;
-    //int loaded;
+    u8* const audio_heap = AUDIO_HEAP_END(); //int loaded;
     int modulesize;
     int seqsize, seqtblsize;
     char *moduleptr;
@@ -37,7 +50,7 @@ void S_Init(void) // 80029590
 
     //PRINTF_D(WHITE, "S_Init: Start");
 
-    alHeapInit(&sys_aheap, audio_heap, AUDIO_HEAP_SIZE);
+    alHeapInit(&sys_aheap, audio_heap, AUDIO_HEAP_MAX_SIZE());
 
     //PRINTF_D(WHITE, "base %x", (int)&sys_aheap.base);
     //PRINTF_D(WHITE, "cur %x", (int)&sys_aheap.cur);
@@ -103,13 +116,11 @@ void S_Init(void) // 80029590
     //this call may result in decompression callbacks
     wess_seq_range_load(0, wess_seq_loader_count(), seqptr);
 
-    audioHeapEnd = (u32)alHeapAlloc(&sys_aheap, 1, 4) - (u32)audio_heap;
-    audioHeapEnd += 16;
+#ifdef DEBUG_MEM
+    alHeapCheck(&sys_aheap);
+#endif
 
-    //PRINTF_D(WHITE, "audioHeapEnd %x", audioHeapEnd);
-
-    if (audioHeapEnd > AUDIO_HEAP_SIZE)
-        I_Error("S_Init: Audio heap overflow");
+    audio_heap_start = (void *) ALIGN(sys_aheap.cur, 64);
 
     S_SetSoundVolume(Settings.SfxVolume);
     S_SetMusicVolume(Settings.MusVolume);

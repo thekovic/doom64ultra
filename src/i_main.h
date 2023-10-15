@@ -5,15 +5,15 @@ extern unsigned short SCREEN_HT;
 extern unsigned long CFB_SIZE;
 
 #ifdef FORCE_NO_EXPANSION_PAK
-#define MEM_SIZE 0x400000
+#define MEM_SIZE() 0x400000
 #else
-#define MEM_SIZE osMemSize
+#define MEM_SIZE() osMemSize
 #endif
 
-#define HAS_EXPANSION_PAK() (MEM_SIZE >= 0x800000)
+#define HAS_EXPANSION_PAK() (MEM_SIZE() >= 0x800000)
 
 #define BASE_RAM_ADDR ((byte*)K0BASE)
-#define BASE_RAM_END (BASE_RAM_ADDR + MEM_SIZE)
+#define BASE_RAM_END() (BASE_RAM_ADDR + MEM_SIZE())
 
 extern char _doom64_wadSegmentRomStart[], _doom64_wadSegmentRomEnd[];
 extern char _doom64_wmdSegmentRomStart[], _doom64_wmdSegmentRomEnd[];
@@ -22,36 +22,23 @@ extern char _doom64_wddSegmentRomStart[], _doom64_wddSegmentRomEnd[];
 
 extern char _bss_end[];
 
-#ifdef NDEBUG
-#define AUDIO_HEAP_BASE_SIZE 0x25000
-#else
-// alHeapDBAlloc stores extra debug info
-#define AUDIO_HEAP_BASE_SIZE 0x26000
-#endif
-
 /*
  * setup addresses for the memory layout:
  *
  * 0mb            1mb             2mb             3mb             4mb
  * +---------------+---------------+---------------+---------------+
- * | code |                | aheap | cfb0 |                 | cfb1 |
+ * | code |                 | cfb0 | aheap |                | cfb1 |
  * +---------------+---------------+---------------+---------------+
  * |      | <------------------- mheap -------------------> |      |
  * +---------------+---------------+---------------+---------------+
  */
 
-#define BASEPROG_SIZE (ALIGN(_bss_end, 32) - (u32)BASE_RAM_ADDR)
-#define AUDIO_HEAP_SIZE ALIGN( \
-        AUDIO_HEAP_BASE_SIZE \
-        + ALIGN(_doom64_wmdSegmentRomEnd - _doom64_wmdSegmentRomStart, 16) \
-        + ALIGN(_doom64_wsdSegmentRomEnd - _doom64_wsdSegmentRomStart, 16) \
-    , 64)
-#define MAIN_HEAP_SIZE() (MEM_SIZE - BASEPROG_SIZE - CFB_SIZE)
-
-#define MAIN_HEAP_ADDR ((byte*)ALIGN(_bss_end, 32))
-#define CFB0_ADDR() ((byte*)(BASE_RAM_ADDR + (MEM_SIZE>>1)))
-#define CFB1_ADDR() ((byte*)(BASE_RAM_END - CFB_SIZE))
-#define AUDIO_HEAP_ADDR() (CFB0_ADDR() - AUDIO_HEAP_SIZE)
+#define CFB0_ADDR() ((byte*)(BASE_RAM_ADDR + (MEM_SIZE()>>1)))
+#define CFB1_ADDR() ((byte*)(BASE_RAM_END() - CFB_SIZE))
+#define AUDIO_HEAP_END() (CFB0_ADDR())
+#define AUDIO_HEAP_MAX_SIZE() (0x100000)
+#define MAIN_HEAP_START ((byte*)ALIGN(_bss_end, 32))
+#define MAIN_HEAP_END() CFB1_ADDR()
 
 #define CFB(i) ((i) ? CFB1_ADDR() : CFB0_ADDR())
 #define CFB_SPADDR() (OS_K0_TO_PHYSICAL(CFB(vid_side)))

@@ -2,7 +2,6 @@
 
 #include "doomdef.h"
 #include "config.h"
-#include "i_debug.h"
 #include "i_main.h"
 #ifdef USB
 #include "i_usb.h"
@@ -95,7 +94,7 @@ void W_Init (void) // 8002BEC0
 
     numlumps = LONGSWAP(wadfileheader.numlumps);
     i = numlumps * sizeof(lumpinfo_t);
-    lumpinfo = (lumpinfo_t *) Z_Malloc(i, PU_STATIC, 0);
+    lumpinfo = Z_BumpAlloc(i);
     infotableofs = LONGSWAP(wadfileheader.infotableofs);
     W_GetRomData(infotableofs, lumpinfo, i, i);
 
@@ -156,11 +155,11 @@ void W_Init (void) // 8002BEC0
         maxcompressedsize = MAX(maxcompressedsize, lumpsize);
     }
 
-    lumpcache = (lumpcache_t *) Z_Malloc(numlumps * sizeof(lumpcache_t), PU_STATIC, 0);
+    lumpcache = Z_BumpAlloc(numlumps * sizeof(lumpcache_t));
     bzero(lumpcache, numlumps * sizeof(lumpcache_t));
 
     if (maxcompressedsize)
-        decompressbuf = Z_Malloc(maxcompressedsize, PU_STATIC, 0);
+        decompressbuf = Z_BumpAlloc(maxcompressedsize);
 }
 
 
@@ -377,6 +376,33 @@ void *W_CacheLumpNum (int lump, int tag, decodetype dectype, int usable) // 8002
 void *W_CacheLumpName (char *name, int tag, decodetype dectype, int usable) // 8002C57C
 {
     return W_CacheLumpNum (W_GetNumForName(name), tag, dectype, usable);
+}
+
+void *W_GetInitLump (char *name, decodetype dectype, int usable)
+{
+    int lumpsize;
+    lumpcache_t *lc;
+    int lump;
+
+    lump = W_GetNumForName(name);
+    if ((lump < 0) || (lump >= numlumps))
+        I_Error ("W_CacheLumpNum: lump %i out of range",lump);
+
+    lc = &lumpcache[lump];
+
+    if (!lc->cache)
+    {
+        if (dectype == dec_none)
+            lumpsize = lumpinfo[lump + 1].filepos - lumpinfo[lump].filepos;
+        else
+            lumpsize = lumpinfo[lump].size;
+
+        lc->cache = Z_BumpAlloc(lumpsize);
+
+        W_ReadLump(lump, lc->cache, dectype, usable);
+    }
+
+    return lc->cache;
 }
 
 

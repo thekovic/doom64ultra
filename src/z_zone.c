@@ -23,11 +23,25 @@ automatically if needed
 
 extern u32 NextFrameIdx;
 
-SDATA memzone_t    *mainzone;
+static u32 bumpsize = 0;
+SDATA memzone_t    *mainzone = NULL;
 
 DEBUG_COUNTER(SDATA u32 OccupiedMem = 0);
 DEBUG_COUNTER(SDATA u32 UsedMem = 0);
 DEBUG_COUNTER(SDATA u32 LevelMem = 0);
+
+/* alloc space at beginning of heap before heap init */
+void *Z_BumpAlloc(int size)
+{
+    void *ptr;
+
+    assert(mainzone == NULL);
+
+    ptr = MAIN_HEAP_START + bumpsize;
+    bumpsize += ALIGN(size, 16);
+
+    return ptr;
+}
 
 /*
 ========================
@@ -42,7 +56,8 @@ void Z_Init (void) // 8002C8F0
 {
 
     /* mars doesn't have a refzone */
-    mainzone = Z_InitZone(MAIN_HEAP_ADDR, MAIN_HEAP_SIZE());
+    mainzone = Z_InitZone(MAIN_HEAP_START + bumpsize,
+                          MAIN_HEAP_END() - MAIN_HEAP_START - bumpsize);
 
     //PRINTF_D2(WHITE, 0, 25, "%d", (u32)size);
     //while(1){}
@@ -240,6 +255,10 @@ void Z_Reserve2 (memzone_t *mainzone, void *addr, int size)
 {
     int     extra;
     memblock_t  *block, *newblock, *base;
+
+#ifdef DEBUG_MEM
+    assert(mainzone != NULL);
+#endif
 
     if ((u32)(addr) % 16)
         I_Error ("Z_Reserve: invalid alignment");
@@ -588,6 +607,8 @@ void Z_CheckZone (memzone_t *mainzone) // 8002CFEC
 {
     memblock_t *checkblock;
     int size;
+
+    assert(mainzone != NULL);
 
     for (checkblock = &mainzone->blocklist ; checkblock; checkblock = checkblock->next)
     {

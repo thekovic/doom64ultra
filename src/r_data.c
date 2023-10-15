@@ -88,7 +88,7 @@ void R_InitTextures(void) // 8002327C
     lasttex = W_GetNumForName("T_END") - 1;
     numtextures = (lasttex - firsttex) + 1;
 
-    textures = Z_Malloc(numtextures * sizeof(int), PU_STATIC, NULL);
+    textures = Z_BumpAlloc(numtextures * sizeof(int));
 
     for (i = 0; i < numtextures; i++)
     {
@@ -256,7 +256,7 @@ R_InitSpriteDefs (char** namelist)
     // allocate space for the frames present and copy sprtemp to it
     sprites[i].numframes = maxframe;
     sprites[i].spriteframes =
-        Z_Malloc (maxframe * sizeof(spriteframe_t), PU_STATIC, NULL);
+        Z_BumpAlloc (maxframe * sizeof(spriteframe_t));
     D_memcpy (sprites[i].spriteframes, sprtemp, maxframe*sizeof(spriteframe_t));
     }
 
