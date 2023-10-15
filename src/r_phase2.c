@@ -465,12 +465,33 @@ void R_RenderSkyPic(int lump, int yoffset, boolean repeat) // 80025BDC
     gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
 }
 
+static int R_SpreadFire(byte *src, byte *srcoffset, int x, int rand)
+{
+    int pixel, randIdx;
+    byte *tmpSrc;
+
+    pixel = *srcoffset;
+    if (pixel != 0)
+    {
+        randIdx = rndtable[rand];
+        rand = (rand + 2) & 0xff;
+
+        tmpSrc = &src[(x - (randIdx & 3) + 1) & (FIRESKY_WIDTH-1)];
+        *(tmpSrc - FIRESKY_WIDTH) = pixel - ((randIdx & 1) << 4);
+    }
+    else
+    {
+        *(srcoffset - FIRESKY_WIDTH) = 0;
+    }
+
+    return rand;
+}
+
 void R_RenderFireSky(void) // 80025F68
 {
     byte *buff;
-    byte *src, *srcoffset, *tmpSrc;
-    int width, height, rand;
-    int pixel, randIdx;
+    byte *src, *srcoffset;
+    int x, y, rand;
     int ang, t, t2;
     u32 color;
     int pitchoffset, topoffset;
@@ -520,78 +541,22 @@ void R_RenderFireSky(void) // 80025F68
         D_memcpy(buff, SkyFireData[FireSide ^ 1], (FIRESKY_WIDTH*FIRESKY_HEIGHT));
 
         rand = (M_Random() & 0xff);
-        width = 0;
         src = (buff + FIRESKY_WIDTH);
 
-        do // width
+        for (x = 0; x < FIRESKY_WIDTH; x++)
         {
-            height = 2;
-            srcoffset = (src + width);
+            srcoffset = (src + x);
 
-            // R_SpreadFire
-            pixel = *(byte*)srcoffset;
-            if (pixel != 0)
+            for (y = 1; y < FIRESKY_HEIGHT; y++)
             {
-                randIdx = rndtable[rand];
-                rand = ((rand + 2) & 0xff);
-
-                tmpSrc = (src + (((width - (randIdx & 3)) + 1) & (FIRESKY_WIDTH-1)));
-                *(byte*)(tmpSrc - FIRESKY_WIDTH) = pixel - ((randIdx & 1) << 4);
-            }
-            else
-            {
-                *(byte*)(srcoffset - FIRESKY_WIDTH) = 0;
-            }
-
-            src += FIRESKY_WIDTH;
-            srcoffset += FIRESKY_WIDTH;
-
-            do // height
-            {
-                height += 2;
-
-                // R_SpreadFire
-                pixel = *(byte*)srcoffset;
-                if (pixel != 0)
-                {
-                    randIdx = rndtable[rand];
-                    rand = ((rand + 2) & 0xff);
-
-                    tmpSrc = (src + (((width - (randIdx & 3)) + 1) & (FIRESKY_WIDTH-1)));
-                    *(byte*)(tmpSrc - FIRESKY_WIDTH) = pixel - ((randIdx & 1) << 4);
-                }
-                else
-                {
-                    *(byte*)(srcoffset - FIRESKY_WIDTH) = 0;
-                }
+                rand = R_SpreadFire(src, srcoffset, x, rand);
 
                 src += FIRESKY_WIDTH;
                 srcoffset += FIRESKY_WIDTH;
-
-                // R_SpreadFire
-                pixel = *(byte*)srcoffset;
-                if (pixel != 0)
-                {
-                    randIdx = rndtable[rand];
-                    rand = ((rand + 2) & 0xff);
-
-                    tmpSrc = (src + (((width - (randIdx & 3)) + 1) & (FIRESKY_WIDTH-1)));
-                    *(byte*)(tmpSrc - FIRESKY_WIDTH) = pixel - ((randIdx & 1) << 4);
-                }
-                else
-                {
-                    *(byte*)(srcoffset - FIRESKY_WIDTH) = 0;
-                }
-
-                src += FIRESKY_WIDTH;
-                srcoffset += FIRESKY_WIDTH;
-
-            } while (height != FIRESKY_HEIGHT);
+            }
 
             src -= ((FIRESKY_WIDTH*FIRESKY_HEIGHT) - FIRESKY_WIDTH);
-            width++;
-
-        } while (width != FIRESKY_WIDTH);
+        }
 
         FireSide ^= 1;
     }
