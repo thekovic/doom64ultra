@@ -517,6 +517,7 @@ static u8 playerpreviewshoot;
 static u8 playerpreviewrotate;
 static s8 playercolorpreset;
 static s8 lastsetdefaults;
+static s16 logo_alpha;
 
 controls_t CurrentControls[MAXPLAYERS] ALIGNED(16);
 controls2_t CurrentControls2[1];
@@ -536,6 +537,7 @@ int M_RunTitle(void) // 80007630
     text_alpha = 0;
     cursorpos = 0;
     last_ticon = 0;
+    logo_alpha = 80;
 
     S_StartMusic(116);
 
@@ -738,6 +740,28 @@ int M_ButtonResponder(int buttons) // 80007960
     return NewButtons & 0xffff0000;
 }
 
+static void M_LogoTicker(void)
+{
+    s16 logo_alpha_target;
+    s8 logo_alpha_change_value;
+
+    if (MenuItem == Menu_Title && MenuIdx == 0)
+    {
+        logo_alpha_change_value = 28;
+        logo_alpha_target = 255;
+    }
+    else
+    {
+        logo_alpha_change_value = -28;
+        logo_alpha_target = 32;
+    }
+
+    logo_alpha += (logo_alpha_change_value * vblsinframe[0]) >> 1;
+    if ((logo_alpha_change_value < 0 && logo_alpha < logo_alpha_target)
+            || (logo_alpha_change_value > 0 && logo_alpha > logo_alpha_target))
+        logo_alpha = logo_alpha_target;
+}
+
 void M_AlphaInStart(void) // 800079E0
 {
     text_alpha = 0;
@@ -756,22 +780,18 @@ int M_AlphaInOutTicker(void) // 80007A14
         MenuAnimationTic = (MenuAnimationTic + 1) & 7;
     }
 
+    M_LogoTicker();
+
     text_alpha += (text_alpha_change_value * vblsinframe[0]) >> 1;
-    if (text_alpha_change_value < 0)
+    if (text_alpha_change_value < 0 && text_alpha < 0)
     {
-        if (text_alpha < 0)
-        {
-            text_alpha = 0;
-            return ga_exit;
-        }
+        text_alpha = 0;
+        return ga_exit;
     }
-    else
+    else if (text_alpha_change_value > 0 && text_alpha >= 256)
     {
-        if ((text_alpha_change_value > 0) && (text_alpha >= 256))
-        {
-            text_alpha = 255;
-            return ga_exit;
-        }
+        text_alpha = 255;
+        return ga_exit;
     }
 
     return ga_nothing;
@@ -791,9 +811,7 @@ void M_FadeOutStart(int exitmode) // 80007AEC
     }
 
     if (exitmode == ga_exit)
-    {
         MiniLoop(M_AlphaOutStart, NULL, M_AlphaInOutTicker, M_MenuGameDrawer);
-    }
 }
 
 void M_SaveMenuData(void) // 80007B2C
@@ -826,13 +844,10 @@ void M_RestoreMenuData(boolean alpha_in) // 80007BB8
     MenuCall  = mdat->menu_call;
     cursorpos = mdat->cursor_pos;
 
-    if (MenuItem == Menu_Load)
+    if (MenuItem == Menu_Load && !M_AdjustLoadMenu())
     {
-        if (!M_AdjustLoadMenu())
-        {
-            M_RestoreMenuData(alpha_in);
-            return;
-        }
+        M_RestoreMenuData(alpha_in);
+        return;
     }
 
     // Start Menu Fade In
@@ -858,15 +873,10 @@ void M_MenuGameDrawer(void) // 80007C48
         I_ClearFrame();
         I_ClearFB(0x000000ff);
 
-        if (MenuCall == M_SavePakDrawer || MenuCall == M_SaveGamePakDrawer || MenuItem == Menu_Save
-                || (MenuIdx > 0 && MenuData[0].menu_item == Menu_Save))
+        if (MenuData[0].menu_item == Menu_Save)
             M_DrawBackground(63, 25, 128, "EVIL");
         else
-            M_DrawBackground(56, 57, 80, "TITLE");
-
-        if (MenuItem != Menu_Title) {
-            M_DrawOverlay(0, 0, XResolution, YResolution, 224);
-        }
+            M_DrawBackground(56, 57, logo_alpha, "TITLE");
 
         ST_DrawDebug();
         MenuCall();
@@ -988,6 +998,8 @@ int M_MenuTicker(void) // 80007E0C
         I_SaveConfig();
         ConfigChanged = false;
     }
+
+    M_LogoTicker();
 
     /* animate skull */
     if ((gamevbls < gametic) && ((gametic & 3U) == 0))
