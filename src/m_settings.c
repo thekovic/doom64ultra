@@ -62,7 +62,7 @@ const gamesettingspreset_t SettingsPresets[] = {
     { // Modern
         {
             .MotionBob = 0x100000,
-            .Brightness = 125,
+            .Brightness = 600,
             .VideoFilters[filt_sprites] = 1,
             .FlashBrightness = 32,
             .StoryText = true,
@@ -99,7 +99,6 @@ const gamesettingspreset_t SettingsPresets[] = {
         },
         {
             .BitDepth = BITDEPTH_32,
-            .NoGammaCorrect = true,
         },
         {
             .verticallook = -1,
@@ -138,7 +137,7 @@ const gamesettingspreset_t SettingsPresets[] = {
         {
             .ControlPreset = { 7 },
             .MotionBob = 0x100000,
-            .Brightness = 200,
+            .Brightness = 400,
             .FlashBrightness = 32,
             .VideoFilters[filt_skies] = 1,
             .StoryText = true,
@@ -166,7 +165,7 @@ const gamesettingspreset_t SettingsPresets[] = {
     { // Accessible
         {
             .MotionBob = 0,
-            .Brightness = 200,
+            .Brightness = 600,
             .StoryText = true,
             .MapStats = true,
             .EnableMessages = true,

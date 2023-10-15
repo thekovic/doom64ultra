@@ -1033,7 +1033,7 @@ typedef struct {
     int TvMode;             // [nova] interlace/aa
     int ScreenAspect;       // [nova] widescreen
     boolean DitherFilter;   // [Immorpher] Dither Filter
-    boolean NoGammaCorrect; // [nova] real gamma option
+    boolean GammaCorrect; // [nova] real gamma option
     boolean AntiAliasing;   // [nova] coverage-based aa
     u8 BitDepth;            // [nova] 32-bit/16-bit framebuffer switch
     s8 Resolution;          // [nova] high res video modes

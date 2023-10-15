@@ -1206,7 +1206,7 @@ int M_MenuTicker(void) // 80007E0C
                 break;
 
             case MTXT_BRIGHTNESS:
-                if (CHANGESLIDER(&Settings.Brightness, 2, 200))
+                if (CHANGESLIDER(&Settings.Brightness, 8, 800))
                     P_RefreshBrightness();
                 break;
 
@@ -2141,7 +2141,7 @@ int M_MenuTicker(void) // 80007E0C
                 if (truebuttons || rightbutton || leftbutton)
                 {
                     S_StartSound(NULL, sfx_switch2);
-                    VideoSettings.NoGammaCorrect = !VideoSettings.NoGammaCorrect;
+                    VideoSettings.GammaCorrect = !VideoSettings.GammaCorrect;
                     I_RefreshVideo();
                     return ga_nothing;
                 }
@@ -2474,40 +2474,40 @@ void M_MenuTitleDrawer(void) // 80008E7C
     }
     if (MenuItem == Menu_Game)
     {
-        ST_DrawString(-1, 20, "Pause", text_alpha | 0xc0000000);
+        ST_DrawString(-1, 20, "Pause", text_alpha | 0xff000000);
         ST_DrawString(-1, SCREEN_HT - 30, "press \x8b to resume", text_alpha | 0xffffff00);
     }
     else if (MenuItem == Menu_Skill)
     {
-        ST_DrawString(-1, 20, "Choose Your Skill...", text_alpha | 0xc0000000);
+        ST_DrawString(-1, 20, "Choose Your Skill...", text_alpha | 0xff000000);
     }
     else if (MenuItem == Menu_Options)
     {
-        ST_DrawString(-1, 20, "Options", text_alpha | 0xc0000000);
+        ST_DrawString(-1, 20, "Options", text_alpha | 0xff000000);
     }
     else if (MenuItem == Menu_Quit)
     {
-        ST_DrawString(-1, 20, "Quit Game?", text_alpha | 0xc0000000);
+        ST_DrawString(-1, 20, "Quit Game?", text_alpha | 0xff000000);
     }
     else if (MenuItem == Menu_DeleteNote)
     {
-        ST_DrawString(-1, 20, "Delete Game Note?", text_alpha | 0xc0000000);
+        ST_DrawString(-1, 20, "Delete Game Note?", text_alpha | 0xff000000);
     }
     else if (MenuItem == Menu_ControllerPakBad)
     {
-        ST_DrawString(-1, 20, "Controller Pak Bad", text_alpha | 0xc0000000);
+        ST_DrawString(-1, 20, "Controller Pak Bad", text_alpha | 0xff000000);
     }
     else if (MenuItem == Menu_ControllerPakFull)
     {
-        ST_DrawString(-1, 20, "Controller Pak Full", text_alpha | 0xc0000000);
+        ST_DrawString(-1, 20, "Controller Pak Full", text_alpha | 0xff000000);
     }
     else if (MenuItem == Menu_CreateNote)
     {
-        ST_DrawString(-1, 20, "Create Game Note?", text_alpha | 0xc0000000);
+        ST_DrawString(-1, 20, "Create Game Note?", text_alpha | 0xff000000);
     }
     else if (MenuItem == Menu_Load)
     {
-        ST_DrawString(-1, 20, "Load Game", text_alpha | 0xc0000000);
+        ST_DrawString(-1, 20, "Load Game", text_alpha | 0xff000000);
     }
     else if (MenuItem == Menu_Save)
     {
@@ -2518,7 +2518,7 @@ void M_MenuTitleDrawer(void) // 80008E7C
     for(i = 0; i < itemlines; i++)
     {
         u32 alpha = text_alpha;
-        u32 color = 0xc0000000;
+        u32 color = 0xff000000;
         menuentry_t casepos;
 
         casepos = item->casepos;
@@ -2556,7 +2556,7 @@ void M_FeaturesDrawer(void) // 800091C0
     const menuitem_t *item;
     int i;
 
-    ST_DrawString(-1, 20, "Features", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Features", text_alpha | 0xff000000);
     item = MenuItem;
 
     for(i = 0; i < itemlines; i++)
@@ -2640,7 +2640,7 @@ static void M_DebugMenuDrawer(void) // 800091C0
     const menuitem_t *item;
     int i;
 
-    ST_DrawString(-1, 20, "Debug", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Debug", text_alpha | 0xff000000);
 
     sprintf(textbuf, "Build Flags   %s", *BuildFlags ? BuildFlags : "-");
     ST_Message(40, 50, textbuf, text_alpha | 0xffffff00);
@@ -2770,12 +2770,12 @@ void M_VolumeDrawer(void) // 800095B4
     const menuitem_t *item;
     int i;
 
-    ST_DrawString(-1, 20, "Sound", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Sound", text_alpha | 0xff000000);
     item = MenuItem;
 
     for(i = 0; i < itemlines; i++)
     {
-        ST_DrawString(item->x, item->y, MenuText[item->casepos], text_alpha | 0xc0000000);
+        ST_DrawString(item->x, item->y, MenuText[item->casepos], text_alpha | 0xff000000);
         item++;
     }
 
@@ -2795,7 +2795,7 @@ void M_DisplayDrawer(void) // 80009884
     int i;
     menuentry_t casepos;
 
-    ST_DrawString(-1, 20, "Display", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Display", text_alpha | 0xff000000);
 
     item = MenuItem;
 
@@ -2826,7 +2826,7 @@ void M_DisplayDrawer(void) // 80009884
         if (casepos == MTXT_BRIGHTNESS)
         {
             ST_DrawSymbol(item->x + 140, item->y, 68, text_alpha | 0xffffff00);
-            ST_DrawSymbol(item->x + 141 + Settings.Brightness/2, item->y, 69, text_alpha | 0xffffff00);
+            ST_DrawSymbol(item->x + 141 + Settings.Brightness/8, item->y, 69, text_alpha | 0xffffff00);
         }
         else if (casepos == MTXT_FLASH_BRIGHTNESS)
         {
@@ -2835,9 +2835,9 @@ void M_DisplayDrawer(void) // 80009884
         }
 
         if (text)
-            ST_Message(item->x + 140, item->y, text, text_alpha | 0xc0000000);
+            ST_Message(item->x + 140, item->y, text, text_alpha | 0xff000000);
 
-        ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+        ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xff000000);
 
         item++;
     }
@@ -2852,7 +2852,7 @@ void M_PlayerSetupDrawer(void) // 80009738
     int i;
     menuentry_t casepos;
 
-    ST_DrawString(-1, 20, "Player Setup", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Player Setup", text_alpha | 0xff000000);
 
     item = MenuItem;
 
@@ -2916,9 +2916,9 @@ void M_PlayerSetupDrawer(void) // 80009738
         }
 
         if (text)
-            ST_Message(item->x + 140, item->y, text, text_alpha | 0xc0000000);
+            ST_Message(item->x + 140, item->y, text, text_alpha | 0xff000000);
 
-        ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+        ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xff000000);
 
         item++;
     }
@@ -2934,7 +2934,7 @@ void M_VideoDrawer(void)
     int i, alpha;
     menuentry_t casepos;
 
-    ST_DrawString(-1, 20, "Video", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Video", text_alpha | 0xff000000);
 
     item = MenuItem;
 
@@ -3006,10 +3006,10 @@ void M_VideoDrawer(void)
         }
         else if (casepos == MTXT_GAMMA_CORRECT)
         {
-            if (VideoSettings.NoGammaCorrect)
-                text = "Off";
-            else
+            if (VideoSettings.GammaCorrect)
                 text = "On";
+            else
+                text = "Off";
         }
         else if (casepos == MTXT_DITHER_FILTER)
         {
@@ -3035,14 +3035,14 @@ void M_VideoDrawer(void)
         }
 
         if (text)
-            ST_Message(item->x + 140, item->y, text, alpha | 0xc0000000);
+            ST_Message(item->x + 140, item->y, text, alpha | 0xff000000);
 
         if (casepos == MTXT_INTERLACING && VideoSettings.Resolution == VIDEO_RES_HI_VERT)
             text = "Deflickering";
         else
             text = MenuText[casepos];
 
-        ST_Message(item->x, item->y, text, alpha | 0xc0000000);
+        ST_Message(item->x, item->y, text, alpha | 0xff000000);
 
         item++;
     }
@@ -3057,7 +3057,7 @@ void M_StatusHUDDrawer(void) // 80009884
     int i;
     menuentry_t casepos;
 
-    ST_DrawString(-1, 20, "Status HUD", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Status HUD", text_alpha | 0xff000000);
 
     item = MenuItem;
 
@@ -3115,9 +3115,9 @@ void M_StatusHUDDrawer(void) // 80009884
         }
 
         if (text)
-            ST_Message(item->x + 100, item->y, text, text_alpha | 0xc0000000);
+            ST_Message(item->x + 100, item->y, text, text_alpha | 0xff000000);
 
-        ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+        ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xff000000);
 
         item++;
     }
@@ -3131,13 +3131,13 @@ void M_DefaultsDrawer(void) // [Immorpher] new defaults drawer
     const menuitem_t *item;
     int i;
 
-    ST_DrawString(-1, 20, "Reset to Defaults", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Reset to Defaults", text_alpha | 0xff000000);
 
     item = MenuItem;
 
     for(i = 0; i < itemlines; i++)
     {
-        ST_DrawString(item->x, item->y, MenuText[item->casepos], text_alpha | 0xc0000000);
+        ST_DrawString(item->x, item->y, MenuText[item->casepos], text_alpha | 0xff000000);
 
         if (item->casepos != MTXT_RETURN)
             ST_DrawSymbol(item->x + 108, item->y, 85, text_alpha | 0xffffff00);
@@ -3404,12 +3404,12 @@ void M_ControllerPakDrawer(void) // 8000A3E4
     char buffer [32];
     char *tmpbuf;
 
-    ST_DrawString(-1, 20, "Controller Pak", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Manage Controller Pak", text_alpha | 0xff000000);
 
     if (FilesUsed == -1)
     {
         if ((MenuAnimationTic & 2) != 0)
-            ST_DrawString(-1, 114, "Controller Pak removed!", text_alpha | 0xc0000000);
+            ST_DrawString(-1, 114, "Controller Pak removed!", text_alpha | 0xff000000);
 
         ST_DrawString(-1, SCREEN_HT - 30, "press \x8b to exit", text_alpha | 0xffffff00);
     }
@@ -3471,7 +3471,7 @@ void M_ControllerPakDrawer(void) // 8000A3E4
 
         sprintf(buffer, "pages used: %lu   free: %ld", FileState[cursorpos].file_size >> 8, Pak_Memory);
 
-        ST_DrawString(-1, 180, buffer, text_alpha | 0xc0000000);
+        ST_DrawString(-1, 180, buffer, text_alpha | 0xff000000);
         ST_DrawSymbol(23, (cursorpos - linepos) * 16 + 52, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
         ST_DrawString(-1, SCREEN_HT - 40, "press \x8b to exit", text_alpha | 0xffffff00);
@@ -3513,7 +3513,7 @@ void M_ControllerPakDrawer(void) // 8000A3E4
                 *tmpbuf = '\0';
             }
 
-            ST_DrawString(60, (i - linepos) * 15 + 60, buffer, text_alpha | 0xc0000000);
+            ST_DrawString(60, (i - linepos) * 15 + 60, buffer, text_alpha | 0xff000000);
 
             fState++;
         }
@@ -3530,7 +3530,7 @@ void M_ControllerPakDrawer(void) // 8000A3E4
 
         sprintf(buffer, "pages used: %lu   free: %ld", FileState[cursorpos].file_size >> 8, Pak_Memory);
 
-        ST_DrawString(-1, 170, buffer, text_alpha | 0xc0000000);
+        ST_DrawString(-1, 170, buffer, text_alpha | 0xff000000);
         ST_DrawSymbol(23, (cursorpos - linepos) * 15 + 51, MenuAnimationTic + 70, text_alpha | 0xffffff00);
 
         ST_DrawString(-1, SCREEN_HT - 40, "press \x8b to exit", text_alpha | 0xffffff00);
@@ -3722,8 +3722,8 @@ void M_SavePakDrawer(void) // 8000AB44
     {
         if (MenuAnimationTic & 2)
         {
-            ST_DrawString(-1, 100, "Controller Pak removed!", 0xc00000ff);
-            ST_DrawString(-1, 120, "Game cannot be saved.", 0xc00000ff);
+            ST_DrawString(-1, 100, "Controller Pak removed!", 0xff0000ff);
+            ST_DrawString(-1, 120, "Game cannot be saved.", 0xff0000ff);
         }
 
         ST_DrawString(-1, SCREEN_HT - 30, "press \x8b to exit", text_alpha | 0xffffff00);
@@ -3739,7 +3739,7 @@ void M_SavePakDrawer(void) // 8000AB44
             else
                 M_PrintSaveTitle(buffer, save->skill, save->map);
 
-            ST_DrawString(60, (i - linepos) * 15 + 65, buffer, text_alpha | 0xc0000000);
+            ST_DrawString(60, (i - linepos) * 15 + 65, buffer, text_alpha | 0xff000000);
         }
 
         if (linepos != 0) {
@@ -3889,7 +3889,7 @@ void M_SaveGamePakDrawer(void) // 8000AB44
         else
             M_PrintSaveTitle(buffer, save->skill, save->map);
 
-        ST_DrawString(60, (i - linepos) * 15 + 65, buffer, text_alpha | 0xc0000000);
+        ST_DrawString(60, (i - linepos) * 15 + 65, buffer, text_alpha | 0xff000000);
     }
 
     if (linepos != 0) {
@@ -4044,7 +4044,7 @@ void M_LoadPakDrawer(void) // 8000B270
     int i;
     char buffer[32];
 
-    ST_DrawString(-1, 20, "Controller Pak", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Controller Pak", text_alpha | 0xff000000);
 
     for(i = linepos; i < (linepos + 6); i++)
     {
@@ -4062,7 +4062,7 @@ void M_LoadPakDrawer(void) // 8000B270
             M_PrintSaveTitle(buffer, save->skill, save->map);
         }
 
-        ST_DrawString(60, (i - linepos) * 15 + 65, buffer, text_alpha | 0xc0000000);
+        ST_DrawString(60, (i - linepos) * 15 + 65, buffer, text_alpha | 0xff000000);
     }
 
     if (linepos != 0) {
@@ -4213,7 +4213,7 @@ void M_LoadGamePakDrawer(void)
     int i;
     char buffer[32];
 
-    ST_DrawString(-1, 20, "Game Pak", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Game Pak", text_alpha | 0xff000000);
 
     for(i = linepos; i < (linepos + 6); i++)
     {
@@ -4224,7 +4224,7 @@ void M_LoadGamePakDrawer(void)
         else
             M_PrintSaveTitle(buffer, save->skill, save->map);
 
-        ST_DrawString(60, (i - linepos) * 15 + 65, buffer, text_alpha | 0xc0000000);
+        ST_DrawString(60, (i - linepos) * 15 + 65, buffer, text_alpha | 0xff000000);
     }
 
     if (linepos != 0) {
@@ -4314,7 +4314,7 @@ int M_CenterDisplayTicker(void) // 8000B4C4
 
 void M_CenterDisplayDrawer(void) // 8000B604
 {
-    ST_DrawString(-1, 20, "Center Display", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Center Display", text_alpha | 0xff000000);
     ST_DrawString(-1, 114, "use gamepad to adjust", text_alpha | 0xffffff00);
     ST_DrawString(-1, SCREEN_HT - 50, "press \x8a to reset", text_alpha | 0xffffff00);
     ST_DrawString(-1, SCREEN_HT - 30, "press \x8b to exit", text_alpha | 0xffffff00);
@@ -4341,7 +4341,7 @@ void M_PlayerColorDrawer(void)
     F_DrawSprite(MT_PLAYER, &states[state], playerpreviewrotate,
                  text_alpha | 0xffffff00, SCREEN_WD>>1, 134, FRACUNIT, 0);
 
-    ST_DrawString(-1, 20, "Player Color", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Player Color", text_alpha | 0xff000000);
 
     item = MenuItem;
 
@@ -4358,11 +4358,11 @@ void M_PlayerColorDrawer(void)
         {
             ST_Message(item->x + 110, item->y,
                        playercolorpreset < 0 ? "Custom" : PlayerColorPresets[playercolorpreset].name,
-                       text_alpha | 0xc0000000);
+                       text_alpha | 0xff000000);
         }
 
         if (MenuText[casepos])
-            ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+            ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xff000000);
 
         item++;
     }
@@ -4639,7 +4639,7 @@ void M_ControlPadDrawer(void) // 8000B988
     int c, stick;
     int cursor_alpha = text_alpha;
 
-    ST_DrawString(-1, 20, configcontroller == 0 ? "Controller Setup" : "Controller 2 Setup", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, configcontroller == 0 ? "Controller Setup" : "Controller 2 Setup", text_alpha | 0xff000000);
 
     if (configcontroller == 0)
     {
@@ -4647,7 +4647,7 @@ void M_ControlPadDrawer(void) // 8000B988
             sprintf(buffer, ControlText[0], "Custom");
         else
             sprintf(buffer, ControlText[0], ControllerPresets[Settings.ControlPreset[0]].name);
-        ST_Message(28, 40, buffer, text_alpha | 0xc0000000);
+        ST_Message(28, 40, buffer, text_alpha | 0xff000000);
     }
 
     c = sprintf(buffer, ControlText[1]);
@@ -4660,7 +4660,7 @@ void M_ControlPadDrawer(void) // 8000B988
         sprintf(&buffer[c], " strafe");
     else if (stick & STICK_TURN)
         sprintf(&buffer[c], " turn");
-    ST_Message(28, 50, buffer, text_alpha | 0xc0000000);
+    ST_Message(28, 50, buffer, text_alpha | 0xff000000);
 
     for(int i = 2; i < ARRAYLEN(ControlText); i++)
     {
@@ -4680,7 +4680,7 @@ void M_ControlPadDrawer(void) // 8000B988
         else
             code = 0;
 
-        ST_Message(x + 98 - len * 8, y + 3, ControlText[i], text_alpha | 0xc0000000);
+        ST_Message(x + 98 - len * 8, y + 3, ControlText[i], text_alpha | 0xff000000);
         if (code)
         {
             int symbol = button_code_to_symbol_index(code);
@@ -4722,7 +4722,7 @@ void M_CustomSkillDrawer(void)
     const menuitem_t *item;
     int i;
 
-    ST_DrawString(-1, 20, "Custom Difficulty", text_alpha | 0xc0000000);
+    ST_DrawString(-1, 20, "Custom Difficulty", text_alpha | 0xff000000);
 
     item = MenuItem;
     for(i = 0; i < itemlines; i++)
@@ -4832,9 +4832,9 @@ void M_CustomSkillDrawer(void)
         }
 
         if (text)
-            ST_Message(item->x + 152, item->y, text, text_alpha | 0xc0000000);
+            ST_Message(item->x + 152, item->y, text, text_alpha | 0xff000000);
 
-        ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xc0000000);
+        ST_Message(item->x, item->y, MenuText[casepos], text_alpha | 0xff000000);
         item++;
     }
 

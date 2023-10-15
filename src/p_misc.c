@@ -697,7 +697,6 @@ extern maplights_t *maplights;     // 800A5EA4
 
 void P_SetLightFactor(int lightfactor) // 8000F458
 {
-    int l_flt;
     light_t *light;
     maplights_t *maplight;
     int base_r, base_g, base_b;
@@ -724,12 +723,10 @@ void P_SetLightFactor(int lightfactor) // 8000F458
             factor = i;
         }
 
-        l_flt = (factor * lightfactor) / 100;
-
-        v = l_flt;
-        if (v > 255) {
+        if (players[0].cheats & CF_FULLBRIGHT)
             v = 255;
-        }
+        else
+            v = MIN((factor * lightfactor) / 100, 255);
 
         if (i > 255)
         {
@@ -788,7 +785,7 @@ void P_SetLightFactor(int lightfactor) // 8000F458
 
 void T_FadeInBrightness(fadebright_t *fb) // 8000f610
 {
-    fb->factor += 2;
+    fb->factor += MAX(Settings.Brightness / 50, 2);
     if (fb->factor >= (Settings.Brightness + 100))
     {
         fb->factor = (Settings.Brightness + 100);

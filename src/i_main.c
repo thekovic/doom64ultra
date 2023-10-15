@@ -955,7 +955,7 @@ void I_RefreshVideo(void) // [Immorpher] video refresh
         | (VideoSettings.BitDepth == BITDEPTH_32 ? VI_CTRL_TYPE_32 : VI_CTRL_TYPE_16)
         | ((VideoSettings.TvMode & 1) ? VI_CTRL_DIVOT_ON : VI_CTRL_ANTIALIAS_MODE_2)
         | (interlaced ? VI_CTRL_SERRATE_ON : 0)
-        | (VideoSettings.NoGammaCorrect ? 0 : VI_CTRL_GAMMA_ON | VI_CTRL_GAMMA_DITHER_ON)
+        | (VideoSettings.GammaCorrect ? VI_CTRL_GAMMA_ON : 0)
         | (VideoSettings.DitherFilter ? VI_CTRL_DITHER_FILTER_ON : 0);
 
     if ((!VideoSettings.TvMode && VideoSettings.BitDepth == BITDEPTH_32)

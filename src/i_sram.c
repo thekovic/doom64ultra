@@ -241,7 +241,7 @@ void I_InitSram(void)
 
 typedef struct __attribute__((__packed__)) ALIGNED(8) {
     u16 crc;
-    u32 brightness: 8;
+    u32 brightness: 10;
     u32 displayx: 6;
     u32 displayy: 6;
     u32 texturefilter: 1;
@@ -252,7 +252,7 @@ typedef struct __attribute__((__packed__)) ALIGNED(8) {
     u32 screenaspect: 2;
     u32 videoresolution: 2;
     u32 bitdepth: 1;
-    u32 nogammacorrect: 1;
+    u32 gammacorrect: 1;
     u32 ditherfilter: 1;
     u32 colordither: 2;
     u32 flashbrightness: 6;
@@ -304,7 +304,7 @@ void I_SaveConfig(void)
     config.screenaspect = VideoSettings.ScreenAspect;
     config.videoresolution = VideoSettings.Resolution;
     config.bitdepth = VideoSettings.BitDepth;
-    config.nogammacorrect = VideoSettings.NoGammaCorrect;
+    config.gammacorrect = VideoSettings.GammaCorrect;
     config.ditherfilter = VideoSettings.DitherFilter;
     config.colordither = Settings.ColorDither;
     config.flashbrightness = Settings.FlashBrightness;
@@ -339,7 +339,7 @@ static boolean I_LoadConfig(void)
     if (config.crc != crc)
         return false;
 
-    Settings.Brightness = config.brightness % 201;
+    Settings.Brightness = config.brightness % 801;
     VideoSettings.Display_X = ((int)config.displayx) % 41 - 16;
     VideoSettings.Display_Y = ((int)config.displayx) % 33 - 20;
     Settings.VideoFilters[0] = config.texturefilter;
@@ -350,7 +350,7 @@ static boolean I_LoadConfig(void)
     VideoSettings.ScreenAspect = config.screenaspect % 3;
     VideoSettings.Resolution = config.videoresolution % 3;
     VideoSettings.BitDepth = config.bitdepth;
-    VideoSettings.NoGammaCorrect = config.nogammacorrect;
+    VideoSettings.GammaCorrect = config.gammacorrect;
     VideoSettings.DitherFilter = config.ditherfilter;
     Settings.ColorDither = config.colordither;
     Settings.FlashBrightness = config.flashbrightness % 33;
