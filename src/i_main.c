@@ -271,6 +271,10 @@ void I_Start(void)  // 80005620
     /* Create and start idle thread... */
     osCreateThread(&idle_thread, SYS_THREAD_ID_IDLE, I_IdleGameThread, (void *)0,
                    (void*)(bootStack + BOOT_STACKSIZE/sizeof(u64)), 100);
+#ifndef NDEBUG
+    idle_thread.context.sr |= SR_CU1;
+    idle_thread.fp = 1;
+#endif
     osStartThread(&idle_thread);
 }
 
