@@ -642,7 +642,6 @@ void M_PauseMenu(void)
 {
     MenuCall = M_MenuTitleDrawer;
     SET_MENU(Menu_Game);
-    cursorpos = 0;
 
     MenuIdx = 0;
     text_alpha = 255;
