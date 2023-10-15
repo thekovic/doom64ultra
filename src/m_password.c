@@ -30,13 +30,13 @@ void M_PrintSaveTitle(char *buf, customskill_t skill, int map)
 {
     for (int i = 0; i < ARRAYLEN(SkillPresets); i++) {
         if (memcmp(&skill, (void*) &SkillPresets[i].skill, sizeof skill) == 0) {
-            int count = sprintf(buf, "level %2.2d - %s", map, SkillPresets[i].name);
+            int count = sprintf(buf, "level %02d - %s", map, SkillPresets[i].name);
             if (buf[count - 1] == '!')
                 buf[count - 1] = '\0';
             return;
         }
     }
-    sprintf(buf, "level %2.2d", map);
+    sprintf(buf, "level %02d", map);
 }
 
 bool M_EncodePassword(byte *buff) // 8000BC10
