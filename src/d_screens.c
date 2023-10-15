@@ -372,11 +372,11 @@ void D_OpenControllerPak(void) // 8002BE28
 
     if (((oldbuttons & 0xffff0000) == PAD_START) && (I_CheckControllerPak() == 0))
     {
-        MenuCall = M_ControllerPakDrawer;
+        MenuCall = M_ManagePakDrawer;
         linepos = 0;
         cursorpos = 0;
 
-        MiniLoop(M_FadeInStart, M_MenuClearCall, M_ScreenTicker, M_MenuGameDrawer);
+        MiniLoop(M_FadeInStart, M_MenuClearCall, M_ManagePakTicker, M_MenuGameDrawer);
         I_WIPE_FadeOutScreen();
     }
     return;

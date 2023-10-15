@@ -1121,9 +1121,9 @@ void M_ModCredits2Drawer(void) SEC_MENU; // [nova] new menu
 void M_DrawBackground(int x, int y, int color, char *name); // 80009A68
 void M_DrawOverlay(int x, int y, int w, int h, int color); // 80009F58
 
-int M_ScreenTicker(void) SEC_MENU; // 8000A0F8
+int M_ManagePakTicker(void) SEC_MENU; // 8000A0F8
 
-void M_ControllerPakDrawer(void) SEC_MENU; // 8000A3E4
+void M_ManagePakDrawer(void) SEC_MENU; // 8000A3E4
 
 void M_SavePakStart(void) SEC_MENU; // 8000A6E8
 void M_SavePakStop(int exit) SEC_MENU; // 8000A7B4

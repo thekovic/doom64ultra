@@ -1868,11 +1868,11 @@ int M_MenuTicker(void) // 80007E0C
                     S_StartSound(NULL, sfx_pistol);
                     M_SaveMenuData();
 
-                    MenuCall = M_ControllerPakDrawer;
+                    MenuCall = M_ManagePakDrawer;
                     linepos = 0;
                     cursorpos = 0;
 
-                    exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_ScreenTicker, M_MenuGameDrawer);
+                    exit = MiniLoop(M_FadeInStart, M_FadeOutStart, M_ManagePakTicker, M_MenuGameDrawer);
                     M_RestoreMenuData((exit == ga_exit));
 
                     if (exit == ga_exit)
@@ -3278,7 +3278,7 @@ void M_DrawOverlay(int x, int y, int w, int h, int color) // 80009F58
     globallump = -1;
 }
 
-int M_ScreenTicker(void) // 8000A0F8
+int M_ManagePakTicker(void) // 8000A0F8
 {
     int exit;
     unsigned int buttons;
@@ -3396,7 +3396,7 @@ static char M_PakTableChar(char c)
 }
 #endif /* REGION != REGION_JP */
 
-void M_ControllerPakDrawer(void) // 8000A3E4
+void M_ManagePakDrawer(void) // 8000A3E4
 {
     byte idx;
     int i,j;
