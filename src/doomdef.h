@@ -8,8 +8,8 @@
 
 /* ULTRA64 LIBRARIES */
 #include <ultra64.h>
-#include <PR/ramrom.h>  /* needed for argument passing into the app */
-#include <libaudio.h>
+#include <ramrom.h>  /* needed for argument passing into the app */
+#include <n_libaudio_sc.h>
 
 #include "doomlib.h"
 

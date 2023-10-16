@@ -2,9 +2,9 @@
 #define _AUDIO_H
 
 #include <ultra64.h>
-#include <PR/os.h>
-#include <PR/libaudio.h>
-#include <PR/ucode.h>
+#include <os.h>
+#include <n_libaudio_sc.h>
+#include <ucode.h>
 
 #include "wessapi.h"
 #include "wessarc.h"
@@ -30,7 +30,7 @@ typedef struct
 {
     Acmd          *ACMDList[NUM_ACMD_LISTS];
     AudioInfo     *audioInfo[NUM_OUTPUT_BUFFERS];
-    ALGlobals     g;
+    N_ALGlobals   g;
 } AMAudioMgr;
 
 typedef struct
@@ -49,7 +49,7 @@ typedef struct
 } AMDMAState;
 
 extern AMAudioMgr   __am;           //800B4060
-extern ALVoice      *voice;         //800B40E0
+extern N_ALVoice    *voice;         //800B40E0
 extern char         *reverb_status; //800B40E4
 
 extern s32 milli_to_param(register s32 paramvalue, register s32 rate);      // 8002E3D0

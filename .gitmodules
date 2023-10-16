@@ -2,3 +2,7 @@
 	path = libultra_modern
 	url = https://github.com/d64u/libultra_modern.git
 	branch = doom64ultra
+[submodule "n_audio_sc"]
+	path = n_audio_sc
+	url = https://github.com/d64u/n_audio_sc.git
+	branch = doom64ultra

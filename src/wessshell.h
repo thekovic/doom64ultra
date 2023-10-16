@@ -2,7 +2,7 @@
 #define _FUNQUEUE_H
 
 #include "doomlib.h"
-#include <libaudio.h>
+#include <n_libaudio_sc.h>
 
 extern ALPlayer wessnode;   // 800B4140
 extern ALPlayer *wessstate; // 800B4154

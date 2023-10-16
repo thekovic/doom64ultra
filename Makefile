@@ -64,11 +64,14 @@ endif
 
 ifeq ($(DEBUGOPT),1)
   LIBULTRA_VER=libultra
+  LIBNAUDIO_VER=n_audio_sc
 else
     ifeq ($(DEBUG),1)
       LIBULTRA_VER=libultra_d
+      LIBNAUDIO_VER=n_audio_sc_d
     else
       LIBULTRA_VER=libultra_rom
+      LIBNAUDIO_VER=n_audio_sc
     endif
 endif
 
@@ -125,12 +128,13 @@ BOOT_O_FILES := $(foreach file,$(BOOT_S_FILES),$(BUILD_DIR)/$(file:.s=.o))
 DEP_FILES := $(O_FILES:.o=.d) $(BUILD_DIR)/$(LD_SCRIPT).d
 
 LIBDOOM64 = $(BUILD_DIR)/libdoom64.a
-LIBULTRA = libultra_modern/build/$(LIBULTRA_VER)/$(LIBULTRA_VER).a
+LIBULTRA = $(BUILD_DIR)/$(LIBULTRA_VER)/$(LIBULTRA_VER).a
+LIBNAUDIO = $(BUILD_DIR)/$(LIBNAUDIO_VER)/$(LIBNAUDIO_VER).a
 
 # Make sure build directory exists before compiling anything
 $(shell mkdir -p $(ALL_DIRS))
 # Ensure submodules are checked out
-$(shell if [ ! -d libultra_modern/src ]; then git submodule update -i -r; fi)
+$(shell if [ ! -d libultra_modern/src -o ! -d n_audio_sc/src ]; then git submodule update -i -r; fi)
 
 define nl
 
@@ -169,11 +173,12 @@ AR        := $(N64_BINDIR)/mips-n64-gcc-ar
 OBJDUMP   := $(N64_BINDIR)/mips-n64-objdump
 OBJCOPY   := $(N64_BINDIR)/mips-n64-objcopy
 
-INCLUDE_DIRS += libultra_modern/include libultra_modern/include/PR $(BUILD_DIR) $(BUILD_DIR)/include src src/asm
+INCLUDE_DIRS += libultra_modern/include libultra_modern/include/PR n_audio_sc/include \
+                $(BUILD_DIR) $(BUILD_DIR)/include src src/asm
 
 DEFINES += _FINALROM=1 F3DEX_GBI_2=1
 C_DEFINES := $(foreach d,$(DEFINES),-D$(d))
-LD_DEFINES := $(C_DEFINES) $(foreach d,$(OPTIONS),"-D$(d)") -DLIBULTRA=$(LIBULTRA_VER)
+LD_DEFINES := $(C_DEFINES) $(foreach d,$(OPTIONS),"-D$(d)") -DLIBULTRA=$(LIBULTRA_VER) -DLIBNAUDIO=$(LIBNAUDIO_VER)
 DEF_INC_CFLAGS := $(foreach i,$(INCLUDE_DIRS),-I$(i)) $(C_DEFINES)
 
 CFLAGS = -Wall -march=vr4300 -mtune=vr4300 \
@@ -232,10 +237,10 @@ endef
 #==============================================================================#
 
 # Default target
-default: libultra $(ROM)
+default: libultra n_audio_sc $(ROM)
 
 clean:
-	$(RM) -r $(BUILD_DIR) libultra_modern/build
+	$(RM) -r $(BUILD_DIR)
 
 #==============================================================================#
 # Compilation Recipes                                                          #
@@ -276,15 +281,18 @@ $(LIBDOOM64): $(O_FILES)
 	$(V)$(AR) rcs -o $@ $(O_FILES)
 
 libultra:
-	$(V)$(MAKE) -s -C libultra_modern VERSION=$(LIBULTRA_VER) "EXT_CFLAGS=$(LIBULTRA_CFLAGS)" VERBOSE=$(VERBOSE)
+	$(V)$(MAKE) -s -C libultra_modern VERSION=$(LIBULTRA_VER) "EXT_CFLAGS=$(LIBULTRA_CFLAGS)" VERBOSE=$(VERBOSE) "BUILD_DIR_BASE=$(realpath $(BUILD_DIR))"
+n_audio_sc:
+	$(V)$(MAKE) -s -C n_audio_sc VERSION=$(LIBNAUDIO_VER) "EXT_CFLAGS=$(LIBULTRA_CFLAGS)" VERBOSE=$(VERBOSE) "BUILD_DIR_BASE=$(realpath $(BUILD_DIR))"
 
 $(LIBULTRA): libultra
+$(LIBNAUDIO): n_audio_sc
 
 # Link final ELF file
-$(ELF): $(LIBULTRA) $(BOOT_O_FILES) $(LIBDOOM64) $(BUILD_DIR)/$(LD_SCRIPT)
+$(ELF): $(LIBULTRA) $(LIBNAUDIO) $(BOOT_O_FILES) $(LIBDOOM64) $(BUILD_DIR)/$(LD_SCRIPT)
 	@$(PRINT) "$(GREEN)Linking ELF file: $(BLUE)$@ $(NO_COL)\n"
 	$(V)$(CC) $(LDFLAGS) "-L$(BUILD_DIR)" "-Wl,-T,$(BUILD_DIR)/$(LD_SCRIPT)" "-Wl,-Map,$(BUILD_DIR)/$(TARGET).map" \
-		-o $@ $(BOOT_O_FILES) $(LIBDOOM64) $(LIBULTRA) -L$(N64_LIBGCCDIR)
+		-o $@ $(BOOT_O_FILES) $(LIBDOOM64) $(LIBULTRA) $(LIBNAUDIO) -L$(N64_LIBGCCDIR)
 
 # Build ROM
 $(ROM): $(ELF)
@@ -292,7 +300,7 @@ $(ROM): $(ELF)
 	$(V)$(OBJCOPY) --pad-to=0x100000 --gap-fill=0xFF $< $@ -O binary
 	$(V)makemask $@
 
-.PHONY: clean default libultra
+.PHONY: clean default libultra n_audio_sc
 # with no prerequisites, .SECONDARY causes no intermediate target to be removed
 .SECONDARY:
 

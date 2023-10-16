@@ -32,6 +32,7 @@ SECTIONS
         *.ltrans.o(.text);
         */libdoom64.a:*.o(.text);
         */LIBULTRA.a:*.o(.text);
+        */LIBNAUDIO.a:*.o(.text);
         */libgcc.a:*.o(.text);
         *.o(.text.game);
         *.o(.text.menu);
@@ -43,24 +44,26 @@ SECTIONS
         */libdoom64.a:*.o(.data*);
 
         */LIBULTRA.a:*.o(.data*);
+        */LIBNAUDIO.a:*.o(.data*);
 
         /usr/lib/n64/PR/rspboot.o(.data*);
         /usr/lib/n64/PR/gspL3DEX2.fifo.o(.data*);
         /usr/lib/n64/PR/gspF3DEX2.NoN.fifo.o(.data*);
-        /usr/lib/n64/PR/aspMain.o(.data*);
+        /usr/lib/n64/PR/n_aspMain.o(.data*);
 
         /* rodata */
         *.ltrans.o(.rodata*);
         */libdoom64.a:*.o(.*rodata*);
 
         */LIBULTRA.a:*.o(.*rodata*);
+        */LIBNAUDIO.a:*.o(.*rodata*);
         */libgcc.a:*.o(.*rodata*);
         */libgcc.a:*.o(.eh_frame*);
 
         /usr/lib/n64/PR/rspboot.o(.text);
         /usr/lib/n64/PR/gspL3DEX2.fifo.o(.text);
         /usr/lib/n64/PR/gspF3DEX2.NoN.fifo.o(.text);
-        /usr/lib/n64/PR/aspMain.o(.text);
+        /usr/lib/n64/PR/n_aspMain.o(.text);
     } >ram AT>rom
 
     .code.noload (NOLOAD) : ALIGN(16)
@@ -72,6 +75,9 @@ SECTIONS
         */LIBULTRA.a:*.o(COMMON);
         */LIBULTRA.a:*.o(.scommon);
         */LIBULTRA.a:*.o(.*bss*);
+        */LIBNAUDIO.a:*.o(COMMON);
+        */LIBNAUDIO.a:*.o(.scommon);
+        */LIBNAUDIO.a:*.o(.*bss*);
     } >ram
 
     _bss_start = ADDR(.code.noload);
