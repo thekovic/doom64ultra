@@ -36,7 +36,7 @@ skyfunc_t   R_RenderSKY;        // 800A8130
 byte        *SkyFireData[2];    // 800A8140 // Fire data double buffer
 byte        *SkyCloudData;      // 800A8148
 int         Skyfadeback;        // 800A814C
-int         FireSide;           // 800A8150
+int         FireSide = 0;       // 800A8150
 int         SkyCloudOffsetX;    // 800A8154
 int         SkyCloudOffsetY;    // 800A8158
 int         ThunderCounter;     // 800A815C
@@ -465,33 +465,44 @@ void R_RenderSkyPic(int lump, int yoffset, boolean repeat) // 80025BDC
     gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
 }
 
-static int R_SpreadFire(byte *src, byte *srcoffset, int x, int rand)
+void R_SpreadFire(byte *src, int seed)
 {
-    int pixel, randIdx;
-    byte *tmpSrc;
+    int x, y, randIdx;
+    byte *srcoffset, *tmpSrc, pixel;
 
-    pixel = *srcoffset;
-    if (pixel != 0)
+    src += FIRESKY_WIDTH;
+
+    for (x = 0; x < FIRESKY_WIDTH; x++)
     {
-        randIdx = rndtable[rand];
-        rand = (rand + 2) & 0xff;
+        srcoffset = (src + x);
 
-        tmpSrc = &src[(x - (randIdx & 3) + 1) & (FIRESKY_WIDTH-1)];
-        *(tmpSrc - FIRESKY_WIDTH) = pixel - ((randIdx & 1) << 4);
-    }
-    else
-    {
-        *(srcoffset - FIRESKY_WIDTH) = 0;
-    }
+        for (y = 1; y < FIRESKY_HEIGHT; y++)
+        {
+            pixel = *srcoffset;
+            if (pixel != 0)
+            {
+                randIdx = rndtable[seed];
+                seed = (seed + 2) & 0xff;
 
-    return rand;
+                tmpSrc = &src[(x - (randIdx & 3) + 1) & (FIRESKY_WIDTH-1)];
+                *(tmpSrc - FIRESKY_WIDTH) = pixel - ((randIdx & 1) << 4);
+            }
+            else
+            {
+                *(srcoffset - FIRESKY_WIDTH) = 0;
+            }
+
+            src += FIRESKY_WIDTH;
+            srcoffset += FIRESKY_WIDTH;
+        }
+
+        src -= ((FIRESKY_WIDTH*FIRESKY_HEIGHT) - FIRESKY_WIDTH);
+    }
 }
 
 void R_RenderFireSky(void) // 80025F68
 {
     byte *buff;
-    byte *src, *srcoffset;
-    int x, y, rand;
     int ang, t, t2;
     u32 color;
     int pitchoffset, topoffset;
@@ -540,23 +551,7 @@ void R_RenderFireSky(void) // 80025F68
         buff = SkyFireData[FireSide];
         D_memcpy(buff, SkyFireData[FireSide ^ 1], (FIRESKY_WIDTH*FIRESKY_HEIGHT));
 
-        rand = (M_Random() & 0xff);
-        src = (buff + FIRESKY_WIDTH);
-
-        for (x = 0; x < FIRESKY_WIDTH; x++)
-        {
-            srcoffset = (src + x);
-
-            for (y = 1; y < FIRESKY_HEIGHT; y++)
-            {
-                rand = R_SpreadFire(src, srcoffset, x, rand);
-
-                src += FIRESKY_WIDTH;
-                srcoffset += FIRESKY_WIDTH;
-            }
-
-            src -= ((FIRESKY_WIDTH*FIRESKY_HEIGHT) - FIRESKY_WIDTH);
-        }
+        R_SpreadFire(buff, M_Random());
 
         FireSide ^= 1;
     }

@@ -4,6 +4,13 @@
 #include "doomdef.h"
 #include "st_main.h"
 
+extern byte        *SkyFireData[2];    // 800A8140 // Fire data double buffer
+extern int         FireSide;           // 800A8150
+#define FIRESKY_WIDTH   64
+#define FIRESKY_HEIGHT  64
+
+void R_SpreadFire(byte *src, int seed);
+
 int D_RunDemo(char *name, customskill_t skill, int map) // 8002B2D0
 {
   int lump;
@@ -34,6 +41,54 @@ int D_TitleMap(void) // 8002B358
   return exit;
 }
 
+#define G_CC_SPLASHFIRE TEXEL0, 0, ENVIRONMENT, 0, 0, 0, 0, 0
+
+void D_DrawSplashFire(void)
+{
+    byte *buff;
+    int color;
+
+    if (gamevbls < gametic)
+    {
+        buff = SkyFireData[FireSide];
+        D_memcpy(buff, SkyFireData[FireSide ^ 1], (FIRESKY_WIDTH*FIRESKY_HEIGHT));
+
+        R_SpreadFire(buff, M_Random());
+
+        FireSide ^= 1;
+    }
+    else
+    {
+        buff = SkyFireData[FireSide ^ 1];
+    }
+
+    color = C_LightGetRGB(((*&vsync - 20) >> 1) & 0xff, 255, 96) << 8;
+
+    gDPSetCycleType(GFX1++, G_CYC_1CYCLE);
+    gDPSetTexturePersp(GFX1++, G_TP_NONE);
+    gDPSetTextureLUT(GFX1++, G_TT_NONE);
+    gDPSetCombineMode(GFX1++, G_CC_SPLASHFIRE, G_CC_SPLASHFIRE);
+    gDPSetRenderMode(GFX1++,G_RM_OPA_SURF,G_RM_OPA_SURF2);
+
+    gDPSetTextureImage(GFX1++, G_IM_FMT_I, G_IM_SIZ_16b , 1, buff);
+    gDPSetTile(GFX1++, G_IM_FMT_I, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 6, 0);
+
+    gDPLoadSync(GFX1++);
+    gDPLoadBlock(GFX1++, G_TX_LOADTILE, 0, 0, (((64 * 64) -1) >> 1), 256);
+
+    gDPPipeSync(GFX1++);
+    gDPSetTile(GFX1++, G_IM_FMT_I, G_IM_SIZ_8b, 8, 0, G_TX_RENDERTILE, 0, 0, 0, 0, 0, 6, 0);
+    gDPSetTileSize(GFX1++, G_TX_RENDERTILE, 0, 0, (63 << 2), (63 << 2));
+    gSPTexture(GFX1++, (1024 << 6)-1, (512 << 6), 0, G_TX_RENDERTILE, G_ON);
+
+    gDPSetEnvColorD64(GFX1++, C_MultColor(color, text_alpha));
+    gSPTextureRectangle(GFX1++, 0, (SCREEN_HT-FIRESKY_HEIGHT+1)<<hudyshift,
+                        SCREEN_WD << hudxshift, SCREEN_HT<<hudyshift,
+                        G_TX_RENDERTILE,
+                        0, 0,
+                        (1 << 12 >> hudxshift), (1 << 12 >> hudyshift));
+}
+
 void D_DrawUltraTitle(int y)
 {
     ST_DrawString(-1,  y, "Doom 64 Ultra", text_alpha | 0xc080c000);
@@ -52,6 +107,8 @@ void D_DrawWarning(void) // 8002B430
 {
     I_ClearFrame();
     I_ClearFB(0x000000ff);
+
+    D_DrawSplashFire();
 
     if (MenuAnimationTic & 1)
         ST_DrawString(-1,  30, "WARNING!", 0xc00000ff);
@@ -96,7 +153,7 @@ void D_DrawUltra(void)
 {
     static const char *DISCLAIMER[] = {
         "doom 64 ultra is a free and",
-        "open-source modification",
+        "open source fan-made modification",
         "created for educational purposes.",
         NULL,
         "it is not intended to be bought",
@@ -111,6 +168,7 @@ void D_DrawUltra(void)
 
     I_ClearFB(0x000000ff);
 
+    D_DrawSplashFire();
     D_DrawUltraTitle(SPLASH_TITLE_POS);
 
     for (int i = 0; i < ARRAYLEN(DISCLAIMER); i++)
@@ -146,6 +204,7 @@ void D_DrawLegal(void) // 8002B644
 
     I_ClearFB(0x000000ff);
 
+    D_DrawSplashFire();
     D_DrawUltraTitle(SPLASH_TITLE_POS);
 
 #if REGION == REGION_JP
@@ -178,6 +237,8 @@ void D_DrawNoPak(void) // 8002B7F4
     I_ClearFrame();
     I_ClearFB(0x000000ff);
 
+    D_DrawSplashFire();
+
 #if REGION == REGION_JP
     M_DrawBackground(22, 88, 0xff, "JPCPAK");
 #else
@@ -199,6 +260,8 @@ void D_DrawNoMemory(void)
     I_ClearFrame();
     I_ClearFB(0x000000ff);
 
+    D_DrawSplashFire();
+
     ST_DrawString(-1,  20, "no expansion pak.", 0xffffffff);
     ST_DrawString(-1,  40, "complex levels outside", 0xffffffff);
     ST_DrawString(-1,  60, "the original campaign", 0xffffffff);
@@ -215,6 +278,12 @@ void D_DrawNoMemory(void)
 
 void D_SplashScreen(void) // 8002B988
 {
+    SkyFireData[0] = Z_Malloc(FIRESKY_WIDTH*FIRESKY_HEIGHT*2, PU_STATIC, NULL);
+    SkyFireData[1] = &SkyFireData[0][FIRESKY_WIDTH*FIRESKY_HEIGHT];
+    bzero(SkyFireData[0], FIRESKY_WIDTH*FIRESKY_HEIGHT*2);
+    D_memset(SkyFireData[0]+(FIRESKY_WIDTH-1)*FIRESKY_HEIGHT, 0xf0, FIRESKY_WIDTH);
+    D_memset(SkyFireData[1]+(FIRESKY_WIDTH-1)*FIRESKY_HEIGHT, 0xf0, FIRESKY_WIDTH);
+
     /* */
     /* Check if the n64 control is connected */
     /* if not connected, it will show the Warning screen */
@@ -256,6 +325,8 @@ void D_SplashScreen(void) // 8002B988
 
     last_ticon = 0;
     MiniLoop(NULL, NULL, D_LegalTicker, D_DrawLegal);
+
+    Z_Free(SkyFireData[0]);
 }
 #endif
 
