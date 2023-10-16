@@ -3333,9 +3333,6 @@ void M_DrawBackground(int x, int y, int color, char *name) // 80009A68
         y += yh;
     }
 
-    gDPPipeSync(GFX1++);
-    gDPSetCycleType(GFX1++, G_CYC_2CYCLE);
-
     globallump = -1;
 }
 
