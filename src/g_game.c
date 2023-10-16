@@ -62,6 +62,7 @@ void G_DoLoadLevel (void) // 80004530
     P_SetupLevel(gamemap);
     P_FinishSetupLevel();
     I_SaveProgress(&LevelSaveBuffer);
+    I_CheckRumblePak();
     gameaction = ga_nothing;
 }
 

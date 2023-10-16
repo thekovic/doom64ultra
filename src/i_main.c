@@ -162,6 +162,7 @@ static s8 fadetick = 8;
 volatile u8 gamepad_bit_pattern; // 800A5260 // one bit for each controller
 volatile u8 rumblepak_bit_pattern = 0;
 volatile u8 mouse_bit_pattern = 0;
+volatile bool force_motor_init = 0;
 u8 motor_bit_pattern = 0;
 
 OSPfs RumblePaks[MAXCONTROLLERS];
@@ -1464,6 +1465,11 @@ int I_CreatePakFile(void) // 800074D4
     return ret;
 }
 
+void I_CheckRumblePak(void)
+{
+    *&force_motor_init = true;
+}
+
 void I_RumbleAmbient(int pad, int count)
 {
     if (*&rumblepak_bit_pattern & (1 << pad))
@@ -1524,6 +1530,8 @@ void I_ControllerThread(void *arg)
         for (register int i = 0; i < MAXCONTROLLERS; i++)
         {
             register int bit = 1 << i;
+            register bool success = false;
+
             if (rumblebits & bit)
             {
                 register int set = !gamepaused
@@ -1532,7 +1540,16 @@ void I_ControllerThread(void *arg)
                 if ((motor_bit_pattern & bit) != set)
                 {
                     motor_bit_pattern = (motor_bit_pattern & ~bit) | set;
-                    if (__osMotorAccess(&RumblePaks[i], set ? MOTOR_START : MOTOR_STOP) != 0)
+                    for (register int j = 0; j < 5; j++)
+                    {
+                        if (__osMotorAccess(&RumblePaks[i], set ? MOTOR_START : MOTOR_STOP) == 0)
+                        {
+                            success = true;
+                            break;
+                        }
+                    }
+
+                    if (!success)
                         rumblebits &= ~bit;
                 }
             }
@@ -1542,16 +1559,22 @@ void I_ControllerThread(void *arg)
         osRecvMesg(&sys_msgque_joy, NULL, OS_MESG_BLOCK);
         osContGetQuery(gamepad_status);
 
+        if (*&force_motor_init)
+        {
+            *&force_motor_init = false;
+            rumblebits = 0;
+        }
+
         for (register int i = 0; i < MAXCONTROLLERS; i++)
         {
             register int bit = (1 << i);
-            register boolean rumble = false;
+            register boolean rumble = !!(rumblebits & bit);
 
             if ((gamepad_status[i].type & CONT_TYPE_MASK) == CONT_TYPE_NORMAL)
             {
                 *&gamepad_bit_pattern |= bit;
 
-                if (!(rumblebits & bit) && osMotorInit(&sys_msgque_joy, &RumblePaks[i], i) == 0)
+                if (!rumble && osMotorInit(&sys_msgque_joy, &RumblePaks[i], i) == 0)
                     rumble = true;
             }
             else

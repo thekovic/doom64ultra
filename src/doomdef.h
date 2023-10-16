@@ -1382,6 +1382,7 @@ int I_ReadPakFile(void); // 800073B8
 int I_CreatePakFile(void); // 800074D4
 void I_FreePakData(void);
 
+void I_CheckRumblePak(void);
 void I_RumbleAmbient(int pad, int count);
 void I_RumbleShot(int pad, int tics);
 void I_RumbleDamage(int pad, int damage);
