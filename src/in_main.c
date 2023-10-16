@@ -151,8 +151,6 @@ extern const menuitem_t Menu_Save[3];
 
 void IN_Stop(int exit) // 80004DB0
 {
-    S_StopMusic();
-
     I_SaveProgress(&LevelSaveBuffer);
 
     if ((nextmap >= 0) && (nextmap < LASTLEVEL))
@@ -161,6 +159,8 @@ void IN_Stop(int exit) // 80004DB0
         MenuIdx = 0;
         M_SaveMenu();
     }
+
+    S_StopMusic();
 
     I_WIPE_FadeOutScreen();
 }
