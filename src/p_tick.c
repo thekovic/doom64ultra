@@ -22,8 +22,10 @@ processing
 ===============================================================================
 */
 
-SDATA thinker_t thinkercap; /* both the head and tail of the thinker list */    //80096378
-SDATA mobjhead_t mobjhead;  /* head and tail of mobj list */                    //800A8C74,
+SDATA thinker_t thinkercap = { /* both the head and tail of the thinker list */    //80096378
+    .prev = &thinkercap, .next = &thinkercap };
+SDATA mobjhead_t mobjhead = {  /* head and tail of mobj list */                    //800A8C74,
+    .prev = (void*) &mobjhead, .next = (void*) &mobjhead };
 DEBUG_COUNTER(SDATA int activethinkers = 0);
 
 /*
