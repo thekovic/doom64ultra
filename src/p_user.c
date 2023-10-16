@@ -1091,16 +1091,16 @@ SEC_GAME void P_PlayerThink (player_t *player) // 80022D60
         if (weapon == wp_nochange)
             weapon = player->readyweapon;
 
+        bool shiftback = (buttons & BB_WEAPONFORWARD) && (buttons & BB_ATTACK) && !(oldbuttons & BB_ATTACK);
         // [nova] use goldeneye/pd style weapon back
-        if (((buttons & BB_WEAPONBACKWARD) && !(oldbuttons & BB_WEAPONBACKWARD))
-            || ((buttons & BB_WEAPONFORWARD) && (buttons & BB_ATTACK) && !(oldbuttons & BB_ATTACK)))
+        if (shiftback || ((buttons & BB_WEAPONBACKWARD) && !(oldbuttons & BB_WEAPONBACKWARD)))
         {
             // [nova] always cycle weapons
             weaponsearch = weapon;
             if (player->cycledir > 0)
             {
                 // override into a back command if the weapon is still lowering
-                if (player->pendingweapon != player->readyweapon)
+                if (shiftback && player->pendingweapon != wp_nochange && player->pendingweapon != player->readyweapon)
                 {
                     do
                     {
