@@ -4398,8 +4398,8 @@ void M_PlayerColorDrawer(void)
     else
         state = S_PLAY_RUN1 + (MenuAnimationTic&3);
 
-    M_DrawOverlay(((SCREEN_WD>>1)-40)<<(hudxshift-2), 44<<(hudyshift-2),
-                  80<<(hudxshift-2), 104<<(hudyshift-2),
+    M_DrawOverlay(((SCREEN_WD>>1)-44)<<(hudxshift-2), 44<<(hudyshift-2),
+                  88<<(hudxshift-2), 104<<(hudyshift-2),
                   (text_alpha*224)>>8);
 
     F_DrawSprite(MT_PLAYER, &states[state], playerpreviewrotate,
