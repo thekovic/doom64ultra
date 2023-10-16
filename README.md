@@ -114,11 +114,11 @@ make -j BENCHMARK_MAP_LOAD=1         # Measure all map loading times on boot
 ## Code Completion
 
 The [Bear](https://github.com/rizsotto/Bear) utility can be used to generate
-clang code completion. As of this writing, clang does not support
-`-march=vr4300`. This can be worked around by removing the argument:
+clang code completion. As of this writing, clang does not support some of the
+MIPS compiler flags we use. This can be worked around by removing them:
 
 ```sh
-make clean && bear -- make -j DEBUG=1 && sed -i 's/.*=vr4300".*//' compile_commands.json
+make clean && bear -- make -j DEBUG=1 && sed -iE 's/.*\(=vr4300"\|-mgp32\|-mabi=\).*//' compile_commands.json
 ```
 
 ## Contact
