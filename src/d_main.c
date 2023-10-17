@@ -50,6 +50,15 @@ void D_DoomMain(void *arg) // 800027C0
 
     Z_Reserve(audio_heap_start, CFB0_ADDR() + CFB_SIZE - (byte*) audio_heap_start);
 
+#ifdef DEBUG_MEM
+    for (memblock_t *block = &mainzone->blocklist ; block; block = block->next)
+    {
+        if (!block->user)
+            D_memset(&block[1], 0xff, block->size - sizeof(memzone_t));
+    }
+    Z_CheckZone(mainzone);
+#endif
+
     gamevbls = 0;
     gametic = 0;
     ticsinframe = 0;

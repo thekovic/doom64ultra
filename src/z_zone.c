@@ -88,10 +88,6 @@ memzone_t *Z_InitZone(byte *base, int size) // 8002C934
     zone->blocklist.prev = NULL;
     //zone->blocklist.lockframe = -1;
 
-#ifdef DEBUG_MEM
-    D_memset(base + sizeof(memzone_t), 0xff, size - sizeof(memzone_t));
-#endif
-
     return zone;
 }
 
@@ -613,7 +609,7 @@ void Z_CheckZone (memzone_t *mainzone) // 8002CFEC
     for (checkblock = &mainzone->blocklist ; checkblock; checkblock = checkblock->next)
     {
         if(checkblock->id != ZONEID)
-            I_Error("Z_CheckZone: block missing ZONEID");
+            I_Error("Z_CheckZone: block 0x%08lx missing ZONEID", (u32) &checkblock[1]);
 
         if (!checkblock->next)
         {
@@ -624,9 +620,9 @@ void Z_CheckZone (memzone_t *mainzone) // 8002CFEC
         }
 
         if ( (byte *)checkblock + checkblock->size != (byte *)checkblock->next)
-            I_Error ("Z_CheckZone: block size does not touch the next block\n");
+            I_Error ("Z_CheckZone: block 0x%08lx size does not touch the next block", (u32) &checkblock[1]);
         if ( checkblock->next->prev != checkblock)
-            I_Error ("Z_CheckZone: next block doesn't have proper back link\n");
+            I_Error ("Z_CheckZone: next block from 0x%08lx doesn't have proper back link", (u32) &checkblock[1]);
     }
 }
 
