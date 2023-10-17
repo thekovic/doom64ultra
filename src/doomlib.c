@@ -1,6 +1,7 @@
 /* doomlib.c  */
 
 #include "doomdef.h"
+#include "i_debug.h"
 
 #define WORDMASK    7
 
@@ -41,33 +42,64 @@ void D_memmove(void *dest, const void *src) // 800019F0
 
 void D_memset(void *dest, int val, int count) // 80001A20
 {
-    byte    *p;
-    int     *lp;
-    int     v;
-
-    /* round up to nearest word */
-    p = dest;
-    while ((int)p & WORDMASK)
+    void *orig = dest;
+    void *end = dest + count;
+    if ((((u32) dest) & 7) == 0)
     {
-        if (--count < 0)
-            return;
-        *p++ = (char)val;
+        void *alignend = (void*)(((u32) dest) + (count & ~31));
+        if (alignend > dest)
+        {
+            u64 val64;
+            val = val & 0xff;
+            asm volatile(
+            ".set noreorder                     \n\t"
+            ".set nomacro                       \n\t"
+            ".set gp=64                         \n\t"
+            "dsll %[val64], %[val], 8           \n\t"
+            "or   %[val64], %[val64], %[val]    \n\t"
+            "dsll %[val], %[val64], 16          \n\t"
+            "or   %[val], %[val64], %[val]      \n\t"
+            "dsll %[val64], %[val], 32          \n\t"
+            "or   %[val64], %[val64], %[val]    \n\t"
+            "1:                                 \n\t"
+            "sd      %[val64], 0(%[dest])       \n\t"
+            "sd      %[val64], 8(%[dest])       \n\t"
+            "sd      %[val64], 16(%[dest])      \n\t"
+            "sd      %[val64], 24(%[dest])      \n\t"
+            "addiu   %[dest], %[dest], 32       \n\t"
+            "bnel    %[dest], %[end], 1b        \n\t"
+            "nop                                \n\t"
+            ".set gp=32                         \n\t"
+            ".set macro                         \n\t"
+            ".set reorder                       \n\t"
+            : [val64] "=&r" (val64), [val] "+&r" (val), [dest] "+&r" (dest)
+            : [end] "r" (alignend)
+               : "memory");
+        }
     }
-
-    /* write 8 bytes at a time */
-    lp = (int *)p;
-    v = (int)(val << 24) | (val << 16) | (val << 8) | val;
-    while (count >= 8)
+    if ((((u32) dest) & 3) == 0)
     {
-        lp[0] = lp[1] = v;
-        lp += 2;
-        count -= 8;
+        void *alignend = (void*)(((u32) end) & ~3);
+        if (alignend > dest)
+        {
+            val = val & 0xff;
+            val = (val<<8)|val;
+            val = (val<<16)|val;
+            do
+            {
+                *(u32*)dest = val;
+                dest += sizeof(u32);
+            }
+            while (dest != alignend);
+        }
     }
-
-    /* finish up */
-    p = (byte *)lp;
-    while (count--)
-        *p++ = (char)val;
+    while (dest != end)
+    {
+        *(u8*)dest = val;
+        dest++;
+    }
+    if ((u32)dest-(u32)orig != count)
+        D_printf("memset %d %ld %08lx -> %08lx\n", count, (u32)dest-(u32)orig, (u32)orig, (u32)dest);
 }
 
 /*
@@ -242,181 +274,88 @@ int D_strlen(const char *s) // 80001CC0
     return len;
 }
 
-// GCC 32/64-bit integer arithmetic support for 32-bit systems that can't link
-// to libgcc.
+asm(
+    ".set gp=64                     \n\t"
+    ".set noreorder                 \n\t"
+    ".set nomacro                   \n\t"
 
-// Function prototypes and descriptions are taken from
-// https://gcc.gnu.org/onlinedocs/gccint/Integer-library-routines.html.
+    ".globl  __udivdi3              \n\t"
+    ".ent    __udivdi3              \n\t"
+"__udivdi3:                         \n\t"
+    ".frame  $sp, 0, $ra            \n\t"
+    "dsll    $a0, $a0, 32           \n\t"
+    "add     $a1, $a0, $a1          \n\t"
+    "dsll    $a2, $a2, 32           \n\t"
+    "add     $a3, $a2, $a3          \n\t"
+    "ddivu   $zero, $a1, $a3        \n\t"
+    "mflo    $v1                    \n\t"
+    "dsrl    $v0, $v1, 32           \n\t"
+    "dsll    $v1, $v1, 32           \n\t"
+    "jr      $ra                    \n\t"
+    "dsrl    $v1, $v1, 32           \n\t"
+    ".end    __udivdi3              \n\t"
 
-// This file may be #include'd by another file, so we try not to pollute the
-// namespace and we don't import any headers.
+    ".set macro                     \n\t"
+    ".set reorder                   \n\t"
+    ".set gp=32                     \n\t"
+);
 
-// All functions must be resolvable by the linker and therefore can't be inline
-// or static, even if they're #included into the file where they'll be used.
+#ifndef NDEBUG
+asm(
+    ".set gp=64                     \n\t"
+    ".set noreorder                 \n\t"
+    ".set nomacro                   \n\t"
 
-// For best performance we try to avoid branching. This makes the code a little
-// weird in places.
+    ".globl  __umoddi3              \n\t"
+    ".ent    __umoddi3              \n\t"
+"__umoddi3:                         \n\t"
+    ".frame  $sp, 0, $ra            \n\t"
+    "dsll    $a0, $a0, 32           \n\t"
+    "add     $a1, $a0, $a1          \n\t"
+    "dsll    $a2, $a2, 32           \n\t"
+    "add     $a3, $a2, $a3          \n\t"
+    "ddivu   $zero, $a1, $a3        \n\t"
+    "mfhi    $v1                    \n\t"
+    "dsrl    $v0, $v1, 32           \n\t"
+    "dsll    $v1, $v1, 32           \n\t"
+    "jr      $ra                    \n\t"
+    "dsrl    $v1, $v1, 32           \n\t"
+    ".end    __umoddi3              \n\t"
 
-// See https://github.com/glitchub/arith64 for more information.
-// This software is released as-is into the public domain, as described at
-// https://unlicense.org. Do whatever you like with it.
+    ".globl  __divdi3               \n\t"
+    ".ent    __divdi3               \n\t"
+"__divdi3:                          \n\t"
+    ".frame  $sp, 0, $ra            \n\t"
+    "dsll    $a0, $a0, 32           \n\t"
+    "add     $a1, $a0, $a1          \n\t"
+    "dsll    $a2, $a2, 32           \n\t"
+    "add     $a3, $a2, $a3          \n\t"
+    "ddiv    $zero, $a1, $a3        \n\t"
+    "mflo    $v1                    \n\t"
+    "dsrl    $v0, $v1, 32           \n\t"
+    "dsll    $v1, $v1, 32           \n\t"
+    "jr      $ra                    \n\t"
+    "dsrl    $v1, $v1, 32           \n\t"
+    ".end    __divdi3               \n\t"
 
-typedef union
-{
-    u64 u64;
-    s64 s64;
-    struct
-    {
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-        u32 hi; u32 lo;
-#else
-        u32 lo; u32 hi;
+    ".globl  __moddi3               \n\t"
+    ".ent    __moddi3               \n\t"
+"__moddi3:                          \n\t"
+    ".frame  $sp, 0, $ra            \n\t"
+    "dsll    $a0, $a0, 32           \n\t"
+    "add     $a1, $a0, $a1          \n\t"
+    "dsll    $a2, $a2, 32           \n\t"
+    "add     $a3, $a2, $a3          \n\t"
+    "ddiv    $zero, $a1, $a3        \n\t"
+    "mfhi    $v1                    \n\t"
+    "dsrl    $v0, $v1, 32           \n\t"
+    "dsll    $v1, $v1, 32           \n\t"
+    "jr      $ra                    \n\t"
+    "dsrl    $v1, $v1, 32           \n\t"
+    ".end    __moddi3               \n\t"
+
+    ".set macro                     \n\t"
+    ".set reorder                   \n\t"
+    ".set gp=32                     \n\t"
+);
 #endif
-    } u32;
-    struct
-    {
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-        s32 hi; s32 lo;
-#else
-        s32 lo; s32 hi;
-#endif
-    } s32;
-} arith64_word;
-
-// extract hi and lo 32-bit words from 64-bit value
-#define arith64_hi(n) (arith64_word){.u64=n}.u32.hi
-#define arith64_lo(n) (arith64_word){.u64=n}.u32.lo
-
-// Negate a if b is negative, via invert and increment.
-#define arith64_neg(a, b) (((a) ^ ((((s64)(b)) >= 0) - 1)) + (((s64)(b)) < 0))
-#define arith64_abs(a) arith64_neg(a, a)
-
-// Return the result of shifting a left by b bits.
-__attribute__((used))
-s64 __ashldi3(s64 a, int b)
-{
-    arith64_word w = {.s64 = a};
-
-    b &= 63;
-
-    if (b >= 32)
-    {
-        w.u32.hi = w.u32.lo << (b - 32);
-        w.u32.lo = 0;
-    } else if (b)
-    {
-        w.u32.hi = (w.u32.lo >> (32 - b)) | (w.u32.hi << b);
-        w.u32.lo <<= b;
-    }
-    return w.s64;
-}
-
-
-int __clzdi2(u64 a)
-{
-    int b, n = 0;
-    b = !(a & 0xffffffff00000000ULL) << 5; n += b; a <<= b;
-    b = !(a & 0xffff000000000000ULL) << 4; n += b; a <<= b;
-    b = !(a & 0xff00000000000000ULL) << 3; n += b; a <<= b;
-    b = !(a & 0xf000000000000000ULL) << 2; n += b; a <<= b;
-    b = !(a & 0xc000000000000000ULL) << 1; n += b; a <<= b;
-    return n + !(a & 0x8000000000000000ULL);
-}
-
-// Calculate both the quotient and remainder of the unsigned division of a and
-// b. The return value is the quotient, and the remainder is placed in variable
-// pointed to by c (if it's not NULL).
-u64 __divmoddi4(u64 a, u64 b, u64 *c)
-{
-    if (b > a)                                  // divisor > numerator?
-    {
-        if (c) *c = a;                          // remainder = numerator
-        return 0;                               // quotient = 0
-    }
-    if (!arith64_hi(b))                         // divisor is 32-bit
-    {
-        if (b == 0)                             // divide by 0
-        {
-            volatile char x = 0; x = 1 / x;     // force an exception
-        }
-        if (b == 1)                             // divide by 1
-        {
-            if (c) *c = 0;                      // remainder = 0
-            return a;                           // quotient = numerator
-        }
-        if (!arith64_hi(a))                     // numerator is also 32-bit
-        {
-            if (c)                              // use generic 32-bit operators
-                *c = arith64_lo(a) % arith64_lo(b);
-            return arith64_lo(a) / arith64_lo(b);
-        }
-    }
-
-    // let's do long division
-    char bits = __clzdi2(b) - __clzdi2(a) + 1;  // number of bits to iterate (a and b are non-zero)
-    u64 rem = a >> bits;                   // init remainder
-    a <<= 64 - bits;                            // shift numerator to the high bit
-    u64 wrap = 0;                          // start with wrap = 0
-    while (bits-- > 0)                          // for each bit
-    {
-        rem = (rem << 1) | (a >> 63);           // shift numerator MSB to remainder LSB
-        a = (a << 1) | (wrap & 1);              // shift out the numerator, shift in wrap
-        wrap = ((s64)(b - rem - 1) >> 63);  // wrap = (b > rem) ? 0 : 0xffffffffffffffff (via sign extension)
-        rem -= b & wrap;                        // if (wrap) rem -= b
-    }
-    if (c) *c = rem;                            // maybe set remainder
-    return (a << 1) | (wrap & 1);               // return the quotient
-}
-
-// Return the quotient of the signed division of a and b.
-__attribute__((used))
-s64 __divdi3(s64 a, s64 b)
-{
-    u64 q = __divmoddi4(arith64_abs(a), arith64_abs(b), (void *)0);
-    return arith64_neg(q, a^b); // negate q if a and b signs are different
-}
-
-// Return the result of logically shifting a right by b bits.
-__attribute__((used))
-u64 __lshrdi3(u64 a, int b)
-{
-    arith64_word w = {.u64 = a};
-
-    b &= 63;
-
-    if (b >= 32)
-    {
-        w.u32.lo = w.u32.hi >> (b - 32);
-        w.u32.hi = 0;
-    } else if (b)
-    {
-        w.u32.lo = (w.u32.hi << (32 - b)) | (w.u32.lo >> b);
-        w.u32.hi >>= b;
-    }
-    return w.u64;
-}
-
-// Return the remainder of the signed division of a and b.
-__attribute__((used))
-s64 __moddi3(s64 a, s64 b)
-{
-    u64 r;
-    __divmoddi4(arith64_abs(a), arith64_abs(b), &r);
-    return arith64_neg(r, a); // negate remainder if numerator is negative
-}
-
-// Return the quotient of the unsigned division of a and b.
-__attribute__((used))
-u64 __udivdi3(u64 a, u64 b)
-{
-    return __divmoddi4(a, b, (void *)0);
-}
-
-// Return the remainder of the unsigned division of a and b.
-__attribute__((used))
-u64 __umoddi3(u64 a, u64 b)
-{
-    u64 r;
-    __divmoddi4(a, b, &r);
-    return r;
-}
