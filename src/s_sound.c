@@ -120,7 +120,7 @@ void S_Init(void) // 80029590
     alHeapCheck(&sys_aheap);
 #endif
 
-    audio_heap_start = (void *) ALIGN(sys_aheap.cur, 64);
+    audio_heap_start = (void *) (((u32)sys_aheap.cur) & ~63);
 
     S_SetSoundVolume(Settings.SfxVolume);
     S_SetMusicVolume(Settings.MusVolume);
