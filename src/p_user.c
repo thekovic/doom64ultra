@@ -76,7 +76,9 @@ const char *mockstrings1[] =   // 8005A290
     MK_TXT49t1, MK_TXT50t1, MK_TXT51t1,
 };
 
-static const fixed_t       movesteps[3] = {0xE000, 0x16000, 0x8000}; // 8005B060
+#define MAXPLAYERSPEED 0x16000
+
+static const fixed_t       movesteps[3] = {MAXPLAYERSPEED*7/11, MAXPLAYERSPEED, MAXPLAYERSPEED/2}; // 8005B060
 
 #define SLOWTURNTICS    10
 const fixed_t           angleturn[] =       // 8005B070
@@ -590,6 +592,16 @@ SEC_GAME void P_BuildMove (player_t *player, buildmove_t *move) // 80022154
         move->angleturn = -angleturn[player->turnheld + (speed * SLOWTURNTICS)] << 17;
     if (stickturn && !(buttons & (BB_LEFT | BB_RIGHT)))
         move->angleturn = ((config->looksensitivity * 8) + 233) * -stickturn * 2;
+
+    /* final clamp of movement vector */
+    fixed_t mag = FixedMul(move->forwardmove, move->forwardmove)
+        + FixedMul(move->sidemove, move->sidemove);
+    if (mag > ((MAXPLAYERSPEED * (MAXPLAYERSPEED >> 8)) >> 8))
+    {
+        mag = D_rsqrtf(mag * (1.0f / (f32) FRACUNIT)) * (f32) MAXPLAYERSPEED;
+        move->forwardmove = FixedMul(mag, move->forwardmove);
+        move->sidemove = FixedMul(mag, move->sidemove);
+    }
 
     mo = player->mo;
 
