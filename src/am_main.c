@@ -578,8 +578,8 @@ void AM_DrawSubsectors(player_t *player, fixed_t cx, fixed_t cy, fixed_t bbox[st
             dx = (cx - bsp->line.x);
             dy = (cy - bsp->line.y);
 
-            left = (bsp->line.dy >> 16) * (dx >> 16);
-            right = (dy >> 16) * (bsp->line.dx >> 16);
+            left = (bsp->line.dy >> FRACBITS) * (dx >> FRACBITS);
+            right = (dy >> FRACBITS) * (bsp->line.dx >> FRACBITS);
 
             if (right < left)
                 side = 0;        /* front side */

@@ -114,8 +114,8 @@ void R_RenderBSPNode(int bspnum) // 80024020
             dx = (viewx - bsp->line.x);
             dy = (viewy - bsp->line.y);
 
-            left = (bsp->line.dy >> 16) * (dx >> 16);
-            right = (dy >> 16) * (bsp->line.dx >> 16);
+            left = (bsp->line.dy >> FRACBITS) * (dx >> FRACBITS);
+            right = (dy >> FRACBITS) * (bsp->line.dx >> FRACBITS);
 
             if (right < left)
                 side = 0;        /* front side */
@@ -169,8 +169,8 @@ void R_RenderBSPNode(int bspnum) // 80024020
         dx = (viewx - bsp->line.x);
         dy = (viewy - bsp->line.y);
 
-        left = (bsp->line.dy >> 16) * (dx >> 16);
-        right = (dy >> 16) * (bsp->line.dx >> 16);
+        left = (bsp->line.dy >> FRACBITS) * (dx >> FRACBITS);
+        right = (dy >> FRACBITS) * (bsp->line.dx >> FRACBITS);
 
         if (right < left)
             side = 0;        /* front side */
@@ -552,8 +552,8 @@ static void R_RenderBSPNodeNoClip(int bspnum) // 80024E64
         dx = (viewx - bsp->line.x);
         dy = (viewy - bsp->line.y);
 
-        left = (bsp->line.dy >> 16) * (dx >> 16);
-        right = (dy >> 16) * (bsp->line.dx >> 16);
+        left = (bsp->line.dy >> FRACBITS) * (dx >> FRACBITS);
+        right = (dy >> FRACBITS) * (bsp->line.dx >> FRACBITS);
 
         if (right < left)
             side = 1;       /* back side */
