@@ -110,22 +110,22 @@ int EV_SpawnTrapMissile(line_t *line, mobj_t *target, mobjtype_t type) // 8000E0
         x = finecosine(angle);
         y = finesine(angle);
 
-        if(type == MT_PROJ_TRACER)
+        if(type == MT_PROJ_TRACER || type == MT_PROJ_RECT)
         {
             th = P_SpawnMissile(mo, target,
                 FixedMul(mo->radius, x),
                 FixedMul(mo->radius, y),
-                (32*FRACUNIT), MT_PROJ_TRACER);
+                (32*FRACUNIT), type);
             th->x = (th->x + th->momx);
             th->y = (th->y + th->momy);
             th->tracer = target;
         }
-        else if(type == MT_PROJ_DART)
+        else
         {
             th = P_SpawnMissile(mo, NULL,
                 FixedMul(mo->radius, x),
                 FixedMul(mo->radius, y),
-                0, MT_PROJ_DART);
+                0, type);
         }
     }
 
@@ -432,7 +432,7 @@ extern mobj_t *P_SpawnMapThing (mapthing_t *mthing);
 extern mapthing_t *spawnlist;   // 800A5D74
 extern int spawncount;          // 800A5D78
 
-int EV_SpawnMobjTemplate(int tag) // 8000EB8C
+int EV_SpawnMobjTemplate(int tag, bool silent) // 8000EB8C
 {
     mobj_t *mobj;
     fade_t *fade;
@@ -477,7 +477,8 @@ int EV_SpawnMobjTemplate(int tag) // 8000EB8C
             mobj->alpha = 0;
         }
 
-        S_StartSound(mobj, sfx_spawn);
+        if (!silent)
+            S_StartSound(mobj, sfx_spawn);
     }
 
     return rtn;

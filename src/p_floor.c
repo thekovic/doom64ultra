@@ -321,6 +321,46 @@ int EV_DoFloor(line_t *line,floor_e floortype,fixed_t speed) // 800139FC
                         }
                     }
                 }
+                break;
+            case turboLower16Above:
+                floor->direction = -1;
+                floor->speed = speed;
+                floor->floordestheight =
+                    P_FindHighestFloorSurrounding(sec);
+                if (floor->floordestheight != sec->floorheight) {
+                    floor->floordestheight += 16 * FRACUNIT;
+                }
+                break;
+
+            case turboLower32Above:
+                floor->direction = -1;
+                floor->speed = speed;
+                floor->floordestheight =
+                    P_FindHighestFloorSurrounding(sec);
+                if (floor->floordestheight != sec->floorheight) {
+                    floor->floordestheight += 32 * FRACUNIT;
+                }
+                break;
+
+            case turboLower64Above:
+                floor->direction = -1;
+                floor->speed = speed;
+                floor->floordestheight =
+                    P_FindHighestFloorSurrounding(sec);
+                if (floor->floordestheight != sec->floorheight) {
+                    floor->floordestheight += 64 * FRACUNIT;
+                }
+                break;
+
+            case lower16AboveSlow:
+                floor->direction = -1;
+                floor->speed = speed;
+                floor->floordestheight =
+                    P_FindHighestFloorSurrounding(sec);
+                if (floor->floordestheight != sec->floorheight) {
+                    floor->floordestheight += 16 * FRACUNIT;
+                }
+                break;
             default:
                 break;
         }

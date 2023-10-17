@@ -56,6 +56,19 @@ void R_RenderSkyPic(int lump, int yoffset, boolean repeat) HOT;
 void R_RenderFireSky(void) HOT;
 void R_CloudThunder(void) HOT;
 
+void R_FreeSky(void)
+{
+    if (R_RenderSKY == R_RenderFireSky)
+    {
+        Z_Free(SkyFireData[0]);
+        Z_Free(SkyFireData[1]);
+    }
+    else if (R_RenderSKY == R_RenderCloudSky)
+    {
+        Z_Free(SkyCloudData);
+    }
+}
+
 void R_SetupSky(void) // 80025060
 {
     byte *data;

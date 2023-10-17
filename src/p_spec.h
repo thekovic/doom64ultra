@@ -477,6 +477,8 @@ typedef enum
     customCeiling,
     crushAndRaiseOnce,
     customCeilingToHeight,
+    crushSlowTrapOnce,
+    lowerToFloorSlow
 } ceiling_e;
 
 typedef struct
@@ -527,7 +529,11 @@ typedef enum
     raiseFloorCrush,
     raiseFloorTurbo,        // [d64]: unused
     customFloor,
-    customFloorToHeight
+    customFloorToHeight,
+    turboLower16Above,
+    turboLower32Above,
+    turboLower64Above,
+    lower16AboveSlow
 } floor_e;
 
 typedef enum
@@ -609,7 +615,7 @@ int P_ModifyLineData(line_t *line, int tag) SEC_GAME; // 8000E780
 int P_ModifyLineTexture(line_t *line, int tag) SEC_GAME; // 8000E82C
 int P_ModifySector(line_t *line, int tag, int type) SEC_GAME; // 8000E928
 void T_FadeThinker(fade_t *fade) SEC_GAME; // 8000EACC
-int EV_SpawnMobjTemplate(int tag) SEC_GAME; // 8000EB8C
+int EV_SpawnMobjTemplate(int tag, bool silent) SEC_GAME; // 8000EB8C
 int EV_FadeOutMobj(int tag) SEC_GAME; // 8000ED08
 void T_Quake(quake_t *quake) SEC_GAME; // 8000EDE8
 void T_Combine(combine_t *combine) SEC_GAME;

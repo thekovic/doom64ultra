@@ -44,6 +44,10 @@ card_t      MapRedKeyType;      //0x8007821C
 card_t      MapYellowKeyType;   //0x800780A0
 
 void P_AddSectorSpecial(sector_t *sec);
+boolean	P_StartSound(int index);
+boolean	P_ChangeMusic(int index);
+boolean	P_ChangeSky(int index);
+boolean	P_SpawnGenericMissile(line_t *line, int type, mobj_t* target);
 
 /*
 =================
@@ -950,6 +954,18 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
         case 25:        /* Ceiling Crush and Raise */
             ok = EV_DoCeiling(line, crushAndRaise, CEILSPEED);
             break;
+        case 26:       /* [EX+] Ceiling Crush and Raise Slow - for an Indiana Jones style trap. */
+            ok = EV_DoCeiling(line, crushSlowTrapOnce, CEILSPEED / 40);
+            break;
+        case 27:       /* [EX+] Ceiling Lower to Floor Slow - No Crush */
+            ok = EV_DoCeiling(line, lowerToFloorSlow, CEILSPEED / 40);
+            break;
+        case 28:       /* [EX+] Lower Floor16Above (TURBO) */
+            ok = EV_DoFloor(line, turboLower16Above, FLOORSPEED * 4);
+            break;
+        case 29:       /* [EX+] Lower Floor32Above (TURBO) */
+            ok = EV_DoFloor(line, turboLower32Above, FLOORSPEED * 4);
+            break;
         case 30:        /* Raise floor to shortest texture height on either side of lines */
             ok = EV_DoFloor(line, raiseToTexture, FLOORSPEED);
             break;
@@ -971,6 +987,12 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
             break;
         case 44:        /* Ceiling Crush */
             ok = EV_DoCeiling(line, lowerAndCrush, CEILSPEED);
+            break;
+        case 45:        /* [EX+] Lower Floor64Above (TURBO) */
+            ok = EV_DoFloor(line, turboLower64Above, FLOORSPEED * 4);
+            break;
+        case 46:        /* [EX+] Lower Floor16Above (SLOW) */
+            ok = EV_DoFloor(line, lower16AboveSlow, FLOORSPEED * 0.5);
             break;
         case 52:        /* EXIT! */
             P_ExitLevel();//G_ExitLevel
@@ -1085,11 +1107,27 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
         case 210:       /* Modify sector ceiling height */
             ok = EV_DoCeiling(line, customCeiling, CEILSPEED);
             break;
+        case 211:       /* [EX+] Silent Spawn Thing */
+            ok = EV_SpawnMobjTemplate(line->tag, true);
+            break;
         case 212:       /* Modify sector floor height */
             ok = EV_DoFloor(line, customFloor, FLOORSPEED);
             break;
+        case 213:       /* [EX+] Play sound */
+            ok = P_StartSound(line->tag);
+            break;
         case 214:       /* Elevator Sector */
             ok = EV_SplitSector(line, true);
+            break;
+        case 215:       /* [EX+] Stop music */
+            S_StopMusic();
+            ok = true;
+            break;
+        case 216:       /* [EX+] Change music */
+            ok = P_ChangeMusic(line->tag);
+            break;
+        case 217:       /* [EX+] Change sky */
+            ok = P_ChangeSky(line->tag);
             break;
         case 218:       /* Modify Line Flags */
             ok = P_ModifyLineFlags(line, macrointeger);
@@ -1110,7 +1148,7 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
             ok = P_ModifySector(line, macrointeger, mods_flats);
             break;
         case 224:       /* Spawn Thing */
-            ok = EV_SpawnMobjTemplate(line->tag);
+            ok = EV_SpawnMobjTemplate(line->tag, false);
             break;
         case 225:       /* Quake Effect */
             P_SpawnQuake(line->tag);
@@ -1208,6 +1246,9 @@ boolean P_UseSpecialLine (line_t *line, mobj_t *thing) // 800204BC
         case 254:       /* D64 Map33 Logo */
             Skyfadeback = true;
             break;
+        case 255:       /* [EX+] Spawn any projectile */
+            ok = P_SpawnGenericMissile(line, macrointeger, thing);
+            break;
 
         default:
             return false;
@@ -1301,3 +1342,41 @@ int EV_DoDonut(line_t *line)//L8002796C()
 }
 
 #endif // 0
+boolean P_StartSound(int index)
+{
+    if (index <= 0) return false;
+    if (index >= NUMSFX) return false;
+    S_StartSound(players[0].mo, index);
+    return true;
+}
+
+boolean P_ChangeMusic(int index)
+{
+    if (index <= 0) return false;
+    index += mus_amb01 - 1;
+    if (index >= NUMMUS) return false;
+    S_StopMusic();
+    S_StartMusic(index);
+    return true;
+}
+
+boolean P_ChangeSky(int index)
+{
+    if (index <= 0) return false;
+    if (index > 11) return false;
+    if (skytexture != index)
+    {
+        R_FreeSky();
+        skytexture = index;
+        R_SetupSky();
+    }
+    return true;
+}
+
+boolean P_SpawnGenericMissile(line_t *line, int type, mobj_t* target) {
+    if (type <= 0) return false;
+    type -= 1;
+    if (type > NUMMOBJTYPES) return false;
+    EV_SpawnTrapMissile(line, target, type);
+    return true;
+}

@@ -329,6 +329,7 @@ extern const fixed_t invaspectscale[3];
 extern const fixed_t aspectratios[3];
 extern const angle_t aspectfovs[3];
 
+void R_FreeSky(void);
 void R_SetupSky(void);
 
 /*--------*/

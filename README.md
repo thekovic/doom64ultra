@@ -12,6 +12,7 @@ mods.
 - Autoaim option
 - Fly mode cheat
 - Widescreen support
+- Additional linedef types from [Doom64EX-Plus]
 - More controller options
   - Turok-style and Perfect Dark-style controls
   - Dual analog support with two controllers
@@ -126,6 +127,7 @@ make clean && bear -- make -j DEBUG=1 && sed -iE 's/.*\(=vr4300"\|-mgp32\|-mabi=
 Join the Doom 64 Discord: https://discord.gg/Ktxz8nz
 
 [d64make]: https://github.com/d64u/d64make/
+[Doom64EX-Plus]: https://github.com/atsb/Doom64EX-Plus
 [Doom 64-RE]: https://github.com/Erick194/DOOM64-RE
 [Merciless]: https://github.com/jnmartin84/Doom-64-Merciless-Edition/tree/modern
 [eXpanded]: https://github.com/Immorpher/DOOM64XE
