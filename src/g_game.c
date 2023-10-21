@@ -400,8 +400,7 @@ void G_RunGame (void) // 80004794
             }
         }
 
-        //printf("RUN P_Start\n");
-        //PRINTF_D2(WHITE, 0, 28, "RUN P_Start\n");
+        //D_printf("RUN P_Start\n");
         /* run a level until death or completion */
         MiniLoop (P_Start, P_Stop, P_Ticker, P_Drawer);
 

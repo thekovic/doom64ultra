@@ -82,7 +82,7 @@ SEC_STARTUP void P_LoadVertexes (void) // 8001CF20
         li->y = LONGSWAP(ml->y);
         //li->validcount = 0;
 
-        //PRINTF_D2(WHITE, 0, 25, "vertexes(%i,%i,%i)     \n", li->x>>16, li->y>>16,li->validcount);
+        //D_printf("vertexes(%i,%i,%i)     \n", li->x>>16, li->y>>16,li->validcount);
         //WAIT();
     }
     W_FreeMapLump(ptr);
@@ -142,7 +142,7 @@ SEC_STARTUP void P_LoadSegs (void) // 8001D020
 
         li->length = (short)((int)((double)D_sqrtf((x * x) + (y * y)) * 16.0));
 
-        //PRINTF_D2(WHITE, 0, 25, "segs(length %i)     ", li->length);
+        //D_printf("segs(length %i)     \n", li->length);
         //WAIT();
     }
     W_FreeMapLump(ptr);
@@ -806,8 +806,7 @@ void P_SetupLevel(int map) // 8001E974
     Z_CheckZone(mainzone);//Z_CheckHeap
     M_ClearRandom();
 
-    //printf("P_SetupLevel(%i,%i)\n", map, skill);
-    //PRINTF_D2(WHITE, 0, 24, "P_SetupLevel(%i,%i)\n", map, skill);
+    //D_printf("P_SetupLevel(%i,%i)\n", map, skill);
 
     totalkills = totalitems = totalsecret = 0;
 
@@ -861,5 +860,5 @@ void P_FinishSetupLevel(void)
     if (gameaction != ga_loadquicksave)
         P_SpawnPlayer();
 
-    //PRINTF_D2(WHITE, 0, 27, "P_SetupLevel DONE\n");
+    //D_printf("P_SetupLevel DONE\n");
 }

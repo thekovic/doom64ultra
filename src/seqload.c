@@ -98,7 +98,7 @@ int load_sequence_data(int seqnum, void *memptr) // 8003980C
         psq_info = (ref_pm_stat->pmod_info->pseq_info + seqnum); /* pointer math */
 
         numtracks = psq_info->seq_hdr.tracks;
-        //PRINTF_D(WHITE,"numtracks %d\n", numtracks);
+        //D_printf("numtracks %d\n", numtracks);
 
         if (wess_driver_max_trks_per_seq < numtracks)
             return 0;
@@ -122,8 +122,8 @@ int load_sequence_data(int seqnum, void *memptr) // 8003980C
         decomp_type = psq_info->seq_hdr.decomp_type;
         readbytes = psq_info->seq_hdr.trkinfolength;
 
-        //PRINTF_D(WHITE,"seekpos %d",seekpos);
-        //PRINTF_D(WHITE,"readbytes %d",readbytes);
+        //D_printf("seekpos %d\n",seekpos);
+        //D_printf("readbytes %d\n",readbytes);
 
         if (decomp_type == 0)
         {
@@ -170,8 +170,8 @@ int load_sequence_data(int seqnum, void *memptr) // 8003980C
                     ptrk_info->trk_hdr = (track_header *)dmem;
                     dmem += sizeof(track_header);
 
-                    //PRINTF_D2(WHITE,0,20,"labellist_count %d", ptrk_info->trk_hdr->labellist_count);
-                    //PRINTF_D2(WHITE,0,21,"data_size %d", ptrk_info->trk_hdr->data_size);
+                    //D_printf("labellist_count %d\n", ptrk_info->trk_hdr->labellist_count);
+                    //D_printf("data_size %d\n", ptrk_info->trk_hdr->data_size);
                     //WAIT();
 
                     ptrk_info->plabellist = (unsigned long *)dmem;
@@ -340,12 +340,12 @@ int wess_seq_loader_init(void *input_pm_stat, char *seqfile, enum OpenSeqHandleF
             return (0);
         }
 
-        //PRINTF_D(WHITE,"WSD::module_id_text %x",sfile_hdr.module_id_text);
-        //PRINTF_D(WHITE,"WSD::module_version %d",sfile_hdr.module_version);
-        //PRINTF_D(WHITE,"WSD::decomp_type %d",sfile_hdr.decomp_type);
-        //PRINTF_D(WHITE,"WSD::sequences %d",sfile_hdr.sequences);
-        //PRINTF_D(WHITE,"WSD::compress_size %d",sfile_hdr.compress_size);
-        //PRINTF_D(WHITE,"WSD::data_size %d",sfile_hdr.data_size);
+        //D_printf("WSD::module_id_text %x\n",sfile_hdr.module_id_text);
+        //D_printf("WSD::module_version %d\n",sfile_hdr.module_version);
+        //D_printf("WSD::decomp_type %d\n",sfile_hdr.decomp_type);
+        //D_printf("WSD::sequences %d\n",sfile_hdr.sequences);
+        //D_printf("WSD::compress_size %d\n",sfile_hdr.compress_size);
+        //D_printf("WSD::data_size %d\n",sfile_hdr.data_size);
 
         ref_max_seq_num = sfile_hdr.sequences;
         ref_pm_stat->pmod_info->pseq_info = (sequence_data *)memory_pointer;
@@ -355,7 +355,7 @@ int wess_seq_loader_init(void *input_pm_stat, char *seqfile, enum OpenSeqHandleF
 
         if (!decomp_type)
         {
-            //PRINTF_D(WHITE,"WSD::readbytes %d",readbytes);
+            //D_printf("WSD::readbytes %d\n",readbytes);
 
             seqread = module_read(ref_pm_stat->pmod_info->pseq_info, readbytes, fp_seq_file);
 
@@ -376,7 +376,7 @@ int wess_seq_loader_init(void *input_pm_stat, char *seqfile, enum OpenSeqHandleF
 
         if (flag != YesOpenSeqHandle)
         {
-            //PRINTF_D(WHITE,"WSD::close_sequence_data");
+            //D_printf("WSD::close_sequence_data\n");
             close_sequence_data();
         }
 
@@ -385,8 +385,8 @@ int wess_seq_loader_init(void *input_pm_stat, char *seqfile, enum OpenSeqHandleF
         size = readbytes;
     }
 
-    //PRINTF_D(WHITE,"WSD::seq_loader_offset %d",seq_loader_offset);
-    //PRINTF_D(WHITE,"WSD::size %d",size);
+    //D_printf("WSD::seq_loader_offset %d\n",seq_loader_offset);
+    //D_printf("WSD::size %d\n",size);
 
     return size;
 }
@@ -441,7 +441,7 @@ int wess_seq_load(int seqnum, void *memptr) // 80039F84
 
         if (!(ref_pm_stat->pmod_info->pseq_info + seqnum)->ptrk_info)
         {
-            //PRINTF_D(WHITE,"wess_seq_load %d", seqnum);
+            //D_printf("wess_seq_load %d\n", seqnum);
             return load_sequence_data(seqnum, memptr);
         }
     }

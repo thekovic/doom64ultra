@@ -48,14 +48,14 @@ void S_Init(void) // 80029590
     WessConfig wess_config;
     ALHeap sys_aheap;
 
-    //PRINTF_D(WHITE, "S_Init: Start");
+    //D_printf("S_Init: Start\n");
 
     alHeapInit(&sys_aheap, audio_heap, AUDIO_HEAP_MAX_SIZE());
 
-    //PRINTF_D(WHITE, "base %x", (int)&sys_aheap.base);
-    //PRINTF_D(WHITE, "cur %x", (int)&sys_aheap.cur);
-    //PRINTF_D(WHITE, "len %d", sys_aheap.len);
-    //PRINTF_D(WHITE, "count %d", sys_aheap.count);
+    //D_printf("base %x\n", (int)&sys_aheap.base);
+    //D_printf("cur %x\n", (int)&sys_aheap.cur);
+    //D_printf("len %d\n", sys_aheap.len);
+    //D_printf("count %d\n", sys_aheap.count);
 
     /* tweak audio */
     wess_get_tweaks(&tweak);
@@ -77,31 +77,31 @@ void S_Init(void) // 80029590
 
     wess_init(&wess_config);
 
-    //PRINTF_D(WHITE, "heap_ptr %x", (int)&wess_config.heap_ptr);
-    //PRINTF_D(WHITE, "outputsamplerate %d", wess_config.outputsamplerate);
-    //PRINTF_D(WHITE, "maxACMDSize %d", wess_config.maxACMDSize);
-    //PRINTF_D(WHITE, "wdd_location %x", (int)&wess_config.wdd_location);
-    //PRINTF_D(WHITE, "reverb_id %d", wess_config.reverb_id);
-    //PRINTF_D(WHITE, "revtbl_ptr %d", wess_config.revtbl_ptr);
-    //PRINTF_D(WHITE, "audioframerate %f", (f32)wess_config.audioframerate);
+    //D_printf("heap_ptr %x\n", (int)&wess_config.heap_ptr);
+    //D_printf("outputsamplerate %d\n", wess_config.outputsamplerate);
+    //D_printf("maxACMDSize %d\n", wess_config.maxACMDSize);
+    //D_printf("wdd_location %x\n", (int)&wess_config.wdd_location);
+    //D_printf("reverb_id %d\n", wess_config.reverb_id);
+    //D_printf("revtbl_ptr %d\n", wess_config.revtbl_ptr);
+    //D_printf("audioframerate %f\n", (f32)wess_config.audioframerate);
 
     // now we load the .wmd image into a temporary ram space
     modulesize = wess_size_module(_doom64_wmdSegmentRomStart);
     modulesize = ALIGN(modulesize, 16);
     moduleptr = alHeapAlloc(&sys_aheap, 1, modulesize);
-    //PRINTF_D(WHITE, "modulesize %d", modulesize);
-    //PRINTF_D(WHITE, "moduleptr %x", (int)&moduleptr);
+    //D_printf("modulesize %d\n", modulesize);
+    //D_printf("moduleptr %x\n", (int)&moduleptr);
 
     //loaded =
     wess_load_module(_doom64_wmdSegmentRomStart, moduleptr, modulesize);
-    //PRINTF_D(WHITE, "loaded %d", loaded);
+    //D_printf("loaded %d\n", loaded);
 
 
     seqtblsize = wess_seq_loader_sizeof(wess_get_master_status(), _doom64_wsdSegmentRomStart);
     seqtblsize = ALIGN(seqtblsize, 16);
     seqtblptr = alHeapAlloc(&sys_aheap, 1, seqtblsize);
-    //PRINTF_D(WHITE, "seqtblsize %d", seqtblsize);
-    //PRINTF_D(WHITE, "seqtblptr %x", (int)&seqtblptr);
+    //D_printf("seqtblsize %d\n", seqtblsize);
+    //D_printf("seqtblptr %x\n", (int)&seqtblptr);
 
     //this call may result in decompression callbacks
     wess_seq_loader_init(wess_get_master_status(), _doom64_wsdSegmentRomStart, NoOpenSeqHandle, seqtblptr, seqtblsize);
@@ -110,8 +110,8 @@ void S_Init(void) // 80029590
     seqtblsize = ALIGN(seqsize, 16);
     seqptr = alHeapAlloc(&sys_aheap, 1, seqsize);
 
-    //PRINTF_D(WHITE, "seqsize %d", seqsize);
-    //PRINTF_D(WHITE, "seqptr %x", (int)&seqptr);
+    //D_printf("seqsize %d\n", seqsize);
+    //D_printf("seqptr %x\n", (int)&seqptr);
 
     //this call may result in decompression callbacks
     wess_seq_range_load(0, wess_seq_loader_count(), seqptr);
@@ -125,7 +125,7 @@ void S_Init(void) // 80029590
     S_SetSoundVolume(Settings.SfxVolume);
     S_SetMusicVolume(Settings.MusVolume);
 
-    //PRINTF_D(WHITE, "S_Init: End");
+    //D_printf("S_Init: End\n");
 
     //while(1){}
 }

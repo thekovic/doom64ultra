@@ -318,7 +318,7 @@ void TriggerN64Voice(voice_status *voice_stat) // 80037A64
     config.fxBus = (u16)0;
     config.unityPitch = (u8)0;
 
-    //PRINTF_D2(WHITE,0,10,"voice_stat->refindx %d   ", voice_stat->refindx);
+    //D_printf("voice_stat->refindx %d   \n", voice_stat->refindx);
 
     n_alSynAllocVoice(&voice[voice_stat->refindx], &config);
 
@@ -341,7 +341,7 @@ void N64_DriverInit (track_status *ptk_stat) // 80037DA8
 
     pm_stat = (master_status_structure*)ptk_stat;
 
-    //PRINTF_D2(WHITE,0,7,"N64_DriverInit");
+    //D_printf("N64_DriverInit\n");
     pmsbase = pm_stat;
 
     pcurabstime = pm_stat->pabstime;
@@ -351,13 +351,13 @@ void N64_DriverInit (track_status *ptk_stat) // 80037DA8
     ppgd = pm_stat->ppat_info;
     nvss = wess_driver_voices;
 
-    //PRINTF_D(WHITE,"pmsbase %x",pmsbase);
-    //PRINTF_D(WHITE,"pcurabstime %d",*pcurabstime);
-    //PRINTF_D(WHITE,"pssbase %x",pssbase);
-    //PRINTF_D(WHITE,"ptsbase %x",ptsbase);
-    //PRINTF_D(WHITE,"pvsbase %x",pvsbase);
-    //PRINTF_D(WHITE,"ppgd %x",ppgd);
-    //PRINTF_D(WHITE,"nvss %d",nvss);
+    //D_printf("pmsbase %x\n",pmsbase);
+    //D_printf("pcurabstime %d\n",*pcurabstime);
+    //D_printf("pssbase %x\n",pssbase);
+    //D_printf("ptsbase %x\n",ptsbase);
+    //D_printf("pvsbase %x\n",pvsbase);
+    //D_printf("ppgd %x\n",ppgd);
+    //D_printf("nvss %d\n",nvss);
 
     pmem = ppgd->ppat_data; /* pointer math temp */
 
@@ -369,7 +369,7 @@ void N64_DriverInit (track_status *ptk_stat) // 80037DA8
     //may wind up with odd address
     pmem = (char *) ALIGN(pmem, 8);
 #endif
-    //PRINTF_D(WHITE,"patchesbase %d",(ppgd->pat_grp_hdr.patches));//588
+    //D_printf("patchesbase %d\n",(ppgd->pat_grp_hdr.patches));//588
 
     patchmapsbase = (patchmaps_header *)pmem;
     pmem += (unsigned int)(ppgd->pat_grp_hdr.patchmaps * sizeof(patchmaps_header));
@@ -379,7 +379,7 @@ void N64_DriverInit (track_status *ptk_stat) // 80037DA8
     //may wind up with odd address
     pmem = (char *) ALIGN(pmem, 8);
 #endif
-    //PRINTF_D(WHITE,"patchmapsbase %d",(ppgd->pat_grp_hdr.patchmaps));//10100
+    //D_printf("patchmapsbase %d\n",(ppgd->pat_grp_hdr.patchmaps));//10100
 
     samplesbase = (patchinfo_header *)pmem;
     pmem += (unsigned int)(ppgd->pat_grp_hdr.patchinfo * sizeof(patchinfo_header));
@@ -389,7 +389,7 @@ void N64_DriverInit (track_status *ptk_stat) // 80037DA8
     //may wind up with odd address
     pmem = (char *) ALIGN(pmem, 8);
 #endif
-    //PRINTF_D(WHITE,"samplesbase %d",(ppgd->pat_grp_hdr.patchinfo));//2976
+    //D_printf("samplesbase %d\n",(ppgd->pat_grp_hdr.patchinfo));//2976
 
     drummapsbase = (char *)pmem;
     pmem += (unsigned int)(ppgd->pat_grp_hdr.drummaps * sizeof(char *));
@@ -399,7 +399,7 @@ void N64_DriverInit (track_status *ptk_stat) // 80037DA8
     //may wind up with odd address
     pmem = (char *) ALIGN(pmem, 8);
 #endif
-    //PRINTF_D(WHITE,"drummapsbase %d",(ppgd->pat_grp_hdr.drummaps * sizeof(char *)));
+    //D_printf("drummapsbase %d\n",(ppgd->pat_grp_hdr.drummaps * sizeof(char *)));
 
     samplesinfochunk = (loopinfo_header *)pmem;
     pmem += sizeof(loopinfo_header);
@@ -412,15 +412,15 @@ void N64_DriverInit (track_status *ptk_stat) // 80037DA8
 
     samplescmphdrbase = (ALADPCMBook2 *)pmem;//264
 
-    //PRINTF_D(WHITE,"ppgd->pat_grp_hdr.patchinfo %d",ppgd->pat_grp_hdr.patchinfo);
+    //D_printf("ppgd->pat_grp_hdr.patchinfo %d\n",ppgd->pat_grp_hdr.patchinfo);
 
-    //PRINTF_D(WHITE,"ALADPCMBook %d",sizeof(ALADPCMBook));
-    //PRINTF_D(WHITE,"ALADPCMBook2 %d",sizeof(ALADPCMBook2));
-    //PRINTF_D(WHITE,"ALADPCMloop %d",sizeof(ALADPCMloop));
-    //PRINTF_D(WHITE,"ALADPCMloop2 %d",sizeof(ALADPCMloop2));
+    //D_printf("ALADPCMBook %d\n",sizeof(ALADPCMBook));
+    //D_printf("ALADPCMBook2 %d\n",sizeof(ALADPCMBook2));
+    //D_printf("ALADPCMloop %d\n",sizeof(ALADPCMloop));
+    //D_printf("ALADPCMloop2 %d\n",sizeof(ALADPCMloop2));
 
-    //PRINTF_D(WHITE,"ALRawLoop %d",sizeof(ALRawLoop));
-    //PRINTF_D(WHITE,"ALRawLoop2 %d",sizeof(ALRawLoop2));
+    //D_printf("ALRawLoop %d\n",sizeof(ALRawLoop));
+    //D_printf("ALRawLoop2 %d\n",sizeof(ALRawLoop2));
 
     for (vt = 0; vt < ppgd->pat_grp_hdr.patchinfo; vt++)
     {
@@ -460,7 +460,7 @@ void N64_DriverInit (track_status *ptk_stat) // 80037DA8
 
 void N64_DriverExit (track_status *ptk_stat) // 8003806C
 {
-    //PRINTF_D2(WHITE,0,7,"N64_DriverExit");
+    //D_printf("N64_DriverExit\n");
 }
 
 void N64_DriverEntry1 (track_status *ptk_stat) // 80038074
@@ -471,10 +471,10 @@ void N64_DriverEntry1 (track_status *ptk_stat) // 80038074
 
     //printf("N64_DriverEntry1\n");
 
-    //PRINTF_D2(WHITE,0,7,"N64_DriverEntry1");
+    //D_printf("N64_DriverEntry1\n");
 
     vn = pmsbase->voices_active;
-    //PRINTF_D2(WHITE,0,8,"vn %d",vn);
+    //D_printf("vn %d\n",vn);
 
     if (vn != 0)
     {
@@ -504,19 +504,19 @@ void N64_DriverEntry1 (track_status *ptk_stat) // 80038074
 
 void N64_DriverEntry2(track_status *ptk_stat) // 800381AC
 {
-    //PRINTF_D2(WHITE,0,7,"N64_DriverEntry2");
+    //D_printf("N64_DriverEntry2\n");
 }
 
 void N64_DriverEntry3(track_status *ptk_stat) // 800381B4
 {
-    //PRINTF_D2(WHITE,0,7,"N64_DriverEntry3");
+    //D_printf("N64_DriverEntry3\n");
 }
 
 void N64_TrkOff(track_status *ptk_stat) // 800381BC
 {
     static sequence_status  *pss;   //800B69AC
 
-    //PRINTF_D2(WHITE,0,7,"N64_TrkOff");
+    //D_printf("N64_TrkOff\n");
 
     pss = pssbase + ptk_stat->seq_owner;
     N64_TrkMute(ptk_stat);
@@ -541,7 +541,7 @@ void N64_TrkMute(track_status *ptk_stat) // 80038254
     static voice_status     *pvs;   //800B69B8
     static sequence_status  *pss;   //800B69BC
 
-    //PRINTF_D2(WHITE,0,7,"N64_TrkMute");
+    //D_printf("N64_TrkMute\n");
     vn = ptk_stat->voices_active;
 
     if (vn != 0)
@@ -579,14 +579,14 @@ void N64_PatchChg(track_status *ptk_stat) // 800383F8
 {
     static unsigned short   thepatch;   //800B69C0
 
-    //PRINTF_D2(WHITE,0,7,"N64_PatchChg");
+    //D_printf("N64_PatchChg\n");
     thepatch = (*(ptk_stat->ppos + 1) | (*(ptk_stat->ppos + 2) << 8));
     ptk_stat->patchnum = thepatch;
 }
 
 void N64_PatchMod(track_status *ptk_stat) // 8003841C
 {
-    //PRINTF_D2(WHITE,0,7,"N64_PatchMod");
+    //D_printf("N64_PatchMod\n");
 }
 
 void N64_PitchMod(track_status *ptk_stat) // 80038424
@@ -598,7 +598,7 @@ void N64_PitchMod(track_status *ptk_stat) // 80038424
     static f32              pitch;          //800B69D4
     static unsigned long    adjpitch;       //800B69D8
 
-    //PRINTF_D2(WHITE,0,7,"N64_PitchMod");
+    //D_printf("N64_PitchMod\n");
 
     thepitchmod = (*(ptk_stat->ppos + 1) | (*(ptk_stat->ppos + 2) << 8));
     if (ptk_stat->pitch_cntrl != thepitchmod)
@@ -646,12 +646,12 @@ void N64_PitchMod(track_status *ptk_stat) // 80038424
 
 void N64_ZeroMod(track_status *ptk_stat) // 800386C8
 {
-    //PRINTF_D2(WHITE,0,7,"N64_ZeroMod");
+    //D_printf("N64_ZeroMod\n");
 }
 
 void N64_ModuMod(track_status *ptk_stat) // 800386D0
 {
-    //PRINTF_D2(WHITE,0,7,"N64_ModuMod");
+    //D_printf("N64_ModuMod\n");
 }
 
 void N64_VolumeMod(track_status *ptk_stat) // 800386D8
@@ -665,7 +665,7 @@ void N64_VolumeMod(track_status *ptk_stat) // 800386D8
     u32 volume;
     ALMicroTime deltaTime;
 
-    //PRINTF_D2(WHITE,0,7,"N64_VolumeMod");
+    //D_printf("N64_VolumeMod\n");
 
     thevolmod = *(ptk_stat->ppos + 1);
     if (thevolmod != ptk_stat->volume_cntrl)
@@ -713,7 +713,7 @@ void N64_PanMod(track_status *ptk_stat) // 800388FC
     static short            adjpan;     //800B69FC
     static unsigned char    thepanmod;  //800B69FE
 
-    //PRINTF_D2(WHITE,0,7,"N64_PanMod");
+    //D_printf("N64_PanMod\n");
 
     thepanmod = *(ptk_stat->ppos + 1);
     if (thepanmod != ptk_stat->pan_cntrl)
@@ -756,7 +756,7 @@ void N64_PedalMod(track_status *ptk_stat) // 80038AA0
     static unsigned char    vi;     //800B6A00
     static voice_status     *pvs;   //800B6A04
 
-    //PRINTF_D2(WHITE,0,7,"N64_PedalMod");
+    //D_printf("N64_PedalMod\n");
 
     if (*(ptk_stat->ppos + 1) == 0)
     {
@@ -799,7 +799,7 @@ void N64_ReverbMod(track_status *ptk_stat) // 80038BD8
     static voice_status     *pvs;           //800B6A10
     static unsigned char    thereverbmod;   //800B6A14
 
-    //PRINTF_D2(WHITE,0,7,"N64_ReverbMod");
+    //D_printf("N64_ReverbMod\n");
 
     thereverbmod = *(ptk_stat->ppos + 1);
     if (thereverbmod != ptk_stat->reverb)
@@ -830,14 +830,14 @@ void N64_ReverbMod(track_status *ptk_stat) // 80038BD8
 //N64_ChorusMod
 void N64_ChorusMod(track_status *ptk_stat) // 80038D2C
 {
-    //PRINTF_D2(WHITE,0,7,"N64_ChorusMod");
+    //D_printf("N64_ChorusMod\n");
 }
 
 void N64_voiceon(voice_status *voice_stat, track_status *ptk_stat,
                patchmaps_header *patchmaps, patchinfo_header *patchinfo,
                unsigned char keynum, unsigned char velnum) // 80038D34
 {
-    //PRINTF_D2(WHITE,0,17,"N64_voiceon");
+    //D_printf("N64_voiceon\n");
     voice_stat->flags = (voice_stat->flags | VOICE_ACTIVE | VOICE_DECAY) & ~VOICE_RELEASE;
     voice_stat->track = ptk_stat->refindx;
     voice_stat->priority = patchmaps->priority;
@@ -857,7 +857,7 @@ void N64_voiceon(voice_status *voice_stat, track_status *ptk_stat,
 void N64_voiceparmoff(voice_status *voice_stat) // 80038DE4
 {
     static track_status *ptrack;    //800B6A18
-    //PRINTF_D2(WHITE,0,7,"N64_voiceparmoff");
+    //D_printf("N64_voiceparmoff\n");
 
     n_alSynStopVoice(&voice[voice_stat->refindx]);
     n_alSynFreeVoice(&voice[voice_stat->refindx]);
@@ -880,7 +880,7 @@ void N64_voicemuterelease(voice_status *voice_stat, int muterelease) // 80038EF8
 {
     ALMicroTime deltaTime;
 
-    //PRINTF_D2(WHITE,0,7,"N64_voicemuterelease");
+    //D_printf("N64_voicemuterelease\n");
 
     deltaTime = muterelease * 1000;
     n_alSynSetPriority(&voice[voice_stat->refindx], 0); /* make candidate for stealing */
@@ -894,7 +894,7 @@ void N64_voicerelease(voice_status *voice_stat) // 80038FBC
 {
     ALMicroTime deltaTime;
 
-    //PRINTF_D2(WHITE,0,7,"N64_voicerelease");
+    //D_printf("N64_voicerelease\n");
 
     deltaTime = voice_stat->patchmaps->release_time * 1000;
     n_alSynSetPriority(&voice[voice_stat->refindx], 0); /* make candidate for stealing */
@@ -912,7 +912,7 @@ void N64_voicedecay(voice_status *voice_stat) // 80039084
     u32 volume;
     ALMicroTime deltaTime;
 
-    //PRINTF_D2(WHITE,0,7,"N64_voicedecay");
+    //D_printf("N64_voicedecay\n");
 
     pts = (ptsbase + voice_stat->track);
 
@@ -953,7 +953,7 @@ void N64_voicenote(track_status *ptk_stat,
     unsigned int priority_tmp;
     voice_status *voice_tmp;
 
-    //PRINTF_D2(WHITE,0,15,"N64_voicenote");
+    //D_printf("N64_voicenote\n");
 
     found_one = 0;
 
@@ -1043,7 +1043,7 @@ void N64_NoteOn(track_status *ptk_stat) // 80039434
     static patchmaps_header *mapdat;    //800B6A48
     static patchinfo_header *sampdat;   //800B6A4C
 
-    //PRINTF_D2(WHITE,0,16,"N64_NoteOn");
+    //D_printf("N64_NoteOn\n");
 
     note = *(ptk_stat->ppos + 1);
     vel = *(ptk_stat->ppos + 2);
@@ -1051,9 +1051,9 @@ void N64_NoteOn(track_status *ptk_stat) // 80039434
     samp_pat = patchesbase + ptk_stat->patchnum;
     mapcount = samp_pat->patchmap_cnt;
 
-    //PRINTF_D2(WHITE,15,14,"note %d",note);
-    //PRINTF_D2(WHITE,15,15,"vel %d",vel);
-    //PRINTF_D2(WHITE,15,16,"mapcount %d",mapcount);
+    //D_printf("note %d\n",note);
+    //D_printf("vel %d\n",vel);
+    //D_printf("mapcount %d\n",mapcount);
 
     i = 0;
     while (mapcount--)
@@ -1074,7 +1074,7 @@ void N64_NoteOff(track_status *ptk_stat) // 800395B4
     static unsigned long    vi;     //800B6A50
     static voice_status     *pvs;   //800B6A54
 
-    //PRINTF_D2(WHITE,0,7,"N64_NoteOff");
+    //D_printf("N64_NoteOff\n");
     pvs = pvsbase;
     vi = nvss;
 

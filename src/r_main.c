@@ -117,22 +117,22 @@ void R_Init(void) // 800233E0
     R_InitData();
     guFrustum(&R_ProjectionMatrix, -8.0f, 8.0f, -6.0f, 6.0f, 8.0f, 3808.0f, 1.0f);
 
-    /*PRINTF_D2(WHITE, 0, 10, "R_ProjectionMatrix[0][0] %x", R_ProjectionMatrix.m[0][0]);
-    PRINTF_D2(WHITE, 0, 11, "R_ProjectionMatrix[0][1] %x", R_ProjectionMatrix.m[0][1]);
-    PRINTF_D2(WHITE, 0, 12, "R_ProjectionMatrix[0][2] %x", R_ProjectionMatrix.m[0][2]);
-    PRINTF_D2(WHITE, 0, 13, "R_ProjectionMatrix[0][3] %x", R_ProjectionMatrix.m[0][3]);
-    PRINTF_D2(WHITE, 0, 14, "R_ProjectionMatrix[1][0] %x", R_ProjectionMatrix.m[1][0]);
-    PRINTF_D2(WHITE, 0, 15, "R_ProjectionMatrix[1][1] %x", R_ProjectionMatrix.m[1][1]);
-    PRINTF_D2(WHITE, 0, 16, "R_ProjectionMatrix[1][2] %x", R_ProjectionMatrix.m[1][2]);
-    PRINTF_D2(WHITE, 0, 17, "R_ProjectionMatrix[1][3] %x", R_ProjectionMatrix.m[1][3]);
-    PRINTF_D2(WHITE, 0, 18, "R_ProjectionMatrix[2][0] %x", R_ProjectionMatrix.m[2][0]);
-    PRINTF_D2(WHITE, 0, 19, "R_ProjectionMatrix[2][1] %x", R_ProjectionMatrix.m[2][1]);
-    PRINTF_D2(WHITE, 0, 20, "R_ProjectionMatrix[2][2] %x", R_ProjectionMatrix.m[2][2]);
-    PRINTF_D2(WHITE, 0, 21, "R_ProjectionMatrix[2][3] %x", R_ProjectionMatrix.m[2][3]);
-    PRINTF_D2(WHITE, 0, 22, "R_ProjectionMatrix[3][0] %x", R_ProjectionMatrix.m[3][0]);
-    PRINTF_D2(WHITE, 0, 23, "R_ProjectionMatrix[3][1] %x", R_ProjectionMatrix.m[3][1]);
-    PRINTF_D2(WHITE, 0, 24, "R_ProjectionMatrix[3][2] %x", R_ProjectionMatrix.m[3][2]);
-    PRINTF_D2(WHITE, 0, 25, "R_ProjectionMatrix[3][3] %x", R_ProjectionMatrix.m[3][3]);
+    /*D_printf("R_ProjectionMatrix[0][0] %x\n", R_ProjectionMatrix.m[0][0]);
+    D_printf("R_ProjectionMatrix[0][1] %x\n", R_ProjectionMatrix.m[0][1]);
+    D_printf("R_ProjectionMatrix[0][2] %x\n", R_ProjectionMatrix.m[0][2]);
+    D_printf("R_ProjectionMatrix[0][3] %x\n", R_ProjectionMatrix.m[0][3]);
+    D_printf("R_ProjectionMatrix[1][0] %x\n", R_ProjectionMatrix.m[1][0]);
+    D_printf("R_ProjectionMatrix[1][1] %x\n", R_ProjectionMatrix.m[1][1]);
+    D_printf("R_ProjectionMatrix[1][2] %x\n", R_ProjectionMatrix.m[1][2]);
+    D_printf("R_ProjectionMatrix[1][3] %x\n", R_ProjectionMatrix.m[1][3]);
+    D_printf("R_ProjectionMatrix[2][0] %x\n", R_ProjectionMatrix.m[2][0]);
+    D_printf("R_ProjectionMatrix[2][1] %x\n", R_ProjectionMatrix.m[2][1]);
+    D_printf("R_ProjectionMatrix[2][2] %x\n", R_ProjectionMatrix.m[2][2]);
+    D_printf("R_ProjectionMatrix[2][3] %x\n", R_ProjectionMatrix.m[2][3]);
+    D_printf("R_ProjectionMatrix[3][0] %x\n", R_ProjectionMatrix.m[3][0]);
+    D_printf("R_ProjectionMatrix[3][1] %x\n", R_ProjectionMatrix.m[3][1]);
+    D_printf("R_ProjectionMatrix[3][2] %x\n", R_ProjectionMatrix.m[3][2]);
+    D_printf("R_ProjectionMatrix[3][3] %x\n", R_ProjectionMatrix.m[3][3]);
     while(1){}*/
 }
 

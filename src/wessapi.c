@@ -312,7 +312,7 @@ int wess_load_module(char *wmd_filename,
     //int setting, flag, flag2;
     int decomp_type;
 
-    //PRINTF_D(WHITE, "WMD::module_loaded %d", module_loaded);
+    //D_printf("WMD::module_loaded %d\n", module_loaded);
 
     if (module_loaded)
     {
@@ -322,7 +322,7 @@ int wess_load_module(char *wmd_filename,
     //num_sd = get_num_Wess_Sound_Drivers(settings_tag_lists);
     //printf("num_sd %d\n", num_sd);
 
-    //PRINTF_D(WHITE, "WMD::memory_pointer %x", &memory_pointer);
+    //D_printf("WMD::memory_pointer %x\n", &memory_pointer);
 
     if (memory_pointer == NULL)
     {
@@ -341,14 +341,14 @@ int wess_load_module(char *wmd_filename,
 
     wmd_size = memory_allowance;
 
-    //PRINTF_D(WHITE, "WMD::wmd_mem %x", &wmd_mem);
-    //PRINTF_D(WHITE, "WMD::wmd_size %d", wmd_size);
+    //D_printf("WMD::wmd_mem %x\n", &wmd_mem);
+    //D_printf("WMD::wmd_size %d\n", wmd_size);
 
     zeroset(wmd_mem, wmd_size);
 
     if (!Is_System_Active())
     {
-        //PRINTF_D(WHITE, "WMD::Is_System_Active no activo");
+        //D_printf("WMD::Is_System_Active no activo\n");
         free_mem_if_mine();
         return (module_loaded);
     }
@@ -361,13 +361,13 @@ int wess_load_module(char *wmd_filename,
 
     if (!(fp_wmd_file = module_open(wmd_filename)))
     {
-        //PRINTF_D(WHITE, "WMD::fp_wmd_file %s Error al abrir", fp_wmd_file);
+        //D_printf("WMD::fp_wmd_file %s Error al abrir\n", fp_wmd_file);
         I_Error("FOPEN");
         free_mem_if_mine();
         return (module_loaded);
     }
 
-    //PRINTF_D(WHITE, "WMD::fp_wmd_file %s", fp_wmd_file);
+    //D_printf("WMD::fp_wmd_file %s\n", fp_wmd_file);
 
 
 
@@ -417,13 +417,13 @@ int wess_load_module(char *wmd_filename,
         return(0);
     }
 
-    //PRINTF_D(WHITE, "WMD::mod_hdr");
-    //PRINTF_D(WHITE, "WMD::module_id_text %x",pm_stat->pmod_info->mod_hdr.module_id_text);
-    //PRINTF_D(WHITE, "WMD::module_version %d",pm_stat->pmod_info->mod_hdr.module_version);
-    //PRINTF_D(WHITE, "WMD::sequences %d",pm_stat->pmod_info->mod_hdr.sequences);
-    //PRINTF_D(WHITE, "WMD::decomp_type %d",pm_stat->pmod_info->mod_hdr.decomp_type);
-    //PRINTF_D(WHITE, "WMD::compress_size %d",pm_stat->pmod_info->mod_hdr.compress_size);
-    //PRINTF_D(WHITE, "WMD::data_size %d",pm_stat->pmod_info->mod_hdr.data_size);
+    //D_printf("WMD::mod_hdr\n");
+    //D_printf("WMD::module_id_text %x\n",pm_stat->pmod_info->mod_hdr.module_id_text);
+    //D_printf("WMD::module_version %d\n",pm_stat->pmod_info->mod_hdr.module_version);
+    //D_printf("WMD::sequences %d\n",pm_stat->pmod_info->mod_hdr.sequences);
+    //D_printf("WMD::decomp_type %d\n",pm_stat->pmod_info->mod_hdr.decomp_type);
+    //D_printf("WMD::compress_size %d\n",pm_stat->pmod_info->mod_hdr.compress_size);
+    //D_printf("WMD::data_size %d\n",pm_stat->pmod_info->mod_hdr.data_size);
 
     if ((pm_stat->pmod_info->mod_hdr.module_id_text != WESS_SSSP_TEXT) ||
         (pm_stat->pmod_info->mod_hdr.module_version != WESS_CORE_VERSION))
@@ -441,17 +441,17 @@ int wess_load_module(char *wmd_filename,
         return(0);
     }
 
-    //PRINTF_D(WHITE, "WMD::pat_grp_hdr");
-    //PRINTF_D(WHITE, "WMD::load_flags %d",pm_stat->ppat_info->pat_grp_hdr.load_flags);
-    //PRINTF_D(WHITE, "WMD::patches %d",pm_stat->ppat_info->pat_grp_hdr.patches);
-    //PRINTF_D(WHITE, "WMD::patch_size %d",pm_stat->ppat_info->pat_grp_hdr.patch_size);
-    //PRINTF_D(WHITE, "WMD::patchmaps %d",pm_stat->ppat_info->pat_grp_hdr.patchmaps);
-    //PRINTF_D(WHITE, "WMD::patchmap_size %d",pm_stat->ppat_info->pat_grp_hdr.patchmap_size);
-    //PRINTF_D(WHITE, "WMD::patchinfo %d",pm_stat->ppat_info->pat_grp_hdr.patchinfo);
-    //PRINTF_D(WHITE, "WMD::patchinfo_size %d",pm_stat->ppat_info->pat_grp_hdr.patchinfo_size);
-    //PRINTF_D(WHITE, "WMD::drummaps %d",pm_stat->ppat_info->pat_grp_hdr.drummaps);
-    //PRINTF_D(WHITE, "WMD::drummap_size %d",pm_stat->ppat_info->pat_grp_hdr.drummap_size);
-    //PRINTF_D(WHITE, "WMD::extra_data_size %d",pm_stat->ppat_info->pat_grp_hdr.extra_data_size);
+    //D_printf("WMD::pat_grp_hdr\n");
+    //D_printf("WMD::load_flags %d\n",pm_stat->ppat_info->pat_grp_hdr.load_flags);
+    //D_printf("WMD::patches %d\n",pm_stat->ppat_info->pat_grp_hdr.patches);
+    //D_printf("WMD::patch_size %d\n",pm_stat->ppat_info->pat_grp_hdr.patch_size);
+    //D_printf("WMD::patchmaps %d\n",pm_stat->ppat_info->pat_grp_hdr.patchmaps);
+    //D_printf("WMD::patchmap_size %d\n",pm_stat->ppat_info->pat_grp_hdr.patchmap_size);
+    //D_printf("WMD::patchinfo %d\n",pm_stat->ppat_info->pat_grp_hdr.patchinfo);
+    //D_printf("WMD::patchinfo_size %d\n",pm_stat->ppat_info->pat_grp_hdr.patchinfo_size);
+    //D_printf("WMD::drummaps %d\n",pm_stat->ppat_info->pat_grp_hdr.drummaps);
+    //D_printf("WMD::drummap_size %d\n",pm_stat->ppat_info->pat_grp_hdr.drummap_size);
+    //D_printf("WMD::extra_data_size %d\n",pm_stat->ppat_info->pat_grp_hdr.extra_data_size);
 
 #if _ALIGN8_ == 1
     //force align to word boundary because previous size adjust
@@ -504,7 +504,7 @@ int wess_load_module(char *wmd_filename,
     pm_stat->pseqstattbl = (sequence_status *)pmem;
     pmem += sizeof(*pm_stat->pseqstattbl) * wess_driver_sequences;
 
-    //PRINTF_D(WHITE, "WMD::pseqstattbl %d",sizeof(*pm_stat->pseqstattbl) * wess_driver_sequences);
+    //D_printf("WMD::pseqstattbl %d\n",sizeof(*pm_stat->pseqstattbl) * wess_driver_sequences);
 
     /*
     - allocate and initialize space for
@@ -515,7 +515,7 @@ int wess_load_module(char *wmd_filename,
     pm_stat->ptrkstattbl = (track_status *)pmem;
     pmem += sizeof(*pm_stat->ptrkstattbl) * wess_driver_tracks;
 
-    //PRINTF_D(WHITE, "WMD::ptrkstattbl %d",sizeof(*pm_stat->ptrkstattbl) * wess_driver_tracks);
+    //D_printf("WMD::ptrkstattbl %d\n",sizeof(*pm_stat->ptrkstattbl) * wess_driver_tracks);
 
     /*
     - allocate and initialize space for
@@ -526,7 +526,7 @@ int wess_load_module(char *wmd_filename,
     pm_stat->pvoicestattbl = (voice_status *)pmem;
     pmem += sizeof(*pm_stat->pvoicestattbl) * pm_stat->voices_total;
 
-    //PRINTF_D(WHITE, "WMD::pvoicestattbl %d",sizeof(*pm_stat->pvoicestattbl) * pm_stat->voices_total);
+    //D_printf("WMD::pvoicestattbl %d\n",sizeof(*pm_stat->pvoicestattbl) * pm_stat->voices_total);
 
     /*
     - initialize patch_type parameter for each voice work area.
@@ -553,11 +553,11 @@ int wess_load_module(char *wmd_filename,
     pm_stat->pcalltable = (callback_status *)pmem;
     pmem += sizeof(*pm_stat->pcalltable) * wess_driver_callbacks;
 
-    //PRINTF_D(WHITE, "WMD::pcalltable %d",sizeof(*pm_stat->pcalltable) * wess_driver_callbacks);
+    //D_printf("WMD::pcalltable %d\n",sizeof(*pm_stat->pcalltable) * wess_driver_callbacks);
 
     pm_stat->max_trks_perseq = wess_driver_max_trks_per_seq;
 
-    //PRINTF_D(WHITE, "WMD::max_trks_perseq %d",pm_stat->max_trks_perseq);
+    //D_printf("WMD::max_trks_perseq %d\n",pm_stat->max_trks_perseq);
 
     for (i = 0; i < wess_driver_sequences; i++)
     {
@@ -605,7 +605,7 @@ int wess_load_module(char *wmd_filename,
 
     pm_stat->max_substack_pertrk = wess_driver_max_subs_per_trk;
 
-    //PRINTF_D(WHITE, "WMD::max_substack_pertrk %d",wess_driver_max_subs_per_trk);
+    //D_printf("WMD::max_substack_pertrk %d\n",wess_driver_max_subs_per_trk);
 
     for (i = 0; i < wess_driver_tracks; i++)
     {

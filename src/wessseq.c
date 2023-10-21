@@ -206,36 +206,36 @@ void Eng_DriverInit (track_status *ptk_stat) // 800360C4
 
     pm_stat = (master_status_structure*)ptk_stat;
 
-    //PRINTF_D2(WHITE,0,10,"Eng_DriverInit");
+    //D_printf("Eng_DriverInit\n");
     ntwa = wess_driver_tracks;
     ptsbase = pm_stat->ptrkstattbl;
     pssbase = pm_stat->pseqstattbl;
     pmsbase = pm_stat;
 
-    //PRINTF_D(WHITE,"ntwa %d\n", ntwa);
-    //PRINTF_D(WHITE,"ptsbase %x\n", (int)&ptsbase);
-    //PRINTF_D(WHITE,"pssbase %x\n", (int)&pssbase);
-    //PRINTF_D(WHITE,"pmsbase %x\n", (int)&pmsbase);
+    //D_printf("ntwa %d\n", ntwa);
+    //D_printf("ptsbase %x\n", (int)&ptsbase);
+    //D_printf("pssbase %x\n", (int)&pssbase);
+    //D_printf("pmsbase %x\n", (int)&pmsbase);
 }
 
 void Eng_DriverExit (track_status *ptk_stat) // 800360FC
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_DriverExit");
+    //D_printf("Eng_DriverExit\n");
 }
 
 void Eng_DriverEntry1 (track_status *ptk_stat) // 80036104
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_DriverEntry1");
+    //D_printf("Eng_DriverEntry1\n");
 }
 
 void Eng_DriverEntry2 (track_status *ptk_stat) // 8003610C
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_DriverEntry2");
+    //D_printf("Eng_DriverEntry2\n");
 }
 
 void Eng_DriverEntry3 (track_status *ptk_stat) // 80036114
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_DriverEntry3");
+    //D_printf("Eng_DriverEntry3\n");
 }
 
 void Eng_TrkOff (track_status *ptk_stat) // 8003611C
@@ -244,7 +244,7 @@ void Eng_TrkOff (track_status *ptk_stat) // 8003611C
     static char             *lpdest;//800B663C
     static unsigned long    lj;     //800B6640
 
-    //PRINTF_D2(WHITE,0,10,"Eng_TrkOff");
+    //D_printf("Eng_TrkOff\n");
 
     lpseq = (pmsbase->pseqstattbl + ptk_stat->seq_owner);
 
@@ -288,14 +288,14 @@ void Eng_TrkOff (track_status *ptk_stat) // 8003611C
 
 void Eng_TrkMute (track_status *ptk_stat) // 80036298
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_TrkMute");
+    //D_printf("Eng_TrkMute\n");
 }
 
 void Eng_PatchChg (track_status *ptk_stat) // 800362A0
 {
     static unsigned char thepatch;//800B6644
 
-    //PRINTF_D2(WHITE,0,10,"Eng_PatchChg");
+    //D_printf("Eng_PatchChg\n");
 
     thepatch = (*(ptk_stat->ppos + 1) | (*(ptk_stat->ppos + 2) << 8));
     ptk_stat->patchnum = (unsigned short)thepatch;
@@ -304,14 +304,14 @@ void Eng_PatchChg (track_status *ptk_stat) // 800362A0
 
 void Eng_PatchMod (track_status *ptk_stat) // 800362C8
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_PatchMod");
+    //D_printf("Eng_PatchMod\n");
 }
 
 void Eng_PitchMod (track_status *ptk_stat) // 800362D0
 {
     static short thepitchmod;//800B6646
 
-    //PRINTF_D2(WHITE,0,10,"Eng_PitchMod");
+    //D_printf("Eng_PitchMod\n");
 
     thepitchmod = (*(ptk_stat->ppos + 1) | (*(ptk_stat->ppos + 2) << 8));
     ptk_stat->pitch_cntrl = thepitchmod;
@@ -319,19 +319,19 @@ void Eng_PitchMod (track_status *ptk_stat) // 800362D0
 
 void Eng_ZeroMod (track_status *ptk_stat) // 800362F4
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_ZeroMod");
+    //D_printf("Eng_ZeroMod\n");
 }
 
 void Eng_ModuMod (track_status *ptk_stat) // 800362FC
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_ModuMod");
+    //D_printf("Eng_ModuMod\n");
 }
 
 void Eng_VolumeMod (track_status *ptk_stat) // 80036304
 {
     static unsigned char thevolume; //800B6648
 
-    //PRINTF_D2(WHITE,0,10,"Eng_VolumeMod");
+    //D_printf("Eng_VolumeMod\n");
 
     thevolume = *(ptk_stat->ppos + 1);
     ptk_stat->volume_cntrl = thevolume;
@@ -341,34 +341,34 @@ void Eng_PanMod (track_status *ptk_stat) // 80036320
 {
     static unsigned char thepan; //0x800B6649
 
-    //PRINTF_D2(WHITE,0,10,"Eng_PanMod");
+    //D_printf("Eng_PanMod\n");
     thepan = *(ptk_stat->ppos + 1);
     ptk_stat->pan_cntrl = thepan;
 }
 
 void Eng_PedalMod (track_status *ptk_stat) // 8003633C
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_PedalMod");
+    //D_printf("Eng_PedalMod\n");
 }
 
 void Eng_ReverbMod (track_status *ptk_stat) // 80036344
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_ReverbMod");
+    //D_printf("Eng_ReverbMod\n");
 }
 
 void Eng_ChorusMod (track_status *ptk_stat) // 8003634C
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_ChorusMod");
+    //D_printf("Eng_ChorusMod\n");
 }
 
 void Eng_NoteOn (track_status *ptk_stat) // 80036354
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_NoteOn");
+    //D_printf("Eng_NoteOn\n");
 }
 
 void Eng_NoteOff (track_status *ptk_stat) // 8003635C
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_NoteOff");
+    //D_printf("Eng_NoteOff\n");
 }
 
 void Eng_StatusMark (track_status *ptk_stat) // 80036364
@@ -376,7 +376,7 @@ void Eng_StatusMark (track_status *ptk_stat) // 80036364
     static char si, sn;             //800B664A, 800B664B
     static callback_status *cbs;    //800B664C
 
-    //PRINTF_D2(WHITE,0,10,"Eng_StatusMark");
+    //D_printf("Eng_StatusMark\n");
 
     sn = pmsbase->callbacks_active;
     if (sn)
@@ -411,7 +411,7 @@ void Eng_GateJump (track_status *ptk_stat) // 80036488
     static u8 *laboff;  //800B6654
     static char *pgate;     //800B6658
 
-    //PRINTF_D2(WHITE,0,10,"Eng_GateJump");
+    //D_printf("Eng_GateJump\n");
     pgate = (pssbase + ptk_stat->seq_owner)->pgates + *(ptk_stat->ppos + 1);
 
     if (*pgate != 0)
@@ -442,7 +442,7 @@ void Eng_IterJump (track_status *ptk_stat) // 80036568
     static u8   *laboff;    //800B6660
     static char *piter;     //800B6664
 
-    //PRINTF_D2(WHITE,0,10,"Eng_IterJump");
+    //D_printf("Eng_IterJump\n");
     piter = (pssbase + ptk_stat->seq_owner)->piters + *(ptk_stat->ppos + 1);
 
     if (*piter != 0)
@@ -476,7 +476,7 @@ void Eng_ResetGates (track_status *ptk_stat) // 80036654
     static unsigned char    gi;     //800B6668
     static char             *pgate; //800B666C
 
-    //PRINTF_D2(WHITE,0,10,"Eng_ResetGates");
+    //D_printf("Eng_ResetGates\n");
     if (*(ptk_stat->ppos + 1) == 0xff)
     {
         gi = wess_driver_gates;
@@ -499,7 +499,7 @@ void Eng_ResetIters (track_status *ptk_stat) // 80036720
     static unsigned char    ii;     //800B6670
     static char             *piter; //800B6674
 
-    //PRINTF_D2(WHITE,0,10,"Eng_ResetIters");
+    //D_printf("Eng_ResetIters\n");
     if (*(ptk_stat->ppos + 1) == 0xff)
     {
         ii = wess_driver_iters;
@@ -521,7 +521,7 @@ void Eng_WriteIterBox (track_status *ptk_stat) // 800367EC
 {
     static char *piter;//800B6678
 
-    //PRINTF_D2(WHITE,0,10,"Eng_WriteIterBox");
+    //D_printf("Eng_WriteIterBox\n");
     piter = (pssbase + ptk_stat->seq_owner)->piters + *(ptk_stat->ppos + 1);
     *piter = *(ptk_stat->ppos + 2);
 }
@@ -534,7 +534,7 @@ void Eng_SeqTempo (track_status *ptk_stat) // 8003682C
     static track_status     *ptstemp;       //800B6684
     static sequence_status  *psstemp;       //800B6688
 
-    //PRINTF_D2(WHITE,0,10,"Eng_SeqTempo");
+    //D_printf("Eng_SeqTempo\n");
 
     psstemp = (pssbase + ptk_stat->seq_owner);
     ptindxs = (unsigned char *)psstemp->ptrk_indxs;
@@ -565,7 +565,7 @@ void Eng_SeqGosub (track_status *ptk_stat) // 800369C8
     static track_status     *ptstemp;       //800B669C
     static sequence_status  *psstemp;       //800B66A0
 
-    //PRINTF_D2(WHITE,0,10,"Eng_SeqGosub");
+    //D_printf("Eng_SeqGosub\n");
 
     lindex = (*(ptk_stat->ppos + 1) | (*(ptk_stat->ppos + 2) << 8));
 
@@ -606,7 +606,7 @@ void Eng_SeqJump (track_status *ptk_stat) // 80036B80
     static track_status     *ptstemp;       //800B66B4
     static sequence_status  *psstemp;       //800B66B8
 
-    //PRINTF_D2(WHITE,0,10,"Eng_SeqJump");
+    //D_printf("Eng_SeqJump\n");
 
     lindex = (*(ptk_stat->ppos + 1) | (*(ptk_stat->ppos + 2) << 8));
 
@@ -642,7 +642,7 @@ void Eng_SeqRet (track_status *ptk_stat) // 80036D10
     static track_status     *ptstemp;       //800B66C4
     static sequence_status  *psstemp;       //800B66C8
 
-    //PRINTF_D2(WHITE,0,10,"Eng_SeqRet");
+    //D_printf("Eng_SeqRet\n");
 
     psstemp = (pssbase + ptk_stat->seq_owner);
     ptindxs = (unsigned char *)psstemp->ptrk_indxs;
@@ -673,7 +673,7 @@ void Eng_SeqEnd (track_status *ptk_stat) // 80036E48
     static unsigned char    li;         //800B66D8
     static unsigned long    lj;         //800B66DC
 
-    //PRINTF_D2(WHITE,0,10,"Eng_SeqEnd");
+    //D_printf("Eng_SeqEnd\n");
 
     if (ptk_stat->flags & TRK_HANDLED)
     {
@@ -721,7 +721,7 @@ void Eng_SeqEnd (track_status *ptk_stat) // 80036E48
 
 void Eng_TrkTempo (track_status *ptk_stat) // 800370D8
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_TrkTempo");
+    //D_printf("Eng_TrkTempo\n");
     ptk_stat->qpm = *(ptk_stat->ppos + 1) | (*(ptk_stat->ppos + 2) << 8);
     ptk_stat->ppi = CalcPartsPerInt(GetIntsPerSec(), ptk_stat->ppq, ptk_stat->qpm);
 }
@@ -730,7 +730,7 @@ void Eng_TrkGosub (track_status *ptk_stat) // 8003713C
 {
     unsigned int position;
 
-    //PRINTF_D2(WHITE,0,10,"Eng_TrkGosub");
+    //D_printf("Eng_TrkGosub\n");
 
     position = (unsigned int)(*(ptk_stat->ppos + 1) | (*(ptk_stat->ppos + 2) << 8));
     if ((position >= 0) && (position < ptk_stat->labellist_count))
@@ -747,7 +747,7 @@ void Eng_TrkJump (track_status *ptk_stat) // 800371C4
 {
     unsigned int position;
 
-    //PRINTF_D2(WHITE,0,10,"Eng_TrkJump");
+    //D_printf("Eng_TrkJump\n");
 
     position = (unsigned int)(*(ptk_stat->ppos + 1) | (*(ptk_stat->ppos + 2) << 8));
     if ((position >= 0) && (position < ptk_stat->labellist_count))
@@ -760,7 +760,7 @@ void Eng_TrkJump (track_status *ptk_stat) // 800371C4
 
 void Eng_TrkRet (track_status *ptk_stat) // 80037230
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_TrkRet");
+    //D_printf("Eng_TrkRet\n");
     ptk_stat->psp--;
     ptk_stat->ppos = (unsigned char*)ptk_stat->psp;
     ptk_stat->ppos = (u8*) Read_Vlq((char*) ptk_stat->ppos, &ptk_stat->deltatime);
@@ -770,7 +770,7 @@ void Eng_TrkRet (track_status *ptk_stat) // 80037230
 
 void Eng_TrkEnd (track_status *ptk_stat) // 8003728C
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_TrkEnd");
+    //D_printf("Eng_TrkEnd\n");
 
     if (ptk_stat->flags & TRK_HANDLED)
     {
@@ -803,7 +803,7 @@ void Eng_TrkEnd (track_status *ptk_stat) // 8003728C
 
 void Eng_NullEvent (track_status *ptk_stat) // 800373A4
 {
-    //PRINTF_D2(WHITE,0,10,"Eng_NullEvent");
+    //D_printf("Eng_NullEvent\n");
 }
 
 void SeqEngine(void) // 800373AC
@@ -814,11 +814,11 @@ void SeqEngine(void) // 800373AC
     static u8               *nn;    //800B66EC
 
     //track_status *ptrkstattbl;
-    //PRINTF_D2(WHITE,0,9,"SeqEngine %d\n",SeqOn);
+    //D_printf("SeqEngine %d\n",SeqOn);
 
     na = pmsbase->trks_active;
-    //PRINTF_D2(WHITE,0,4,"trks_active %d",na);
-    //PRINTF_D2(WHITE,0,5,"ptsbase->patchtype %d",ptsbase->patchtype);
+    //D_printf("trks_active %d\n",na);
+    //D_printf("ptsbase->patchtype %d\n",ptsbase->patchtype);
 
     if (na)
     {

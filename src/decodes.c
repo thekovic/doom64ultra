@@ -393,7 +393,7 @@ void DecodeD64(unsigned char* input, unsigned char* output) // 8002DFA0
     unsigned shiftPos;
     byte *window;
 
-    //PRINTF_D2(WHITE, 0, 15, "DecodeD64");
+    //D_printf("DecodeD64\n");
 
     InitTables();
 
@@ -483,7 +483,7 @@ void DecodeD64(unsigned char* input, unsigned char* output) // 8002DFA0
         dec_byte = StartDecodeByte();
     }
 
-    //PRINTF_D2(WHITE, 0, 21, "DecodeD64:End");
+    //D_printf("DecodeD64:End\n");
 }
 
 /*

@@ -116,8 +116,8 @@ void process_function_queue(void) // 80035E38
     char *func;
     int i;
 
-    //PRINTF_D2(WHITE,0,10,"process_function_queue");
-    //PRINTF_D2(WHITE,0,11,"func_num %d",func_num);
+    //D_printf("process_function_queue\n");
+    //D_printf("func_num %d\n",func_num);
 
     func_num_arr = 0;
 
@@ -127,7 +127,7 @@ void process_function_queue(void) // 80035E38
     func = queue_data_mem.function;
     for (i = 0; i < func_num; i++)
     {
-        //PRINTF_D(WHITE,"*func %d",*func);
+        //D_printf("*func %d\n",*func);
         FuncQueueArr[(int)(*func)]();
         func++;
     }

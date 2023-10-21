@@ -59,7 +59,7 @@ void Z_Init (void) // 8002C8F0
     mainzone = Z_InitZone(MAIN_HEAP_START + bumpsize,
                           MAIN_HEAP_END() - MAIN_HEAP_START - bumpsize);
 
-    //PRINTF_D2(WHITE, 0, 25, "%d", (u32)size);
+    //D_printf("%d\n", (u32)size);
     //while(1){}
 }
 
