@@ -1,10 +1,15 @@
 
+#include "seqload.h"
 #include "wessapi.h"
 #include "wessarc.h"
 #include "wessint_s.h"
 
 extern void SeqEngine(void);
 extern void process_function_queue(void);
+
+extern patches_header          *patchesbase;
+extern patchmaps_header        *patchmapsbase;
+extern patchinfo_header        *samplesbase;
 
 #ifndef NOUSEWESSCODE
 extern void(*DrvFunctions[36])(track_status *);
@@ -235,6 +240,35 @@ int data_read(Wess_Data_IO_Struct *fileptr, void *destptr, int readbytes, int fi
 void data_close(Wess_Data_IO_Struct *fileptr) // 800355F8
 {
     return;
+}
+
+SEC_STARTUP s32 get_max_sfx_pitch(void)
+{
+    int i, seqcount;
+    sequence_data *seq;
+    track_header *track;
+    short sid;
+    master_status_structure *pm_stat_ptr;
+    s32 pitch = MININT;
+
+    pm_stat_ptr = (master_status_structure *)wess_get_master_status();
+    seqcount = wess_seq_loader_count();
+
+    for (i = 0; i < seqcount; i++)
+    {
+        seq = &pm_stat_ptr->pmod_info->pseq_info[i];
+        if (seq->seq_hdr.tracks == 1)
+        {
+            track = seq->ptrk_info[0].trk_hdr;
+            if (track->voices_type == 0)
+            {
+                sid = patchmapsbase[patchesbase[track->initpatchnum].patchmap_idx].sample_id;
+                pitch = MAX(pitch, samplesbase[sid].pitch);
+            }
+        }
+    }
+
+    return pitch;
 }
 
 static unsigned char sequence_table[128]; // 800B4220

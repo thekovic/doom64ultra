@@ -124,6 +124,8 @@ extern void wess_set_tweaks(WessTweakAttr *attr) SEC_STARTUP;
 
 extern void wess_get_tweaks(WessTweakAttr *attr) SEC_STARTUP;
 
+extern void wess_base_init(void *wdd) SEC_STARTUP;
+
 
     /*
         wess_init - Initializes the Williams Entertainment Sound System.
@@ -165,7 +167,6 @@ typedef struct WessConfig {     /* see wess_init function for more info */
     u32       outputsamplerate; /* the output samplerate to calculate */
     u32       maxACMDSize;      /* the size of the audio command list buffers */
     ALHeap   *heap_ptr;         /* audio heap pointer */
-    char     *wdd_location;     /* cart location of wdd file */
     s32       reverb_id;        /* choose from WESS_REVERB defines */
     s32      *revtbl_ptr;       /* reverb table pointer (used if reverb_id == WESS_REVERB_CUSTOM */
 } WessConfig;

@@ -443,6 +443,7 @@ extern void wess_enable(void);
 extern void wess_disable(void);
 extern int wess_decomp(unsigned char decomp_type, char *fileref, unsigned long file_offset, char *ramdest, unsigned long uncompressed_size) SEC_STARTUP;
 
+extern s32 get_max_sfx_pitch(void);
 
 extern long WessInterruptHandler(void);
 

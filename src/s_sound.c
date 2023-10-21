@@ -41,8 +41,10 @@ void S_Init(void) // 80029590
     u8* const audio_heap = AUDIO_HEAP_END(); //int loaded;
     int modulesize;
     int seqsize, seqtblsize;
+    int seqcount;
     char *moduleptr;
     char *seqptr, *seqtblptr;
+    s32 maxsfxpitch;
 
     WessTweakAttr tweak;
     WessConfig wess_config;
@@ -52,38 +54,12 @@ void S_Init(void) // 80029590
 
     alHeapInit(&sys_aheap, audio_heap, AUDIO_HEAP_MAX_SIZE());
 
-    //D_printf("base %x\n", (int)&sys_aheap.base);
-    //D_printf("cur %x\n", (int)&sys_aheap.cur);
-    //D_printf("len %d\n", sys_aheap.len);
-    //D_printf("count %d\n", sys_aheap.count);
+    wess_base_init(_doom64_wddSegmentRomStart);
 
-    /* tweak audio */
-    wess_get_tweaks(&tweak);
-
-    tweak.mask = TWEAK_DMA_BUFFERS | TWEAK_DMA_MESSAGES | TWEAK_DMA_BUFFER_LENGTH;
-    tweak.dma_buffers = 40;
-    tweak.dma_messages = 56;
-    tweak.dma_buffer_length = 0x600;
-    wess_set_tweaks(&tweak);
-
-    /* init audio */
-    wess_config.heap_ptr = &sys_aheap;
-    wess_config.outputsamplerate = 22050;
-    wess_config.maxACMDSize = 1024 * 3;
-    wess_config.wdd_location = _doom64_wddSegmentRomStart;
-    wess_config.reverb_id = WESS_REVERB_BIGROOM;
-    wess_config.revtbl_ptr = 0;
-    wess_config.audioframerate = (f32)SYS_FRAMES_PER_SEC;
-
-    wess_init(&wess_config);
-
-    //D_printf("heap_ptr %x\n", (int)&wess_config.heap_ptr);
-    //D_printf("outputsamplerate %d\n", wess_config.outputsamplerate);
-    //D_printf("maxACMDSize %d\n", wess_config.maxACMDSize);
-    //D_printf("wdd_location %x\n", (int)&wess_config.wdd_location);
-    //D_printf("reverb_id %d\n", wess_config.reverb_id);
-    //D_printf("revtbl_ptr %d\n", wess_config.revtbl_ptr);
-    //D_printf("audioframerate %f\n", (f32)wess_config.audioframerate);
+    //D_printf("base %08lx\n", (u32)&sys_aheap.base);
+    //D_printf("cur %08lx\n", (u32)&sys_aheap.cur);
+    //D_printf("len %ld\n", sys_aheap.len);
+    //D_printf("count %ld\n", sys_aheap.count);
 
     // now we load the .wmd image into a temporary ram space
     modulesize = wess_size_module(_doom64_wmdSegmentRomStart);
@@ -96,7 +72,6 @@ void S_Init(void) // 80029590
     wess_load_module(_doom64_wmdSegmentRomStart, moduleptr, modulesize);
     //D_printf("loaded %d\n", loaded);
 
-
     seqtblsize = wess_seq_loader_sizeof(wess_get_master_status(), _doom64_wsdSegmentRomStart);
     seqtblsize = ALIGN(seqtblsize, 16);
     seqtblptr = alHeapAlloc(&sys_aheap, 1, seqtblsize);
@@ -106,7 +81,8 @@ void S_Init(void) // 80029590
     //this call may result in decompression callbacks
     wess_seq_loader_init(wess_get_master_status(), _doom64_wsdSegmentRomStart, NoOpenSeqHandle, seqtblptr, seqtblsize);
 
-    seqsize = wess_seq_range_sizeof(0, wess_seq_loader_count());
+    seqcount = wess_seq_loader_count();
+    seqsize = wess_seq_range_sizeof(0, seqcount);
     seqtblsize = ALIGN(seqsize, 16);
     seqptr = alHeapAlloc(&sys_aheap, 1, seqsize);
 
@@ -114,7 +90,35 @@ void S_Init(void) // 80029590
     //D_printf("seqptr %x\n", (int)&seqptr);
 
     //this call may result in decompression callbacks
-    wess_seq_range_load(0, wess_seq_loader_count(), seqptr);
+    wess_seq_range_load(0, seqcount, seqptr);
+
+    maxsfxpitch = get_max_sfx_pitch();
+
+    /* tweak audio */
+    wess_get_tweaks(&tweak);
+
+    tweak.mask = TWEAK_DMA_BUFFERS | TWEAK_DMA_MESSAGES | TWEAK_DMA_BUFFER_LENGTH;
+    tweak.dma_buffers = maxsfxpitch >= 0 ? 80 : 40;
+    tweak.dma_messages = 56;
+    tweak.dma_buffer_length = 0x600;
+    wess_set_tweaks(&tweak);
+
+    /* init audio */
+    wess_config.heap_ptr = &sys_aheap;
+    wess_config.outputsamplerate = maxsfxpitch >= 1200 ? 44100 : 22050;
+    wess_config.maxACMDSize = 1024 * 3;
+    wess_config.reverb_id = WESS_REVERB_BIGROOM;
+    wess_config.revtbl_ptr = 0;
+    wess_config.audioframerate = (f32)SYS_FRAMES_PER_SEC;
+
+    //D_printf("heap_ptr %x\n", (int)&wess_config.heap_ptr);
+    //D_printf("outputsamplerate %lu\n", wess_config.outputsamplerate);
+    //D_printf("maxACMDSize %lu\n", wess_config.maxACMDSize);
+    //D_printf("reverb_id %ld\n", wess_config.reverb_id);
+    //D_printf("revtbl_ptr %08lx\n", (u32)wess_config.revtbl_ptr);
+    //D_printf("audioframerate %f\n", (f32)wess_config.audioframerate);
+
+    wess_init(&wess_config);
 
 #ifdef DEBUG_MEM
     alHeapCheck(&sys_aheap);
