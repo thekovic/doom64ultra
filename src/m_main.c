@@ -1835,6 +1835,7 @@ int M_MenuTicker(void) // 80007E0C
                     players[0].mo->health = MAXHEALTH;
                     if (players[0].playerstate == PST_DEAD)
                     {
+                        players[0].pitch = 0;
                         players[0].viewheight = VIEWHEIGHT;
                         players[0].mo->flags
                             = (players[0].mo->flags|MF_SOLID|MF_SHOOTABLE)
